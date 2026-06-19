@@ -1,6 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import type { User } from "@supabase/supabase-js";
 import {
   type Pooja,
   languages,
@@ -8,10 +10,15 @@ import {
   formatINR,
   getSamagriKitPrice,
 } from "@/lib/poojas";
+import { createClient } from "@/lib/supabase/client";
+import { payWithRazorpay } from "@/lib/razorpay-client";
 
 export default function BookingForm({ pooja }: { pooja: Pooja }) {
   const kitPrice = getSamagriKitPrice(pooja);
+  const supabase = useMemo(() => createClient(), []);
+  const router = useRouter();
 
+  const [user, setUser] = useState<User | null>(null);
   const [date, setDate] = useState("");
   const [slot, setSlot] = useState("");
   const [language, setLanguage] = useState("Hindi");
@@ -20,15 +27,83 @@ export default function BookingForm({ pooja }: { pooja: Pooja }) {
   const [addKit, setAddKit] = useState(true);
   const [notes, setNotes] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [paid, setPaid] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => setUser(data.user));
+  }, [supabase]);
 
   const today = new Date().toISOString().split("T")[0];
   const total = pooja.startingPrice + (addKit ? kitPrice : 0);
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    // Backend (login + payment) is wired up in a later step.
-    // For now we confirm the details have been captured.
-    setSubmitted(true);
+    setError(null);
+
+    // Login is mandatory before booking.
+    if (!user) {
+      router.push(`/login?next=/poojas/${pooja.slug}`);
+      return;
+    }
+
+    setBusy(true);
+    try {
+      const res = await fetch("/api/bookings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          poojaSlug: pooja.slug,
+          bookingDate: date,
+          timeSlot: slot,
+          language,
+          address,
+          city,
+          notes,
+          samagriKit: addKit,
+        }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error ?? "Could not create your booking.");
+      }
+
+      const data = (await res.json()) as {
+        bookingId: string;
+        razorpay: { orderId: string; amount: number; keyId?: string } | null;
+      };
+
+      // Razorpay not configured yet → capture booking, confirm offline.
+      if (!data.razorpay) {
+        setPaid(false);
+        setSubmitted(true);
+        return;
+      }
+
+      const result = await payWithRazorpay(
+        data.razorpay,
+        {
+          name: user.user_metadata?.full_name as string | undefined,
+          email: user.email ?? undefined,
+          contact: user.phone ?? undefined,
+        },
+        `BookMyPoojari — ${pooja.name}`,
+      );
+
+      if (!result.ok) {
+        setError(result.error ?? "Payment failed.");
+        return;
+      }
+
+      setPaid(true);
+      setSubmitted(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong.");
+    } finally {
+      setBusy(false);
+    }
   }
 
   if (submitted) {
@@ -37,13 +112,22 @@ export default function BookingForm({ pooja }: { pooja: Pooja }) {
         <div className="text-center">
           <div className="text-4xl">🙏</div>
           <h3 className="mt-3 font-heading text-xl text-maroon-700">
-            Booking details captured
+            {paid ? "Booking confirmed" : "Booking received"}
           </h3>
           <p className="mt-2 text-sm text-foreground/65">
-            We&apos;ve noted your request for <strong>{pooja.name}</strong> on{" "}
-            <strong>{date || "your chosen date"}</strong>. The next steps —
-            secure login and payment — are being set up. Our team will confirm
-            your Pandit shortly.
+            {paid ? (
+              <>
+                Your payment was successful and your <strong>{pooja.name}</strong>{" "}
+                on <strong>{date || "your chosen date"}</strong> is confirmed.
+                We&apos;ll assign your Pandit and reach out shortly.
+              </>
+            ) : (
+              <>
+                We&apos;ve recorded your request for <strong>{pooja.name}</strong>{" "}
+                on <strong>{date || "your chosen date"}</strong>. Our team will
+                confirm your Pandit and payment shortly.
+              </>
+            )}
           </p>
         </div>
         <dl className="mt-5 space-y-2 border-t border-saffron-50 pt-4 text-sm">
@@ -203,20 +287,33 @@ export default function BookingForm({ pooja }: { pooja: Pooja }) {
       </div>
 
       <div className="mt-5 flex items-center justify-between border-t border-saffron-50 pt-4">
-        <span className="text-sm text-foreground/60">Estimated total</span>
+        <span className="text-sm text-foreground/60">Total payable</span>
         <span className="font-heading text-xl text-saffron-700">
           {formatINR(total)}
         </span>
       </div>
 
+      {error && (
+        <p className="mt-4 rounded-xl bg-maroon-50 px-3 py-2 text-sm text-maroon-700">
+          {error}
+        </p>
+      )}
+
       <button
         type="submit"
-        className="mt-4 w-full rounded-full bg-saffron-600 py-3 text-base font-semibold text-white shadow-sm transition-colors hover:bg-saffron-700"
+        disabled={busy}
+        className="mt-4 w-full rounded-full bg-saffron-600 py-3 text-base font-semibold text-white shadow-sm transition-colors hover:bg-saffron-700 disabled:opacity-60"
       >
-        Continue to book
+        {busy
+          ? "Processing…"
+          : user
+            ? `Pay ${formatINR(total)} & confirm`
+            : "Sign in to book"}
       </button>
       <p className="mt-3 text-center text-xs text-foreground/50">
-        You won&apos;t be charged yet. We&apos;ll confirm your Pandit first.
+        {user
+          ? "Secure payment via Razorpay. Cancel anytime before confirmation."
+          : "You'll be asked to sign in first. Secure payment via Razorpay."}
       </p>
     </form>
   );

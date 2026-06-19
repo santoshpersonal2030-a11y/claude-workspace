@@ -110,3 +110,69 @@ export async function getPoojaSlugs(): Promise<string[]> {
   }
 }
 
+// ── Samagri store products ────────────────────────────────────────────────
+
+type ProductRow = Database["public"]["Tables"]["products"]["Row"];
+
+export type StoreProduct = {
+  slug: string;
+  name: string;
+  description: string | null;
+  price: number;
+  mrp: number | null;
+  category: string | null;
+  imageUrl: string | null;
+  stock: number;
+};
+
+function rowToProduct(row: ProductRow): StoreProduct {
+  return {
+    slug: row.slug,
+    name: row.name,
+    description: row.description,
+    price: row.price,
+    mrp: row.mrp,
+    category: row.category,
+    imageUrl: row.image_url,
+    stock: row.stock,
+  };
+}
+
+// All active products. Products live only in the database (no seed), so on a
+// network failure this returns an empty list rather than throwing.
+export async function getProducts(): Promise<StoreProduct[]> {
+  try {
+    const { data, error } = await db
+      .from("products")
+      .select("*")
+      .eq("active", true)
+      .order("category", { ascending: true })
+      .order("price", { ascending: true });
+
+    if (error) throw error;
+    return (data ?? []).map(rowToProduct);
+  } catch (err) {
+    console.warn("getProducts: returning empty list —", err);
+    return [];
+  }
+}
+
+export async function getProductBySlug(
+  slug: string,
+): Promise<StoreProduct | null> {
+  try {
+    const { data, error } = await db
+      .from("products")
+      .select("*")
+      .eq("slug", slug)
+      .eq("active", true)
+      .maybeSingle();
+
+    if (error) throw error;
+    return data ? rowToProduct(data) : null;
+  } catch (err) {
+    console.warn("getProductBySlug: returning null —", err);
+    return null;
+  }
+}
+

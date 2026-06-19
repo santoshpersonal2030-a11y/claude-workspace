@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Marcellus, Mukta } from "next/font/google";
 import "./globals.css";
+import Providers from "./providers";
 
 const heading = Marcellus({
   weight: "400",
@@ -48,7 +49,9 @@ export default function RootLayout({
       lang="en"
       className={`${heading.variable} ${body.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <Providers>{children}</Providers>
+      </body>
     </html>
   );
 }
