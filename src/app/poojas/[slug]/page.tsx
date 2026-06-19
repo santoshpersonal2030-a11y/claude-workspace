@@ -4,15 +4,15 @@ import { notFound } from "next/navigation";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import BookingForm from "@/components/BookingForm";
-import {
-  poojas,
-  getPoojaBySlug,
-  getIncludes,
-  formatINR,
-} from "@/lib/poojas";
+import { getIncludes, formatINR } from "@/lib/poojas";
+import { getPoojaBySlug, getPoojaSlugs } from "@/lib/queries";
 
-export function generateStaticParams() {
-  return poojas.map((p) => ({ slug: p.slug }));
+// Re-fetch from the database at most once every 5 minutes.
+export const revalidate = 300;
+
+export async function generateStaticParams() {
+  const slugs = await getPoojaSlugs();
+  return slugs.map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({
@@ -21,7 +21,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const pooja = getPoojaBySlug(slug);
+  const pooja = await getPoojaBySlug(slug);
   if (!pooja) return { title: "Pooja not found" };
   return {
     title: `Book ${pooja.name} — Verified Pandit`,
@@ -35,7 +35,7 @@ export default async function PoojaDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const pooja = getPoojaBySlug(slug);
+  const pooja = await getPoojaBySlug(slug);
   if (!pooja) notFound();
 
   const includes = getIncludes(pooja);

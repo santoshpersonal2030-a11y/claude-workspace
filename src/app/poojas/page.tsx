@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import PoojaList from "@/components/PoojaList";
-import { poojas } from "@/lib/poojas";
+import { getPoojas } from "@/lib/queries";
 
 export const metadata: Metadata = {
   title: "Book a Pooja — All Ceremonies",
@@ -10,7 +10,12 @@ export const metadata: Metadata = {
     "Browse and book verified Pandits for Satyanarayan Katha, Griha Pravesh, Lakshmi Puja, Navagraha Shanti and more. Transparent pricing, your language, on time.",
 };
 
-export default function PoojasPage() {
+// Re-fetch the catalog from the database at most once every 5 minutes.
+export const revalidate = 300;
+
+export default async function PoojasPage() {
+  const poojas = await getPoojas();
+
   return (
     <>
       <Header />

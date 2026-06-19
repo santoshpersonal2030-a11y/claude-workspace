@@ -1,7 +1,11 @@
 import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { popularPoojas, formatINR } from "@/lib/poojas";
+import { formatINR } from "@/lib/poojas";
+import { getPopularPoojas } from "@/lib/queries";
+
+// Re-fetch popular poojas from the database at most once every 5 minutes.
+export const revalidate = 300;
 
 const trustStats = [
   { value: "500+", label: "Verified Pandits" },
@@ -56,7 +60,9 @@ const reasons = [
   },
 ];
 
-export default function Home() {
+export default async function Home() {
+  const popularPoojas = await getPopularPoojas();
+
   return (
     <>
       <Header />

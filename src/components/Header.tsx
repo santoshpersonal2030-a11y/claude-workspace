@@ -1,4 +1,5 @@
 import Link from "next/link";
+import HeaderAuth from "@/components/HeaderAuth";
 
 const navLinks = [
   { href: "/poojas", label: "Book a Pooja" },
@@ -37,7 +38,8 @@ export default function Header() {
           ))}
         </nav>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-4">
+          <HeaderAuth />
           <Link
             href="/poojas"
             className="rounded-full bg-saffron-600 px-5 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-saffron-700"
