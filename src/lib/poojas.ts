@@ -10,6 +10,9 @@ export type Pooja = {
   shortDescription: string;
   durationHours: number;
   startingPrice: number; // in INR, the dakshina/service starting price
+  samagriKitPrice?: number; // optional add-on samagri kit price (INR)
+  longDescription?: string;
+  includes?: string[];
   popular?: boolean;
 };
 
@@ -153,6 +156,59 @@ export const poojas: Pooja[] = [
 ];
 
 export const popularPoojas = poojas.filter((p) => p.popular);
+
+export const poojaCategories = [
+  "Home",
+  "Festival",
+  "Life Event",
+  "Remedial",
+  "Ancestral",
+] as const;
+
+// Languages a Pandit can be requested in.
+export const languages = [
+  "Hindi",
+  "Sanskrit",
+  "Marathi",
+  "Gujarati",
+  "Tamil",
+  "Telugu",
+  "Kannada",
+  "Bengali",
+  "Odia",
+  "Malayalam",
+];
+
+// Default morning/evening slots offered for bookings.
+export const timeSlots = [
+  "06:00 AM – 08:00 AM",
+  "08:00 AM – 10:00 AM",
+  "10:00 AM – 12:00 PM",
+  "12:00 PM – 02:00 PM",
+  "04:00 PM – 06:00 PM",
+  "06:00 PM – 08:00 PM",
+];
+
+export function getPoojaBySlug(slug: string): Pooja | undefined {
+  return poojas.find((p) => p.slug === slug);
+}
+
+// What every booking includes, unless a pooja overrides it with its own list.
+export function getIncludes(pooja: Pooja): string[] {
+  if (pooja.includes && pooja.includes.length > 0) return pooja.includes;
+  return [
+    "Verified, experienced Pandit at your location",
+    "All rituals performed as per Vedic tradition",
+    "Pandit speaks your preferred language",
+    "Guidance on the muhurat (auspicious time)",
+    "Optional authentic samagri kit, delivered to your door",
+  ];
+}
+
+// The price of the optional samagri kit for a pooja (sensible default).
+export function getSamagriKitPrice(pooja: Pooja): number {
+  return pooja.samagriKitPrice ?? 751;
+}
 
 export function formatINR(amount: number): string {
   return new Intl.NumberFormat("en-IN", {
