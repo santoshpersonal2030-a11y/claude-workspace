@@ -1,0 +1,64 @@
+@import "tailwindcss";
+
+/*
+  BookMyPoojari design system
+  A warm, devotional palette: saffron, marigold gold, deep maroon, and cream.
+*/
+
+:root {
+  --background: #fffaf3;
+  --foreground: #2b1b12;
+}
+
+@theme {
+  /* Brand colors */
+  --color-saffron-50: #fff6ec;
+  --color-saffron-100: #ffe9d2;
+  --color-saffron-200: #ffcfa1;
+  --color-saffron-300: #ffae66;
+  --color-saffron-400: #fb8a2e;
+  --color-saffron-500: #ee6c0a;
+  --color-saffron-600: #d4540a;
+  --color-saffron-700: #b03e0d;
+  --color-saffron-800: #8c3212;
+  --color-saffron-900: #722a12;
+
+  --color-maroon-600: #8a2422;
+  --color-maroon-700: #6f1d1c;
+  --color-maroon-800: #571817;
+
+  --color-gold-400: #e0b455;
+  --color-gold-500: #c8983a;
+  --color-gold-600: #a87c28;
+
+  --color-cream: #fffaf3;
+  --color-cream-100: #fdf1e1;
+  --color-cream-200: #f8e3c9;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --font-heading: var(--font-heading);
+  --font-sans: var(--font-body);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-body), system-ui, sans-serif;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-heading), Georgia, serif;
+}
+
+/* Subtle decorative gradient used in hero/sections */
+.bg-temple-gradient {
+  background:
+    radial-gradient(1200px 500px at 50% -10%, rgba(238, 108, 10, 0.10), transparent 60%),
+    linear-gradient(180deg, #fff6ec 0%, #fffaf3 40%, #fffaf3 100%);
+}
+
+.text-balance {
+  text-wrap: balance;
+}
