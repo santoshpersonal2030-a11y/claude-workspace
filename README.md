@@ -11,6 +11,7 @@ marketplace combined with an e-commerce store.
 | Framework | **Next.js 16** (App Router, TypeScript) | ✅ Set up |
 | Styling | **Tailwind CSS 4** | ✅ Set up |
 | Database / Auth / Storage | **Supabase** (Postgres) | ⏳ Planned |
+| Login (mandatory) | **Phone OTP (2Factor.in)** + **Google** | ⏳ Planned |
 | Payments | **Razorpay** (UPI, cards, netbanking) | ⏳ Planned |
 | Notifications | **Twilio** (WhatsApp / SMS) | ⏳ Planned |
 | Hosting | **Vercel** | ⏳ Planned |

@@ -37,7 +37,7 @@ delivered to their door. It combines a **service marketplace** with an
 - [ ] Samagri store (`/store`) + product pages
 - [ ] Cart & checkout
 - [ ] Supabase database (users, poojas, bookings, products, orders, payments)
-- [ ] Authentication (customer accounts)
+- [ ] Authentication — mandatory login: phone OTP (2Factor.in) + Google login
 - [ ] Razorpay payments
 - [ ] Booking confirmation via WhatsApp / SMS / email (Twilio)
 - [ ] Admin dashboard (manage poojas, products, bookings, pandits)
@@ -57,9 +57,27 @@ delivered to their door. It combines a **service marketplace** with an
 - [ ] Subscriptions (monthly temple pooja), corporate / bulk
 - [ ] Mobile app
 
+## 4a. Authentication & data capture (decided)
+
+**Login is mandatory** — every visitor must sign in before booking or ordering,
+so we capture contact details for future marketing / CRM. Two sign-in methods:
+
+1. **Phone OTP** via **2Factor.in** (Indian SMS OTP provider) — user enters
+   mobile number, receives an OTP, verifies. Primary method for India.
+2. **Google login** (OAuth) — one-tap sign-in with a Google account.
+
+Approach: **Supabase Auth** manages sessions and Google OAuth. Because 2Factor.in
+is not a built-in Supabase SMS provider, phone OTP uses a **custom flow**:
+send OTP via the 2Factor.in API → verify → create/sign in the Supabase user.
+
+Every account stores **name, phone, email, sign-in method, and marketing
+consent** in the `profiles` table for future outreach. Capture consent at
+sign-up to stay compliant.
+
 ## 5. Data model (planned)
 
-- **profiles** — customer accounts (linked to Supabase auth)
+- **profiles** — customer accounts (linked to Supabase auth): name, phone,
+  email, sign-in method (OTP / Google), marketing consent, created_at
 - **pandits** — priest profiles, languages, regions, verification, rating
 - **poojas** — catalog of ceremonies (name, description, duration, price)
 - **bookings** — customer + pooja + date/time + location + assigned pandit + status
