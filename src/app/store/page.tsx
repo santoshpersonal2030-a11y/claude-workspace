@@ -15,8 +15,24 @@ export const metadata: Metadata = {
 // Re-fetch products from the database at most once every 5 minutes.
 export const revalidate = 300;
 
-export default async function StorePage() {
-  const products = await getProducts();
+export default async function StorePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ category?: string }>;
+}) {
+  const { category } = await searchParams;
+  const allProducts = await getProducts();
+
+  // Build the category chips from whatever categories are in the catalog.
+  const categories = Array.from(
+    new Set(allProducts.map((p) => p.category).filter(Boolean) as string[]),
+  ).sort();
+
+  const activeCategory =
+    category && categories.includes(category) ? category : null;
+  const products = activeCategory
+    ? allProducts.filter((p) => p.category === activeCategory)
+    : allProducts;
 
   return (
     <>
@@ -40,6 +56,34 @@ export default async function StorePage() {
         </section>
 
         <section className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
+          {categories.length > 0 && (
+            <div className="mb-8 flex flex-wrap gap-2">
+              <Link
+                href="/store"
+                className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
+                  activeCategory
+                    ? "border border-saffron-200 text-saffron-700 hover:bg-saffron-50"
+                    : "bg-saffron-600 text-white"
+                }`}
+              >
+                All
+              </Link>
+              {categories.map((c) => (
+                <Link
+                  key={c}
+                  href={`/store?category=${encodeURIComponent(c)}`}
+                  className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
+                    activeCategory === c
+                      ? "bg-saffron-600 text-white"
+                      : "border border-saffron-200 text-saffron-700 hover:bg-saffron-50"
+                  }`}
+                >
+                  {c}
+                </Link>
+              ))}
+            </div>
+          )}
+
           {products.length === 0 ? (
             <p className="text-center text-foreground/60">
               Our store is being stocked — please check back shortly. 🙏

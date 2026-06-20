@@ -99,3 +99,16 @@ export async function updateOrderStatus(formData: FormData): Promise<void> {
 
   revalidatePath("/admin/bookings");
 }
+
+// ── Contact messages ────────────────────────────────────────────────────────
+
+export async function setMessageHandled(formData: FormData): Promise<void> {
+  await assertAdmin();
+  const admin = createAdminClient();
+
+  const id = str(formData.get("id"));
+  const handled = formData.get("handled") === "true";
+  await admin.from("contact_messages").update({ handled }).eq("id", id);
+
+  revalidatePath("/admin/messages");
+}

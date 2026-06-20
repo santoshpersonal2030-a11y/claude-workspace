@@ -7,6 +7,11 @@ import {
   popularPoojas as seedPopularPoojas,
   getPoojaBySlug as seedPoojaBySlug,
 } from "@/lib/poojas";
+import {
+  type Pandit,
+  pandits as seedPandits,
+  getPanditBySlug as seedPanditBySlug,
+} from "@/lib/pandits";
 
 // Lightweight, cookieless Supabase client for public catalog reads. It carries
 // no user session, so RLS treats it as `anon` (which can read active rows) and
@@ -169,6 +174,78 @@ export async function getProductSlugs(): Promise<string[]> {
   } catch (err) {
     console.warn("getProductSlugs: returning empty list —", err);
     return [];
+  }
+}
+
+// ── Pandits ────────────────────────────────────────────────────────────────
+
+type PanditRow = Database["public"]["Tables"]["pandits"]["Row"];
+
+function rowToPandit(row: PanditRow): Pandit {
+  return {
+    slug: row.slug ?? "",
+    fullName: row.full_name,
+    bio: row.bio ?? "",
+    experienceYears: row.experience_years ?? 0,
+    languages: row.languages,
+    regions: row.regions,
+    rating: Number(row.rating),
+    reviewCount: row.review_count,
+    photoUrl: row.photo_url,
+    verified: row.verified,
+  };
+}
+
+// Active, verified-first pandits, highest rated first. Falls back to the seed
+// roster if the database is unreachable.
+export async function getPandits(): Promise<Pandit[]> {
+  try {
+    const { data, error } = await db
+      .from("pandits")
+      .select("*")
+      .eq("active", true)
+      .not("slug", "is", null)
+      .order("verified", { ascending: false })
+      .order("rating", { ascending: false });
+
+    if (error) throw error;
+    return (data ?? []).map(rowToPandit);
+  } catch (err) {
+    console.warn("getPandits: falling back to seed roster —", err);
+    return seedPandits;
+  }
+}
+
+export async function getPanditBySlug(slug: string): Promise<Pandit | null> {
+  try {
+    const { data, error } = await db
+      .from("pandits")
+      .select("*")
+      .eq("slug", slug)
+      .eq("active", true)
+      .maybeSingle();
+
+    if (error) throw error;
+    return data ? rowToPandit(data) : null;
+  } catch (err) {
+    console.warn("getPanditBySlug: falling back to seed roster —", err);
+    return seedPanditBySlug(slug) ?? null;
+  }
+}
+
+export async function getPanditSlugs(): Promise<string[]> {
+  try {
+    const { data, error } = await db
+      .from("pandits")
+      .select("slug")
+      .eq("active", true)
+      .not("slug", "is", null);
+
+    if (error) throw error;
+    return (data ?? []).map((r) => r.slug as string);
+  } catch (err) {
+    console.warn("getPanditSlugs: falling back to seed roster —", err);
+    return seedPandits.map((p) => p.slug);
   }
 }
 

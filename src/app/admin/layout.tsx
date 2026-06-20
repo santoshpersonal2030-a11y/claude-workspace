@@ -8,6 +8,7 @@ const tabs = [
   { href: "/admin/bookings", label: "Bookings & orders" },
   { href: "/admin/products", label: "Products" },
   { href: "/admin/poojas", label: "Poojas" },
+  { href: "/admin/messages", label: "Messages" },
 ];
 
 export const metadata = { title: "Admin — BookMyPoojari" };

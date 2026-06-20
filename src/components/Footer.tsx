@@ -14,8 +14,8 @@ const columns = [
     title: "Shop",
     links: [
       { href: "/store", label: "Samagri Store" },
-      { href: "/store/kits", label: "Pooja Kits" },
-      { href: "/store/idols", label: "Idols & Murtis" },
+      { href: "/store?category=Puja+Kits", label: "Pooja Kits" },
+      { href: "/store?category=Diyas+%26+Lamps", label: "Diyas & Lamps" },
     ],
   },
   {
