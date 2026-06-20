@@ -251,6 +251,14 @@ export default async function AdminOverviewPage({
             Apply
           </button>
         </form>
+        <a
+          href={`/api/admin/export/gstr1${
+            from || to ? `?from=${from ?? ""}&to=${to ?? ""}` : ""
+          }`}
+          className="rounded-full border border-saffron-300 px-3 py-1 text-xs font-semibold text-saffron-700 hover:bg-saffron-50"
+        >
+          ⬇ GSTR-1 (B2C)
+        </a>
       </div>
 
       {/* Revenue & fulfilment metrics */}

@@ -4,6 +4,8 @@ import { notFound } from "next/navigation";
 import PrintButton from "@/components/PrintButton";
 import BookingReceipt from "@/components/receipts/BookingReceipt";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { invoiceNumber } from "@/lib/invoice";
+import { qrDataUrl, invoiceQrPayload } from "@/lib/qr";
 
 export const metadata = { title: "Booking receipt" };
 
@@ -24,6 +26,13 @@ export default async function AdminBookingInvoicePage({
 
   if (!booking) notFound();
 
+  const qr = await qrDataUrl(
+    invoiceQrPayload(
+      invoiceNumber(booking.invoice_no, booking.invoice_fy, "BKG"),
+      booking.total_amount,
+    ),
+  );
+
   return (
     <div className="mx-auto max-w-2xl">
       <div className="mb-6 flex items-center justify-between print:hidden">
@@ -35,7 +44,7 @@ export default async function AdminBookingInvoicePage({
         </Link>
         <PrintButton />
       </div>
-      <BookingReceipt booking={booking} />
+      <BookingReceipt booking={booking} qrDataUrl={qr} />
     </div>
   );
 }

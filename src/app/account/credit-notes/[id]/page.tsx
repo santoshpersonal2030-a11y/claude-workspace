@@ -4,6 +4,8 @@ import { notFound, redirect } from "next/navigation";
 import PrintButton from "@/components/PrintButton";
 import CreditNote from "@/components/receipts/CreditNote";
 import { createClient } from "@/lib/supabase/server";
+import { invoiceNumber } from "@/lib/invoice";
+import { qrDataUrl, invoiceQrPayload } from "@/lib/qr";
 
 export const metadata = { title: "Credit note" };
 
@@ -29,6 +31,13 @@ export default async function CreditNotePage({
 
   if (!note) notFound();
 
+  const qr = await qrDataUrl(
+    invoiceQrPayload(
+      invoiceNumber(note.invoice_no, note.invoice_fy, "CN"),
+      note.amount,
+    ),
+  );
+
   return (
     <main className="mx-auto max-w-2xl px-6 py-10">
       <div className="mb-6 flex items-center justify-between print:hidden">
@@ -40,7 +49,7 @@ export default async function CreditNotePage({
         </Link>
         <PrintButton />
       </div>
-      <CreditNote note={note} />
+      <CreditNote note={note} qrDataUrl={qr} />
     </main>
   );
 }

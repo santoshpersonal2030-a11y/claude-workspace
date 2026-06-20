@@ -3,6 +3,7 @@ import { COMPANY } from "@/lib/company";
 import { invoiceNumber, isInterState } from "@/lib/invoice";
 import { placeOfSupply } from "@/lib/india";
 import { amountInWords } from "@/lib/amount-in-words";
+import SignatureBlock from "@/components/receipts/SignatureBlock";
 
 export type OrderInvoiceData = {
   invoice_no: number | null;
@@ -30,8 +31,31 @@ export type OrderInvoiceData = {
   }[];
 };
 
-export default function OrderInvoice({ order }: { order: OrderInvoiceData }) {
+export default function OrderInvoice({
+  order,
+  qrDataUrl,
+}: {
+  order: OrderInvoiceData;
+  qrDataUrl?: string | null;
+}) {
   const interState = isInterState(order.state, COMPANY.state);
+
+  // HSN-wise tax summary.
+  const byHsn = new Map<
+    string,
+    { taxable: number; tax: number; total: number; rate: number }
+  >();
+  for (const i of order.order_items) {
+    const rate = Number(i.gst_rate) || 0;
+    const taxable = Math.round(i.line_total / (1 + rate / 100));
+    const key = i.hsn_code ?? "—";
+    const cur = byHsn.get(key) ?? { taxable: 0, tax: 0, total: 0, rate };
+    cur.taxable += taxable;
+    cur.tax += i.line_total - taxable;
+    cur.total += i.line_total;
+    byHsn.set(key, cur);
+  }
+  const hsnRows = [...byHsn.entries()];
   // Back out GST per line (prices are GST-inclusive), grouped by rate.
   const byRate = new Map<number, { taxable: number; gst: number }>();
   for (const i of order.order_items) {
@@ -167,7 +191,38 @@ export default function OrderInvoice({ order }: { order: OrderInvoiceData }) {
         {amountInWords(order.total_amount)}
       </p>
 
-      <p className="mt-6 text-center text-xs text-foreground/50">
+      {/* HSN-wise tax summary */}
+      <div className="mt-6">
+        <div className="text-xs font-medium text-foreground/55">
+          HSN / SAC summary
+        </div>
+        <table className="mt-1 w-full text-xs">
+          <thead>
+            <tr className="border-b border-saffron-100 text-left text-foreground/55">
+              <th className="py-1">HSN</th>
+              <th className="py-1 text-center">Rate</th>
+              <th className="py-1 text-right">Taxable</th>
+              <th className="py-1 text-right">Tax</th>
+              <th className="py-1 text-right">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            {hsnRows.map(([hsn, v]) => (
+              <tr key={hsn} className="border-b border-saffron-50">
+                <td className="py-1">{hsn}</td>
+                <td className="py-1 text-center">{v.rate}%</td>
+                <td className="py-1 text-right">{formatINR(v.taxable)}</td>
+                <td className="py-1 text-right">{formatINR(v.tax)}</td>
+                <td className="py-1 text-right">{formatINR(v.total)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <SignatureBlock qrDataUrl={qrDataUrl} />
+
+      <p className="mt-4 text-center text-xs text-foreground/50">
         Total GST: {formatINR(totalGst)} · Prices inclusive of GST · Status:{" "}
         {order.status}
       </p>

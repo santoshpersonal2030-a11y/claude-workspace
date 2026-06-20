@@ -4,6 +4,8 @@ import { notFound } from "next/navigation";
 import PrintButton from "@/components/PrintButton";
 import OrderInvoice from "@/components/receipts/OrderInvoice";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { invoiceNumber } from "@/lib/invoice";
+import { qrDataUrl, invoiceQrPayload } from "@/lib/qr";
 
 export const metadata = { title: "Order invoice" };
 
@@ -24,6 +26,13 @@ export default async function AdminOrderInvoicePage({
 
   if (!order) notFound();
 
+  const qr = await qrDataUrl(
+    invoiceQrPayload(
+      invoiceNumber(order.invoice_no, order.invoice_fy),
+      order.total_amount,
+    ),
+  );
+
   return (
     <div className="mx-auto max-w-2xl">
       <div className="mb-6 flex items-center justify-between print:hidden">
@@ -35,7 +44,7 @@ export default async function AdminOrderInvoicePage({
         </Link>
         <PrintButton />
       </div>
-      <OrderInvoice order={order} />
+      <OrderInvoice order={order} qrDataUrl={qr} />
     </div>
   );
 }

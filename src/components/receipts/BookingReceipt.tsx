@@ -2,6 +2,7 @@ import { formatINR } from "@/lib/poojas";
 import { invoiceNumber } from "@/lib/invoice";
 import { amountInWords } from "@/lib/amount-in-words";
 import { COMPANY } from "@/lib/company";
+import SignatureBlock from "@/components/receipts/SignatureBlock";
 
 export type BookingReceiptData = {
   invoice_no: number | null;
@@ -32,8 +33,10 @@ function formatDate(value: string) {
 
 export default function BookingReceipt({
   booking,
+  qrDataUrl,
 }: {
   booking: BookingReceiptData;
+  qrDataUrl?: string | null;
 }) {
   return (
     <div className="rounded-2xl border border-saffron-100 p-8">
@@ -106,7 +109,9 @@ export default function BookingReceipt({
         {amountInWords(booking.total_amount)}
       </p>
 
-      <p className="mt-6 text-center text-xs text-foreground/50">
+      <SignatureBlock qrDataUrl={qrDataUrl} />
+
+      <p className="mt-4 text-center text-xs text-foreground/50">
         Religious services are GST-exempt · Status: {booking.status} · Thank you
         for booking with BookMyPoojari
       </p>

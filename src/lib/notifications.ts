@@ -4,6 +4,10 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendEmail, emailLayout } from "@/lib/email";
 import { trackingUrl } from "@/lib/carriers";
+import { simplePdf } from "@/lib/pdf";
+import { invoiceNumber } from "@/lib/invoice";
+import { amountInWords } from "@/lib/amount-in-words";
+import { COMPANY } from "@/lib/company";
 import { formatINR } from "@/lib/poojas";
 
 const siteUrl =
@@ -275,6 +279,71 @@ export async function sendAccountingExport(
     });
   } catch (err) {
     console.error("sendAccountingExport failed:", err);
+  }
+}
+
+export async function sendCreditNoteEmail(params: {
+  orderId: string;
+  userId: string | null;
+  creditNote: {
+    invoice_no: number | null;
+    invoice_fy: number | null;
+    amount: number;
+    reason: string | null;
+  };
+}): Promise<void> {
+  try {
+    if (!params.userId) return;
+    const admin = createAdminClient();
+    const recipient = await emailForUser(admin, params.userId);
+    if (!recipient) return;
+
+    const { data: order } = await admin
+      .from("orders")
+      .select("invoice_no, invoice_fy")
+      .eq("id", params.orderId)
+      .maybeSingle();
+
+    const cn = params.creditNote;
+    const cnNo = invoiceNumber(cn.invoice_no, cn.invoice_fy, "CN");
+    const ordNo = order
+      ? invoiceNumber(order.invoice_no, order.invoice_fy)
+      : "";
+
+    const lines = [
+      COMPANY.name,
+      `GSTIN: ${COMPANY.gstin}`,
+      "",
+      `Credit Note: ${cnNo}`,
+      `Against Invoice: ${ordNo}`,
+      `Date: ${new Date().toLocaleDateString("en-IN")}`,
+      "",
+      `Refund amount: INR ${cn.amount}`,
+      amountInWords(cn.amount),
+      ...(cn.reason ? [`Reason: ${cn.reason}`] : []),
+      "",
+      "Refund processed to your original payment method.",
+    ];
+    const pdf = simplePdf("Credit Note", lines);
+
+    const body = `
+      <p>Hi ${recipient.name}, please find attached your credit note
+      <strong>${cnNo}</strong> for a refund of
+      <strong>${formatINR(cn.amount)}</strong>.</p>`;
+
+    await sendEmail({
+      to: recipient.email,
+      subject: `Credit note ${cnNo}`,
+      html: emailLayout("Credit note", body),
+      attachments: [
+        {
+          filename: `${cnNo.replace(/\//g, "-")}.pdf`,
+          content: pdf.toString("base64"),
+        },
+      ],
+    });
+  } catch (err) {
+    console.error("sendCreditNoteEmail failed:", err);
   }
 }
 

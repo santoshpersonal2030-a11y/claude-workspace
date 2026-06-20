@@ -5,6 +5,14 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { toCsv } from "@/lib/csv";
 import { invoiceNumber } from "@/lib/invoice";
+import { placeOfSupply } from "@/lib/india";
+
+const PAID_ORDER_STATUSES = [
+  "paid",
+  "packed",
+  "shipped",
+  "delivered",
+] as const;
 
 function dayBounds(from?: string | null, to?: string | null) {
   return { from: from || null, to: to ? `${to}T23:59:59` : null };
@@ -105,5 +113,58 @@ export async function buildBookingsCsv(
     b2.assigned?.full_name ?? "",
     b2.total_amount,
   ]);
+  return toCsv(headers, rows);
+}
+
+// GSTR-1 B2C (B2CS) summary: paid-order taxable value & tax aggregated by
+// place of supply (state) and GST rate.
+export async function buildGstr1Csv(
+  from?: string | null,
+  to?: string | null,
+): Promise<string> {
+  const admin = createAdminClient();
+  const b = dayBounds(from, to);
+  let query = admin
+    .from("order_items")
+    .select("line_total, gst_rate, orders!inner(state, status, created_at)")
+    .in("orders.status", PAID_ORDER_STATUSES);
+  if (b.from) query = query.gte("orders.created_at", b.from);
+  if (b.to) query = query.lte("orders.created_at", b.to);
+  const { data } = await query;
+
+  const agg = new Map<
+    string,
+    { state: string; rate: number; taxable: number; tax: number }
+  >();
+  for (const i of data ?? []) {
+    const state = i.orders?.state ?? "Unknown";
+    const rate = Number(i.gst_rate) || 0;
+    const taxable = Math.round(i.line_total / (1 + rate / 100));
+    const tax = i.line_total - taxable;
+    const key = `${state}|${rate}`;
+    const e = agg.get(key) ?? { state, rate, taxable: 0, tax: 0 };
+    e.taxable += taxable;
+    e.tax += tax;
+    agg.set(key, e);
+  }
+
+  const headers = [
+    "Type",
+    "Place Of Supply",
+    "Rate",
+    "Taxable Value",
+    "Tax Amount",
+    "Cess",
+  ];
+  const rows = [...agg.values()]
+    .sort((a, b2) => a.state.localeCompare(b2.state) || a.rate - b2.rate)
+    .map((r) => [
+      "OE",
+      placeOfSupply(r.state) ?? r.state,
+      r.rate,
+      r.taxable,
+      r.tax,
+      0,
+    ]);
   return toCsv(headers, rows);
 }

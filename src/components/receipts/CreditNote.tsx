@@ -2,6 +2,7 @@ import { formatINR } from "@/lib/poojas";
 import { COMPANY } from "@/lib/company";
 import { invoiceNumber } from "@/lib/invoice";
 import { amountInWords } from "@/lib/amount-in-words";
+import SignatureBlock from "@/components/receipts/SignatureBlock";
 
 export type CreditNoteData = {
   invoice_no: number | null;
@@ -21,7 +22,13 @@ export type CreditNoteData = {
   } | null;
 };
 
-export default function CreditNote({ note }: { note: CreditNoteData }) {
+export default function CreditNote({
+  note,
+  qrDataUrl,
+}: {
+  note: CreditNoteData;
+  qrDataUrl?: string | null;
+}) {
   const order = note.orders;
   return (
     <div className="rounded-2xl border border-saffron-100 p-8">
@@ -92,7 +99,9 @@ export default function CreditNote({ note }: { note: CreditNoteData }) {
         </p>
       )}
 
-      <p className="mt-8 text-center text-xs text-foreground/50">
+      <SignatureBlock qrDataUrl={qrDataUrl} />
+
+      <p className="mt-4 text-center text-xs text-foreground/50">
         This credit note reflects a refund processed to your original payment
         method.
       </p>

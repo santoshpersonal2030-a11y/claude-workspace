@@ -10,6 +10,7 @@ import {
   sendBackInStockEmails,
   sendOrderStatusUpdate,
   sendRefundConfirmation,
+  sendCreditNoteEmail,
 } from "@/lib/notifications";
 import type { Database } from "@/lib/database.types";
 
@@ -375,15 +376,26 @@ export async function refundOrder(formData: FormData): Promise<void> {
   }
 
   // Issue an FY-numbered credit note for the refund.
-  await admin.from("credit_notes").insert({
-    order_id: orderId,
-    payment_id: payment.id,
-    user_id: payment.user_id,
-    amount: refundInr,
-    reason: str(formData.get("reason")) || null,
-  });
+  const { data: creditNote } = await admin
+    .from("credit_notes")
+    .insert({
+      order_id: orderId,
+      payment_id: payment.id,
+      user_id: payment.user_id,
+      amount: refundInr,
+      reason: str(formData.get("reason")) || null,
+    })
+    .select("invoice_no, invoice_fy, amount, reason")
+    .single();
 
   await sendRefundConfirmation(orderId, refundInr);
+  if (creditNote) {
+    await sendCreditNoteEmail({
+      orderId,
+      userId: payment.user_id,
+      creditNote,
+    });
+  }
 
   revalidatePath(`/admin/orders/${orderId}`);
 }
