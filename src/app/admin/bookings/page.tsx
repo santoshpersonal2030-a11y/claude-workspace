@@ -23,7 +23,7 @@ export default async function AdminBookingsPage() {
     admin
       .from("bookings")
       .select(
-        "id, booking_date, time_slot, status, total_amount, city, poojas(name)",
+        "id, booking_date, time_slot, status, total_amount, city, poojas(name), pandits(full_name)",
       )
       .order("created_at", { ascending: false }),
     admin
@@ -56,6 +56,9 @@ export default async function AdminBookingsPage() {
                   <div className="text-xs text-foreground/55">
                     {formatDate(b.booking_date)} · {b.time_slot}
                     {b.city ? ` · ${b.city}` : ""}
+                    {b.pandits?.full_name
+                      ? ` · prefers ${b.pandits.full_name}`
+                      : ""}
                   </div>
                 </div>
                 <div className="font-medium text-saffron-700">

@@ -13,6 +13,7 @@ type BookingBody = {
   bookingDate: string;
   timeSlot: string;
   language?: string;
+  panditSlug?: string;
   address: string;
   city: string;
   pincode?: string;
@@ -53,11 +54,24 @@ export async function POST(request: Request) {
     : 0;
   const total = servicePrice + samagriPrice;
 
+  // Resolve an optional preferred-pandit slug to its id (ignored if invalid).
+  let panditId: string | null = null;
+  if (body.panditSlug) {
+    const { data: pandit } = await supabase
+      .from("pandits")
+      .select("id")
+      .eq("slug", body.panditSlug)
+      .eq("active", true)
+      .maybeSingle();
+    panditId = pandit?.id ?? null;
+  }
+
   const { data: booking, error: bookingError } = await supabase
     .from("bookings")
     .insert({
       user_id: user.id,
       pooja_id: pooja.id,
+      pandit_id: panditId,
       booking_date: body.bookingDate,
       time_slot: body.timeSlot,
       language: body.language ?? null,

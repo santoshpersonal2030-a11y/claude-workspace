@@ -13,7 +13,15 @@ import {
 import { createClient } from "@/lib/supabase/client";
 import { payWithRazorpay } from "@/lib/razorpay-client";
 
-export default function BookingForm({ pooja }: { pooja: Pooja }) {
+type PanditOption = { slug: string; fullName: string };
+
+export default function BookingForm({
+  pooja,
+  pandits = [],
+}: {
+  pooja: Pooja;
+  pandits?: PanditOption[];
+}) {
   const kitPrice = getSamagriKitPrice(pooja);
   const supabase = useMemo(() => createClient(), []);
   const router = useRouter();
@@ -22,6 +30,7 @@ export default function BookingForm({ pooja }: { pooja: Pooja }) {
   const [date, setDate] = useState("");
   const [slot, setSlot] = useState("");
   const [language, setLanguage] = useState("Hindi");
+  const [panditSlug, setPanditSlug] = useState("");
   const [city, setCity] = useState("");
   const [address, setAddress] = useState("");
   const [addKit, setAddKit] = useState(true);
@@ -58,6 +67,7 @@ export default function BookingForm({ pooja }: { pooja: Pooja }) {
           bookingDate: date,
           timeSlot: slot,
           language,
+          panditSlug: panditSlug || undefined,
           address,
           city,
           notes,
@@ -144,6 +154,13 @@ export default function BookingForm({ pooja }: { pooja: Pooja }) {
             <dd className="font-medium">{language}</dd>
           </div>
           <div className="flex justify-between">
+            <dt className="text-foreground/60">Preferred Pandit</dt>
+            <dd className="font-medium">
+              {pandits.find((p) => p.slug === panditSlug)?.fullName ??
+                "Any available"}
+            </dd>
+          </div>
+          <div className="flex justify-between">
             <dt className="text-foreground/60">Samagri kit</dt>
             <dd className="font-medium">{addKit ? "Yes" : "No"}</dd>
           </div>
@@ -226,6 +243,29 @@ export default function BookingForm({ pooja }: { pooja: Pooja }) {
             ))}
           </select>
         </div>
+
+        {pandits.length > 0 && (
+          <div>
+            <label className="mb-1 block text-sm font-medium text-foreground/80">
+              Preferred Pandit (optional)
+            </label>
+            <select
+              value={panditSlug}
+              onChange={(e) => setPanditSlug(e.target.value)}
+              className="w-full rounded-xl border border-saffron-200 bg-cream px-3 py-2.5 text-sm outline-none focus:border-saffron-400 focus:ring-2 focus:ring-saffron-100"
+            >
+              <option value="">Any available Pandit</option>
+              {pandits.map((p) => (
+                <option key={p.slug} value={p.slug}>
+                  {p.fullName}
+                </option>
+              ))}
+            </select>
+            <p className="mt-1 text-xs text-foreground/50">
+              We&apos;ll try to honour your choice, subject to availability.
+            </p>
+          </div>
+        )}
 
         <div>
           <label className="mb-1 block text-sm font-medium text-foreground/80">

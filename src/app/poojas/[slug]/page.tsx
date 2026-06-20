@@ -5,7 +5,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import BookingForm from "@/components/BookingForm";
 import { getIncludes, formatINR } from "@/lib/poojas";
-import { getPoojaBySlug, getPoojaSlugs } from "@/lib/queries";
+import { getPoojaBySlug, getPoojaSlugs, getPandits } from "@/lib/queries";
 
 // Re-fetch from the database at most once every 5 minutes.
 export const revalidate = 300;
@@ -37,6 +37,12 @@ export default async function PoojaDetailPage({
   const { slug } = await params;
   const pooja = await getPoojaBySlug(slug);
   if (!pooja) notFound();
+
+  const panditRoster = await getPandits();
+  const pandits = panditRoster.map((p) => ({
+    slug: p.slug,
+    fullName: p.fullName,
+  }));
 
   const includes = getIncludes(pooja);
   const longDescription =
@@ -153,7 +159,7 @@ export default async function PoojaDetailPage({
 
             {/* Right: booking form */}
             <div className="lg:sticky lg:top-24 lg:self-start">
-              <BookingForm pooja={pooja} />
+              <BookingForm pooja={pooja} pandits={pandits} />
             </div>
           </div>
         </section>

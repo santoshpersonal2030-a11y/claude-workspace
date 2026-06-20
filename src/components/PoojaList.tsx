@@ -6,13 +6,37 @@ import { type Pooja, poojaCategories, formatINR } from "@/lib/poojas";
 
 export default function PoojaList({ poojas }: { poojas: Pooja[] }) {
   const [active, setActive] = useState<string>("All");
+  const [query, setQuery] = useState("");
 
   const filters = ["All", ...poojaCategories];
-  const visible =
-    active === "All" ? poojas : poojas.filter((p) => p.category === active);
+  const term = query.trim().toLowerCase();
+  const visible = poojas.filter((p) => {
+    const matchesCategory = active === "All" || p.category === active;
+    const matchesQuery =
+      term === "" ||
+      p.name.toLowerCase().includes(term) ||
+      p.sanskritName?.toLowerCase().includes(term) ||
+      p.shortDescription.toLowerCase().includes(term) ||
+      p.category.toLowerCase().includes(term);
+    return matchesCategory && matchesQuery;
+  });
 
   return (
     <div>
+      {/* Search */}
+      <div className="relative mb-4 max-w-md">
+        <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-foreground/40">
+          🔍
+        </span>
+        <input
+          type="search"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search poojas (e.g. Lakshmi, Griha Pravesh)…"
+          className="w-full rounded-full border border-saffron-200 bg-white py-2.5 pl-10 pr-4 text-sm outline-none focus:border-saffron-400 focus:ring-2 focus:ring-saffron-100"
+        />
+      </div>
+
       {/* Category filter chips */}
       <div className="flex flex-wrap gap-2">
         {filters.map((cat) => {
@@ -74,7 +98,9 @@ export default function PoojaList({ poojas }: { poojas: Pooja[] }) {
 
       {visible.length === 0 && (
         <p className="mt-10 text-center text-foreground/60">
-          No poojas in this category yet.
+          {term
+            ? `No poojas match “${query.trim()}”.`
+            : "No poojas in this category yet."}
         </p>
       )}
     </div>

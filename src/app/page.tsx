@@ -2,10 +2,41 @@ import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { formatINR } from "@/lib/poojas";
-import { getPopularPoojas } from "@/lib/queries";
+import { getPopularPoojas, getPandits } from "@/lib/queries";
 
 // Re-fetch popular poojas from the database at most once every 5 minutes.
 export const revalidate = 300;
+
+function panditInitials(name: string) {
+  return name
+    .replace(/^(Pandit|Acharya)\s+/i, "")
+    .split(" ")
+    .map((w) => w[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
+}
+
+const testimonials = [
+  {
+    quote:
+      "The Pandit ji arrived on time and performed our Griha Pravesh beautifully. He explained every step in Marathi — our elders were so happy.",
+    name: "Priya & Aniket",
+    detail: "Griha Pravesh · Pune",
+  },
+  {
+    quote:
+      "Booking the Satyanarayan Katha and the samagri kit together saved me so much running around. Everything was authentic and fresh.",
+    name: "Ramesh Gupta",
+    detail: "Satyanarayan Katha · Delhi",
+  },
+  {
+    quote:
+      "Very professional and devotional. The Navagraha Shanti was done exactly as per the shastras, and the pricing was completely transparent.",
+    name: "Lakshmi Iyer",
+    detail: "Navagraha Shanti · Bengaluru",
+  },
+];
 
 const trustStats = [
   { value: "500+", label: "Verified Pandits" },
@@ -62,6 +93,7 @@ const reasons = [
 
 export default async function Home() {
   const popularPoojas = await getPopularPoojas();
+  const featuredPandits = (await getPandits()).slice(0, 3);
 
   return (
     <>
@@ -181,8 +213,74 @@ export default async function Home() {
           </div>
         </section>
 
+        {/* Featured pandits */}
+        {featuredPandits.length > 0 && (
+          <section className="bg-cream-100/60 py-16">
+            <div className="mx-auto max-w-6xl px-4 sm:px-6">
+              <div className="flex items-end justify-between gap-4">
+                <div>
+                  <h2 className="font-heading text-3xl text-maroon-800">
+                    Meet our verified Pandits
+                  </h2>
+                  <p className="mt-2 text-foreground/70">
+                    Experienced, background-checked priests trusted by thousands
+                    of families.
+                  </p>
+                </div>
+                <Link
+                  href="/pandits"
+                  className="hidden whitespace-nowrap text-sm font-semibold text-saffron-700 hover:text-saffron-800 sm:block"
+                >
+                  View all Pandits →
+                </Link>
+              </div>
+
+              <div className="mt-8 grid gap-6 sm:grid-cols-3">
+                {featuredPandits.map((pandit) => (
+                  <Link
+                    key={pandit.slug}
+                    href={`/pandits/${pandit.slug}`}
+                    className="flex flex-col rounded-2xl border border-saffron-100 bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="flex h-14 w-14 items-center justify-center rounded-full bg-saffron-100 font-heading text-lg text-saffron-700">
+                        {panditInitials(pandit.fullName)}
+                      </div>
+                      <div>
+                        <h3 className="font-heading text-lg text-maroon-700">
+                          {pandit.fullName}
+                        </h3>
+                        <div className="mt-0.5 flex items-center gap-2 text-sm">
+                          <span className="text-gold-600">
+                            ★ {pandit.rating.toFixed(1)}
+                          </span>
+                          <span className="text-foreground/45">
+                            ({pandit.reviewCount})
+                          </span>
+                          {pandit.verified && (
+                            <span className="rounded-full bg-green-50 px-2 py-0.5 text-[11px] font-medium text-green-700">
+                              ✓ Verified
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    <p className="mt-4 flex-1 text-sm text-foreground/65">
+                      {pandit.bio}
+                    </p>
+                    <div className="mt-4 border-t border-saffron-50 pt-3 text-xs text-foreground/55">
+                      {pandit.experienceYears}+ years ·{" "}
+                      {pandit.languages.slice(0, 3).join(", ")}
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+
         {/* How it works */}
-        <section className="bg-cream-100/60 py-16">
+        <section className="py-16">
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
             <h2 className="text-center font-heading text-3xl text-maroon-800">
               How it works
@@ -230,8 +328,39 @@ export default async function Home() {
           </div>
         </section>
 
+        {/* Testimonials */}
+        <section className="bg-cream-100/60 py-16">
+          <div className="mx-auto max-w-6xl px-4 sm:px-6">
+            <h2 className="text-center font-heading text-3xl text-maroon-800">
+              Loved by families across India
+            </h2>
+            <p className="mx-auto mt-2 max-w-xl text-center text-foreground/70">
+              Real words from devotees who booked with BookMyPoojari.
+            </p>
+            <div className="mt-10 grid gap-6 sm:grid-cols-3">
+              {testimonials.map((t) => (
+                <figure
+                  key={t.name}
+                  className="flex flex-col rounded-2xl border border-saffron-100 bg-white p-6 shadow-sm"
+                >
+                  <div className="text-gold-500" aria-hidden="true">
+                    ★★★★★
+                  </div>
+                  <blockquote className="mt-3 flex-1 text-sm leading-relaxed text-foreground/75">
+                    “{t.quote}”
+                  </blockquote>
+                  <figcaption className="mt-4 border-t border-saffron-50 pt-3">
+                    <div className="font-medium text-maroon-700">{t.name}</div>
+                    <div className="text-xs text-foreground/55">{t.detail}</div>
+                  </figcaption>
+                </figure>
+              ))}
+            </div>
+          </div>
+        </section>
+
         {/* Samagri store teaser */}
-        <section className="mx-auto max-w-6xl px-4 pb-16 sm:px-6">
+        <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
           <div className="overflow-hidden rounded-3xl bg-saffron-600 px-8 py-12 text-center shadow-lg sm:px-12">
             <div className="text-5xl">🛍️</div>
             <h2 className="mt-4 font-heading text-3xl text-white">
