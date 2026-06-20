@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 
 import { assertAdmin } from "@/lib/admin";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { sendReviewRequest } from "@/lib/notifications";
 import type { Database } from "@/lib/database.types";
 
 type BookingStatus = Database["public"]["Enums"]["booking_status"];
@@ -40,20 +41,53 @@ function csvToArray(value: FormDataEntryValue | null): string[] {
 
 // ── Products ───────────────────────────────────────────────────────────────
 
+const IMAGE_BUCKET = "product-images";
+
+// Uploads an image file to Storage and returns its public URL, or null.
+async function uploadProductImage(
+  admin: ReturnType<typeof createAdminClient>,
+  file: File,
+  slug: string,
+): Promise<string | null> {
+  const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
+  const path = `${slug || "product"}/${Date.now()}.${ext}`;
+  const { error } = await admin.storage
+    .from(IMAGE_BUCKET)
+    .upload(path, file, {
+      contentType: file.type || "image/jpeg",
+      upsert: true,
+    });
+  if (error) {
+    console.error("Product image upload failed:", error.message);
+    return null;
+  }
+  return admin.storage.from(IMAGE_BUCKET).getPublicUrl(path).data.publicUrl;
+}
+
 export async function saveProduct(formData: FormData): Promise<void> {
   await assertAdmin();
   const admin = createAdminClient();
 
   const id = str(formData.get("id"));
+  const slug = str(formData.get("slug"));
+
+  // An uploaded file takes precedence over a pasted URL; otherwise keep the URL.
+  let imageUrl = str(formData.get("image_url")) || null;
+  const file = formData.get("image");
+  if (file instanceof File && file.size > 0) {
+    const uploaded = await uploadProductImage(admin, file, slug);
+    if (uploaded) imageUrl = uploaded;
+  }
+
   const payload = {
-    slug: str(formData.get("slug")),
+    slug,
     name: str(formData.get("name")),
     description: str(formData.get("description")) || null,
     category: str(formData.get("category")) || null,
     price: num(formData.get("price")),
     mrp: optNum(formData.get("mrp")),
     stock: num(formData.get("stock")),
-    image_url: str(formData.get("image_url")) || null,
+    image_url: imageUrl,
     active: formData.get("active") === "on",
   };
 
@@ -140,6 +174,11 @@ export async function updateOrderStatus(formData: FormData): Promise<void> {
   const id = str(formData.get("id"));
   const status = str(formData.get("status")) as OrderStatus;
   await admin.from("orders").update({ status }).eq("id", id);
+
+  // Invite the customer to review their purchases once delivered.
+  if (status === "delivered") {
+    await sendReviewRequest(id);
+  }
 
   revalidatePath("/admin/bookings");
 }

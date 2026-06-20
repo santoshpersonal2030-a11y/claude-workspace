@@ -120,6 +120,7 @@ export async function getPoojaSlugs(): Promise<string[]> {
 type ProductRow = Database["public"]["Tables"]["products"]["Row"];
 
 export type StoreProduct = {
+  id: string;
   slug: string;
   name: string;
   description: string | null;
@@ -134,6 +135,7 @@ export type StoreProduct = {
 
 function rowToProduct(row: ProductRow): StoreProduct {
   return {
+    id: row.id,
     slug: row.slug,
     name: row.name,
     description: row.description,

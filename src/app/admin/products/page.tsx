@@ -56,8 +56,17 @@ export default async function AdminProductsPage() {
           <input
             name="image_url"
             placeholder="Image URL (optional)"
-            className={`${inputClass} sm:col-span-2 lg:col-span-3`}
+            className={`${inputClass} sm:col-span-2 lg:col-span-2`}
           />
+          <label className="flex items-center text-xs text-foreground/60">
+            <span className="mr-2">or upload:</span>
+            <input
+              name="image"
+              type="file"
+              accept="image/*"
+              className="text-xs"
+            />
+          </label>
           <input
             name="description"
             placeholder="Description"
@@ -92,12 +101,33 @@ export default async function AdminProductsPage() {
               name="description"
               defaultValue={p.description ?? ""}
             />
-            <input
-              name="image_url"
-              defaultValue={p.image_url ?? ""}
-              placeholder="Image URL"
-              className={`${inputClass} sm:col-span-6`}
-            />
+            <div className="flex items-center gap-2 sm:col-span-6">
+              {p.image_url ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={p.image_url}
+                  alt={p.name}
+                  className="h-9 w-9 flex-shrink-0 rounded object-cover"
+                />
+              ) : (
+                <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded bg-cream-100/60">
+                  🪔
+                </span>
+              )}
+              <input
+                name="image_url"
+                defaultValue={p.image_url ?? ""}
+                placeholder="Image URL"
+                className={`${inputClass} flex-1`}
+              />
+              <input
+                name="image"
+                type="file"
+                accept="image/*"
+                className="text-xs"
+                title="Upload to replace"
+              />
+            </div>
             <input name="name" defaultValue={p.name} className={inputClass} />
             <input
               name="category"

@@ -6,6 +6,7 @@ import Link from "next/link";
 import AddToCartButton from "@/components/AddToCartButton";
 import RatingStars from "@/components/RatingStars";
 import ProductThumb from "@/components/ProductThumb";
+import WishlistButton from "@/components/WishlistButton";
 import { formatINR } from "@/lib/poojas";
 import type { StoreProduct } from "@/lib/queries";
 
@@ -186,6 +187,10 @@ export default function StoreBrowser({
                       {discount}% off
                     </span>
                   )}
+                  <WishlistButton
+                    productId={product.id}
+                    className="absolute left-2 top-2"
+                  />
                 </div>
                 <h3 className="mt-4 font-heading text-lg text-maroon-700">
                   <Link

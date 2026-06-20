@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import AddToCartButton from "@/components/AddToCartButton";
 import ProductPurchase from "@/components/ProductPurchase";
 import ProductThumb from "@/components/ProductThumb";
+import WishlistButton from "@/components/WishlistButton";
 import RatingStars from "@/components/RatingStars";
 import ProductReviews from "@/components/ProductReviews";
 import ReviewForm from "@/components/ReviewForm";
@@ -132,8 +133,14 @@ export default async function ProductDetailPage({
                 </p>
               )}
 
-              <div className="mt-8 max-w-sm">
-                <ProductPurchase product={product} />
+              <div className="mt-8 flex max-w-sm items-center gap-3">
+                <div className="flex-1">
+                  <ProductPurchase product={product} />
+                </div>
+                <WishlistButton
+                  productId={product.id}
+                  className="h-11 w-11 border border-saffron-200"
+                />
               </div>
 
               <p className="mt-4 text-sm text-foreground/60">

@@ -114,6 +114,14 @@ export default function HeaderAuth() {
           >
             My orders
           </Link>
+          <Link
+            href="/account/wishlist"
+            onClick={() => setOpen(false)}
+            className="block px-4 py-2 text-sm text-foreground/80 hover:bg-saffron-50"
+            role="menuitem"
+          >
+            Saved items
+          </Link>
           {isAdmin && (
             <Link
               href="/admin"

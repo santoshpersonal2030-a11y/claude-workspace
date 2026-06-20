@@ -1,4 +1,8 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import {
+  sendOrderConfirmation,
+  sendBookingConfirmation,
+} from "@/lib/notifications";
 
 type CaptureResult = {
   ok: boolean;
@@ -56,6 +60,7 @@ export async function capturePaymentByRazorpayOrder(params: {
       .from("bookings")
       .update({ status: "confirmed" })
       .eq("id", payment.booking_id);
+    await sendBookingConfirmation(payment.booking_id);
   } else if (payment.payment_for === "order" && payment.order_id) {
     await admin
       .from("orders")
@@ -65,6 +70,7 @@ export async function capturePaymentByRazorpayOrder(params: {
     await admin.rpc("decrement_stock_for_order", {
       p_order_id: payment.order_id,
     });
+    await sendOrderConfirmation(payment.order_id);
   }
 
   return { ok: true, status: "captured" };
