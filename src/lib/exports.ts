@@ -269,12 +269,64 @@ export async function buildGstr1Json(
     })),
   };
 
+  // B2B: orders that carry a buyer GSTIN, grouped by counterparty GSTIN.
+  let b2bQuery = admin
+    .from("orders")
+    .select(
+      "invoice_no, invoice_fy, created_at, customer_gstin, state, total_amount, order_items(line_total, gst_rate)",
+    )
+    .not("customer_gstin", "is", null)
+    .in("status", PAID_ORDER_STATUSES);
+  if (b.from) b2bQuery = b2bQuery.gte("created_at", b.from);
+  if (b.to) b2bQuery = b2bQuery.lte("created_at", b.to);
+  const { data: b2bOrders } = await b2bQuery;
+
+  const byCtin = new Map<string, unknown[]>();
+  for (const o of b2bOrders ?? []) {
+    if (!o.customer_gstin) continue;
+    const rateMap = new Map<number, { txval: number; tax: number }>();
+    for (const it of o.order_items) {
+      const rate = Number(it.gst_rate) || 0;
+      const tv = Math.round(it.line_total / (1 + rate / 100));
+      const e = rateMap.get(rate) ?? { txval: 0, tax: 0 };
+      e.txval += tv;
+      e.tax += it.line_total - tv;
+      rateMap.set(rate, e);
+    }
+    const pos = STATE_CODES[o.state ?? ""] ?? "";
+    const intra = pos !== "" && pos === companyCode;
+    const itms = [...rateMap.entries()].map(([rate, v], idx) => ({
+      num: idx + 1,
+      itm_det: {
+        rt: rate,
+        txval: v.txval,
+        iamt: intra ? 0 : v.tax,
+        camt: intra ? Math.floor(v.tax / 2) : 0,
+        samt: intra ? v.tax - Math.floor(v.tax / 2) : 0,
+        csamt: 0,
+      },
+    }));
+    const inv = {
+      inum: invoiceNumber(o.invoice_no, o.invoice_fy),
+      idt: new Date(o.created_at).toLocaleDateString("en-GB"),
+      val: o.total_amount,
+      pos,
+      rchrg: "N",
+      inv_typ: "R",
+      itms,
+    };
+    const arr = byCtin.get(o.customer_gstin) ?? [];
+    arr.push(inv);
+    byCtin.set(o.customer_gstin, arr);
+  }
+  const b2b = [...byCtin.entries()].map(([ctin, inv]) => ({ ctin, inv }));
+
   const fpDate = b.to ? new Date(b.to) : new Date();
   const fp =
     period ||
     `${String(fpDate.getMonth() + 1).padStart(2, "0")}${fpDate.getFullYear()}`;
 
-  return { gstin: COMPANY.gstin, fp, b2cs, hsn };
+  return { gstin: COMPANY.gstin, fp, b2b, b2cs, hsn };
 }
 
 const ACTIVE_BOOKING_STATUSES = [

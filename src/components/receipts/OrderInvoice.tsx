@@ -4,6 +4,7 @@ import { invoiceNumber, isInterState } from "@/lib/invoice";
 import { placeOfSupply } from "@/lib/india";
 import { amountInWords } from "@/lib/amount-in-words";
 import SignatureBlock from "@/components/receipts/SignatureBlock";
+import BrandMark from "@/components/receipts/BrandMark";
 
 export type OrderInvoiceData = {
   invoice_no: number | null;
@@ -77,8 +78,9 @@ export default function OrderInvoice({
     <div className="rounded-2xl border border-saffron-100 p-8">
       <div className="flex items-start justify-between">
         <div>
-          <div className="font-heading text-xl text-maroon-800">
-            🪔 {COMPANY.name}
+          <div className="flex items-center gap-2 font-heading text-xl text-maroon-800">
+            <BrandMark className="h-8 w-8" />
+            {COMPANY.name}
           </div>
           {COMPANY.addressLines.map((l) => (
             <p key={l} className="text-xs text-foreground/55">

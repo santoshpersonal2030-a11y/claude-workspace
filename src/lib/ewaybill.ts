@@ -97,11 +97,16 @@ export async function generateEwayBill(
     const data = (await res.json()) as { ewayBillNo?: string | number };
     if (!data.ewayBillNo) return { ok: false, error: "No EWB number returned" };
 
+    // Default validity: 1 day (the API normally returns the exact validity).
+    const validUntil = new Date();
+    validUntil.setDate(validUntil.getDate() + 1);
+
     await admin
       .from("orders")
       .update({
         ewb_no: String(data.ewayBillNo),
         ewb_date: new Date().toISOString(),
+        ewb_valid_until: validUntil.toISOString(),
       })
       .eq("id", orderId);
     return { ok: true };
@@ -109,4 +114,47 @@ export async function generateEwayBill(
     console.error("generateEwayBill failed:", err);
     return { ok: false, error: "EWB request failed" };
   }
+}
+
+// Part-B: attach vehicle / transport details (and refresh validity).
+export async function updateEwayBillPartB(
+  orderId: string,
+  vehicle: string,
+  mode = "Road",
+): Promise<{ ok: boolean; error?: string }> {
+  const admin = createAdminClient();
+  const { data: order } = await admin
+    .from("orders")
+    .select("ewb_no")
+    .eq("id", orderId)
+    .maybeSingle();
+  if (!order?.ewb_no) return { ok: false, error: "No e-way bill to update" };
+  if (!vehicle.trim()) return { ok: false, error: "Vehicle number required" };
+
+  if (ewaybillConfigured() && process.env.EWB_PARTB_URL) {
+    try {
+      const res = await fetch(process.env.EWB_PARTB_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${process.env.EWB_AUTH_TOKEN}`,
+        },
+        body: JSON.stringify({
+          ewbNo: order.ewb_no,
+          vehicleNo: vehicle.trim().toUpperCase(),
+          transMode: mode === "Road" ? "1" : "2",
+        }),
+      });
+      if (!res.ok) return { ok: false, error: `EWB API error ${res.status}` };
+    } catch (err) {
+      console.error("updateEwayBillPartB failed:", err);
+      return { ok: false, error: "EWB request failed" };
+    }
+  }
+
+  await admin
+    .from("orders")
+    .update({ ewb_vehicle: vehicle.trim().toUpperCase() })
+    .eq("id", orderId);
+  return { ok: true };
 }

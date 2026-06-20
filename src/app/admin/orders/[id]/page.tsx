@@ -9,6 +9,7 @@ import {
   generateEInvoiceAction,
   cancelEInvoiceAction,
   generateEwayBillAction,
+  updateEwayBillPartBAction,
 } from "@/app/admin/actions";
 import { withinCancelWindow } from "@/lib/einvoice";
 import { EWB_THRESHOLD } from "@/lib/ewaybill";
@@ -32,7 +33,7 @@ export default async function AdminOrderDetailPage({
   const { data: order } = await admin
     .from("orders")
     .select(
-      "id, status, subtotal, shipping, total_amount, created_at, delivery_name, delivery_phone, address, city, pincode, tracking_number, estimated_delivery, carrier, customer_gstin, irn, irn_date, irn_cancelled_at, ewb_no, ewb_date, order_items(id, product_name, quantity, unit_price, line_total)",
+      "id, status, subtotal, shipping, total_amount, created_at, delivery_name, delivery_phone, address, city, pincode, tracking_number, estimated_delivery, carrier, customer_gstin, irn, irn_date, irn_cancelled_at, ewb_no, ewb_date, ewb_vehicle, ewb_valid_until, order_items(id, product_name, quantity, unit_price, line_total)",
     )
     .eq("id", id)
     .maybeSingle();
@@ -363,11 +364,33 @@ export default async function AdminOrderDetailPage({
                   <span className="text-foreground/55">EWB No: </span>
                   {order.ewb_no}
                 </p>
-                {order.ewb_date && (
+                {order.ewb_valid_until && (
                   <p className="text-xs text-foreground/55">
-                    Generated {new Date(order.ewb_date).toLocaleString("en-IN")}
+                    Valid until{" "}
+                    {new Date(order.ewb_valid_until).toLocaleString("en-IN")}
                   </p>
                 )}
+                <p className="mt-1 text-xs text-foreground/55">
+                  Part-B vehicle: {order.ewb_vehicle ?? "—"}
+                </p>
+                <form
+                  action={updateEwayBillPartBAction}
+                  className="mt-2 flex gap-2"
+                >
+                  <input type="hidden" name="id" value={order.id} />
+                  <input
+                    name="vehicle"
+                    defaultValue={order.ewb_vehicle ?? ""}
+                    placeholder="Vehicle no. (KA01AB1234)"
+                    className={`${inputClass} flex-1`}
+                  />
+                  <button
+                    type="submit"
+                    className="rounded-full border border-saffron-300 px-3 py-1.5 text-xs font-semibold text-saffron-700 hover:bg-saffron-50"
+                  >
+                    Update Part-B
+                  </button>
+                </form>
               </div>
             ) : (
               <form action={generateEwayBillAction} className="mt-2">

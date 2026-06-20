@@ -6,7 +6,7 @@ import { assertAdmin } from "@/lib/admin";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createRefund, razorpayConfigured } from "@/lib/razorpay";
 import { generateEInvoice, cancelEInvoice } from "@/lib/einvoice";
-import { generateEwayBill } from "@/lib/ewaybill";
+import { generateEwayBill, updateEwayBillPartB } from "@/lib/ewaybill";
 import {
   sendReviewRequest,
   sendBackInStockEmails,
@@ -331,6 +331,16 @@ export async function generateEwayBillAction(
   await assertAdmin();
   const orderId = str(formData.get("id"));
   await generateEwayBill(orderId);
+  revalidatePath(`/admin/orders/${orderId}`);
+}
+
+// Updates the e-way bill Part-B (vehicle details).
+export async function updateEwayBillPartBAction(
+  formData: FormData,
+): Promise<void> {
+  await assertAdmin();
+  const orderId = str(formData.get("id"));
+  await updateEwayBillPartB(orderId, str(formData.get("vehicle")));
   revalidatePath(`/admin/orders/${orderId}`);
 }
 

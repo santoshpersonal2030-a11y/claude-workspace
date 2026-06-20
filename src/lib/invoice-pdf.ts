@@ -104,17 +104,22 @@ export function buildOrderInvoicePdf(order: OrderInvoiceData): Buffer {
 
   let ty = drawItemsHeader(Math.max(by, 178) + 6);
   for (const i of order.order_items) {
-    if (ty > PAGE_BOTTOM) {
+    // Wrap long names within the item column (40 → ~295).
+    const nameLines = doc.wrapText(i.product_name, 250, 9);
+    const rowH = Math.max(14, nameLines.length * 11);
+    if (ty + rowH > PAGE_BOTTOM) {
       doc.newPage();
       ty = drawItemsHeader(50);
     }
-    doc.text(L, yt(ty), i.product_name.slice(0, 42), { size: 9 });
+    nameLines.forEach((ln, n) =>
+      doc.text(L, yt(ty + n * 11), ln, { size: 9 }),
+    );
     doc.text(300, yt(ty), i.hsn_code ?? "-", { size: 9 });
     doc.text(345, yt(ty), `${Number(i.gst_rate)}%`, { size: 9 });
     doc.text(395, yt(ty), String(i.quantity), { size: 9 });
     doc.text(475, yt(ty), rs(i.unit_price), { size: 9, align: "right" });
     doc.text(R, yt(ty), rs(i.line_total), { size: 9, align: "right" });
-    ty += 14;
+    ty += rowH;
   }
   doc.line(L, yt(ty), R, yt(ty));
   ty += 14;

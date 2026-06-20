@@ -305,6 +305,8 @@ export type Database = {
           estimated_delivery: string | null
           ewb_date: string | null
           ewb_no: string | null
+          ewb_valid_until: string | null
+          ewb_vehicle: string | null
           id: string
           invoice_fy: number | null
           invoice_no: number | null
@@ -333,6 +335,8 @@ export type Database = {
           estimated_delivery?: string | null
           ewb_date?: string | null
           ewb_no?: string | null
+          ewb_valid_until?: string | null
+          ewb_vehicle?: string | null
           id?: string
           invoice_fy?: number | null
           invoice_no?: number | null
@@ -361,6 +365,8 @@ export type Database = {
           estimated_delivery?: string | null
           ewb_date?: string | null
           ewb_no?: string | null
+          ewb_valid_until?: string | null
+          ewb_vehicle?: string | null
           id?: string
           invoice_fy?: number | null
           invoice_no?: number | null

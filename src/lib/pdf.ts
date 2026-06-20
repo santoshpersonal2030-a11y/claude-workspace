@@ -43,6 +43,33 @@ export class PdfDoc {
     return str.length * size * 0.5;
   }
 
+  // Wraps text to fit a maximum width (in points), hard-splitting over-long words.
+  wrapText(str: string, maxWidth: number, size = 9): string[] {
+    const lines: string[] = [];
+    let cur = "";
+    for (const word of str.split(/\s+/)) {
+      let w = word;
+      // Hard-split a single word that can't fit on a line.
+      while (this.approxWidth(w, size) > maxWidth) {
+        const fit = Math.max(1, Math.floor(maxWidth / (size * 0.5)) - 1);
+        if (cur) {
+          lines.push(cur);
+          cur = "";
+        }
+        lines.push(w.slice(0, fit));
+        w = w.slice(fit);
+      }
+      const test = cur ? `${cur} ${w}` : w;
+      if (!cur || this.approxWidth(test, size) <= maxWidth) cur = test;
+      else {
+        lines.push(cur);
+        cur = w;
+      }
+    }
+    if (cur) lines.push(cur);
+    return lines.length ? lines : [""];
+  }
+
   text(x: number, y: number, str: string, opts: TextOpts = {}): void {
     const size = opts.size ?? 10;
     const font = opts.bold ? "F2" : "F1";
