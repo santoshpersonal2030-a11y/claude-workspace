@@ -99,6 +99,55 @@ function buildPayload(order: OrderRow) {
   };
 }
 
+const CANCEL_WINDOW_MS = 24 * 60 * 60 * 1000;
+
+export function withinCancelWindow(irnDate: string | null): boolean {
+  if (!irnDate) return false;
+  return Date.now() - new Date(irnDate).getTime() <= CANCEL_WINDOW_MS;
+}
+
+export async function cancelEInvoice(
+  orderId: string,
+  reason = "Order cancelled",
+): Promise<{ ok: boolean; error?: string }> {
+  const admin = createAdminClient();
+  const { data: order } = await admin
+    .from("orders")
+    .select("irn, irn_date, irn_cancelled_at")
+    .eq("id", orderId)
+    .maybeSingle();
+
+  if (!order?.irn) return { ok: false, error: "No e-invoice to cancel" };
+  if (order.irn_cancelled_at) return { ok: true };
+  if (!withinCancelWindow(order.irn_date)) {
+    return { ok: false, error: "24-hour cancellation window has passed" };
+  }
+
+  const cancelUrl = process.env.EINVOICE_CANCEL_URL;
+  if (cancelUrl) {
+    try {
+      const res = await fetch(cancelUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${process.env.EINVOICE_AUTH_TOKEN}`,
+        },
+        body: JSON.stringify({ Irn: order.irn, CnlRsn: "1", CnlRem: reason }),
+      });
+      if (!res.ok) return { ok: false, error: `IRP error ${res.status}` };
+    } catch (err) {
+      console.error("cancelEInvoice failed:", err);
+      return { ok: false, error: "IRP request failed" };
+    }
+  }
+
+  await admin
+    .from("orders")
+    .update({ irn_cancelled_at: new Date().toISOString() })
+    .eq("id", orderId);
+  return { ok: true };
+}
+
 export async function generateEInvoice(
   orderId: string,
 ): Promise<{ ok: boolean; error?: string }> {

@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { assertAdmin } from "@/lib/admin";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createRefund, razorpayConfigured } from "@/lib/razorpay";
-import { generateEInvoice } from "@/lib/einvoice";
+import { generateEInvoice, cancelEInvoice } from "@/lib/einvoice";
 import {
   sendReviewRequest,
   sendBackInStockEmails,
@@ -312,6 +312,14 @@ export async function generateEInvoiceAction(
   await assertAdmin();
   const orderId = str(formData.get("id"));
   await generateEInvoice(orderId);
+  revalidatePath(`/admin/orders/${orderId}`);
+}
+
+// Cancels an order's e-invoice (IRN) within the 24-hour window.
+export async function cancelEInvoiceAction(formData: FormData): Promise<void> {
+  await assertAdmin();
+  const orderId = str(formData.get("id"));
+  await cancelEInvoice(orderId);
   revalidatePath(`/admin/orders/${orderId}`);
 }
 

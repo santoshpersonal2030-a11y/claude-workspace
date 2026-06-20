@@ -7,7 +7,9 @@ import {
   removeOrderItem,
   refundOrder,
   generateEInvoiceAction,
+  cancelEInvoiceAction,
 } from "@/app/admin/actions";
+import { withinCancelWindow } from "@/lib/einvoice";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { Constants } from "@/lib/database.types";
 import { CARRIERS } from "@/lib/carriers";
@@ -28,7 +30,7 @@ export default async function AdminOrderDetailPage({
   const { data: order } = await admin
     .from("orders")
     .select(
-      "id, status, subtotal, shipping, total_amount, created_at, delivery_name, delivery_phone, address, city, pincode, tracking_number, estimated_delivery, carrier, customer_gstin, irn, irn_date, order_items(id, product_name, quantity, unit_price, line_total)",
+      "id, status, subtotal, shipping, total_amount, created_at, delivery_name, delivery_phone, address, city, pincode, tracking_number, estimated_delivery, carrier, customer_gstin, irn, irn_date, irn_cancelled_at, order_items(id, product_name, quantity, unit_price, line_total)",
     )
     .eq("id", id)
     .maybeSingle();
@@ -307,6 +309,26 @@ export default async function AdminOrderDetailPage({
                   <p className="text-xs text-foreground/55">
                     Generated{" "}
                     {new Date(order.irn_date).toLocaleString("en-IN")}
+                  </p>
+                )}
+                {order.irn_cancelled_at ? (
+                  <p className="mt-1 text-xs font-medium text-maroon-700">
+                    Cancelled{" "}
+                    {new Date(order.irn_cancelled_at).toLocaleString("en-IN")}
+                  </p>
+                ) : withinCancelWindow(order.irn_date) ? (
+                  <form action={cancelEInvoiceAction} className="mt-2">
+                    <input type="hidden" name="id" value={order.id} />
+                    <button
+                      type="submit"
+                      className="rounded-full border border-maroon-300 px-4 py-1.5 text-xs font-semibold text-maroon-700 hover:bg-maroon-50"
+                    >
+                      Cancel e-invoice
+                    </button>
+                  </form>
+                ) : (
+                  <p className="mt-1 text-[11px] text-foreground/45">
+                    Cancellation window (24h) has passed.
                   </p>
                 )}
               </div>

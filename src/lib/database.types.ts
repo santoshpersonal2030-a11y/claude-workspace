@@ -297,6 +297,7 @@ export type Database = {
           created_at: string
           customer_gstin: string | null
           irn: string | null
+          irn_cancelled_at: string | null
           irn_date: string | null
           signed_qr: string | null
           delivery_name: string | null
@@ -322,6 +323,7 @@ export type Database = {
           created_at?: string
           customer_gstin?: string | null
           irn?: string | null
+          irn_cancelled_at?: string | null
           irn_date?: string | null
           signed_qr?: string | null
           delivery_name?: string | null
@@ -347,6 +349,7 @@ export type Database = {
           created_at?: string
           customer_gstin?: string | null
           irn?: string | null
+          irn_cancelled_at?: string | null
           irn_date?: string | null
           signed_qr?: string | null
           delivery_name?: string | null

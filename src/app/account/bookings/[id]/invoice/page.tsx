@@ -47,7 +47,17 @@ export default async function BookingInvoicePage({
         >
           ← Back to booking
         </Link>
-        <PrintButton />
+        <div className="flex gap-3">
+          <a
+            href={`/api/booking-receipt/${booking.id}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded-full border border-saffron-300 px-4 py-2 text-sm font-semibold text-saffron-700 hover:bg-saffron-50"
+          >
+            Download PDF
+          </a>
+          <PrintButton />
+        </div>
       </div>
       <BookingReceipt booking={booking} qrDataUrl={qr} />
     </main>

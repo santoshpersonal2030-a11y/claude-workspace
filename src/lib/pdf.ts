@@ -1,6 +1,8 @@
 // Minimal dependency-free PDF generator for simple text documents (e.g. credit
 // notes to attach to emails). Produces a single A4 page of left-aligned text.
 
+import { deflateSync } from "node:zlib";
+
 function escapeText(s: string): string {
   return s.replace(/\\/g, "\\\\").replace(/\(/g, "\\(").replace(/\)/g, "\\)");
 }
@@ -10,11 +12,12 @@ export const A4_WIDTH = 595;
 
 type TextOpts = { size?: number; bold?: boolean; align?: "left" | "right" | "center" };
 
-// A small absolutely-positioned PDF builder (text + lines) for richer layouts
-// like full invoices. Coordinates use PDF space (origin bottom-left); use
-// `fromTop` to position from the top of the page.
+// A small absolutely-positioned PDF builder (text + lines + images) for richer
+// layouts like full invoices. Coordinates use PDF space (origin bottom-left);
+// use `fromTop` to position from the top of the page.
 export class PdfDoc {
   private ops: string[] = [];
+  private images: { data: string; w: number; h: number }[] = [];
 
   fromTop(t: number): number {
     return A4_HEIGHT - t;
@@ -41,15 +44,40 @@ export class PdfDoc {
     );
   }
 
+  // Embeds a raw RGB image (3 bytes/pixel) and draws it at the given box.
+  image(
+    x: number,
+    y: number,
+    boxW: number,
+    boxH: number,
+    rgb: Buffer,
+    pxW: number,
+    pxH: number,
+  ): void {
+    const compressed = deflateSync(rgb).toString("latin1");
+    const idx = this.images.length;
+    this.images.push({ data: compressed, w: pxW, h: pxH });
+    this.ops.push(
+      `q ${boxW.toFixed(2)} 0 0 ${boxH.toFixed(2)} ${x.toFixed(2)} ${y.toFixed(2)} cm /Im${idx} Do Q`,
+    );
+  }
+
   render(): Buffer {
     const stream = this.ops.join("\n");
+    const xobjRefs = this.images
+      .map((_, i) => `/Im${i} ${7 + i} 0 R`)
+      .join(" ");
     const objects = [
       "<< /Type /Catalog /Pages 2 0 R >>",
       "<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
-      "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 4 0 R /F2 5 0 R >> >> /Contents 6 0 R >>",
+      `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 4 0 R /F2 5 0 R >> /XObject << ${xobjRefs} >> >> /Contents 6 0 R >>`,
       "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>",
       "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>",
       `<< /Length ${stream.length} >>\nstream\n${stream}\nendstream`,
+      ...this.images.map(
+        (img) =>
+          `<< /Type /XObject /Subtype /Image /Width ${img.w} /Height ${img.h} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /FlateDecode /Length ${img.data.length} >>\nstream\n${img.data}\nendstream`,
+      ),
     ];
     return assemble(objects);
   }

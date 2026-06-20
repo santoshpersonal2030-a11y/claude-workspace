@@ -227,3 +227,67 @@ export async function buildGstr1Json(
 
   return { gstin: COMPANY.gstin, fp, b2cs };
 }
+
+const ACTIVE_BOOKING_STATUSES = [
+  "confirmed",
+  "assigned",
+  "completed",
+] as const;
+
+export type Gstr3bSummary = {
+  taxable: number;
+  igst: number;
+  cgst: number;
+  sgst: number;
+  cess: number;
+  exempt: number;
+};
+
+// GSTR-3B 3.1 summary: outward taxable supplies (store) and exempt supplies
+// (religious services / bookings) for the period.
+export async function buildGstr3b(
+  from?: string | null,
+  to?: string | null,
+): Promise<Gstr3bSummary> {
+  const admin = createAdminClient();
+  const b = dayBounds(from, to);
+
+  let itemsQ = admin
+    .from("order_items")
+    .select("line_total, gst_rate, orders!inner(state, status, created_at)")
+    .in("orders.status", PAID_ORDER_STATUSES);
+  if (b.from) itemsQ = itemsQ.gte("orders.created_at", b.from);
+  if (b.to) itemsQ = itemsQ.lte("orders.created_at", b.to);
+  const { data: items } = await itemsQ;
+
+  const companyCode = STATE_CODES[COMPANY.state] ?? "";
+  let taxable = 0;
+  let igst = 0;
+  let cgst = 0;
+  let sgst = 0;
+  for (const i of items ?? []) {
+    const rate = Number(i.gst_rate) || 0;
+    const tv = Math.round(i.line_total / (1 + rate / 100));
+    const tax = i.line_total - tv;
+    taxable += tv;
+    const pos = i.orders?.state ? (STATE_CODES[i.orders.state] ?? "") : "";
+    if (pos && pos === companyCode) {
+      const c = Math.floor(tax / 2);
+      cgst += c;
+      sgst += tax - c;
+    } else {
+      igst += tax;
+    }
+  }
+
+  let bookingsQ = admin
+    .from("bookings")
+    .select("total_amount, created_at")
+    .in("status", ACTIVE_BOOKING_STATUSES);
+  if (b.from) bookingsQ = bookingsQ.gte("created_at", b.from);
+  if (b.to) bookingsQ = bookingsQ.lte("created_at", b.to);
+  const { data: bookings } = await bookingsQ;
+  const exempt = (bookings ?? []).reduce((s, x) => s + x.total_amount, 0);
+
+  return { taxable, igst, cgst, sgst, cess: 0, exempt };
+}

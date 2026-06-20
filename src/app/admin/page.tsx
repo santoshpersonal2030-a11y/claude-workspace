@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { createAdminClient } from "@/lib/supabase/admin";
+import { buildGstr3b } from "@/lib/exports";
 import { formatINR } from "@/lib/poojas";
 
 async function count(table: "bookings" | "orders" | "products" | "poojas") {
@@ -127,6 +128,8 @@ export default async function AdminOverviewPage({
     fyMap.set(fyOf(b.created_at), e);
   }
   const fyRows = [...fyMap.entries()].sort((a, b) => b[0] - a[0]);
+
+  const gstr3b = await buildGstr3b(from, to);
 
   const lowStock = lowStockRes.data ?? [];
   const waiting = new Map<string, number>();
@@ -356,6 +359,40 @@ export default async function AdminOverviewPage({
             All products are well stocked. 🎉
           </p>
         )}
+      </div>
+
+      {/* GSTR-3B 3.1 (tax payable) */}
+      <div className="mt-6 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm">
+        <div className="flex items-center justify-between">
+          <h2 className="font-heading text-lg text-maroon-700">
+            GSTR-3B 3.1 — tax payable
+          </h2>
+          <a
+            href={`/api/admin/export/gstr3b${
+              from || to ? `?from=${from ?? ""}&to=${to ?? ""}` : ""
+            }`}
+            className="text-xs font-semibold text-saffron-700 hover:text-saffron-800"
+          >
+            JSON →
+          </a>
+        </div>
+        <div className="mt-3 grid grid-cols-2 gap-3 text-sm sm:grid-cols-3 lg:grid-cols-6">
+          {[
+            { label: "Taxable", value: gstr3b.taxable },
+            { label: "IGST", value: gstr3b.igst },
+            { label: "CGST", value: gstr3b.cgst },
+            { label: "SGST", value: gstr3b.sgst },
+            { label: "Cess", value: gstr3b.cess },
+            { label: "Exempt", value: gstr3b.exempt },
+          ].map((c) => (
+            <div key={c.label} className="rounded-xl bg-saffron-50 p-3">
+              <div className="text-xs text-foreground/55">{c.label}</div>
+              <div className="font-medium text-maroon-700">
+                {formatINR(c.value)}
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Revenue by financial year */}

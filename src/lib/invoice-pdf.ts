@@ -1,9 +1,16 @@
 import { PdfDoc } from "@/lib/pdf";
 import { COMPANY } from "@/lib/company";
+import { logoRgb } from "@/lib/logo";
 import { invoiceNumber, isInterState } from "@/lib/invoice";
 import { placeOfSupply } from "@/lib/india";
 import { amountInWords } from "@/lib/amount-in-words";
 import type { OrderInvoiceData } from "@/components/receipts/OrderInvoice";
+import type { BookingReceiptData } from "@/components/receipts/BookingReceipt";
+
+function drawLogo(doc: PdfDoc): void {
+  const logo = logoRgb();
+  doc.image(L, doc.fromTop(62), 36, 36, logo.data, logo.w, logo.h);
+}
 
 // Rupee formatting for PDF (ASCII-safe — Helvetica lacks the ₹ glyph).
 const rs = (n: number) => `Rs. ${new Intl.NumberFormat("en-IN").format(n)}`;
@@ -19,9 +26,10 @@ export function buildOrderInvoicePdf(
   const yt = (o: number) => doc.fromTop(o);
 
   // Header
-  doc.text(L, yt(50), COMPANY.name, { size: 15, bold: true });
+  drawLogo(doc);
+  doc.text(L + 46, yt(44), COMPANY.name, { size: 15, bold: true });
   doc.text(R, yt(50), "TAX INVOICE", { size: 13, bold: true, align: "right" });
-  let ay = 66;
+  let ay = 72;
   for (const line of COMPANY.addressLines) {
     doc.text(L, yt(ay), line, { size: 8 });
     ay += 11;
@@ -145,6 +153,92 @@ export function buildOrderInvoicePdf(
   });
   ty += 40;
 
+  doc.text(R, yt(ty), `For ${COMPANY.name}`, { size: 9, align: "right" });
+  doc.text(R, yt(ty + 14), "Authorised Signatory", { size: 8, align: "right" });
+
+  return doc.render();
+}
+
+export function buildBookingReceiptPdf(booking: BookingReceiptData): Buffer {
+  const doc = new PdfDoc();
+  const yt = (o: number) => doc.fromTop(o);
+
+  drawLogo(doc);
+  doc.text(L + 46, yt(44), COMPANY.name, { size: 15, bold: true });
+  doc.text(R, yt(50), "RECEIPT", { size: 13, bold: true, align: "right" });
+  let ay = 72;
+  for (const line of COMPANY.addressLines) {
+    doc.text(L, yt(ay), line, { size: 8 });
+    ay += 11;
+  }
+  doc.text(L, yt(ay), `GSTIN: ${COMPANY.gstin}`, { size: 8 });
+
+  doc.text(
+    R,
+    yt(66),
+    `Receipt: ${invoiceNumber(booking.invoice_no, booking.invoice_fy, "BKG")}`,
+    { size: 9, align: "right" },
+  );
+  doc.text(
+    R,
+    yt(78),
+    `Date: ${new Date(booking.created_at).toLocaleDateString("en-IN")}`,
+    { size: 9, align: "right" },
+  );
+
+  doc.line(L, yt(108), R, yt(108));
+
+  doc.text(L, yt(126), "Ceremony", { size: 8 });
+  doc.text(L, yt(138), booking.poojas?.name ?? "Pooja", {
+    size: 11,
+    bold: true,
+  });
+  doc.text(
+    L,
+    yt(151),
+    `${new Date(booking.booking_date).toLocaleDateString("en-IN")} · ${booking.time_slot}`,
+    { size: 9 },
+  );
+  if (booking.language) doc.text(L, yt(163), booking.language, { size: 9 });
+
+  doc.text(320, yt(126), "Venue", { size: 8 });
+  doc.text(320, yt(138), (booking.address || "").slice(0, 40), { size: 9 });
+  doc.text(
+    320,
+    yt(150),
+    [booking.city, booking.pincode].filter(Boolean).join(", "),
+    { size: 9 },
+  );
+
+  let ty = 200;
+  doc.line(L, yt(ty - 8), R, yt(ty - 8));
+  doc.text(360, yt(ty), "Service (dakshina)", { size: 9 });
+  doc.text(R, yt(ty), rs(booking.service_price), { size: 9, align: "right" });
+  ty += 14;
+  if (booking.samagri_kit) {
+    doc.text(360, yt(ty), "Samagri kit", { size: 9 });
+    doc.text(R, yt(ty), rs(booking.samagri_price), { size: 9, align: "right" });
+    ty += 14;
+  }
+  doc.line(340, yt(ty), R, yt(ty));
+  ty += 14;
+  doc.text(360, yt(ty), "Total", { size: 11, bold: true });
+  doc.text(R, yt(ty), rs(booking.total_amount), {
+    size: 11,
+    bold: true,
+    align: "right",
+  });
+  ty += 22;
+
+  doc.text(
+    L,
+    yt(ty),
+    `Amount in words: ${amountInWords(booking.total_amount)}`,
+    { size: 9 },
+  );
+  ty += 16;
+  doc.text(L, yt(ty), "Religious services are GST-exempt.", { size: 8 });
+  ty += 36;
   doc.text(R, yt(ty), `For ${COMPANY.name}`, { size: 9, align: "right" });
   doc.text(R, yt(ty + 14), "Authorised Signatory", { size: 8, align: "right" });
 
