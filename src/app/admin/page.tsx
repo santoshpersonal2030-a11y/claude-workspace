@@ -68,6 +68,8 @@ export default async function AdminOverviewPage({
     paidOrders,
     activeBookings,
     payments,
+    lowStockRes,
+    stockSubs,
   ] = await Promise.all([
     count("bookings"),
     count("orders"),
@@ -86,7 +88,23 @@ export default async function AdminOverviewPage({
     paidOrdersQuery,
     activeBookingsQuery,
     paymentsQuery,
+    admin
+      .from("products")
+      .select("id, name, slug, stock")
+      .eq("active", true)
+      .lte("stock", 5)
+      .order("stock", { ascending: true }),
+    admin
+      .from("stock_subscriptions")
+      .select("product_id")
+      .is("notified_at", null),
   ]);
+
+  const lowStock = lowStockRes.data ?? [];
+  const waiting = new Map<string, number>();
+  for (const s of stockSubs.data ?? []) {
+    waiting.set(s.product_id, (waiting.get(s.product_id) ?? 0) + 1);
+  }
 
   // Date-range presets.
   const today = new Date();
@@ -238,6 +256,61 @@ export default async function AdminOverviewPage({
           </ul>
         ) : (
           <p className="mt-3 text-sm text-foreground/50">No sales yet.</p>
+        )}
+      </div>
+
+      {/* Low stock / reorder suggestions */}
+      <div className="mt-6 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm">
+        <div className="flex items-center justify-between">
+          <h2 className="font-heading text-lg text-maroon-700">
+            Low stock — reorder soon
+          </h2>
+          <Link
+            href="/admin/products"
+            className="text-sm font-semibold text-saffron-700 hover:text-saffron-800"
+          >
+            Manage →
+          </Link>
+        </div>
+        {lowStock.length ? (
+          <ul className="mt-3 divide-y divide-saffron-50 text-sm">
+            {lowStock.map((p) => {
+              const demand = waiting.get(p.id) ?? 0;
+              return (
+                <li
+                  key={p.id}
+                  className="flex items-center justify-between py-2"
+                >
+                  <Link
+                    href={`/store/${p.slug}`}
+                    className="text-foreground/75 hover:text-saffron-700"
+                  >
+                    {p.name}
+                  </Link>
+                  <span className="flex items-center gap-3">
+                    {demand > 0 && (
+                      <span className="text-xs text-maroon-700">
+                        🔔 {demand} waiting
+                      </span>
+                    )}
+                    <span
+                      className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                        p.stock <= 0
+                          ? "bg-maroon-50 text-maroon-700"
+                          : "bg-saffron-50 text-saffron-700"
+                      }`}
+                    >
+                      {p.stock <= 0 ? "Out of stock" : `${p.stock} left`}
+                    </span>
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+        ) : (
+          <p className="mt-3 text-sm text-foreground/50">
+            All products are well stocked. 🎉
+          </p>
         )}
       </div>
 

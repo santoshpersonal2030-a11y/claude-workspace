@@ -10,6 +10,7 @@ export async function sendEmail(args: {
   to: string;
   subject: string;
   html: string;
+  attachments?: { filename: string; content: string }[];
 }): Promise<boolean> {
   if (!emailConfigured()) {
     console.warn(`[email] not configured — skipping "${args.subject}"`);
@@ -27,6 +28,7 @@ export async function sendEmail(args: {
         to: args.to,
         subject: args.subject,
         html: args.html,
+        attachments: args.attachments,
       }),
     });
     if (!res.ok) {

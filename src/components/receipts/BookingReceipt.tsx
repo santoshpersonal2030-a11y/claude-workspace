@@ -1,9 +1,10 @@
 import { formatINR } from "@/lib/poojas";
-import { invoiceNumber } from "@/components/receipts/OrderInvoice";
+import { invoiceNumber } from "@/lib/invoice";
 import { COMPANY } from "@/lib/company";
 
 export type BookingReceiptData = {
   invoice_no: number | null;
+  invoice_fy: number | null;
   id: string;
   created_at: string;
   status: string;
@@ -50,7 +51,7 @@ export default function BookingReceipt({
         <div className="text-right text-sm">
           <div className="font-heading text-lg text-maroon-700">Receipt</div>
           <div className="text-foreground/60">
-            {invoiceNumber(booking.invoice_no, "BKG")}
+            {invoiceNumber(booking.invoice_no, booking.invoice_fy, "BKG")}
           </div>
           <div className="text-foreground/60">
             {formatDate(booking.created_at)}

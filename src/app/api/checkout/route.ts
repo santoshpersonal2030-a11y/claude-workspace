@@ -16,6 +16,7 @@ type CheckoutBody = {
     phone?: string;
     address?: string;
     city?: string;
+    state?: string;
     pincode?: string;
   };
 };
@@ -92,6 +93,7 @@ export async function POST(request: Request) {
       delivery_phone: body.delivery?.phone ?? null,
       address: body.delivery?.address ?? null,
       city: body.delivery?.city ?? null,
+      state: body.delivery?.state ?? null,
       pincode: body.delivery?.pincode ?? null,
     })
     .select("id")

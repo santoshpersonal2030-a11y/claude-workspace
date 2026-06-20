@@ -250,6 +250,34 @@ export async function sendOrderStatusUpdate(
   }
 }
 
+// Emails CSV exports to the accounting address (used by the scheduled cron).
+export async function sendAccountingExport(
+  periodLabel: string,
+  files: { filename: string; csv: string }[],
+): Promise<void> {
+  try {
+    const to = process.env.ACCOUNTING_EMAIL;
+    if (!to) {
+      console.warn("[email] ACCOUNTING_EMAIL not set — skipping export");
+      return;
+    }
+    const body = `
+      <p>Attached are the BookMyPoojari accounting exports for ${periodLabel}.</p>
+      <ul>${files.map((f) => `<li>${f.filename}</li>`).join("")}</ul>`;
+    await sendEmail({
+      to,
+      subject: `Accounting export — ${periodLabel}`,
+      html: emailLayout("Accounting export", body),
+      attachments: files.map((f) => ({
+        filename: f.filename,
+        content: Buffer.from(f.csv, "utf-8").toString("base64"),
+      })),
+    });
+  } catch (err) {
+    console.error("sendAccountingExport failed:", err);
+  }
+}
+
 export async function sendRefundConfirmation(
   orderId: string,
   amountInr: number,

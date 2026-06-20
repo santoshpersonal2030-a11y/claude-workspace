@@ -21,6 +21,7 @@ export type Database = {
           city: string
           created_at: string
           id: string
+          invoice_fy: number | null
           invoice_no: number | null
           language: string | null
           notes: string | null
@@ -43,6 +44,7 @@ export type Database = {
           city: string
           created_at?: string
           id?: string
+          invoice_fy?: number | null
           invoice_no?: number | null
           language?: string | null
           notes?: string | null
@@ -65,6 +67,7 @@ export type Database = {
           city?: string
           created_at?: string
           id?: string
+          invoice_fy?: number | null
           invoice_no?: number | null
           language?: string | null
           notes?: string | null
@@ -166,6 +169,24 @@ export type Database = {
         }
         Relationships: []
       }
+      invoice_counters: {
+        Row: {
+          doc_type: string
+          fy: number
+          last_no: number
+        }
+        Insert: {
+          doc_type: string
+          fy: number
+          last_no?: number
+        }
+        Update: {
+          doc_type?: string
+          fy?: number
+          last_no?: number
+        }
+        Relationships: []
+      }
       order_items: {
         Row: {
           gst_rate: number
@@ -227,9 +248,11 @@ export type Database = {
           delivery_phone: string | null
           estimated_delivery: string | null
           id: string
+          invoice_fy: number | null
           invoice_no: number | null
           pincode: string | null
           shipping: number
+          state: string | null
           status: Database["public"]["Enums"]["order_status"]
           subtotal: number
           total_amount: number
@@ -246,9 +269,11 @@ export type Database = {
           delivery_phone?: string | null
           estimated_delivery?: string | null
           id?: string
+          invoice_fy?: number | null
           invoice_no?: number | null
           pincode?: string | null
           shipping?: number
+          state?: string | null
           status?: Database["public"]["Enums"]["order_status"]
           subtotal?: number
           total_amount?: number
@@ -265,9 +290,11 @@ export type Database = {
           delivery_phone?: string | null
           estimated_delivery?: string | null
           id?: string
+          invoice_fy?: number | null
           invoice_no?: number | null
           pincode?: string | null
           shipping?: number
+          state?: string | null
           status?: Database["public"]["Enums"]["order_status"]
           subtotal?: number
           total_amount?: number

@@ -1,8 +1,10 @@
 import { formatINR } from "@/lib/poojas";
 import { COMPANY } from "@/lib/company";
+import { invoiceNumber, isInterState } from "@/lib/invoice";
 
 export type OrderInvoiceData = {
   invoice_no: number | null;
+  invoice_fy: number | null;
   id: string;
   created_at: string;
   status: string;
@@ -10,6 +12,7 @@ export type OrderInvoiceData = {
   delivery_phone: string | null;
   address: string | null;
   city: string | null;
+  state: string | null;
   pincode: string | null;
   subtotal: number;
   shipping: number;
@@ -25,11 +28,8 @@ export type OrderInvoiceData = {
   }[];
 };
 
-export function invoiceNumber(no: number | null, prefix = "INV"): string {
-  return no ? `${prefix}-${no}` : "—";
-}
-
 export default function OrderInvoice({ order }: { order: OrderInvoiceData }) {
+  const interState = isInterState(order.state, COMPANY.state);
   // Back out GST per line (prices are GST-inclusive), grouped by rate.
   const byRate = new Map<number, { taxable: number; gst: number }>();
   for (const i of order.order_items) {
@@ -67,7 +67,7 @@ export default function OrderInvoice({ order }: { order: OrderInvoiceData }) {
             Tax Invoice
           </div>
           <div className="text-foreground/60">
-            {invoiceNumber(order.invoice_no)}
+            {invoiceNumber(order.invoice_no, order.invoice_fy)}
           </div>
           <div className="text-foreground/60">
             {new Date(order.created_at).toLocaleDateString("en-IN")}
@@ -87,8 +87,15 @@ export default function OrderInvoice({ order }: { order: OrderInvoiceData }) {
           <div className="text-foreground/70">{order.address}</div>
         )}
         <div className="text-foreground/70">
-          {[order.city, order.pincode].filter(Boolean).join(" · ")}
+          {[order.city, order.state, order.pincode]
+            .filter(Boolean)
+            .join(" · ")}
         </div>
+        {order.state && (
+          <div className="mt-1 text-xs text-foreground/55">
+            Place of supply: {order.state}
+          </div>
+        )}
       </div>
 
       <table className="mt-6 w-full text-sm">
@@ -124,14 +131,21 @@ export default function OrderInvoice({ order }: { order: OrderInvoiceData }) {
           <span>Taxable value</span>
           <span>{formatINR(totalTaxable)}</span>
         </div>
-        {rateRows.map(([rate, v]) => (
-          <div key={rate} className="flex justify-between text-foreground/60">
-            <span>
-              CGST {rate / 2}% + SGST {rate / 2}%
-            </span>
-            <span>{formatINR(v.gst)}</span>
-          </div>
-        ))}
+        {rateRows.map(([rate, v]) =>
+          interState ? (
+            <div key={rate} className="flex justify-between text-foreground/60">
+              <span>IGST {rate}%</span>
+              <span>{formatINR(v.gst)}</span>
+            </div>
+          ) : (
+            <div key={rate} className="flex justify-between text-foreground/60">
+              <span>
+                CGST {rate / 2}% + SGST {rate / 2}%
+              </span>
+              <span>{formatINR(v.gst)}</span>
+            </div>
+          ),
+        )}
         <div className="flex justify-between border-t border-saffron-50 pt-1 text-foreground/60">
           <span>Shipping</span>
           <span>

@@ -17,7 +17,7 @@ export default async function AdminBookingInvoicePage({
   const { data: booking } = await admin
     .from("bookings")
     .select(
-      "id, invoice_no, status, booking_date, time_slot, language, address, city, pincode, samagri_kit, service_price, samagri_price, total_amount, created_at, poojas(name)",
+      "id, invoice_no, invoice_fy, status, booking_date, time_slot, language, address, city, pincode, samagri_kit, service_price, samagri_price, total_amount, created_at, poojas(name)",
     )
     .eq("id", id)
     .maybeSingle();

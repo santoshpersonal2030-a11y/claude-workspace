@@ -9,6 +9,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ProductThumb from "@/components/ProductThumb";
 import { useCart } from "@/lib/cart";
+import { INDIAN_STATES } from "@/lib/india";
 import { formatINR } from "@/lib/poojas";
 import { createClient } from "@/lib/supabase/client";
 import { payWithRazorpay } from "@/lib/razorpay-client";
@@ -28,6 +29,7 @@ export default function CartPage() {
     phone: "",
     address: "",
     city: "",
+    state: "",
     pincode: "",
   });
   const [busy, setBusy] = useState(false);
@@ -267,6 +269,20 @@ export default function CartPage() {
                           className="w-full rounded-xl border border-saffron-200 bg-cream px-3 py-2.5 text-sm outline-none focus:border-saffron-400 focus:ring-2 focus:ring-saffron-100"
                         />
                       </div>
+                      <select
+                        value={delivery.state}
+                        onChange={(e) =>
+                          setDelivery({ ...delivery, state: e.target.value })
+                        }
+                        className="w-full rounded-xl border border-saffron-200 bg-cream px-3 py-2.5 text-sm outline-none focus:border-saffron-400 focus:ring-2 focus:ring-saffron-100"
+                      >
+                        <option value="">Select state…</option>
+                        {INDIAN_STATES.map((s) => (
+                          <option key={s} value={s}>
+                            {s}
+                          </option>
+                        ))}
+                      </select>
 
                       {error && (
                         <p className="rounded-xl bg-maroon-50 px-3 py-2 text-sm text-maroon-700">
