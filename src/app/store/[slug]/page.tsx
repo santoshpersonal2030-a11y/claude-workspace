@@ -5,12 +5,16 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import AddToCartButton from "@/components/AddToCartButton";
 import ProductPurchase from "@/components/ProductPurchase";
+import ProductThumb from "@/components/ProductThumb";
 import RatingStars from "@/components/RatingStars";
+import ProductReviews from "@/components/ProductReviews";
+import ReviewForm from "@/components/ReviewForm";
 import { formatINR } from "@/lib/poojas";
 import {
   getProductBySlug,
   getProductSlugs,
   getRelatedProducts,
+  getProductReviews,
 } from "@/lib/queries";
 
 // Re-fetch from the database at most once every 5 minutes.
@@ -45,6 +49,7 @@ export default async function ProductDetailPage({
   if (!product) notFound();
 
   const related = await getRelatedProducts(product.slug, product.category);
+  const reviews = await getProductReviews(product.slug);
 
   const discount =
     product.mrp && product.mrp > product.price
@@ -73,9 +78,12 @@ export default async function ProductDetailPage({
 
         <section className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
           <div className="grid gap-10 lg:grid-cols-2">
-            <div className="flex items-center justify-center rounded-2xl border border-saffron-100 bg-cream-100/60 p-12">
-              <span className="text-8xl">🪔</span>
-            </div>
+            <ProductThumb
+              imageUrl={product.imageUrl}
+              name={product.name}
+              className="aspect-square w-full rounded-2xl border border-saffron-100"
+              emojiSize="text-8xl"
+            />
 
             <div>
               {product.category && (
@@ -135,6 +143,18 @@ export default async function ProductDetailPage({
             </div>
           </div>
 
+          {/* Reviews */}
+          <div className="mt-16 grid gap-8 lg:grid-cols-[1.6fr_1fr]">
+            <ProductReviews
+              reviews={reviews}
+              rating={product.rating}
+              reviewCount={product.reviewCount}
+            />
+            <div className="lg:sticky lg:top-24 lg:self-start">
+              <ReviewForm productSlug={product.slug} />
+            </div>
+          </div>
+
           {/* Related products */}
           {related.length > 0 && (
             <div className="mt-16">
@@ -152,8 +172,13 @@ export default async function ProductDetailPage({
                       key={item.slug}
                       className="flex flex-col rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm"
                     >
-                      <Link href={`/store/${item.slug}`} className="text-3xl">
-                        🪔
+                      <Link href={`/store/${item.slug}`}>
+                        <ProductThumb
+                          imageUrl={item.imageUrl}
+                          name={item.name}
+                          className="aspect-square w-full rounded-xl"
+                          emojiSize="text-3xl"
+                        />
                       </Link>
                       <h3 className="mt-3 font-heading text-base text-maroon-700">
                         <Link

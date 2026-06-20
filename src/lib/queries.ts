@@ -297,3 +297,45 @@ export async function getRelatedProducts(
   }
 }
 
+export type ProductReview = {
+  id: string;
+  reviewerName: string;
+  rating: number;
+  title: string | null;
+  body: string | null;
+  createdAt: string;
+};
+
+// Public reviews for a product, newest first.
+export async function getProductReviews(
+  productSlug: string,
+): Promise<ProductReview[]> {
+  try {
+    const { data: product } = await db
+      .from("products")
+      .select("id")
+      .eq("slug", productSlug)
+      .maybeSingle();
+    if (!product) return [];
+
+    const { data, error } = await db
+      .from("product_reviews")
+      .select("id, reviewer_name, rating, title, body, created_at")
+      .eq("product_id", product.id)
+      .order("created_at", { ascending: false });
+
+    if (error) throw error;
+    return (data ?? []).map((r) => ({
+      id: r.id,
+      reviewerName: r.reviewer_name,
+      rating: r.rating,
+      title: r.title,
+      body: r.body,
+      createdAt: r.created_at,
+    }));
+  } catch (err) {
+    console.warn("getProductReviews: returning empty list —", err);
+    return [];
+  }
+}
+

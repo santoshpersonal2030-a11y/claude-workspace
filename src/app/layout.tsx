@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Marcellus, Mukta } from "next/font/google";
 import "./globals.css";
 import Providers from "./providers";
+import AnnouncementBar from "@/components/AnnouncementBar";
 
 const heading = Marcellus({
   weight: "400",
@@ -64,6 +65,7 @@ export default function RootLayout({
       className={`${heading.variable} ${body.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
+        <AnnouncementBar />
         <Providers>{children}</Providers>
       </body>
     </html>

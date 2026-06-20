@@ -3,6 +3,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import AddToCartButton from "@/components/AddToCartButton";
 import RatingStars from "@/components/RatingStars";
+import ProductThumb from "@/components/ProductThumb";
 import { formatINR } from "@/lib/poojas";
 import { getPopularPoojas, getPandits, getProducts } from "@/lib/queries";
 
@@ -289,12 +290,16 @@ export default async function Home() {
                     key={product.slug}
                     className="flex flex-col rounded-2xl border border-saffron-100 bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md"
                   >
-                    <div className="flex items-start justify-between">
-                      <Link href={`/store/${product.slug}`} className="text-4xl">
-                        🪔
+                    <div className="relative">
+                      <Link href={`/store/${product.slug}`}>
+                        <ProductThumb
+                          imageUrl={product.imageUrl}
+                          name={product.name}
+                          className="aspect-square w-full rounded-xl"
+                        />
                       </Link>
                       {discount > 0 && (
-                        <span className="rounded-full bg-green-50 px-2 py-0.5 text-xs font-semibold text-green-700">
+                        <span className="absolute right-2 top-2 rounded-full bg-green-50 px-2 py-0.5 text-xs font-semibold text-green-700">
                           {discount}% off
                         </span>
                       )}

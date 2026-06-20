@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect } from "react";
 
 import { useCart, useCartDrawer, closeCart } from "@/lib/cart";
+import ProductThumb from "@/components/ProductThumb";
 import { formatINR } from "@/lib/poojas";
 
 export default function CartDrawer() {
@@ -71,9 +72,12 @@ export default function CartDrawer() {
               <ul className="space-y-4">
                 {items.map((item) => (
                   <li key={item.slug} className="flex gap-3">
-                    <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-xl bg-white text-2xl shadow-sm">
-                      🪔
-                    </div>
+                    <ProductThumb
+                      imageUrl={item.imageUrl}
+                      name={item.name}
+                      className="h-14 w-14 flex-shrink-0 rounded-xl shadow-sm"
+                      emojiSize="text-2xl"
+                    />
                     <div className="flex-1">
                       <Link
                         href={`/store/${item.slug}`}

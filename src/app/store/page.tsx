@@ -16,9 +16,9 @@ export const revalidate = 300;
 export default async function StorePage({
   searchParams,
 }: {
-  searchParams: Promise<{ category?: string }>;
+  searchParams: Promise<{ category?: string; sort?: string }>;
 }) {
-  const { category } = await searchParams;
+  const { category, sort } = await searchParams;
   const products = await getProducts();
 
   return (
@@ -48,7 +48,11 @@ export default async function StorePage({
               Our store is being stocked — please check back shortly. 🙏
             </p>
           ) : (
-            <StoreBrowser products={products} initialCategory={category} />
+            <StoreBrowser
+              products={products}
+              initialCategory={category}
+              initialSort={sort}
+            />
           )}
         </section>
       </main>

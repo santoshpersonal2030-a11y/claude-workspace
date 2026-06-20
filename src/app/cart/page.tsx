@@ -7,6 +7,7 @@ import type { User } from "@supabase/supabase-js";
 
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import ProductThumb from "@/components/ProductThumb";
 import { useCart } from "@/lib/cart";
 import { formatINR } from "@/lib/poojas";
 import { createClient } from "@/lib/supabase/client";
@@ -127,9 +128,12 @@ export default function CartPage() {
                     key={item.slug}
                     className="flex items-center gap-4 rounded-2xl border border-saffron-100 bg-white p-4 shadow-sm"
                   >
-                    <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-saffron-50 text-2xl">
-                      🪔
-                    </div>
+                    <ProductThumb
+                      imageUrl={item.imageUrl}
+                      name={item.name}
+                      className="h-14 w-14 rounded-xl"
+                      emojiSize="text-2xl"
+                    />
                     <div className="flex-1">
                       <h3 className="font-medium text-foreground">
                         {item.name}

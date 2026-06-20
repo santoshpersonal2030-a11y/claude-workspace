@@ -5,6 +5,7 @@ import Link from "next/link";
 
 import AddToCartButton from "@/components/AddToCartButton";
 import RatingStars from "@/components/RatingStars";
+import ProductThumb from "@/components/ProductThumb";
 import { formatINR } from "@/lib/poojas";
 import type { StoreProduct } from "@/lib/queries";
 
@@ -24,12 +25,22 @@ function discountPct(p: StoreProduct) {
     : 0;
 }
 
+const SORTS: Sort[] = [
+  "featured",
+  "price-asc",
+  "price-desc",
+  "rating",
+  "discount",
+];
+
 export default function StoreBrowser({
   products,
   initialCategory,
+  initialSort,
 }: {
   products: StoreProduct[];
   initialCategory?: string;
+  initialSort?: string;
 }) {
   const categories = useMemo(
     () =>
@@ -45,7 +56,11 @@ export default function StoreBrowser({
       : null,
   );
   const [query, setQuery] = useState("");
-  const [sort, setSort] = useState<Sort>("featured");
+  const [sort, setSort] = useState<Sort>(
+    initialSort && (SORTS as string[]).includes(initialSort)
+      ? (initialSort as Sort)
+      : "featured",
+  );
 
   const visible = useMemo(() => {
     const term = query.trim().toLowerCase();
@@ -158,12 +173,16 @@ export default function StoreBrowser({
                 key={product.slug}
                 className="flex flex-col rounded-2xl border border-saffron-100 bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md"
               >
-                <div className="flex items-start justify-between">
-                  <Link href={`/store/${product.slug}`} className="text-4xl">
-                    🪔
+                <div className="relative">
+                  <Link href={`/store/${product.slug}`}>
+                    <ProductThumb
+                      imageUrl={product.imageUrl}
+                      name={product.name}
+                      className="aspect-square w-full rounded-xl"
+                    />
                   </Link>
                   {discount > 0 && (
-                    <span className="rounded-full bg-green-50 px-2 py-0.5 text-xs font-semibold text-green-700">
+                    <span className="absolute right-2 top-2 rounded-full bg-green-50 px-2 py-0.5 text-xs font-semibold text-green-700">
                       {discount}% off
                     </span>
                   )}

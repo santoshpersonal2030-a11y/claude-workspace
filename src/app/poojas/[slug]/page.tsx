@@ -4,8 +4,15 @@ import { notFound } from "next/navigation";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import BookingForm from "@/components/BookingForm";
+import AddToCartButton from "@/components/AddToCartButton";
+import ProductThumb from "@/components/ProductThumb";
 import { getIncludes, formatINR } from "@/lib/poojas";
-import { getPoojaBySlug, getPoojaSlugs, getPandits } from "@/lib/queries";
+import {
+  getPoojaBySlug,
+  getPoojaSlugs,
+  getPandits,
+  getProducts,
+} from "@/lib/queries";
 
 // Re-fetch from the database at most once every 5 minutes.
 export const revalidate = 300;
@@ -44,6 +51,17 @@ export default async function PoojaDetailPage({
     fullName: p.fullName,
     languages: p.languages,
   }));
+
+  // Cross-sell samagri: prefer kits/essentials, then fill with bestsellers.
+  const crossSellRank = ["Puja Kits", "Essentials", "Havan"];
+  const crossSell = (await getProducts())
+    .slice()
+    .sort((a, b) => {
+      const ra = crossSellRank.indexOf(a.category ?? "");
+      const rb = crossSellRank.indexOf(b.category ?? "");
+      return (ra === -1 ? 99 : ra) - (rb === -1 ? 99 : rb);
+    })
+    .slice(0, 4);
 
   const includes = getIncludes(pooja);
   const longDescription =
@@ -163,6 +181,49 @@ export default async function PoojaDetailPage({
               <BookingForm pooja={pooja} pandits={pandits} />
             </div>
           </div>
+
+          {/* Frequently bought together */}
+          {crossSell.length > 0 && (
+            <div className="mt-16">
+              <h2 className="font-heading text-2xl text-maroon-800">
+                Frequently bought together
+              </h2>
+              <p className="mt-1 text-sm text-foreground/65">
+                Add the samagri you&apos;ll need for this pooja.
+              </p>
+              <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                {crossSell.map((item) => (
+                  <div
+                    key={item.slug}
+                    className="flex flex-col rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm"
+                  >
+                    <Link href={`/store/${item.slug}`}>
+                      <ProductThumb
+                        imageUrl={item.imageUrl}
+                        name={item.name}
+                        className="aspect-square w-full rounded-xl"
+                        emojiSize="text-3xl"
+                      />
+                    </Link>
+                    <h3 className="mt-3 font-heading text-base text-maroon-700">
+                      <Link
+                        href={`/store/${item.slug}`}
+                        className="hover:text-saffron-700"
+                      >
+                        {item.name}
+                      </Link>
+                    </h3>
+                    <div className="mt-2 flex flex-1 items-end">
+                      <span className="font-heading text-lg text-saffron-700">
+                        {formatINR(item.price)}
+                      </span>
+                    </div>
+                    <AddToCartButton product={item} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </section>
       </main>
       <Footer />

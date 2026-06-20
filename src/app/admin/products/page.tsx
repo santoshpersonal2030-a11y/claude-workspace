@@ -54,6 +54,11 @@ export default async function AdminProductsPage() {
             className={inputClass}
           />
           <input
+            name="image_url"
+            placeholder="Image URL (optional)"
+            className={`${inputClass} sm:col-span-2 lg:col-span-3`}
+          />
+          <input
             name="description"
             placeholder="Description"
             className={`${inputClass} sm:col-span-2 lg:col-span-3`}
@@ -88,9 +93,10 @@ export default async function AdminProductsPage() {
               defaultValue={p.description ?? ""}
             />
             <input
-              type="hidden"
               name="image_url"
               defaultValue={p.image_url ?? ""}
+              placeholder="Image URL"
+              className={`${inputClass} sm:col-span-6`}
             />
             <input name="name" defaultValue={p.name} className={inputClass} />
             <input
