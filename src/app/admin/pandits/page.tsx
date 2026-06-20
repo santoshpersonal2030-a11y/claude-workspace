@@ -1,0 +1,152 @@
+import { createAdminClient } from "@/lib/supabase/admin";
+import { savePandit } from "@/app/admin/actions";
+
+const inputClass =
+  "w-full rounded-lg border border-saffron-200 bg-cream px-2 py-1.5 text-sm outline-none focus:border-saffron-400";
+
+export default async function AdminPanditsPage() {
+  const admin = createAdminClient();
+  const { data: pandits } = await admin
+    .from("pandits")
+    .select("*")
+    .order("full_name", { ascending: true });
+
+  return (
+    <div>
+      <h1 className="font-heading text-2xl text-maroon-800">Pandits</h1>
+      <p className="mt-1 text-sm text-foreground/60">
+        Manage the verified roster. Languages and regions are comma-separated.
+      </p>
+
+      {/* Add new */}
+      <form
+        action={savePandit}
+        className="mt-6 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm"
+      >
+        <h2 className="font-heading text-lg text-maroon-700">Add a Pandit</h2>
+        <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <input name="full_name" placeholder="Full name" required className={inputClass} />
+          <input name="slug" placeholder="slug" required className={inputClass} />
+          <input
+            name="experience_years"
+            type="number"
+            placeholder="Experience (years)"
+            className={inputClass}
+          />
+          <input
+            name="languages"
+            placeholder="Languages (Hindi, Sanskrit)"
+            className={inputClass}
+          />
+          <input
+            name="regions"
+            placeholder="Regions (Pune, Mumbai)"
+            className={inputClass}
+          />
+          <input
+            name="rating"
+            type="number"
+            step="0.1"
+            placeholder="Rating (0–5)"
+            className={inputClass}
+          />
+          <input
+            name="review_count"
+            type="number"
+            placeholder="Reviews"
+            className={inputClass}
+          />
+          <input
+            name="bio"
+            placeholder="Short bio"
+            className={`${inputClass} sm:col-span-2`}
+          />
+        </div>
+        <div className="mt-3 flex items-center justify-between">
+          <div className="flex gap-4 text-sm text-foreground/70">
+            <label className="flex items-center gap-2">
+              <input type="checkbox" name="verified" defaultChecked /> Verified
+            </label>
+            <label className="flex items-center gap-2">
+              <input type="checkbox" name="active" defaultChecked /> Active
+            </label>
+          </div>
+          <button
+            type="submit"
+            className="rounded-full bg-saffron-600 px-5 py-2 text-sm font-semibold text-white hover:bg-saffron-700"
+          >
+            Add Pandit
+          </button>
+        </div>
+      </form>
+
+      {/* Existing */}
+      <div className="mt-8 space-y-3">
+        {pandits?.map((p) => (
+          <form
+            key={p.id}
+            action={savePandit}
+            className="grid items-center gap-2 rounded-xl border border-saffron-100 bg-white p-3 shadow-sm sm:grid-cols-[1.3fr_1.2fr_1.2fr_0.7fr_0.7fr_auto]"
+          >
+            <input type="hidden" name="id" value={p.id} />
+            <input type="hidden" name="slug" value={p.slug ?? ""} />
+            <input type="hidden" name="bio" defaultValue={p.bio ?? ""} />
+            <input
+              name="full_name"
+              defaultValue={p.full_name}
+              className={inputClass}
+            />
+            <input
+              name="languages"
+              defaultValue={p.languages.join(", ")}
+              placeholder="Languages"
+              className={inputClass}
+            />
+            <input
+              name="regions"
+              defaultValue={p.regions.join(", ")}
+              placeholder="Regions"
+              className={inputClass}
+            />
+            <input
+              name="experience_years"
+              type="number"
+              defaultValue={p.experience_years ?? 0}
+              title="Experience (years)"
+              className={inputClass}
+            />
+            <input
+              name="rating"
+              type="number"
+              step="0.1"
+              defaultValue={p.rating}
+              title="Rating"
+              className={inputClass}
+            />
+            <div className="flex items-center gap-3">
+              <input
+                type="hidden"
+                name="review_count"
+                defaultValue={p.review_count}
+              />
+              <label className="flex items-center gap-1 text-xs text-foreground/70">
+                <input type="checkbox" name="verified" defaultChecked={p.verified} />
+                Ver.
+              </label>
+              <label className="flex items-center gap-1 text-xs text-foreground/70">
+                <input type="checkbox" name="active" defaultChecked={p.active} />
+                Act.
+              </label>
+              <button
+                type="submit"
+                className="rounded-full bg-saffron-600 px-4 py-1.5 text-xs font-semibold text-white hover:bg-saffron-700"
+              >
+                Save
+              </button>
+            </div>
+          </form>
+        ))}
+      </div>
+    </div>
+  );
+}

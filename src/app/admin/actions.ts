@@ -24,6 +24,20 @@ function str(value: FormDataEntryValue | null): string {
   return ((value as string) ?? "").trim();
 }
 
+// Parses a bounded decimal (e.g. a 0–5 rating).
+function clampFloat(value: FormDataEntryValue | null, max: number): number {
+  const n = Number(value) || 0;
+  return Math.min(max, Math.max(0, n));
+}
+
+// Splits "Hindi, Sanskrit, Marathi" into ["Hindi","Sanskrit","Marathi"].
+function csvToArray(value: FormDataEntryValue | null): string[] {
+  return str(value)
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
 // ── Products ───────────────────────────────────────────────────────────────
 
 export async function saveProduct(formData: FormData): Promise<void> {
@@ -74,6 +88,36 @@ export async function savePooja(formData: FormData): Promise<void> {
 
   revalidatePath("/admin/poojas");
   revalidatePath("/poojas");
+}
+
+// ── Pandits ─────────────────────────────────────────────────────────────────
+
+export async function savePandit(formData: FormData): Promise<void> {
+  await assertAdmin();
+  const admin = createAdminClient();
+
+  const id = str(formData.get("id"));
+  const payload = {
+    slug: str(formData.get("slug")),
+    full_name: str(formData.get("full_name")),
+    bio: str(formData.get("bio")) || null,
+    experience_years: num(formData.get("experience_years")),
+    languages: csvToArray(formData.get("languages")),
+    regions: csvToArray(formData.get("regions")),
+    rating: clampFloat(formData.get("rating"), 5),
+    review_count: num(formData.get("review_count")),
+    verified: formData.get("verified") === "on",
+    active: formData.get("active") === "on",
+  };
+
+  if (id) {
+    await admin.from("pandits").update(payload).eq("id", id);
+  } else {
+    await admin.from("pandits").insert(payload);
+  }
+
+  revalidatePath("/admin/pandits");
+  revalidatePath("/pandits");
 }
 
 // ── Bookings & orders status ────────────────────────────────────────────────
