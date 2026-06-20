@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -74,6 +75,12 @@ export default async function BookingsPage() {
                         Preferred Pandit: {booking.preferred.full_name}
                       </p>
                     ) : null}
+                    <Link
+                      href={`/account/bookings/${booking.id}`}
+                      className="mt-2 inline-block text-sm font-semibold text-saffron-700 hover:text-saffron-800"
+                    >
+                      View details →
+                    </Link>
                   </div>
                   <div className="font-semibold text-saffron-700">
                     {formatINR(booking.total_amount)}

@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import OrderStatusTracker from "@/components/OrderStatusTracker";
+import TrackingLink from "@/components/TrackingLink";
 import { formatINR } from "@/lib/poojas";
 import { createClient } from "@/lib/supabase/server";
 
@@ -28,7 +29,7 @@ export default async function OrdersPage() {
   const { data: orders } = await supabase
     .from("orders")
     .select(
-      "id, status, total_amount, created_at, tracking_number, estimated_delivery, order_items(product_name, quantity)",
+      "id, status, total_amount, created_at, tracking_number, estimated_delivery, carrier, order_items(product_name, quantity)",
     )
     .order("created_at", { ascending: false });
 
@@ -73,7 +74,14 @@ export default async function OrdersPage() {
                   {(order.tracking_number || order.estimated_delivery) && (
                     <p className="mt-3 text-xs text-foreground/55">
                       {order.tracking_number && (
-                        <>Tracking: {order.tracking_number}</>
+                        <>
+                          Tracking:{" "}
+                          <TrackingLink
+                            carrier={order.carrier}
+                            trackingNumber={order.tracking_number}
+                            className="text-xs"
+                          />
+                        </>
                       )}
                       {order.tracking_number && order.estimated_delivery && " · "}
                       {order.estimated_delivery && (

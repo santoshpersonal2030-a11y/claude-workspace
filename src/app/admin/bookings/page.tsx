@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { createAdminClient } from "@/lib/supabase/admin";
 import {
   assignPandit,
@@ -5,6 +7,7 @@ import {
   updateOrderStatus,
 } from "@/app/admin/actions";
 import { Constants } from "@/lib/database.types";
+import { CARRIERS } from "@/lib/carriers";
 import { formatINR } from "@/lib/poojas";
 
 const selectClass =
@@ -31,7 +34,7 @@ export default async function AdminBookingsPage() {
     admin
       .from("orders")
       .select(
-        "id, status, total_amount, created_at, delivery_name, delivery_phone, tracking_number, estimated_delivery, order_items(product_name, quantity)",
+        "id, status, total_amount, created_at, delivery_name, delivery_phone, tracking_number, estimated_delivery, carrier, order_items(product_name, quantity)",
       )
       .order("created_at", { ascending: false }),
     admin
@@ -187,11 +190,22 @@ export default async function AdminBookingsPage() {
                   </button>
                 </div>
                 <div className="mt-2 flex flex-wrap items-center gap-2 border-t border-saffron-50 pt-2 text-xs text-foreground/55">
-                  <span>Tracking</span>
+                  <select
+                    name="carrier"
+                    defaultValue={o.carrier ?? ""}
+                    className={selectClass}
+                  >
+                    <option value="">Carrier…</option>
+                    {CARRIERS.map((c) => (
+                      <option key={c.key} value={c.key}>
+                        {c.name}
+                      </option>
+                    ))}
+                  </select>
                   <input
                     name="tracking_number"
                     defaultValue={o.tracking_number ?? ""}
-                    placeholder="e.g. 1Z…"
+                    placeholder="Tracking no."
                     className={selectClass}
                   />
                   <span>ETA</span>
@@ -201,6 +215,12 @@ export default async function AdminBookingsPage() {
                     defaultValue={o.estimated_delivery ?? ""}
                     className={selectClass}
                   />
+                  <Link
+                    href={`/admin/orders/${o.id}`}
+                    className="ml-auto font-semibold text-saffron-700 hover:text-saffron-800"
+                  >
+                    Details →
+                  </Link>
                 </div>
               </form>
             ))

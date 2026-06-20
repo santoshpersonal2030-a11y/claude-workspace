@@ -3,6 +3,7 @@
 
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendEmail, emailLayout } from "@/lib/email";
+import { trackingUrl } from "@/lib/carriers";
 import { formatINR } from "@/lib/poojas";
 
 const siteUrl =
@@ -212,7 +213,7 @@ export async function sendOrderStatusUpdate(
     const admin = createAdminClient();
     const { data: order } = await admin
       .from("orders")
-      .select("user_id, tracking_number, estimated_delivery")
+      .select("user_id, tracking_number, estimated_delivery, carrier")
       .eq("id", orderId)
       .maybeSingle();
     if (!order) return;
@@ -223,7 +224,11 @@ export async function sendOrderStatusUpdate(
     const message = ORDER_STATUS_MESSAGE[status] ?? `is now ${status}`;
     const details: string[] = [];
     if (order.tracking_number) {
-      details.push(`<p>Tracking number: <strong>${order.tracking_number}</strong></p>`);
+      const url = trackingUrl(order.carrier, order.tracking_number);
+      const tracking = url
+        ? `<a href="${url}" style="color:#d97706">${order.tracking_number}</a>`
+        : `<strong>${order.tracking_number}</strong>`;
+      details.push(`<p>Tracking number: ${tracking}</p>`);
     }
     if (order.estimated_delivery) {
       details.push(

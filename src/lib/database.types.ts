@@ -211,6 +211,7 @@ export type Database = {
       orders: {
         Row: {
           address: string | null
+          carrier: string | null
           city: string | null
           created_at: string
           delivery_name: string | null
@@ -228,6 +229,7 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          carrier?: string | null
           city?: string | null
           created_at?: string
           delivery_name?: string | null
@@ -245,6 +247,7 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          carrier?: string | null
           city?: string | null
           created_at?: string
           delivery_name?: string | null

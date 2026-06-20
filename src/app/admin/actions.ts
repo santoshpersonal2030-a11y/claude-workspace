@@ -208,12 +208,16 @@ export async function updateOrderStatus(formData: FormData): Promise<void> {
     status: OrderStatus;
     tracking_number?: string | null;
     estimated_delivery?: string | null;
+    carrier?: string | null;
   } = { status };
   if (formData.has("tracking_number")) {
     update.tracking_number = str(formData.get("tracking_number")) || null;
   }
   if (formData.has("estimated_delivery")) {
     update.estimated_delivery = str(formData.get("estimated_delivery")) || null;
+  }
+  if (formData.has("carrier")) {
+    update.carrier = str(formData.get("carrier")) || null;
   }
   await admin.from("orders").update(update).eq("id", id);
 
@@ -230,6 +234,67 @@ export async function updateOrderStatus(formData: FormData): Promise<void> {
   }
 
   revalidatePath("/admin/bookings");
+}
+
+// ── Order items (admin order detail) ────────────────────────────────────────
+
+async function recomputeOrderTotals(
+  admin: ReturnType<typeof createAdminClient>,
+  orderId: string,
+): Promise<void> {
+  const { data: items } = await admin
+    .from("order_items")
+    .select("line_total")
+    .eq("order_id", orderId);
+  const subtotal = (items ?? []).reduce((s, i) => s + i.line_total, 0);
+  const { data: order } = await admin
+    .from("orders")
+    .select("shipping")
+    .eq("id", orderId)
+    .maybeSingle();
+  const shipping = order?.shipping ?? 0;
+  await admin
+    .from("orders")
+    .update({ subtotal, total_amount: subtotal + shipping })
+    .eq("id", orderId);
+}
+
+export async function updateOrderItem(formData: FormData): Promise<void> {
+  await assertAdmin();
+  const admin = createAdminClient();
+  const itemId = str(formData.get("item_id"));
+  const quantity = Math.max(1, num(formData.get("quantity")));
+
+  const { data: item } = await admin
+    .from("order_items")
+    .select("order_id, unit_price")
+    .eq("id", itemId)
+    .maybeSingle();
+  if (!item) return;
+
+  await admin
+    .from("order_items")
+    .update({ quantity, line_total: item.unit_price * quantity })
+    .eq("id", itemId);
+  await recomputeOrderTotals(admin, item.order_id);
+  revalidatePath(`/admin/orders/${item.order_id}`);
+}
+
+export async function removeOrderItem(formData: FormData): Promise<void> {
+  await assertAdmin();
+  const admin = createAdminClient();
+  const itemId = str(formData.get("item_id"));
+
+  const { data: item } = await admin
+    .from("order_items")
+    .select("order_id")
+    .eq("id", itemId)
+    .maybeSingle();
+  if (!item) return;
+
+  await admin.from("order_items").delete().eq("id", itemId);
+  await recomputeOrderTotals(admin, item.order_id);
+  revalidatePath(`/admin/orders/${item.order_id}`);
 }
 
 // Assigns (or clears) the actual pandit on a booking. Assigning also advances a

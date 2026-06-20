@@ -5,6 +5,8 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import OrderStatusTracker from "@/components/OrderStatusTracker";
 import ProductThumb from "@/components/ProductThumb";
+import TrackingLink from "@/components/TrackingLink";
+import ReorderButton from "@/components/ReorderButton";
 import { formatINR } from "@/lib/poojas";
 import { createClient } from "@/lib/supabase/server";
 
@@ -35,12 +37,23 @@ export default async function OrderDetailPage({
   const { data: order } = await supabase
     .from("orders")
     .select(
-      "id, status, subtotal, shipping, total_amount, created_at, delivery_name, delivery_phone, address, city, pincode, tracking_number, estimated_delivery, order_items(id, product_name, quantity, unit_price, line_total, products(slug, image_url))",
+      "id, status, subtotal, shipping, total_amount, created_at, delivery_name, delivery_phone, address, city, pincode, tracking_number, estimated_delivery, carrier, order_items(id, product_name, quantity, unit_price, line_total, products(slug, name, price, image_url, active, stock))",
     )
     .eq("id", id)
     .maybeSingle();
 
   if (!order) notFound();
+
+  // Items still purchasable, for the Reorder button (uses current price).
+  const reorderItems = order.order_items
+    .filter((i) => i.products?.active && (i.products?.stock ?? 0) > 0)
+    .map((i) => ({
+      slug: i.products!.slug,
+      name: i.products!.name,
+      price: i.products!.price,
+      imageUrl: i.products!.image_url,
+      quantity: i.quantity,
+    }));
 
   return (
     <>
@@ -53,12 +66,17 @@ export default async function OrderDetailPage({
           >
             ← All orders
           </Link>
-          <h1 className="mt-3 font-heading text-3xl text-maroon-800">
-            Order details
-          </h1>
-          <p className="mt-1 text-sm text-foreground/55">
-            Placed {formatDate(order.created_at)} · #{order.id.slice(0, 8)}
-          </p>
+          <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h1 className="font-heading text-3xl text-maroon-800">
+                Order details
+              </h1>
+              <p className="mt-1 text-sm text-foreground/55">
+                Placed {formatDate(order.created_at)} · #{order.id.slice(0, 8)}
+              </p>
+            </div>
+            {reorderItems.length > 0 && <ReorderButton items={reorderItems} />}
+          </div>
 
           {/* Tracker */}
           <div className="mt-6 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm">
@@ -67,10 +85,11 @@ export default async function OrderDetailPage({
               <div className="mt-4 border-t border-saffron-50 pt-3 text-sm text-foreground/70">
                 {order.tracking_number && (
                   <p>
-                    Tracking number:{" "}
-                    <span className="font-medium text-foreground">
-                      {order.tracking_number}
-                    </span>
+                    Tracking:{" "}
+                    <TrackingLink
+                      carrier={order.carrier}
+                      trackingNumber={order.tracking_number}
+                    />
                   </p>
                 )}
                 {order.estimated_delivery && (
