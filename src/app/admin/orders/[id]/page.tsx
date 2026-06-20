@@ -10,6 +10,7 @@ import {
   cancelEInvoiceAction,
   generateEwayBillAction,
   updateEwayBillPartBAction,
+  generateEInvoiceAndEwbAction,
 } from "@/app/admin/actions";
 import { withinCancelWindow } from "@/lib/einvoice";
 import { EWB_THRESHOLD } from "@/lib/ewaybill";
@@ -336,18 +337,33 @@ export default async function AdminOrderDetailPage({
                 )}
               </div>
             ) : (
-              <form action={generateEInvoiceAction} className="mt-2">
-                <input type="hidden" name="id" value={order.id} />
+              <div className="mt-2">
                 <p className="text-xs text-foreground/55">
                   Buyer GSTIN: {order.customer_gstin}
                 </p>
-                <button
-                  type="submit"
-                  className="mt-2 rounded-full bg-saffron-600 px-4 py-1.5 text-xs font-semibold text-white hover:bg-saffron-700"
-                >
-                  Generate e-invoice
-                </button>
-              </form>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  <form action={generateEInvoiceAction}>
+                    <input type="hidden" name="id" value={order.id} />
+                    <button
+                      type="submit"
+                      className="rounded-full bg-saffron-600 px-4 py-1.5 text-xs font-semibold text-white hover:bg-saffron-700"
+                    >
+                      Generate e-invoice
+                    </button>
+                  </form>
+                  {order.total_amount >= EWB_THRESHOLD && (
+                    <form action={generateEInvoiceAndEwbAction}>
+                      <input type="hidden" name="id" value={order.id} />
+                      <button
+                        type="submit"
+                        className="rounded-full border border-saffron-300 px-4 py-1.5 text-xs font-semibold text-saffron-700 hover:bg-saffron-50"
+                      >
+                        + e-way bill
+                      </button>
+                    </form>
+                  )}
+                </div>
+              </div>
             )}
           </div>
 

@@ -3,6 +3,11 @@ import { join } from "node:path";
 
 import jpeg from "jpeg-js";
 
+import { createAdminClient } from "@/lib/supabase/admin";
+
+export const LOGO_BUCKET = "product-images";
+export const LOGO_PATH = "brand/logo.jpg";
+
 // Brand logo for PDFs. Prefers a real JPEG asset (INVOICE_LOGO_PATH or
 // public/brand-logo.jpg); otherwise encodes a generated mark to JPEG so a real
 // JPEG is always embedded.
@@ -100,4 +105,32 @@ export function logoJpeg(): Jpeg {
   const encoded = jpeg.encode({ data: mark.data, width: mark.w, height: mark.h }, 90);
   cache = { data: Buffer.from(encoded.data), w: mark.w, h: mark.h };
   return cache;
+}
+
+// Async loader that also checks the admin-uploaded logo in Storage, falling
+// back to the file/generated JPEG. Result is cached per process.
+let asyncCache: Jpeg | null = null;
+let asyncAttempted = false;
+
+export async function getLogoJpeg(): Promise<Jpeg> {
+  if (asyncAttempted) return asyncCache ?? logoJpeg();
+  asyncAttempted = true;
+  try {
+    const admin = createAdminClient();
+    const { data } = await admin.storage.from(LOGO_BUCKET).download(LOGO_PATH);
+    if (data) {
+      const buf = Buffer.from(await data.arrayBuffer());
+      if (buf[0] === 0xff && buf[1] === 0xd8) {
+        const size = jpegSize(buf);
+        if (size) {
+          asyncCache = { data: buf, w: size.w, h: size.h };
+          return asyncCache;
+        }
+      }
+    }
+  } catch {
+    // no service-role key / no uploaded logo — fall through
+  }
+  asyncCache = logoJpeg();
+  return asyncCache;
 }

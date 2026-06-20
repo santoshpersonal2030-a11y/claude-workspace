@@ -1,15 +1,17 @@
 import { PdfDoc } from "@/lib/pdf";
 import { COMPANY } from "@/lib/company";
 import { logoJpeg } from "@/lib/logo";
+
+type Logo = { data: Buffer; w: number; h: number };
 import { invoiceNumber, isInterState } from "@/lib/invoice";
 import { placeOfSupply } from "@/lib/india";
 import { amountInWords } from "@/lib/amount-in-words";
 import type { OrderInvoiceData } from "@/components/receipts/OrderInvoice";
 import type { BookingReceiptData } from "@/components/receipts/BookingReceipt";
 
-function drawLogo(doc: PdfDoc): void {
-  const logo = logoJpeg();
-  doc.imageJpeg(L, doc.fromTop(62), 36, 36, logo.data, logo.w, logo.h);
+function drawLogo(doc: PdfDoc, logo?: Logo): void {
+  const lg = logo ?? logoJpeg();
+  doc.imageJpeg(L, doc.fromTop(62), 36, 36, lg.data, lg.w, lg.h);
 }
 
 // Rupee formatting for PDF (ASCII-safe — Helvetica lacks the ₹ glyph).
@@ -18,12 +20,15 @@ const rs = (n: number) => `Rs. ${new Intl.NumberFormat("en-IN").format(n)}`;
 const L = 40;
 const R = 555;
 
-export function buildOrderInvoicePdf(order: OrderInvoiceData): Buffer {
+export function buildOrderInvoicePdf(
+  order: OrderInvoiceData,
+  logo?: Logo,
+): Buffer {
   const doc = new PdfDoc();
   const yt = (o: number) => doc.fromTop(o);
 
   // Header
-  drawLogo(doc);
+  drawLogo(doc, logo);
   doc.text(L + 46, yt(44), COMPANY.name, { size: 15, bold: true });
   doc.text(R, yt(50), "TAX INVOICE", { size: 13, bold: true, align: "right" });
   let ay = 72;
@@ -177,11 +182,14 @@ export function buildOrderInvoicePdf(order: OrderInvoiceData): Buffer {
   return doc.render();
 }
 
-export function buildBookingReceiptPdf(booking: BookingReceiptData): Buffer {
+export function buildBookingReceiptPdf(
+  booking: BookingReceiptData,
+  logo?: Logo,
+): Buffer {
   const doc = new PdfDoc();
   const yt = (o: number) => doc.fromTop(o);
 
-  drawLogo(doc);
+  drawLogo(doc, logo);
   doc.text(L + 46, yt(44), COMPANY.name, { size: 15, bold: true });
   doc.text(R, yt(50), "RECEIPT", { size: 13, bold: true, align: "right" });
   let ay = 72;

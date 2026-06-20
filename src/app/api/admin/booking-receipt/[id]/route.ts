@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { getAdminUser } from "@/lib/admin";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { buildBookingReceiptPdf } from "@/lib/invoice-pdf";
+import { getLogoJpeg } from "@/lib/logo";
 import { invoiceNumber } from "@/lib/invoice";
 
 const FIELDS =
@@ -26,7 +27,7 @@ export async function GET(
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  const pdf = buildBookingReceiptPdf(booking);
+  const pdf = buildBookingReceiptPdf(booking, await getLogoJpeg());
   const name = invoiceNumber(
     booking.invoice_no,
     booking.invoice_fy,

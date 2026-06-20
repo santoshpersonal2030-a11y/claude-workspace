@@ -10,6 +10,7 @@ const tabs = [
   { href: "/admin/poojas", label: "Poojas" },
   { href: "/admin/pandits", label: "Pandits" },
   { href: "/admin/messages", label: "Messages" },
+  { href: "/admin/settings", label: "Settings" },
 ];
 
 export const metadata = { title: "Admin — BookMyPoojari" };

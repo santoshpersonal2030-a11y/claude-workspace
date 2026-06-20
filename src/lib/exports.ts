@@ -321,12 +321,38 @@ export async function buildGstr1Json(
   }
   const b2b = [...byCtin.entries()].map(([ctin, inv]) => ({ ctin, inv }));
 
+  // Nil / exempt supplies: religious services (bookings) are GST-exempt.
+  let nilQuery = admin
+    .from("bookings")
+    .select("total_amount, created_at")
+    .in("status", ACTIVE_BOOKING_STATUSES);
+  if (b.from) nilQuery = nilQuery.gte("created_at", b.from);
+  if (b.to) nilQuery = nilQuery.lte("created_at", b.to);
+  const { data: exemptBookings } = await nilQuery;
+  const exemptTotal = (exemptBookings ?? []).reduce(
+    (s, x) => s + x.total_amount,
+    0,
+  );
+  const nil = {
+    inv:
+      exemptTotal > 0
+        ? [
+            {
+              sply_ty: "INTRB2C",
+              expt_amt: exemptTotal,
+              nil_amt: 0,
+              ngsup_amt: 0,
+            },
+          ]
+        : [],
+  };
+
   const fpDate = b.to ? new Date(b.to) : new Date();
   const fp =
     period ||
     `${String(fpDate.getMonth() + 1).padStart(2, "0")}${fpDate.getFullYear()}`;
 
-  return { gstin: COMPANY.gstin, fp, b2b, b2cs, hsn };
+  return { gstin: COMPANY.gstin, fp, b2b, b2cs, hsn, nil };
 }
 
 const ACTIVE_BOOKING_STATUSES = [

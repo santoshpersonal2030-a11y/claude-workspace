@@ -334,6 +334,17 @@ export async function generateEwayBillAction(
   revalidatePath(`/admin/orders/${orderId}`);
 }
 
+// One-click: generate the e-invoice (IRN) and then the e-way bill.
+export async function generateEInvoiceAndEwbAction(
+  formData: FormData,
+): Promise<void> {
+  await assertAdmin();
+  const orderId = str(formData.get("id"));
+  await generateEInvoice(orderId);
+  await generateEwayBill(orderId);
+  revalidatePath(`/admin/orders/${orderId}`);
+}
+
 // Updates the e-way bill Part-B (vehicle details).
 export async function updateEwayBillPartBAction(
   formData: FormData,

@@ -6,6 +6,7 @@ import { sendEmail, emailLayout } from "@/lib/email";
 import { trackingUrl } from "@/lib/carriers";
 import { simplePdf } from "@/lib/pdf";
 import { buildOrderInvoicePdf } from "@/lib/invoice-pdf";
+import { getLogoJpeg } from "@/lib/logo";
 import { invoiceNumber } from "@/lib/invoice";
 import { amountInWords } from "@/lib/amount-in-words";
 import { COMPANY } from "@/lib/company";
@@ -63,7 +64,7 @@ export async function sendOrderConfirmation(orderId: string): Promise<void> {
       </table>
       <a href="${siteUrl}/account/orders" style="display:inline-block;background:#d97706;color:#fff;text-decoration:none;padding:10px 20px;border-radius:999px">View your orders</a>`;
 
-    const pdf = buildOrderInvoicePdf(order);
+    const pdf = buildOrderInvoicePdf(order, await getLogoJpeg());
     const invNo = invoiceNumber(order.invoice_no, order.invoice_fy).replace(
       /\//g,
       "-",

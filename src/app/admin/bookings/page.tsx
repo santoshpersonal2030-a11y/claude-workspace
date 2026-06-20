@@ -8,6 +8,7 @@ import {
 } from "@/app/admin/actions";
 import { Constants } from "@/lib/database.types";
 import { CARRIERS } from "@/lib/carriers";
+import EwbValidity from "@/components/EwbValidity";
 import { formatINR } from "@/lib/poojas";
 
 const selectClass =
@@ -34,7 +35,7 @@ export default async function AdminBookingsPage() {
     admin
       .from("orders")
       .select(
-        "id, status, total_amount, created_at, delivery_name, delivery_phone, tracking_number, estimated_delivery, carrier, order_items(product_name, quantity)",
+        "id, status, total_amount, created_at, delivery_name, delivery_phone, tracking_number, estimated_delivery, carrier, ewb_no, ewb_valid_until, order_items(product_name, quantity)",
       )
       .order("created_at", { ascending: false }),
     admin
@@ -193,6 +194,9 @@ export default async function AdminBookingsPage() {
                   <div className="font-medium text-saffron-700">
                     {formatINR(o.total_amount)}
                   </div>
+                  {o.ewb_no && o.ewb_valid_until && (
+                    <EwbValidity validUntil={o.ewb_valid_until} />
+                  )}
                   <select
                     name="status"
                     defaultValue={o.status}
