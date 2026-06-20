@@ -4,6 +4,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import OrderStatusTracker from "@/components/OrderStatusTracker";
 import TrackingLink from "@/components/TrackingLink";
+import ReorderButton from "@/components/ReorderButton";
 import { formatINR } from "@/lib/poojas";
 import { createClient } from "@/lib/supabase/server";
 
@@ -29,7 +30,7 @@ export default async function OrdersPage() {
   const { data: orders } = await supabase
     .from("orders")
     .select(
-      "id, status, total_amount, created_at, tracking_number, estimated_delivery, carrier, order_items(product_name, quantity)",
+      "id, status, total_amount, created_at, tracking_number, estimated_delivery, carrier, order_items(product_name, quantity, products(slug, name, price, image_url, active, stock))",
     )
     .order("created_at", { ascending: false });
 
@@ -89,16 +90,36 @@ export default async function OrdersPage() {
                       )}
                     </p>
                   )}
-                  <div className="mt-3 flex items-center justify-between border-t border-saffron-50 pt-3">
+                  <div className="mt-3 flex items-center justify-between gap-3 border-t border-saffron-50 pt-3">
                     <Link
                       href={`/account/orders/${order.id}`}
                       className="text-sm font-semibold text-saffron-700 hover:text-saffron-800"
                     >
                       View details →
                     </Link>
-                    <span className="font-semibold text-saffron-700">
-                      {formatINR(order.total_amount)}
-                    </span>
+                    <div className="flex items-center gap-3">
+                      {(() => {
+                        const reorderItems = order.order_items
+                          .filter(
+                            (i) =>
+                              i.products?.active &&
+                              (i.products?.stock ?? 0) > 0,
+                          )
+                          .map((i) => ({
+                            slug: i.products!.slug,
+                            name: i.products!.name,
+                            price: i.products!.price,
+                            imageUrl: i.products!.image_url,
+                            quantity: i.quantity,
+                          }));
+                        return reorderItems.length > 0 ? (
+                          <ReorderButton items={reorderItems} compact />
+                        ) : null;
+                      })()}
+                      <span className="font-semibold text-saffron-700">
+                        {formatINR(order.total_amount)}
+                      </span>
+                    </div>
                   </div>
                 </div>
               ))}

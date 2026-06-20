@@ -51,6 +51,37 @@ export async function createRazorpayOrder(params: {
   return (await res.json()) as RazorpayOrder;
 }
 
+// Refunds a captured payment. Omit amountInPaise for a full refund.
+export async function createRefund(params: {
+  paymentId: string;
+  amountInPaise?: number;
+  notes?: Record<string, string>;
+}): Promise<{ id: string; amount: number; status: string }> {
+  const keyId = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID!;
+  const keySecret = process.env.RAZORPAY_KEY_SECRET!;
+  const auth = Buffer.from(`${keyId}:${keySecret}`).toString("base64");
+
+  const body: Record<string, unknown> = { notes: params.notes };
+  if (params.amountInPaise) body.amount = params.amountInPaise;
+
+  const res = await fetch(
+    `${RAZORPAY_API}/payments/${params.paymentId}/refund`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Basic ${auth}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    },
+  );
+
+  if (!res.ok) {
+    throw new Error(`Razorpay refund failed: ${await res.text()}`);
+  }
+  return (await res.json()) as { id: string; amount: number; status: string };
+}
+
 // Verifies the signature Razorpay Checkout returns on success. The signature is
 // HMAC-SHA256(`${orderId}|${paymentId}`) keyed with the secret. Constant-time
 // comparison avoids timing leaks.

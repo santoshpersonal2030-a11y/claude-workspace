@@ -64,16 +64,25 @@ export default async function BookingDetailPage({
             ← All bookings
           </Link>
 
-          <div className="mt-3 flex items-start gap-4">
-            <div className="text-4xl">{booking.poojas?.emoji ?? "🪔"}</div>
-            <div>
-              <h1 className="font-heading text-3xl text-maroon-800">
-                {booking.poojas?.name ?? "Pooja"}
-              </h1>
-              <p className="mt-1 text-sm text-foreground/55">
-                Booked {formatDate(booking.created_at)} · #{booking.id.slice(0, 8)}
-              </p>
+          <div className="mt-3 flex items-start justify-between gap-4">
+            <div className="flex items-start gap-4">
+              <div className="text-4xl">{booking.poojas?.emoji ?? "🪔"}</div>
+              <div>
+                <h1 className="font-heading text-3xl text-maroon-800">
+                  {booking.poojas?.name ?? "Pooja"}
+                </h1>
+                <p className="mt-1 text-sm text-foreground/55">
+                  Booked {formatDate(booking.created_at)} · #
+                  {booking.id.slice(0, 8)}
+                </p>
+              </div>
             </div>
+            <Link
+              href={`/account/bookings/${booking.id}/invoice`}
+              className="whitespace-nowrap text-sm font-semibold text-saffron-700 hover:text-saffron-800"
+            >
+              Receipt
+            </Link>
           </div>
 
           <div className="mt-6 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm">

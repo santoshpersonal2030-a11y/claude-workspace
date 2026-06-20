@@ -75,7 +75,17 @@ export default async function OrderDetailPage({
                 Placed {formatDate(order.created_at)} · #{order.id.slice(0, 8)}
               </p>
             </div>
-            {reorderItems.length > 0 && <ReorderButton items={reorderItems} />}
+            <div className="flex items-center gap-3">
+              <Link
+                href={`/account/orders/${order.id}/invoice`}
+                className="text-sm font-semibold text-saffron-700 hover:text-saffron-800"
+              >
+                Invoice
+              </Link>
+              {reorderItems.length > 0 && (
+                <ReorderButton items={reorderItems} />
+              )}
+            </div>
           </div>
 
           {/* Tracker */}

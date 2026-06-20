@@ -5,10 +5,12 @@ import {
   updateOrderStatus,
   updateOrderItem,
   removeOrderItem,
+  refundOrder,
 } from "@/app/admin/actions";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { Constants } from "@/lib/database.types";
 import { CARRIERS } from "@/lib/carriers";
+import { razorpayConfigured } from "@/lib/razorpay";
 import { formatINR } from "@/lib/poojas";
 
 const inputClass =
@@ -30,6 +32,17 @@ export default async function AdminOrderDetailPage({
     .maybeSingle();
 
   if (!order) notFound();
+
+  const { data: payment } = await admin
+    .from("payments")
+    .select("amount, refunded_amount, status, razorpay_payment_id")
+    .eq("order_id", order.id)
+    .eq("payment_for", "order")
+    .maybeSingle();
+
+  const remaining = payment
+    ? payment.amount - payment.refunded_amount
+    : 0;
 
   return (
     <div>
@@ -181,6 +194,56 @@ export default async function AdminOrderDetailPage({
               </button>
             </div>
           </form>
+
+          {/* Refunds */}
+          <div className="rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm">
+            <h2 className="font-heading text-lg text-maroon-700">Refund</h2>
+            {payment?.refunded_amount ? (
+              <p className="mt-2 text-sm text-foreground/70">
+                Refunded so far:{" "}
+                <span className="font-medium">
+                  {formatINR(payment.refunded_amount)}
+                </span>{" "}
+                · remaining {formatINR(remaining)}
+              </p>
+            ) : null}
+
+            {!payment?.razorpay_payment_id ? (
+              <p className="mt-2 text-sm text-foreground/55">
+                No captured online payment to refund.
+              </p>
+            ) : !razorpayConfigured() ? (
+              <p className="mt-2 text-sm text-foreground/55">
+                Razorpay isn&apos;t configured, so refunds can&apos;t be
+                processed yet.
+              </p>
+            ) : remaining <= 0 ? (
+              <p className="mt-2 text-sm text-foreground/55">
+                This payment is fully refunded.
+              </p>
+            ) : (
+              <form action={refundOrder} className="mt-3 space-y-2">
+                <input type="hidden" name="id" value={order.id} />
+                <input
+                  name="amount"
+                  type="number"
+                  min={1}
+                  max={remaining}
+                  placeholder={`Amount ₹ (blank = full ${formatINR(remaining)})`}
+                  className={`${inputClass} w-full`}
+                />
+                <button
+                  type="submit"
+                  className="w-full rounded-full border border-maroon-300 py-2 text-sm font-semibold text-maroon-700 hover:bg-maroon-50"
+                >
+                  Issue refund
+                </button>
+                <p className="text-[11px] text-foreground/50">
+                  A full refund also cancels the order.
+                </p>
+              </form>
+            )}
+          </div>
         </div>
       </div>
     </div>

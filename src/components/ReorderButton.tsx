@@ -13,7 +13,13 @@ type ReorderItem = {
 };
 
 // Adds all (still-available) items from a past order back into the cart.
-export default function ReorderButton({ items }: { items: ReorderItem[] }) {
+export default function ReorderButton({
+  items,
+  compact = false,
+}: {
+  items: ReorderItem[];
+  compact?: boolean;
+}) {
   const [added, setAdded] = useState(false);
 
   function reorder() {
@@ -36,9 +42,13 @@ export default function ReorderButton({ items }: { items: ReorderItem[] }) {
     <button
       type="button"
       onClick={reorder}
-      className="rounded-full bg-saffron-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-saffron-700"
+      className={
+        compact
+          ? "rounded-full border border-saffron-300 px-4 py-1.5 text-sm font-semibold text-saffron-700 transition-colors hover:bg-saffron-50"
+          : "rounded-full bg-saffron-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-saffron-700"
+      }
     >
-      {added ? "Added to cart ✓" : "Reorder"}
+      {added ? "Added ✓" : "Reorder"}
     </button>
   );
 }

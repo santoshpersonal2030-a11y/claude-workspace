@@ -76,6 +76,12 @@ export default async function AdminBookingsPage() {
                         ? ` · assigned ${b.assigned.full_name}`
                         : ""}
                     </div>
+                    <Link
+                      href={`/admin/bookings/${b.id}`}
+                      className="text-xs font-semibold text-saffron-700 hover:text-saffron-800"
+                    >
+                      Edit details →
+                    </Link>
                   </div>
                   <div className="font-medium text-saffron-700">
                     {formatINR(b.total_amount)}

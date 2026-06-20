@@ -336,6 +336,7 @@ export type Database = {
           razorpay_order_id: string | null
           razorpay_payment_id: string | null
           razorpay_signature: string | null
+          refunded_amount: number
           status: Database["public"]["Enums"]["payment_status"]
           updated_at: string
           user_id: string
@@ -351,6 +352,7 @@ export type Database = {
           razorpay_order_id?: string | null
           razorpay_payment_id?: string | null
           razorpay_signature?: string | null
+          refunded_amount?: number
           status?: Database["public"]["Enums"]["payment_status"]
           updated_at?: string
           user_id: string
@@ -366,6 +368,7 @@ export type Database = {
           razorpay_order_id?: string | null
           razorpay_payment_id?: string | null
           razorpay_signature?: string | null
+          refunded_amount?: number
           status?: Database["public"]["Enums"]["payment_status"]
           updated_at?: string
           user_id?: string

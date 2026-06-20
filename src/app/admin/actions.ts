@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 
 import { assertAdmin } from "@/lib/admin";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { createRefund, razorpayConfigured } from "@/lib/razorpay";
 import {
   sendReviewRequest,
   sendBackInStockEmails,
@@ -295,6 +296,80 @@ export async function removeOrderItem(formData: FormData): Promise<void> {
   await admin.from("order_items").delete().eq("id", itemId);
   await recomputeOrderTotals(admin, item.order_id);
   revalidatePath(`/admin/orders/${item.order_id}`);
+}
+
+// Full edit of a booking from the admin booking detail page.
+export async function updateBookingDetails(formData: FormData): Promise<void> {
+  await assertAdmin();
+  const admin = createAdminClient();
+  const id = str(formData.get("id"));
+
+  await admin
+    .from("bookings")
+    .update({
+      booking_date: str(formData.get("booking_date")),
+      time_slot: str(formData.get("time_slot")),
+      language: str(formData.get("language")) || null,
+      address: str(formData.get("address")),
+      city: str(formData.get("city")),
+      notes: str(formData.get("notes")) || null,
+      status: str(formData.get("status")) as BookingStatus,
+      pandit_id: str(formData.get("pandit_id")) || null,
+    })
+    .eq("id", id);
+
+  revalidatePath(`/admin/bookings/${id}`);
+  revalidatePath("/admin/bookings");
+}
+
+// Refunds an order's payment via Razorpay. Blank amount = full refund (also
+// cancels the order). Partial refunds track the cumulative refunded amount.
+export async function refundOrder(formData: FormData): Promise<void> {
+  await assertAdmin();
+  const admin = createAdminClient();
+  const orderId = str(formData.get("id"));
+  const amountInr = num(formData.get("amount")); // 0 → full refund
+
+  const { data: payment } = await admin
+    .from("payments")
+    .select("id, amount, refunded_amount, razorpay_payment_id, status")
+    .eq("order_id", orderId)
+    .eq("payment_for", "order")
+    .maybeSingle();
+
+  if (!payment?.razorpay_payment_id || !razorpayConfigured()) return;
+
+  const remaining = payment.amount - payment.refunded_amount;
+  const refundInr = amountInr > 0 ? Math.min(amountInr, remaining) : remaining;
+  if (refundInr <= 0) return;
+
+  try {
+    await createRefund({
+      paymentId: payment.razorpay_payment_id,
+      amountInPaise: amountInr > 0 ? refundInr * 100 : undefined,
+      notes: { order_id: orderId },
+    });
+  } catch (err) {
+    console.error("refundOrder failed:", err);
+    return;
+  }
+
+  const newRefunded = payment.refunded_amount + refundInr;
+  const fullyRefunded = newRefunded >= payment.amount;
+
+  await admin
+    .from("payments")
+    .update({
+      refunded_amount: newRefunded,
+      status: fullyRefunded ? "refunded" : payment.status,
+    })
+    .eq("id", payment.id);
+
+  if (fullyRefunded) {
+    await admin.from("orders").update({ status: "cancelled" }).eq("id", orderId);
+  }
+
+  revalidatePath(`/admin/orders/${orderId}`);
 }
 
 // Assigns (or clears) the actual pandit on a booking. Assigning also advances a
