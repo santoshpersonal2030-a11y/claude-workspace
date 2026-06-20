@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { assertAdmin } from "@/lib/admin";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createRefund, razorpayConfigured } from "@/lib/razorpay";
+import { generateEInvoice } from "@/lib/einvoice";
 import {
   sendReviewRequest,
   sendBackInStockEmails,
@@ -302,6 +303,16 @@ export async function removeOrderItem(formData: FormData): Promise<void> {
   await admin.from("order_items").delete().eq("id", itemId);
   await recomputeOrderTotals(admin, item.order_id);
   revalidatePath(`/admin/orders/${item.order_id}`);
+}
+
+// Requests an IRN/e-invoice from the IRP for a B2B order.
+export async function generateEInvoiceAction(
+  formData: FormData,
+): Promise<void> {
+  await assertAdmin();
+  const orderId = str(formData.get("id"));
+  await generateEInvoice(orderId);
+  revalidatePath(`/admin/orders/${orderId}`);
 }
 
 // Full edit of a booking from the admin booking detail page.

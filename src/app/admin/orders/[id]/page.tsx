@@ -6,6 +6,7 @@ import {
   updateOrderItem,
   removeOrderItem,
   refundOrder,
+  generateEInvoiceAction,
 } from "@/app/admin/actions";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { Constants } from "@/lib/database.types";
@@ -27,7 +28,7 @@ export default async function AdminOrderDetailPage({
   const { data: order } = await admin
     .from("orders")
     .select(
-      "id, status, subtotal, shipping, total_amount, created_at, delivery_name, delivery_phone, address, city, pincode, tracking_number, estimated_delivery, carrier, order_items(id, product_name, quantity, unit_price, line_total)",
+      "id, status, subtotal, shipping, total_amount, created_at, delivery_name, delivery_phone, address, city, pincode, tracking_number, estimated_delivery, carrier, customer_gstin, irn, irn_date, order_items(id, product_name, quantity, unit_price, line_total)",
     )
     .eq("id", id)
     .maybeSingle();
@@ -286,6 +287,42 @@ export default async function AdminOrderDetailPage({
                   ))}
                 </ul>
               </div>
+            )}
+          </div>
+
+          {/* E-invoice (IRN) */}
+          <div className="rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm">
+            <h2 className="font-heading text-lg text-maroon-700">E-invoice</h2>
+            {!order.customer_gstin ? (
+              <p className="mt-2 text-sm text-foreground/55">
+                B2C order (no buyer GSTIN) — e-invoice not required.
+              </p>
+            ) : order.irn ? (
+              <div className="mt-2 text-sm text-foreground/75">
+                <p className="break-all">
+                  <span className="text-foreground/55">IRN: </span>
+                  {order.irn}
+                </p>
+                {order.irn_date && (
+                  <p className="text-xs text-foreground/55">
+                    Generated{" "}
+                    {new Date(order.irn_date).toLocaleString("en-IN")}
+                  </p>
+                )}
+              </div>
+            ) : (
+              <form action={generateEInvoiceAction} className="mt-2">
+                <input type="hidden" name="id" value={order.id} />
+                <p className="text-xs text-foreground/55">
+                  Buyer GSTIN: {order.customer_gstin}
+                </p>
+                <button
+                  type="submit"
+                  className="mt-2 rounded-full bg-saffron-600 px-4 py-1.5 text-xs font-semibold text-white hover:bg-saffron-700"
+                >
+                  Generate e-invoice
+                </button>
+              </form>
             )}
           </div>
         </div>

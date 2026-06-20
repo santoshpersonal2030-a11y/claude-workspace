@@ -5,6 +5,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { sendEmail, emailLayout } from "@/lib/email";
 import { trackingUrl } from "@/lib/carriers";
 import { simplePdf } from "@/lib/pdf";
+import { buildOrderInvoicePdf } from "@/lib/invoice-pdf";
 import { invoiceNumber } from "@/lib/invoice";
 import { amountInWords } from "@/lib/amount-in-words";
 import { COMPANY } from "@/lib/company";
@@ -32,7 +33,7 @@ export async function sendOrderConfirmation(orderId: string): Promise<void> {
     const { data: order } = await admin
       .from("orders")
       .select(
-        "id, user_id, total_amount, subtotal, shipping, order_items(product_name, quantity, line_total)",
+        "id, user_id, invoice_no, invoice_fy, status, created_at, total_amount, subtotal, shipping, delivery_name, delivery_phone, address, city, state, pincode, order_items(id, product_name, quantity, unit_price, line_total, gst_rate, hsn_code)",
       )
       .eq("id", orderId)
       .maybeSingle();
@@ -50,7 +51,7 @@ export async function sendOrderConfirmation(orderId: string): Promise<void> {
       .join("");
 
     const body = `
-      <p>Hi ${recipient.name}, thank you for your order! It's confirmed and being prepared.</p>
+      <p>Hi ${recipient.name}, thank you for your order! It's confirmed and being prepared. Your tax invoice is attached.</p>
       <table style="width:100%;border-collapse:collapse;margin:16px 0">
         ${rows}
         <tr><td style="padding-top:8px;border-top:1px solid #f3e2cb">Shipping</td>
@@ -62,10 +63,19 @@ export async function sendOrderConfirmation(orderId: string): Promise<void> {
       </table>
       <a href="${siteUrl}/account/orders" style="display:inline-block;background:#d97706;color:#fff;text-decoration:none;padding:10px 20px;border-radius:999px">View your orders</a>`;
 
+    const pdf = buildOrderInvoicePdf(order);
+    const invNo = invoiceNumber(order.invoice_no, order.invoice_fy).replace(
+      /\//g,
+      "-",
+    );
+
     await sendEmail({
       to: recipient.email,
       subject: "Your BookMyPoojari order is confirmed 🙏",
       html: emailLayout("Order confirmed", body),
+      attachments: [
+        { filename: `${invNo}.pdf`, content: pdf.toString("base64") },
+      ],
     });
   } catch (err) {
     console.error("sendOrderConfirmation failed:", err);

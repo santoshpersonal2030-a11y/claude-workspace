@@ -5,7 +5,8 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { toCsv } from "@/lib/csv";
 import { invoiceNumber } from "@/lib/invoice";
-import { placeOfSupply } from "@/lib/india";
+import { placeOfSupply, STATE_CODES } from "@/lib/india";
+import { COMPANY } from "@/lib/company";
 
 const PAID_ORDER_STATUSES = [
   "paid",
@@ -167,4 +168,62 @@ export async function buildGstr1Csv(
       0,
     ]);
   return toCsv(headers, rows);
+}
+
+// GSTR-1 offline-tool JSON (B2CS section), aggregated by place of supply + rate.
+export async function buildGstr1Json(
+  from?: string | null,
+  to?: string | null,
+  period?: string | null,
+): Promise<unknown> {
+  const admin = createAdminClient();
+  const b = dayBounds(from, to);
+  let query = admin
+    .from("order_items")
+    .select("line_total, gst_rate, orders!inner(state, status, created_at)")
+    .in("orders.status", PAID_ORDER_STATUSES);
+  if (b.from) query = query.gte("orders.created_at", b.from);
+  if (b.to) query = query.lte("orders.created_at", b.to);
+  const { data } = await query;
+
+  const agg = new Map<
+    string,
+    { state: string; rate: number; taxable: number; tax: number }
+  >();
+  for (const i of data ?? []) {
+    const state = i.orders?.state ?? "";
+    const rate = Number(i.gst_rate) || 0;
+    const taxable = Math.round(i.line_total / (1 + rate / 100));
+    const tax = i.line_total - taxable;
+    const key = `${state}|${rate}`;
+    const e = agg.get(key) ?? { state, rate, taxable: 0, tax: 0 };
+    e.taxable += taxable;
+    e.tax += tax;
+    agg.set(key, e);
+  }
+
+  const companyCode = STATE_CODES[COMPANY.state] ?? "";
+  const b2cs = [...agg.values()].map((r) => {
+    const pos = STATE_CODES[r.state] ?? "";
+    const intra = pos !== "" && pos === companyCode;
+    const camt = intra ? Math.floor(r.tax / 2) : 0;
+    return {
+      sply_ty: intra ? "INTRA" : "INTER",
+      pos,
+      typ: "OE",
+      rt: r.rate,
+      txval: r.taxable,
+      iamt: intra ? 0 : r.tax,
+      camt,
+      samt: intra ? r.tax - camt : 0,
+      csamt: 0,
+    };
+  });
+
+  const fpDate = b.to ? new Date(b.to) : new Date();
+  const fp =
+    period ||
+    `${String(fpDate.getMonth() + 1).padStart(2, "0")}${fpDate.getFullYear()}`;
+
+  return { gstin: COMPANY.gstin, fp, b2cs };
 }

@@ -19,7 +19,7 @@ export default async function AdminOrderInvoicePage({
   const { data: order } = await admin
     .from("orders")
     .select(
-      "id, invoice_no, invoice_fy, status, subtotal, shipping, total_amount, created_at, delivery_name, delivery_phone, address, city, state, pincode, order_items(id, product_name, quantity, unit_price, line_total, gst_rate, hsn_code)",
+      "id, invoice_no, invoice_fy, status, irn, signed_qr, subtotal, shipping, total_amount, created_at, delivery_name, delivery_phone, address, city, state, pincode, order_items(id, product_name, quantity, unit_price, line_total, gst_rate, hsn_code)",
     )
     .eq("id", id)
     .maybeSingle();
@@ -27,10 +27,11 @@ export default async function AdminOrderInvoicePage({
   if (!order) notFound();
 
   const qr = await qrDataUrl(
-    invoiceQrPayload(
-      invoiceNumber(order.invoice_no, order.invoice_fy),
-      order.total_amount,
-    ),
+    order.signed_qr ||
+      invoiceQrPayload(
+        invoiceNumber(order.invoice_no, order.invoice_fy),
+        order.total_amount,
+      ),
   );
 
   return (
@@ -42,7 +43,17 @@ export default async function AdminOrderInvoicePage({
         >
           ← Back to order
         </Link>
-        <PrintButton />
+        <div className="flex gap-3">
+          <a
+            href={`/api/admin/invoice/order/${order.id}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded-full border border-saffron-300 px-4 py-2 text-sm font-semibold text-saffron-700 hover:bg-saffron-50"
+          >
+            Download PDF
+          </a>
+          <PrintButton />
+        </div>
       </div>
       <OrderInvoice order={order} qrDataUrl={qr} />
     </div>

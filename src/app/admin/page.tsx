@@ -257,7 +257,15 @@ export default async function AdminOverviewPage({
           }`}
           className="rounded-full border border-saffron-300 px-3 py-1 text-xs font-semibold text-saffron-700 hover:bg-saffron-50"
         >
-          ⬇ GSTR-1 (B2C)
+          ⬇ GSTR-1 CSV
+        </a>
+        <a
+          href={`/api/admin/export/gstr1-json${
+            from || to ? `?from=${from ?? ""}&to=${to ?? ""}` : ""
+          }`}
+          className="rounded-full border border-saffron-300 px-3 py-1 text-xs font-semibold text-saffron-700 hover:bg-saffron-50"
+        >
+          ⬇ GSTR-1 JSON
         </a>
       </div>
 

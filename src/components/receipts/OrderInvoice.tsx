@@ -11,6 +11,7 @@ export type OrderInvoiceData = {
   id: string;
   created_at: string;
   status: string;
+  irn?: string | null;
   delivery_name: string | null;
   delivery_phone: string | null;
   address: string | null;
@@ -98,6 +99,11 @@ export default function OrderInvoice({
           <div className="text-foreground/60">
             {new Date(order.created_at).toLocaleDateString("en-IN")}
           </div>
+          {order.irn && (
+            <div className="mt-1 max-w-[180px] break-all text-[9px] text-foreground/45">
+              IRN: {order.irn}
+            </div>
+          )}
         </div>
       </div>
 

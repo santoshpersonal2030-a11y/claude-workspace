@@ -295,6 +295,10 @@ export type Database = {
           carrier: string | null
           city: string | null
           created_at: string
+          customer_gstin: string | null
+          irn: string | null
+          irn_date: string | null
+          signed_qr: string | null
           delivery_name: string | null
           delivery_phone: string | null
           estimated_delivery: string | null
@@ -316,6 +320,10 @@ export type Database = {
           carrier?: string | null
           city?: string | null
           created_at?: string
+          customer_gstin?: string | null
+          irn?: string | null
+          irn_date?: string | null
+          signed_qr?: string | null
           delivery_name?: string | null
           delivery_phone?: string | null
           estimated_delivery?: string | null
@@ -337,6 +345,10 @@ export type Database = {
           carrier?: string | null
           city?: string | null
           created_at?: string
+          customer_gstin?: string | null
+          irn?: string | null
+          irn_date?: string | null
+          signed_qr?: string | null
           delivery_name?: string | null
           delivery_phone?: string | null
           estimated_delivery?: string | null

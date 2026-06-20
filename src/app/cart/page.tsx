@@ -31,6 +31,7 @@ export default function CartPage() {
     city: "",
     state: "",
     pincode: "",
+    gstin: "",
   });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -283,6 +284,15 @@ export default function CartPage() {
                           </option>
                         ))}
                       </select>
+                      <input
+                        type="text"
+                        placeholder="GSTIN (optional, for business invoice)"
+                        value={delivery.gstin}
+                        onChange={(e) =>
+                          setDelivery({ ...delivery, gstin: e.target.value })
+                        }
+                        className="w-full rounded-xl border border-saffron-200 bg-cream px-3 py-2.5 text-sm outline-none focus:border-saffron-400 focus:ring-2 focus:ring-saffron-100"
+                      />
 
                       {error && (
                         <p className="rounded-xl bg-maroon-50 px-3 py-2 text-sm text-maroon-700">

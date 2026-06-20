@@ -18,6 +18,7 @@ type CheckoutBody = {
     city?: string;
     state?: string;
     pincode?: string;
+    gstin?: string;
   };
 };
 
@@ -95,6 +96,7 @@ export async function POST(request: Request) {
       city: body.delivery?.city ?? null,
       state: body.delivery?.state ?? null,
       pincode: body.delivery?.pincode ?? null,
+      customer_gstin: body.delivery?.gstin?.trim() || null,
     })
     .select("id")
     .single();
