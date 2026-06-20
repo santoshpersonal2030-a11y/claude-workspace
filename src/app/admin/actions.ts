@@ -9,6 +9,7 @@ import {
   sendReviewRequest,
   sendBackInStockEmails,
   sendOrderStatusUpdate,
+  sendRefundConfirmation,
 } from "@/lib/notifications";
 import type { Database } from "@/lib/database.types";
 
@@ -368,6 +369,8 @@ export async function refundOrder(formData: FormData): Promise<void> {
   if (fullyRefunded) {
     await admin.from("orders").update({ status: "cancelled" }).eq("id", orderId);
   }
+
+  await sendRefundConfirmation(orderId, refundInr);
 
   revalidatePath(`/admin/orders/${orderId}`);
 }

@@ -250,6 +250,36 @@ export async function sendOrderStatusUpdate(
   }
 }
 
+export async function sendRefundConfirmation(
+  orderId: string,
+  amountInr: number,
+): Promise<void> {
+  try {
+    const admin = createAdminClient();
+    const { data: order } = await admin
+      .from("orders")
+      .select("user_id")
+      .eq("id", orderId)
+      .maybeSingle();
+    if (!order) return;
+
+    const recipient = await emailForUser(admin, order.user_id);
+    if (!recipient) return;
+
+    const body = `
+      <p>Hi ${recipient.name}, we've processed a refund of <strong>${formatINR(amountInr)}</strong> for your order.</p>
+      <p>It should reflect in your original payment method within 5–7 business days.</p>`;
+
+    await sendEmail({
+      to: recipient.email,
+      subject: "Your refund has been processed 💸",
+      html: emailLayout("Refund processed", body),
+    });
+  } catch (err) {
+    console.error("sendRefundConfirmation failed:", err);
+  }
+}
+
 export async function sendReviewRequest(orderId: string): Promise<void> {
   try {
     const admin = createAdminClient();

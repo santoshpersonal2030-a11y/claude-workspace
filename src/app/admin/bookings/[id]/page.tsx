@@ -43,20 +43,28 @@ export default async function AdminBookingDetailPage({
       >
         ← Bookings & orders
       </Link>
-      <div className="mt-2 flex items-center gap-3">
-        <span className="text-3xl">{booking.poojas?.emoji ?? "🪔"}</span>
-        <div>
-          <h1 className="font-heading text-2xl text-maroon-800">
-            {booking.poojas?.name ?? "Pooja"}
-          </h1>
-          <p className="text-sm text-foreground/55">
-            #{booking.id.slice(0, 8)} ·{" "}
-            {new Date(booking.created_at).toLocaleDateString("en-IN")}
-            {booking.preferred?.full_name
-              ? ` · prefers ${booking.preferred.full_name}`
-              : ""}
-          </p>
+      <div className="mt-2 flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <span className="text-3xl">{booking.poojas?.emoji ?? "🪔"}</span>
+          <div>
+            <h1 className="font-heading text-2xl text-maroon-800">
+              {booking.poojas?.name ?? "Pooja"}
+            </h1>
+            <p className="text-sm text-foreground/55">
+              #{booking.id.slice(0, 8)} ·{" "}
+              {new Date(booking.created_at).toLocaleDateString("en-IN")}
+              {booking.preferred?.full_name
+                ? ` · prefers ${booking.preferred.full_name}`
+                : ""}
+            </p>
+          </div>
         </div>
+        <Link
+          href={`/admin/bookings/${booking.id}/invoice`}
+          className="whitespace-nowrap text-sm font-semibold text-saffron-700 hover:text-saffron-800"
+        >
+          Receipt →
+        </Link>
       </div>
 
       <form

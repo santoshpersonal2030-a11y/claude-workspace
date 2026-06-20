@@ -52,12 +52,23 @@ export default async function AdminOrderDetailPage({
       >
         ← Bookings & orders
       </Link>
-      <h1 className="mt-2 font-heading text-2xl text-maroon-800">
-        Order #{order.id.slice(0, 8)}
-      </h1>
-      <p className="mt-1 text-sm text-foreground/55">
-        {new Date(order.created_at).toLocaleString("en-IN")} · {order.status}
-      </p>
+      <div className="mt-2 flex items-center justify-between gap-3">
+        <div>
+          <h1 className="font-heading text-2xl text-maroon-800">
+            Order #{order.id.slice(0, 8)}
+          </h1>
+          <p className="mt-1 text-sm text-foreground/55">
+            {new Date(order.created_at).toLocaleString("en-IN")} ·{" "}
+            {order.status}
+          </p>
+        </div>
+        <Link
+          href={`/admin/orders/${order.id}/invoice`}
+          className="text-sm font-semibold text-saffron-700 hover:text-saffron-800"
+        >
+          Invoice →
+        </Link>
+      </div>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-[1.6fr_1fr]">
         {/* Items */}

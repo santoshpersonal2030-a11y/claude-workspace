@@ -21,6 +21,7 @@ export type Database = {
           city: string
           created_at: string
           id: string
+          invoice_no: number | null
           language: string | null
           notes: string | null
           pandit_id: string | null
@@ -42,6 +43,7 @@ export type Database = {
           city: string
           created_at?: string
           id?: string
+          invoice_no?: number | null
           language?: string | null
           notes?: string | null
           pandit_id?: string | null
@@ -63,6 +65,7 @@ export type Database = {
           city?: string
           created_at?: string
           id?: string
+          invoice_no?: number | null
           language?: string | null
           notes?: string | null
           pandit_id?: string | null
@@ -218,6 +221,7 @@ export type Database = {
           delivery_phone: string | null
           estimated_delivery: string | null
           id: string
+          invoice_no: number | null
           pincode: string | null
           shipping: number
           status: Database["public"]["Enums"]["order_status"]
@@ -236,6 +240,7 @@ export type Database = {
           delivery_phone?: string | null
           estimated_delivery?: string | null
           id?: string
+          invoice_no?: number | null
           pincode?: string | null
           shipping?: number
           status?: Database["public"]["Enums"]["order_status"]
@@ -254,6 +259,7 @@ export type Database = {
           delivery_phone?: string | null
           estimated_delivery?: string | null
           id?: string
+          invoice_no?: number | null
           pincode?: string | null
           shipping?: number
           status?: Database["public"]["Enums"]["order_status"]
