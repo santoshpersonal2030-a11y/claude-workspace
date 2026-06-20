@@ -15,7 +15,11 @@ const body = Mukta({
   subsets: ["latin", "devanagari"],
 });
 
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://bookmypoojari.com";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: {
     default: "BookMyPoojari — Book Verified Pandits & Pooja Samagri Online",
     template: "%s | BookMyPoojari",
@@ -31,11 +35,21 @@ export const metadata: Metadata = {
     "satyanarayan katha",
     "pandit for puja",
   ],
+  alternates: { canonical: "/" },
   openGraph: {
     title: "BookMyPoojari — Book Verified Pandits & Pooja Samagri Online",
     description:
       "Book verified Pandits for any ceremony and order authentic pooja samagri, delivered to your door.",
     type: "website",
+    siteName: "BookMyPoojari",
+    locale: "en_IN",
+    url: siteUrl,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "BookMyPoojari — Book Verified Pandits & Pooja Samagri Online",
+    description:
+      "Book verified Pandits for any ceremony and order authentic pooja samagri, delivered to your door.",
   },
 };
 
