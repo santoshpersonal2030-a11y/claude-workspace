@@ -4,7 +4,11 @@ import { revalidatePath } from "next/cache";
 
 import { assertAdmin } from "@/lib/admin";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { sendReviewRequest, sendBackInStockEmails } from "@/lib/notifications";
+import {
+  sendReviewRequest,
+  sendBackInStockEmails,
+  sendOrderStatusUpdate,
+} from "@/lib/notifications";
 import type { Database } from "@/lib/database.types";
 
 type BookingStatus = Database["public"]["Enums"]["booking_status"];
@@ -201,9 +205,16 @@ export async function updateOrderStatus(formData: FormData): Promise<void> {
   const status = str(formData.get("status")) as OrderStatus;
   await admin.from("orders").update({ status }).eq("id", id);
 
-  // Invite the customer to review their purchases once delivered.
+  // Email the customer about the transition; delivery also invites a review.
   if (status === "delivered") {
     await sendReviewRequest(id);
+    await sendOrderStatusUpdate(id, status);
+  } else if (
+    status === "packed" ||
+    status === "shipped" ||
+    status === "cancelled"
+  ) {
+    await sendOrderStatusUpdate(id, status);
   }
 
   revalidatePath("/admin/bookings");

@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import OrderStatusTracker from "@/components/OrderStatusTracker";
 import { formatINR } from "@/lib/poojas";
 import { createClient } from "@/lib/supabase/server";
 
@@ -63,6 +64,9 @@ export default async function OrdersPage() {
                       .map((i) => `${i.product_name} ×${i.quantity}`)
                       .join(", ")}
                   </p>
+                  <div className="mt-4">
+                    <OrderStatusTracker status={order.status} />
+                  </div>
                   <div className="mt-3 border-t border-saffron-50 pt-3 text-right font-semibold text-saffron-700">
                     {formatINR(order.total_amount)}
                   </div>

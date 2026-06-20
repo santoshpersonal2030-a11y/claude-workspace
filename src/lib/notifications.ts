@@ -114,23 +114,48 @@ export async function sendBackInStockEmails(productId: string): Promise<void> {
       .maybeSingle();
     if (!product || product.stock <= 0) return;
 
+    // Collect unique recipients from wishlists and explicit restock sign-ups.
+    const recipients = new Map<string, string>(); // email -> name
+
     const { data: wishers } = await admin
       .from("wishlists")
       .select("user_id")
       .eq("product_id", productId);
-    if (!wishers?.length) return;
+    for (const w of wishers ?? []) {
+      const r = await emailForUser(admin, w.user_id);
+      if (r) recipients.set(r.email.toLowerCase(), r.name);
+    }
 
-    for (const w of wishers) {
-      const recipient = await emailForUser(admin, w.user_id);
-      if (!recipient) continue;
+    const { data: subs } = await admin
+      .from("stock_subscriptions")
+      .select("email")
+      .eq("product_id", productId)
+      .is("notified_at", null);
+    for (const s of subs ?? []) {
+      const key = s.email.toLowerCase();
+      if (!recipients.has(key)) recipients.set(key, "there");
+    }
+
+    if (recipients.size === 0) return;
+
+    for (const [email, name] of recipients) {
       const body = `
-        <p>Hi ${recipient.name}, good news — <strong>${product.name}</strong> is back in stock!</p>
+        <p>Hi ${name}, good news — <strong>${product.name}</strong> is back in stock!</p>
         <a href="${siteUrl}/store/${product.slug}" style="display:inline-block;background:#d97706;color:#fff;text-decoration:none;padding:10px 20px;border-radius:999px;margin-top:8px">Shop now</a>`;
       await sendEmail({
-        to: recipient.email,
+        to: email,
         subject: `${product.name} is back in stock 🛍️`,
         html: emailLayout("Back in stock", body),
       });
+    }
+
+    // One-shot: don't email the same sign-up again on the next restock.
+    if (subs?.length) {
+      await admin
+        .from("stock_subscriptions")
+        .update({ notified_at: new Date().toISOString() })
+        .eq("product_id", productId)
+        .is("notified_at", null);
     }
   } catch (err) {
     console.error("sendBackInStockEmails failed:", err);
@@ -168,6 +193,45 @@ export async function sendAbandonedCartEmail(
     });
   } catch (err) {
     console.error("sendAbandonedCartEmail failed:", err);
+  }
+}
+
+const ORDER_STATUS_MESSAGE: Record<string, string> = {
+  paid: "is confirmed and being prepared",
+  packed: "has been packed and is ready to ship",
+  shipped: "is on its way to you",
+  delivered: "has been delivered — we hope you love it",
+  cancelled: "has been cancelled",
+};
+
+export async function sendOrderStatusUpdate(
+  orderId: string,
+  status: string,
+): Promise<void> {
+  try {
+    const admin = createAdminClient();
+    const { data: order } = await admin
+      .from("orders")
+      .select("user_id")
+      .eq("id", orderId)
+      .maybeSingle();
+    if (!order) return;
+
+    const recipient = await emailForUser(admin, order.user_id);
+    if (!recipient) return;
+
+    const message = ORDER_STATUS_MESSAGE[status] ?? `is now ${status}`;
+    const body = `
+      <p>Hi ${recipient.name}, your order ${message}.</p>
+      <a href="${siteUrl}/account/orders" style="display:inline-block;background:#d97706;color:#fff;text-decoration:none;padding:10px 20px;border-radius:999px;margin-top:8px">Track your order</a>`;
+
+    await sendEmail({
+      to: recipient.email,
+      subject: `Order update: ${status} 📦`,
+      html: emailLayout("Order update", body),
+    });
+  } catch (err) {
+    console.error("sendOrderStatusUpdate failed:", err);
   }
 }
 

@@ -576,6 +576,41 @@ export type Database = {
         }
         Relationships: []
       }
+      stock_subscriptions: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          notified_at: string | null
+          product_id: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          notified_at?: string | null
+          product_id: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          notified_at?: string | null
+          product_id?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stock_subscriptions_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       wishlists: {
         Row: {
           created_at: string

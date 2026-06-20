@@ -8,6 +8,7 @@ import ProductPurchase from "@/components/ProductPurchase";
 import ProductThumb from "@/components/ProductThumb";
 import ProductGallery from "@/components/ProductGallery";
 import WishlistButton from "@/components/WishlistButton";
+import NotifyMeButton from "@/components/NotifyMeButton";
 import RatingStars from "@/components/RatingStars";
 import ProductReviews from "@/components/ProductReviews";
 import ReviewForm from "@/components/ReviewForm";
@@ -138,6 +139,12 @@ export default async function ProductDetailPage({
                   className="h-11 w-11 border border-saffron-200"
                 />
               </div>
+
+              {product.stock <= 0 && (
+                <div className="mt-4">
+                  <NotifyMeButton productSlug={product.slug} />
+                </div>
+              )}
 
               <p className="mt-4 text-sm text-foreground/60">
                 Free delivery on orders over ₹999. Authentic, freshly sourced
