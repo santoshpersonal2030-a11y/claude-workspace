@@ -111,6 +111,10 @@ export async function saveProduct(formData: FormData): Promise<void> {
     stock,
     image_url: cover,
     images,
+    gst_rate: formData.has("gst_rate")
+      ? clampFloat(formData.get("gst_rate"), 28)
+      : 18,
+    hsn_code: str(formData.get("hsn_code")) || null,
     active: formData.get("active") === "on",
   };
 

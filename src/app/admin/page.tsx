@@ -23,8 +23,40 @@ const ACTIVE_BOOKING_STATUSES = [
   "completed",
 ] as const;
 
-export default async function AdminOverviewPage() {
+function isoDate(d: Date): string {
+  return d.toISOString().slice(0, 10);
+}
+
+export default async function AdminOverviewPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ from?: string; to?: string }>;
+}) {
+  const { from, to } = await searchParams;
   const admin = createAdminClient();
+
+  // Apply the date range (if any) to the revenue/fulfilment queries.
+  let paidOrdersQuery = admin
+    .from("orders")
+    .select("status, total_amount, created_at, order_items(product_name, quantity)")
+    .in("status", PAID_ORDER_STATUSES);
+  let activeBookingsQuery = admin
+    .from("bookings")
+    .select("total_amount, created_at")
+    .in("status", ACTIVE_BOOKING_STATUSES);
+  let paymentsQuery = admin.from("payments").select("refunded_amount, created_at");
+
+  if (from) {
+    paidOrdersQuery = paidOrdersQuery.gte("created_at", from);
+    activeBookingsQuery = activeBookingsQuery.gte("created_at", from);
+    paymentsQuery = paymentsQuery.gte("created_at", from);
+  }
+  if (to) {
+    const end = `${to}T23:59:59`;
+    paidOrdersQuery = paidOrdersQuery.lte("created_at", end);
+    activeBookingsQuery = activeBookingsQuery.lte("created_at", end);
+    paymentsQuery = paymentsQuery.lte("created_at", end);
+  }
 
   const [
     bookings,
@@ -51,16 +83,28 @@ export default async function AdminOverviewPage() {
       .select("id, status, total_amount, created_at, delivery_name")
       .order("created_at", { ascending: false })
       .limit(5),
-    admin
-      .from("orders")
-      .select("status, total_amount, order_items(product_name, quantity)")
-      .in("status", PAID_ORDER_STATUSES),
-    admin
-      .from("bookings")
-      .select("total_amount")
-      .in("status", ACTIVE_BOOKING_STATUSES),
-    admin.from("payments").select("refunded_amount"),
+    paidOrdersQuery,
+    activeBookingsQuery,
+    paymentsQuery,
   ]);
+
+  // Date-range presets.
+  const today = new Date();
+  const last7 = new Date(today);
+  last7.setDate(last7.getDate() - 7);
+  const last30 = new Date(today);
+  last30.setDate(last30.getDate() - 30);
+  const presets = [
+    { label: "All time", href: "/admin" },
+    {
+      label: "Last 7 days",
+      href: `/admin?from=${isoDate(last7)}&to=${isoDate(today)}`,
+    },
+    {
+      label: "Last 30 days",
+      href: `/admin?from=${isoDate(last30)}&to=${isoDate(today)}`,
+    },
+  ];
 
   // Revenue, refunds, fulfilment queue.
   const storeRevenue = (paidOrders.data ?? []).reduce(
@@ -124,6 +168,43 @@ export default async function AdminOverviewPage() {
             <div className="mt-1 text-sm text-foreground/60">{s.label}</div>
           </Link>
         ))}
+      </div>
+
+      {/* Date range filter */}
+      <div className="mt-8 flex flex-wrap items-center gap-3">
+        <span className="text-sm font-medium text-foreground/70">
+          Metrics for:
+        </span>
+        {presets.map((p) => (
+          <Link
+            key={p.label}
+            href={p.href}
+            className="rounded-full border border-saffron-200 bg-white px-3 py-1 text-xs font-medium text-saffron-700 hover:bg-saffron-50"
+          >
+            {p.label}
+          </Link>
+        ))}
+        <form action="/admin" className="flex items-center gap-2 text-xs">
+          <input
+            type="date"
+            name="from"
+            defaultValue={from ?? ""}
+            className="rounded-lg border border-saffron-200 bg-cream px-2 py-1"
+          />
+          <span className="text-foreground/40">→</span>
+          <input
+            type="date"
+            name="to"
+            defaultValue={to ?? ""}
+            className="rounded-lg border border-saffron-200 bg-cream px-2 py-1"
+          />
+          <button
+            type="submit"
+            className="rounded-full bg-saffron-600 px-3 py-1 font-semibold text-white hover:bg-saffron-700"
+          >
+            Apply
+          </button>
+        </form>
       </div>
 
       {/* Revenue & fulfilment metrics */}

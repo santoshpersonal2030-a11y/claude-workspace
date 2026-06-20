@@ -17,7 +17,7 @@ export default async function AdminOrderInvoicePage({
   const { data: order } = await admin
     .from("orders")
     .select(
-      "id, invoice_no, status, subtotal, shipping, total_amount, created_at, delivery_name, delivery_phone, address, city, pincode, order_items(id, product_name, quantity, unit_price, line_total)",
+      "id, invoice_no, status, subtotal, shipping, total_amount, created_at, delivery_name, delivery_phone, address, city, pincode, order_items(id, product_name, quantity, unit_price, line_total, gst_rate, hsn_code)",
     )
     .eq("id", id)
     .maybeSingle();

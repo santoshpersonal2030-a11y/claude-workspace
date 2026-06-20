@@ -168,6 +168,8 @@ export type Database = {
       }
       order_items: {
         Row: {
+          gst_rate: number
+          hsn_code: string | null
           id: string
           line_total: number
           order_id: string
@@ -177,6 +179,8 @@ export type Database = {
           unit_price: number
         }
         Insert: {
+          gst_rate?: number
+          hsn_code?: string | null
           id?: string
           line_total: number
           order_id: string
@@ -186,6 +190,8 @@ export type Database = {
           unit_price: number
         }
         Update: {
+          gst_rate?: number
+          hsn_code?: string | null
           id?: string
           line_total?: number
           order_id?: string
@@ -510,6 +516,8 @@ export type Database = {
           category: string | null
           created_at: string
           description: string | null
+          gst_rate: number
+          hsn_code: string | null
           id: string
           image_url: string | null
           images: string[]
@@ -527,6 +535,8 @@ export type Database = {
           category?: string | null
           created_at?: string
           description?: string | null
+          gst_rate?: number
+          hsn_code?: string | null
           id?: string
           image_url?: string | null
           images?: string[]
@@ -544,6 +554,8 @@ export type Database = {
           category?: string | null
           created_at?: string
           description?: string | null
+          gst_rate?: number
+          hsn_code?: string | null
           id?: string
           image_url?: string | null
           images?: string[]

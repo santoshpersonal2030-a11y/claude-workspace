@@ -1,5 +1,6 @@
 import { formatINR } from "@/lib/poojas";
 import { invoiceNumber } from "@/components/receipts/OrderInvoice";
+import { COMPANY } from "@/lib/company";
 
 export type BookingReceiptData = {
   invoice_no: number | null;
@@ -37,9 +38,14 @@ export default function BookingReceipt({
       <div className="flex items-start justify-between">
         <div>
           <div className="font-heading text-xl text-maroon-800">
-            🪔 BookMyPoojari
+            🪔 {COMPANY.name}
           </div>
-          <p className="text-xs text-foreground/55">bookmypoojari.com</p>
+          {COMPANY.addressLines.map((l) => (
+            <p key={l} className="text-xs text-foreground/55">
+              {l}
+            </p>
+          ))}
+          <p className="text-xs text-foreground/55">GSTIN: {COMPANY.gstin}</p>
         </div>
         <div className="text-right text-sm">
           <div className="font-heading text-lg text-maroon-700">Receipt</div>

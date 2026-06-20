@@ -64,6 +64,19 @@ export default async function AdminProductsPage() {
             className={inputClass}
           />
           <input
+            name="gst_rate"
+            type="number"
+            step="0.01"
+            placeholder="GST %"
+            defaultValue={18}
+            className={inputClass}
+          />
+          <input
+            name="hsn_code"
+            placeholder="HSN code"
+            className={inputClass}
+          />
+          <input
             name="image_url"
             placeholder="Image URL (optional)"
             className={`${inputClass} sm:col-span-2 lg:col-span-2`}
@@ -143,6 +156,23 @@ export default async function AdminProductsPage() {
               defaultValue={p.stock}
               className={inputClass}
             />
+            <div className="flex items-center gap-2 text-xs text-foreground/55 sm:col-span-6">
+              <span>GST %</span>
+              <input
+                name="gst_rate"
+                type="number"
+                step="0.01"
+                defaultValue={Number(p.gst_rate)}
+                className={`${inputClass} w-20`}
+              />
+              <span>HSN</span>
+              <input
+                name="hsn_code"
+                defaultValue={p.hsn_code ?? ""}
+                placeholder="HSN code"
+                className={`${inputClass} w-32`}
+              />
+            </div>
             <div className="flex items-center gap-3">
               {(waiting.get(p.id) ?? 0) > 0 && (
                 <span

@@ -53,7 +53,15 @@ export default async function AdminBookingsPage() {
     <div className="space-y-10">
       {/* Bookings */}
       <section>
-        <h1 className="font-heading text-2xl text-maroon-800">Bookings</h1>
+        <div className="flex items-center justify-between">
+          <h1 className="font-heading text-2xl text-maroon-800">Bookings</h1>
+          <a
+            href="/api/admin/export/bookings"
+            className="rounded-full border border-saffron-300 px-4 py-1.5 text-xs font-semibold text-saffron-700 hover:bg-saffron-50"
+          >
+            ⬇ Export CSV
+          </a>
+        </div>
         <div className="mt-4 space-y-3">
           {bookings.data?.length ? (
             bookings.data.map((b) => (
@@ -147,7 +155,15 @@ export default async function AdminBookingsPage() {
 
       {/* Orders */}
       <section>
-        <h2 className="font-heading text-2xl text-maroon-800">Orders</h2>
+        <div className="flex items-center justify-between">
+          <h2 className="font-heading text-2xl text-maroon-800">Orders</h2>
+          <a
+            href="/api/admin/export/orders"
+            className="rounded-full border border-saffron-300 px-4 py-1.5 text-xs font-semibold text-saffron-700 hover:bg-saffron-50"
+          >
+            ⬇ Export CSV
+          </a>
+        </div>
         <div className="mt-4 space-y-3">
           {orders.data?.length ? (
             orders.data.map((o) => (

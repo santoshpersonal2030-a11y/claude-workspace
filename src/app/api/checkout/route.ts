@@ -39,7 +39,7 @@ export async function POST(request: Request) {
   const slugs = body.items.map((i) => i.slug);
   const { data: products, error: productsError } = await supabase
     .from("products")
-    .select("id, slug, name, price, active")
+    .select("id, slug, name, price, active, gst_rate, hsn_code")
     .in("slug", slugs);
 
   if (productsError || !products) {
@@ -72,6 +72,8 @@ export async function POST(request: Request) {
       unit_price: product.price,
       quantity,
       line_total: lineTotal,
+      gst_rate: product.gst_rate,
+      hsn_code: product.hsn_code,
     };
   });
 

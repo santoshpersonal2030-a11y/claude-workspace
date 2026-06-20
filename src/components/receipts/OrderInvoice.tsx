@@ -1,7 +1,5 @@
 import { formatINR } from "@/lib/poojas";
-
-// GST is treated as included in the displayed prices (common for Indian retail).
-const GST_RATE = 0.18;
+import { COMPANY } from "@/lib/company";
 
 export type OrderInvoiceData = {
   invoice_no: number | null;
@@ -22,6 +20,8 @@ export type OrderInvoiceData = {
     quantity: number;
     unit_price: number;
     line_total: number;
+    gst_rate: number;
+    hsn_code: string | null;
   }[];
 };
 
@@ -30,20 +30,37 @@ export function invoiceNumber(no: number | null, prefix = "INV"): string {
 }
 
 export default function OrderInvoice({ order }: { order: OrderInvoiceData }) {
-  // Back out the GST component from the GST-inclusive total.
-  const taxable = Math.round(order.total_amount / (1 + GST_RATE));
-  const gst = order.total_amount - taxable;
-  const cgst = Math.floor(gst / 2);
-  const sgst = gst - cgst;
+  // Back out GST per line (prices are GST-inclusive), grouped by rate.
+  const byRate = new Map<number, { taxable: number; gst: number }>();
+  for (const i of order.order_items) {
+    const rate = Number(i.gst_rate) || 0;
+    const taxable = Math.round(i.line_total / (1 + rate / 100));
+    const gst = i.line_total - taxable;
+    const cur = byRate.get(rate) ?? { taxable: 0, gst: 0 };
+    cur.taxable += taxable;
+    cur.gst += gst;
+    byRate.set(rate, cur);
+  }
+  const rateRows = [...byRate.entries()].sort((a, b) => a[0] - b[0]);
+  const totalTaxable = rateRows.reduce((s, [, v]) => s + v.taxable, 0);
+  const totalGst = rateRows.reduce((s, [, v]) => s + v.gst, 0);
 
   return (
     <div className="rounded-2xl border border-saffron-100 p-8">
       <div className="flex items-start justify-between">
         <div>
           <div className="font-heading text-xl text-maroon-800">
-            🪔 BookMyPoojari
+            🪔 {COMPANY.name}
           </div>
-          <p className="text-xs text-foreground/55">bookmypoojari.com</p>
+          {COMPANY.addressLines.map((l) => (
+            <p key={l} className="text-xs text-foreground/55">
+              {l}
+            </p>
+          ))}
+          <p className="text-xs text-foreground/55">GSTIN: {COMPANY.gstin}</p>
+          <p className="text-xs text-foreground/55">
+            {COMPANY.email} · {COMPANY.phone}
+          </p>
         </div>
         <div className="text-right text-sm">
           <div className="font-heading text-lg text-maroon-700">
@@ -78,6 +95,8 @@ export default function OrderInvoice({ order }: { order: OrderInvoiceData }) {
         <thead>
           <tr className="border-b border-saffron-100 text-left text-foreground/55">
             <th className="py-2">Item</th>
+            <th className="py-2">HSN</th>
+            <th className="py-2 text-center">GST</th>
             <th className="py-2 text-center">Qty</th>
             <th className="py-2 text-right">Price</th>
             <th className="py-2 text-right">Total</th>
@@ -87,6 +106,10 @@ export default function OrderInvoice({ order }: { order: OrderInvoiceData }) {
           {order.order_items.map((i) => (
             <tr key={i.id} className="border-b border-saffron-50">
               <td className="py-2">{i.product_name}</td>
+              <td className="py-2 text-foreground/60">{i.hsn_code ?? "—"}</td>
+              <td className="py-2 text-center text-foreground/60">
+                {Number(i.gst_rate)}%
+              </td>
               <td className="py-2 text-center">{i.quantity}</td>
               <td className="py-2 text-right">{formatINR(i.unit_price)}</td>
               <td className="py-2 text-right">{formatINR(i.line_total)}</td>
@@ -95,21 +118,22 @@ export default function OrderInvoice({ order }: { order: OrderInvoiceData }) {
         </tbody>
       </table>
 
-      <div className="mt-4 ml-auto w-64 space-y-1 text-sm">
-        <div className="flex justify-between">
-          <span className="text-foreground/60">Taxable value</span>
-          <span>{formatINR(taxable)}</span>
+      {/* Tax summary by rate */}
+      <div className="mt-4 ml-auto w-72 space-y-1 text-sm">
+        <div className="flex justify-between text-foreground/60">
+          <span>Taxable value</span>
+          <span>{formatINR(totalTaxable)}</span>
         </div>
-        <div className="flex justify-between">
-          <span className="text-foreground/60">CGST (9%)</span>
-          <span>{formatINR(cgst)}</span>
-        </div>
-        <div className="flex justify-between">
-          <span className="text-foreground/60">SGST (9%)</span>
-          <span>{formatINR(sgst)}</span>
-        </div>
-        <div className="flex justify-between border-t border-saffron-50 pt-1">
-          <span className="text-foreground/60">Shipping</span>
+        {rateRows.map(([rate, v]) => (
+          <div key={rate} className="flex justify-between text-foreground/60">
+            <span>
+              CGST {rate / 2}% + SGST {rate / 2}%
+            </span>
+            <span>{formatINR(v.gst)}</span>
+          </div>
+        ))}
+        <div className="flex justify-between border-t border-saffron-50 pt-1 text-foreground/60">
+          <span>Shipping</span>
           <span>
             {order.shipping === 0 ? "Free" : formatINR(order.shipping)}
           </span>
@@ -123,8 +147,8 @@ export default function OrderInvoice({ order }: { order: OrderInvoiceData }) {
       </div>
 
       <p className="mt-8 text-center text-xs text-foreground/50">
-        Prices are inclusive of GST · Status: {order.status} · Thank you for
-        shopping with BookMyPoojari
+        Total GST: {formatINR(totalGst)} · Prices inclusive of GST · Status:{" "}
+        {order.status}
       </p>
     </div>
   );
