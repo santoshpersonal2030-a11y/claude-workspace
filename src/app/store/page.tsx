@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import AddToCartButton from "@/components/AddToCartButton";
@@ -66,7 +67,12 @@ export default async function StorePage() {
                       )}
                     </div>
                     <h3 className="mt-4 font-heading text-lg text-maroon-700">
-                      {product.name}
+                      <Link
+                        href={`/store/${product.slug}`}
+                        className="hover:text-saffron-700"
+                      >
+                        {product.name}
+                      </Link>
                     </h3>
                     {product.description && (
                       <p className="mt-2 flex-1 text-sm text-foreground/65">

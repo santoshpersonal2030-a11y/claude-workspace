@@ -157,6 +157,21 @@ export async function getProducts(): Promise<StoreProduct[]> {
   }
 }
 
+export async function getProductSlugs(): Promise<string[]> {
+  try {
+    const { data, error } = await db
+      .from("products")
+      .select("slug")
+      .eq("active", true);
+
+    if (error) throw error;
+    return (data ?? []).map((r) => r.slug);
+  } catch (err) {
+    console.warn("getProductSlugs: returning empty list —", err);
+    return [];
+  }
+}
+
 export async function getProductBySlug(
   slug: string,
 ): Promise<StoreProduct | null> {

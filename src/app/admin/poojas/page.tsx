@@ -1,0 +1,89 @@
+import { createAdminClient } from "@/lib/supabase/admin";
+import { savePooja } from "@/app/admin/actions";
+import { Constants } from "@/lib/database.types";
+
+const inputClass =
+  "w-full rounded-lg border border-saffron-200 bg-cream px-2 py-1.5 text-sm outline-none focus:border-saffron-400";
+
+export default async function AdminPoojasPage() {
+  const admin = createAdminClient();
+  const { data: poojas } = await admin
+    .from("poojas")
+    .select("*")
+    .order("name", { ascending: true });
+
+  const categories = Constants.public.Enums.pooja_category;
+
+  return (
+    <div>
+      <h1 className="font-heading text-2xl text-maroon-800">Pooja catalog</h1>
+      <p className="mt-1 text-sm text-foreground/60">
+        Adjust pricing and visibility. Changes appear on the site within a few
+        minutes.
+      </p>
+
+      <div className="mt-6 space-y-3">
+        {poojas?.map((p) => (
+          <form
+            key={p.id}
+            action={savePooja}
+            className="grid items-center gap-2 rounded-xl border border-saffron-100 bg-white p-3 shadow-sm sm:grid-cols-[1.4fr_1fr_0.9fr_0.9fr_0.6fr_auto]"
+          >
+            <input type="hidden" name="id" value={p.id} />
+            <input type="hidden" name="duration_hours" value={p.duration_hours} />
+            <input name="name" defaultValue={p.name} className={inputClass} />
+            <select
+              name="category"
+              defaultValue={p.category}
+              className={inputClass}
+            >
+              {categories.map((c) => (
+                <option key={c} value={c}>
+                  {c}
+                </option>
+              ))}
+            </select>
+            <input
+              name="starting_price"
+              type="number"
+              defaultValue={p.starting_price}
+              placeholder="Price ₹"
+              className={inputClass}
+            />
+            <input
+              name="samagri_kit_price"
+              type="number"
+              defaultValue={p.samagri_kit_price ?? ""}
+              placeholder="Kit ₹"
+              className={inputClass}
+            />
+            <div className="flex flex-col gap-1 text-xs text-foreground/70">
+              <label className="flex items-center gap-1">
+                <input
+                  type="checkbox"
+                  name="active"
+                  defaultChecked={p.active}
+                />
+                Active
+              </label>
+              <label className="flex items-center gap-1">
+                <input
+                  type="checkbox"
+                  name="popular"
+                  defaultChecked={p.popular}
+                />
+                Popular
+              </label>
+            </div>
+            <button
+              type="submit"
+              className="rounded-full bg-saffron-600 px-4 py-1.5 text-xs font-semibold text-white hover:bg-saffron-700"
+            >
+              Save
+            </button>
+          </form>
+        ))}
+      </div>
+    </div>
+  );
+}

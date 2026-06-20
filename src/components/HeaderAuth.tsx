@@ -14,14 +14,25 @@ export default function HeaderAuth() {
   const supabase = useMemo(() => createClient(), []);
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
+    supabase.auth.getUser().then(async ({ data }) => {
       setUser(data.user);
       setLoaded(true);
+      if (data.user) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("is_admin")
+          .eq("id", data.user.id)
+          .maybeSingle();
+        setIsAdmin(Boolean(profile?.is_admin));
+      } else {
+        setIsAdmin(false);
+      }
     });
 
     const {
@@ -103,6 +114,16 @@ export default function HeaderAuth() {
           >
             My orders
           </Link>
+          {isAdmin && (
+            <Link
+              href="/admin"
+              onClick={() => setOpen(false)}
+              className="block border-t border-saffron-50 px-4 py-2 text-sm font-medium text-saffron-700 hover:bg-saffron-50"
+              role="menuitem"
+            >
+              Admin console
+            </Link>
+          )}
           <button
             type="button"
             onClick={signOut}

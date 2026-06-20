@@ -1,0 +1,150 @@
+import { createAdminClient } from "@/lib/supabase/admin";
+import {
+  updateBookingStatus,
+  updateOrderStatus,
+} from "@/app/admin/actions";
+import { Constants } from "@/lib/database.types";
+import { formatINR } from "@/lib/poojas";
+
+const selectClass =
+  "rounded-lg border border-saffron-200 bg-cream px-2 py-1.5 text-sm outline-none focus:border-saffron-400";
+
+function formatDate(value: string) {
+  return new Date(value).toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+}
+
+export default async function AdminBookingsPage() {
+  const admin = createAdminClient();
+  const [bookings, orders] = await Promise.all([
+    admin
+      .from("bookings")
+      .select(
+        "id, booking_date, time_slot, status, total_amount, city, poojas(name)",
+      )
+      .order("created_at", { ascending: false }),
+    admin
+      .from("orders")
+      .select(
+        "id, status, total_amount, created_at, delivery_name, delivery_phone, order_items(product_name, quantity)",
+      )
+      .order("created_at", { ascending: false }),
+  ]);
+
+  const bookingStatuses = Constants.public.Enums.booking_status;
+  const orderStatuses = Constants.public.Enums.order_status;
+
+  return (
+    <div className="space-y-10">
+      {/* Bookings */}
+      <section>
+        <h1 className="font-heading text-2xl text-maroon-800">Bookings</h1>
+        <div className="mt-4 space-y-3">
+          {bookings.data?.length ? (
+            bookings.data.map((b) => (
+              <div
+                key={b.id}
+                className="flex flex-wrap items-center gap-3 rounded-xl border border-saffron-100 bg-white p-3 shadow-sm"
+              >
+                <div className="min-w-48 flex-1">
+                  <div className="font-medium text-maroon-700">
+                    {b.poojas?.name ?? "Pooja"}
+                  </div>
+                  <div className="text-xs text-foreground/55">
+                    {formatDate(b.booking_date)} · {b.time_slot}
+                    {b.city ? ` · ${b.city}` : ""}
+                  </div>
+                </div>
+                <div className="font-medium text-saffron-700">
+                  {formatINR(b.total_amount)}
+                </div>
+                <form action={updateBookingStatus} className="flex gap-2">
+                  <input type="hidden" name="id" value={b.id} />
+                  <select
+                    name="status"
+                    defaultValue={b.status}
+                    className={selectClass}
+                  >
+                    {bookingStatuses.map((s) => (
+                      <option key={s} value={s}>
+                        {s}
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    type="submit"
+                    className="rounded-full bg-saffron-600 px-4 py-1.5 text-xs font-semibold text-white hover:bg-saffron-700"
+                  >
+                    Update
+                  </button>
+                </form>
+              </div>
+            ))
+          ) : (
+            <p className="text-sm text-foreground/55">No bookings yet.</p>
+          )}
+        </div>
+      </section>
+
+      {/* Orders */}
+      <section>
+        <h2 className="font-heading text-2xl text-maroon-800">Orders</h2>
+        <div className="mt-4 space-y-3">
+          {orders.data?.length ? (
+            orders.data.map((o) => (
+              <div
+                key={o.id}
+                className="flex flex-wrap items-center gap-3 rounded-xl border border-saffron-100 bg-white p-3 shadow-sm"
+              >
+                <div className="min-w-48 flex-1">
+                  <div className="font-medium text-maroon-700">
+                    {o.delivery_name ?? "Customer"}
+                    {o.delivery_phone ? (
+                      <span className="ml-2 text-xs text-foreground/50">
+                        {o.delivery_phone}
+                      </span>
+                    ) : null}
+                  </div>
+                  <div className="text-xs text-foreground/55">
+                    {formatDate(o.created_at)} ·{" "}
+                    {o.order_items
+                      .map((i) => `${i.product_name} ×${i.quantity}`)
+                      .join(", ")}
+                  </div>
+                </div>
+                <div className="font-medium text-saffron-700">
+                  {formatINR(o.total_amount)}
+                </div>
+                <form action={updateOrderStatus} className="flex gap-2">
+                  <input type="hidden" name="id" value={o.id} />
+                  <select
+                    name="status"
+                    defaultValue={o.status}
+                    className={selectClass}
+                  >
+                    {orderStatuses.map((s) => (
+                      <option key={s} value={s}>
+                        {s}
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    type="submit"
+                    className="rounded-full bg-saffron-600 px-4 py-1.5 text-xs font-semibold text-white hover:bg-saffron-700"
+                  >
+                    Update
+                  </button>
+                </form>
+              </div>
+            ))
+          ) : (
+            <p className="text-sm text-foreground/55">No orders yet.</p>
+          )}
+        </div>
+      </section>
+    </div>
+  );
+}

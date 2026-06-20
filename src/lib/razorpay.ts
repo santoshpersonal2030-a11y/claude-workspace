@@ -11,6 +11,10 @@ export function razorpayConfigured(): boolean {
   );
 }
 
+export function razorpayWebhookConfigured(): boolean {
+  return Boolean(process.env.RAZORPAY_WEBHOOK_SECRET);
+}
+
 export type RazorpayOrder = {
   id: string;
   amount: number;
@@ -63,5 +67,24 @@ export function verifyRazorpaySignature(params: {
 
   const a = Buffer.from(expected);
   const b = Buffer.from(params.signature);
+  return a.length === b.length && crypto.timingSafeEqual(a, b);
+}
+
+// Verifies a Razorpay webhook delivery. The signature is HMAC-SHA256 of the
+// RAW request body, keyed with the dashboard-configured webhook secret.
+export function verifyWebhookSignature(
+  rawBody: string,
+  signature: string,
+): boolean {
+  const secret = process.env.RAZORPAY_WEBHOOK_SECRET;
+  if (!secret || !signature) return false;
+
+  const expected = crypto
+    .createHmac("sha256", secret)
+    .update(rawBody)
+    .digest("hex");
+
+  const a = Buffer.from(expected);
+  const b = Buffer.from(signature);
   return a.length === b.length && crypto.timingSafeEqual(a, b);
 }

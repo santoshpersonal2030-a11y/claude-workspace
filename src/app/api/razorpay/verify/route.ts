@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { verifyRazorpaySignature } from "@/lib/razorpay";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { capturePaymentByRazorpayOrder } from "@/lib/payments";
 
 type VerifyBody = {
   razorpayOrderId: string;
@@ -30,45 +30,15 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
   }
 
-  // Use the service-role client so status transitions to "paid" can't be forged
-  // by a client calling Supabase directly.
-  const admin = createAdminClient();
+  const result = await capturePaymentByRazorpayOrder({
+    razorpayOrderId: body.razorpayOrderId,
+    razorpayPaymentId: body.razorpayPaymentId,
+    signature: body.razorpaySignature,
+  });
 
-  const { data: payment, error: paymentError } = await admin
-    .from("payments")
-    .select("id, payment_for, booking_id, order_id, status")
-    .eq("razorpay_order_id", body.razorpayOrderId)
-    .maybeSingle();
-
-  if (paymentError || !payment) {
+  if (!result.ok) {
     return NextResponse.json({ error: "Payment not found" }, { status: 404 });
   }
 
-  // Idempotent: if we've already captured this payment, just succeed.
-  if (payment.status === "captured") {
-    return NextResponse.json({ ok: true, alreadyProcessed: true });
-  }
-
-  await admin
-    .from("payments")
-    .update({
-      status: "captured",
-      razorpay_payment_id: body.razorpayPaymentId,
-      razorpay_signature: body.razorpaySignature,
-    })
-    .eq("id", payment.id);
-
-  if (payment.payment_for === "booking" && payment.booking_id) {
-    await admin
-      .from("bookings")
-      .update({ status: "confirmed" })
-      .eq("id", payment.booking_id);
-  } else if (payment.payment_for === "order" && payment.order_id) {
-    await admin
-      .from("orders")
-      .update({ status: "paid" })
-      .eq("id", payment.order_id);
-  }
-
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({ ok: true, status: result.status });
 }
