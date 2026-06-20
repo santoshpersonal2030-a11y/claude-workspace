@@ -6,6 +6,7 @@ import CreditNote from "@/components/receipts/CreditNote";
 import { createClient } from "@/lib/supabase/server";
 import { invoiceNumber } from "@/lib/invoice";
 import { qrDataUrl, invoiceQrPayload } from "@/lib/qr";
+import { getCompany } from "@/lib/company-settings";
 
 export const metadata = { title: "Credit note" };
 
@@ -31,10 +32,13 @@ export default async function CreditNotePage({
 
   if (!note) notFound();
 
+  const company = await getCompany();
   const qr = await qrDataUrl(
     invoiceQrPayload(
       invoiceNumber(note.invoice_no, note.invoice_fy, "CN"),
       note.amount,
+      company.upi,
+      company.name,
     ),
   );
 
@@ -49,7 +53,7 @@ export default async function CreditNotePage({
         </Link>
         <PrintButton />
       </div>
-      <CreditNote note={note} qrDataUrl={qr} />
+      <CreditNote note={note} qrDataUrl={qr} company={company} />
     </main>
   );
 }

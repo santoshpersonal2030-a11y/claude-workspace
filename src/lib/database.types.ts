@@ -136,6 +136,42 @@ export type Database = {
         }
         Relationships: []
       }
+      company_settings: {
+        Row: {
+          address: string | null
+          email: string | null
+          gstin: string | null
+          id: number
+          name: string | null
+          phone: string | null
+          state: string | null
+          upi: string | null
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          email?: string | null
+          gstin?: string | null
+          id?: number
+          name?: string | null
+          phone?: string | null
+          state?: string | null
+          upi?: string | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          email?: string | null
+          gstin?: string | null
+          id?: number
+          name?: string | null
+          phone?: string | null
+          state?: string | null
+          upi?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       contact_messages: {
         Row: {
           created_at: string
@@ -304,6 +340,7 @@ export type Database = {
           delivery_phone: string | null
           estimated_delivery: string | null
           ewb_date: string | null
+          ewb_expiry_alerted_at: string | null
           ewb_no: string | null
           ewb_valid_until: string | null
           ewb_vehicle: string | null
@@ -334,6 +371,7 @@ export type Database = {
           delivery_phone?: string | null
           estimated_delivery?: string | null
           ewb_date?: string | null
+          ewb_expiry_alerted_at?: string | null
           ewb_no?: string | null
           ewb_valid_until?: string | null
           ewb_vehicle?: string | null
@@ -364,6 +402,7 @@ export type Database = {
           delivery_phone?: string | null
           estimated_delivery?: string | null
           ewb_date?: string | null
+          ewb_expiry_alerted_at?: string | null
           ewb_no?: string | null
           ewb_valid_until?: string | null
           ewb_vehicle?: string | null

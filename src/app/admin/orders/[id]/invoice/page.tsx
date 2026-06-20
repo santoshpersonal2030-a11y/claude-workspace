@@ -6,6 +6,7 @@ import OrderInvoice from "@/components/receipts/OrderInvoice";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { invoiceNumber } from "@/lib/invoice";
 import { qrDataUrl, invoiceQrPayload } from "@/lib/qr";
+import { getCompany } from "@/lib/company-settings";
 
 export const metadata = { title: "Order invoice" };
 
@@ -26,11 +27,14 @@ export default async function AdminOrderInvoicePage({
 
   if (!order) notFound();
 
+  const company = await getCompany();
   const qr = await qrDataUrl(
     order.signed_qr ||
       invoiceQrPayload(
         invoiceNumber(order.invoice_no, order.invoice_fy),
         order.total_amount,
+        company.upi,
+        company.name,
       ),
   );
 
@@ -55,7 +59,7 @@ export default async function AdminOrderInvoicePage({
           <PrintButton />
         </div>
       </div>
-      <OrderInvoice order={order} qrDataUrl={qr} />
+      <OrderInvoice order={order} qrDataUrl={qr} company={company} />
     </div>
   );
 }

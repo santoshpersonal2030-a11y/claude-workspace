@@ -1,7 +1,7 @@
 import { formatINR } from "@/lib/poojas";
 import { invoiceNumber } from "@/lib/invoice";
 import { amountInWords } from "@/lib/amount-in-words";
-import { COMPANY } from "@/lib/company";
+import { COMPANY, type Company } from "@/lib/company";
 import SignatureBlock from "@/components/receipts/SignatureBlock";
 import BrandMark from "@/components/receipts/BrandMark";
 
@@ -35,9 +35,11 @@ function formatDate(value: string) {
 export default function BookingReceipt({
   booking,
   qrDataUrl,
+  company = COMPANY,
 }: {
   booking: BookingReceiptData;
   qrDataUrl?: string | null;
+  company?: Company;
 }) {
   return (
     <div className="rounded-2xl border border-saffron-100 p-8">
@@ -45,14 +47,14 @@ export default function BookingReceipt({
         <div>
           <div className="flex items-center gap-2 font-heading text-xl text-maroon-800">
             <BrandMark className="h-8 w-8" />
-            {COMPANY.name}
+            {company.name}
           </div>
-          {COMPANY.addressLines.map((l) => (
+          {company.addressLines.map((l) => (
             <p key={l} className="text-xs text-foreground/55">
               {l}
             </p>
           ))}
-          <p className="text-xs text-foreground/55">GSTIN: {COMPANY.gstin}</p>
+          <p className="text-xs text-foreground/55">GSTIN: {company.gstin}</p>
         </div>
         <div className="text-right text-sm">
           <div className="font-heading text-lg text-maroon-700">Receipt</div>
@@ -111,7 +113,7 @@ export default function BookingReceipt({
         {amountInWords(booking.total_amount)}
       </p>
 
-      <SignatureBlock qrDataUrl={qrDataUrl} />
+      <SignatureBlock qrDataUrl={qrDataUrl} company={company} />
 
       <p className="mt-4 text-center text-xs text-foreground/50">
         Religious services are GST-exempt · Status: {booking.status} · Thank you

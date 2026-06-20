@@ -9,7 +9,7 @@ import { buildOrderInvoicePdf } from "@/lib/invoice-pdf";
 import { getLogoJpeg } from "@/lib/logo";
 import { invoiceNumber } from "@/lib/invoice";
 import { amountInWords } from "@/lib/amount-in-words";
-import { COMPANY } from "@/lib/company";
+import { getCompany } from "@/lib/company-settings";
 import { formatINR } from "@/lib/poojas";
 
 const siteUrl =
@@ -64,7 +64,11 @@ export async function sendOrderConfirmation(orderId: string): Promise<void> {
       </table>
       <a href="${siteUrl}/account/orders" style="display:inline-block;background:#d97706;color:#fff;text-decoration:none;padding:10px 20px;border-radius:999px">View your orders</a>`;
 
-    const pdf = buildOrderInvoicePdf(order, await getLogoJpeg());
+    const pdf = buildOrderInvoicePdf(
+      order,
+      await getLogoJpeg(),
+      await getCompany(),
+    );
     const invNo = invoiceNumber(order.invoice_no, order.invoice_fy).replace(
       /\//g,
       "-",
@@ -293,6 +297,98 @@ export async function sendAccountingExport(
   }
 }
 
+// Hours of remaining validity at/under which an EWB is considered "expiring".
+const EWB_ALERT_WINDOW_HOURS = Number(
+  process.env.EWB_ALERT_WINDOW_HOURS ?? 6,
+);
+
+// Emails the admin a digest of e-way bills whose validity expires within the
+// alert window (and aren't yet delivered). Marks each order as alerted so the
+// hourly cron doesn't repeat. Returns the number of consignments flagged.
+export async function sendEwbExpiryAlerts(): Promise<number> {
+  try {
+    const admin = createAdminClient();
+    const company = await getCompany();
+    const cutoff = new Date(
+      Date.now() + EWB_ALERT_WINDOW_HOURS * 3_600_000,
+    ).toISOString();
+
+    const { data: orders } = await admin
+      .from("orders")
+      .select(
+        "id, invoice_no, invoice_fy, ewb_no, ewb_valid_until, delivery_name, total_amount",
+      )
+      .not("ewb_no", "is", null)
+      .not("ewb_valid_until", "is", null)
+      .lte("ewb_valid_until", cutoff)
+      .is("ewb_expiry_alerted_at", null)
+      .in("status", ["paid", "packed", "shipped"] as const);
+
+    if (!orders?.length) return 0;
+
+    const to =
+      process.env.EWB_ALERT_EMAIL ||
+      process.env.ACCOUNTING_EMAIL ||
+      company.email;
+    if (!to) {
+      console.warn("[email] no EWB alert recipient configured — skipping");
+      return 0;
+    }
+
+    const now = Date.now();
+    const rows = orders
+      .map((o) => {
+        const ms = new Date(o.ewb_valid_until!).getTime() - now;
+        const when =
+          ms <= 0
+            ? "<strong style=\"color:#9f1239\">expired</strong>"
+            : `${Math.floor(ms / 3_600_000)}h ${Math.floor(
+                (ms % 3_600_000) / 60_000,
+              )}m left`;
+        return (
+          `<tr><td style="padding:6px 12px 6px 0">` +
+          `<a href="${siteUrl}/admin/orders/${o.id}" style="color:#d97706">${invoiceNumber(
+            o.invoice_no,
+            o.invoice_fy,
+          )}</a></td>` +
+          `<td style="padding:6px 12px 6px 0">EWB ${o.ewb_no}</td>` +
+          `<td style="padding:6px 12px 6px 0">${o.delivery_name ?? ""}</td>` +
+          `<td style="padding:6px 0">${when}</td></tr>`
+        );
+      })
+      .join("");
+
+    const body = `
+      <p>The following e-way bill${orders.length > 1 ? "s" : ""} expire within
+      ${EWB_ALERT_WINDOW_HOURS} hours. Extend validity (Part-B) or complete
+      delivery before they lapse.</p>
+      <table style="width:100%;border-collapse:collapse;margin:12px 0;font-size:14px">
+        ${rows}
+      </table>`;
+
+    await sendEmail({
+      to,
+      subject: `⚠️ ${orders.length} e-way bill${
+        orders.length > 1 ? "s" : ""
+      } expiring soon`,
+      html: emailLayout("E-way bills expiring", body),
+    });
+
+    await admin
+      .from("orders")
+      .update({ ewb_expiry_alerted_at: new Date().toISOString() })
+      .in(
+        "id",
+        orders.map((o) => o.id),
+      );
+
+    return orders.length;
+  } catch (err) {
+    console.error("sendEwbExpiryAlerts failed:", err);
+    return 0;
+  }
+}
+
 export async function sendCreditNoteEmail(params: {
   orderId: string;
   userId: string | null;
@@ -321,9 +417,10 @@ export async function sendCreditNoteEmail(params: {
       ? invoiceNumber(order.invoice_no, order.invoice_fy)
       : "";
 
+    const company = await getCompany();
     const lines = [
-      COMPANY.name,
-      `GSTIN: ${COMPANY.gstin}`,
+      company.name,
+      `GSTIN: ${company.gstin}`,
       "",
       `Credit Note: ${cnNo}`,
       `Against Invoice: ${ordNo}`,

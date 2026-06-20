@@ -3,6 +3,7 @@ import Link from "next/link";
 import { createAdminClient } from "@/lib/supabase/admin";
 import {
   assignPandit,
+  bulkGenerateEInvoicesAction,
   updateBookingStatus,
   updateOrderStatus,
 } from "@/app/admin/actions";
@@ -165,6 +166,26 @@ export default async function AdminBookingsPage() {
             ⬇ Export CSV
           </a>
         </div>
+
+        {/* Bulk e-invoice/EWB toolbar. Checkboxes in the rows below are
+            associated with this form via their `form` attribute, so they post
+            here rather than with each row's status form. */}
+        <form
+          id="bulk-orders"
+          action={bulkGenerateEInvoicesAction}
+          className="mt-4 flex items-center gap-3 rounded-xl border border-saffron-100 bg-saffron-50/40 px-3 py-2"
+        >
+          <span className="text-xs text-foreground/60">
+            Select orders, then:
+          </span>
+          <button
+            type="submit"
+            className="rounded-full bg-maroon-700 px-4 py-1.5 text-xs font-semibold text-white hover:bg-maroon-800"
+          >
+            Generate e-invoice + e-way bill for selected
+          </button>
+        </form>
+
         <div className="mt-4 space-y-3">
           {orders.data?.length ? (
             orders.data.map((o) => (
@@ -175,6 +196,14 @@ export default async function AdminBookingsPage() {
               >
                 <input type="hidden" name="id" value={o.id} />
                 <div className="flex flex-wrap items-center gap-3">
+                  <input
+                    type="checkbox"
+                    form="bulk-orders"
+                    name="order_ids"
+                    value={o.id}
+                    aria-label="Select order for bulk action"
+                    className="h-4 w-4 accent-maroon-700"
+                  />
                   <div className="min-w-48 flex-1">
                     <div className="font-medium text-maroon-700">
                       {o.delivery_name ?? "Customer"}

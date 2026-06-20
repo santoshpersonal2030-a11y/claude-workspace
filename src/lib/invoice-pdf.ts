@@ -1,5 +1,5 @@
 import { PdfDoc } from "@/lib/pdf";
-import { COMPANY } from "@/lib/company";
+import { COMPANY, type Company } from "@/lib/company";
 import { logoJpeg } from "@/lib/logo";
 
 type Logo = { data: Buffer; w: number; h: number };
@@ -23,22 +23,23 @@ const R = 555;
 export function buildOrderInvoicePdf(
   order: OrderInvoiceData,
   logo?: Logo,
+  company: Company = COMPANY,
 ): Buffer {
   const doc = new PdfDoc();
   const yt = (o: number) => doc.fromTop(o);
 
   // Header
   drawLogo(doc, logo);
-  doc.text(L + 46, yt(44), COMPANY.name, { size: 15, bold: true });
+  doc.text(L + 46, yt(44), company.name, { size: 15, bold: true });
   doc.text(R, yt(50), "TAX INVOICE", { size: 13, bold: true, align: "right" });
   let ay = 72;
-  for (const line of COMPANY.addressLines) {
+  for (const line of company.addressLines) {
     doc.text(L, yt(ay), line, { size: 8 });
     ay += 11;
   }
-  doc.text(L, yt(ay), `GSTIN: ${COMPANY.gstin}`, { size: 8 });
+  doc.text(L, yt(ay), `GSTIN: ${company.gstin}`, { size: 8 });
   ay += 11;
-  doc.text(L, yt(ay), `State: ${COMPANY.state}`, { size: 8 });
+  doc.text(L, yt(ay), `State: ${company.state}`, { size: 8 });
 
   doc.text(
     R,
@@ -136,7 +137,7 @@ export function buildOrderInvoicePdf(
   }
 
   // Tax summary + totals
-  const interState = isInterState(order.state, COMPANY.state);
+  const interState = isInterState(order.state, company.state);
   let totalTaxable = 0;
   const byRate = new Map<number, number>();
   for (const i of order.order_items) {
@@ -176,7 +177,7 @@ export function buildOrderInvoicePdf(
   });
   ty += 40;
 
-  doc.text(R, yt(ty), `For ${COMPANY.name}`, { size: 9, align: "right" });
+  doc.text(R, yt(ty), `For ${company.name}`, { size: 9, align: "right" });
   doc.text(R, yt(ty + 14), "Authorised Signatory", { size: 8, align: "right" });
 
   return doc.render();
@@ -185,19 +186,20 @@ export function buildOrderInvoicePdf(
 export function buildBookingReceiptPdf(
   booking: BookingReceiptData,
   logo?: Logo,
+  company: Company = COMPANY,
 ): Buffer {
   const doc = new PdfDoc();
   const yt = (o: number) => doc.fromTop(o);
 
   drawLogo(doc, logo);
-  doc.text(L + 46, yt(44), COMPANY.name, { size: 15, bold: true });
+  doc.text(L + 46, yt(44), company.name, { size: 15, bold: true });
   doc.text(R, yt(50), "RECEIPT", { size: 13, bold: true, align: "right" });
   let ay = 72;
-  for (const line of COMPANY.addressLines) {
+  for (const line of company.addressLines) {
     doc.text(L, yt(ay), line, { size: 8 });
     ay += 11;
   }
-  doc.text(L, yt(ay), `GSTIN: ${COMPANY.gstin}`, { size: 8 });
+  doc.text(L, yt(ay), `GSTIN: ${company.gstin}`, { size: 8 });
 
   doc.text(
     R,
@@ -265,7 +267,7 @@ export function buildBookingReceiptPdf(
   ty += 16;
   doc.text(L, yt(ty), "Religious services are GST-exempt.", { size: 8 });
   ty += 36;
-  doc.text(R, yt(ty), `For ${COMPANY.name}`, { size: 9, align: "right" });
+  doc.text(R, yt(ty), `For ${company.name}`, { size: 9, align: "right" });
   doc.text(R, yt(ty + 14), "Authorised Signatory", { size: 8, align: "right" });
 
   return doc.render();

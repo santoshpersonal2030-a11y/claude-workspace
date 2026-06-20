@@ -6,7 +6,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { toCsv } from "@/lib/csv";
 import { invoiceNumber } from "@/lib/invoice";
 import { placeOfSupply, STATE_CODES } from "@/lib/india";
-import { COMPANY } from "@/lib/company";
+import { getCompany } from "@/lib/company-settings";
 
 const PAID_ORDER_STATUSES = [
   "paid",
@@ -177,6 +177,7 @@ export async function buildGstr1Json(
   period?: string | null,
 ): Promise<unknown> {
   const admin = createAdminClient();
+  const company = await getCompany();
   const b = dayBounds(from, to);
   let query = admin
     .from("order_items")
@@ -188,7 +189,7 @@ export async function buildGstr1Json(
   if (b.to) query = query.lte("orders.created_at", b.to);
   const { data } = await query;
 
-  const companyCode = STATE_CODES[COMPANY.state] ?? "";
+  const companyCode = STATE_CODES[company.state] ?? "";
 
   // B2CS: by place of supply + rate.
   const b2csAgg = new Map<
@@ -352,7 +353,7 @@ export async function buildGstr1Json(
     period ||
     `${String(fpDate.getMonth() + 1).padStart(2, "0")}${fpDate.getFullYear()}`;
 
-  return { gstin: COMPANY.gstin, fp, b2b, b2cs, hsn, nil };
+  return { gstin: company.gstin, fp, b2b, b2cs, hsn, nil };
 }
 
 const ACTIVE_BOOKING_STATUSES = [
@@ -377,6 +378,7 @@ export async function buildGstr3b(
   to?: string | null,
 ): Promise<Gstr3bSummary> {
   const admin = createAdminClient();
+  const company = await getCompany();
   const b = dayBounds(from, to);
 
   let itemsQ = admin
@@ -387,7 +389,7 @@ export async function buildGstr3b(
   if (b.to) itemsQ = itemsQ.lte("orders.created_at", b.to);
   const { data: items } = await itemsQ;
 
-  const companyCode = STATE_CODES[COMPANY.state] ?? "";
+  const companyCode = STATE_CODES[company.state] ?? "";
   let taxable = 0;
   let igst = 0;
   let cgst = 0;

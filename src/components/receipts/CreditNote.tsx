@@ -1,5 +1,5 @@
 import { formatINR } from "@/lib/poojas";
-import { COMPANY } from "@/lib/company";
+import { COMPANY, type Company } from "@/lib/company";
 import { invoiceNumber } from "@/lib/invoice";
 import { amountInWords } from "@/lib/amount-in-words";
 import SignatureBlock from "@/components/receipts/SignatureBlock";
@@ -26,9 +26,11 @@ export type CreditNoteData = {
 export default function CreditNote({
   note,
   qrDataUrl,
+  company = COMPANY,
 }: {
   note: CreditNoteData;
   qrDataUrl?: string | null;
+  company?: Company;
 }) {
   const order = note.orders;
   return (
@@ -37,14 +39,14 @@ export default function CreditNote({
         <div>
           <div className="flex items-center gap-2 font-heading text-xl text-maroon-800">
             <BrandMark className="h-8 w-8" />
-            {COMPANY.name}
+            {company.name}
           </div>
-          {COMPANY.addressLines.map((l) => (
+          {company.addressLines.map((l) => (
             <p key={l} className="text-xs text-foreground/55">
               {l}
             </p>
           ))}
-          <p className="text-xs text-foreground/55">GSTIN: {COMPANY.gstin}</p>
+          <p className="text-xs text-foreground/55">GSTIN: {company.gstin}</p>
         </div>
         <div className="text-right text-sm">
           <div className="font-heading text-lg text-maroon-700">
@@ -101,7 +103,7 @@ export default function CreditNote({
         </p>
       )}
 
-      <SignatureBlock qrDataUrl={qrDataUrl} />
+      <SignatureBlock qrDataUrl={qrDataUrl} company={company} />
 
       <p className="mt-4 text-center text-xs text-foreground/50">
         This credit note reflects a refund processed to your original payment

@@ -3,7 +3,8 @@
 // when EINVOICE_* env vars are configured, otherwise it's a safe no-op.
 
 import { createAdminClient } from "@/lib/supabase/admin";
-import { COMPANY } from "@/lib/company";
+import type { Company } from "@/lib/company";
+import { getCompany } from "@/lib/company-settings";
 import { STATE_CODES } from "@/lib/india";
 import { invoiceNumber, isInterState } from "@/lib/invoice";
 
@@ -36,9 +37,9 @@ type OrderRow = {
 };
 
 // Builds an IRP e-invoice JSON (schema v1.1, subset) for a B2B order.
-function buildPayload(order: OrderRow) {
-  const interState = isInterState(order.state, COMPANY.state);
-  const sellerStateCode = STATE_CODES[COMPANY.state] ?? "";
+function buildPayload(order: OrderRow, company: Company) {
+  const interState = isInterState(order.state, company.state);
+  const sellerStateCode = STATE_CODES[company.state] ?? "";
   const buyerStateCode = order.state ? (STATE_CODES[order.state] ?? "") : "";
 
   const items = order.order_items.map((i, idx) => {
@@ -74,10 +75,10 @@ function buildPayload(order: OrderRow) {
       Dt: new Date(order.created_at).toLocaleDateString("en-GB"),
     },
     SellerDtls: {
-      Gstin: COMPANY.gstin,
-      LglNm: COMPANY.name,
-      Addr1: COMPANY.addressLines[0] ?? "",
-      Loc: COMPANY.state,
+      Gstin: company.gstin,
+      LglNm: company.name,
+      Addr1: company.addressLines[0] ?? "",
+      Loc: company.state,
       Stcd: sellerStateCode,
     },
     BuyerDtls: {
@@ -170,13 +171,14 @@ export async function generateEInvoice(
   }
 
   try {
+    const company = await getCompany();
     const res = await fetch(process.env.EINVOICE_API_URL!, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${process.env.EINVOICE_AUTH_TOKEN}`,
       },
-      body: JSON.stringify(buildPayload(order as OrderRow)),
+      body: JSON.stringify(buildPayload(order as OrderRow, company)),
     });
     if (!res.ok) {
       return { ok: false, error: `IRP error ${res.status}` };

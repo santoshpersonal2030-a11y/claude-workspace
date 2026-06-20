@@ -1,5 +1,5 @@
 import { formatINR } from "@/lib/poojas";
-import { COMPANY } from "@/lib/company";
+import { COMPANY, type Company } from "@/lib/company";
 import { invoiceNumber, isInterState } from "@/lib/invoice";
 import { placeOfSupply } from "@/lib/india";
 import { amountInWords } from "@/lib/amount-in-words";
@@ -37,11 +37,13 @@ export type OrderInvoiceData = {
 export default function OrderInvoice({
   order,
   qrDataUrl,
+  company = COMPANY,
 }: {
   order: OrderInvoiceData;
   qrDataUrl?: string | null;
+  company?: Company;
 }) {
-  const interState = isInterState(order.state, COMPANY.state);
+  const interState = isInterState(order.state, company.state);
 
   // HSN-wise tax summary.
   const byHsn = new Map<
@@ -80,16 +82,16 @@ export default function OrderInvoice({
         <div>
           <div className="flex items-center gap-2 font-heading text-xl text-maroon-800">
             <BrandMark className="h-8 w-8" />
-            {COMPANY.name}
+            {company.name}
           </div>
-          {COMPANY.addressLines.map((l) => (
+          {company.addressLines.map((l) => (
             <p key={l} className="text-xs text-foreground/55">
               {l}
             </p>
           ))}
-          <p className="text-xs text-foreground/55">GSTIN: {COMPANY.gstin}</p>
+          <p className="text-xs text-foreground/55">GSTIN: {company.gstin}</p>
           <p className="text-xs text-foreground/55">
-            {COMPANY.email} · {COMPANY.phone}
+            {company.email} · {company.phone}
           </p>
         </div>
         <div className="text-right text-sm">
@@ -234,7 +236,7 @@ export default function OrderInvoice({
         </table>
       </div>
 
-      <SignatureBlock qrDataUrl={qrDataUrl} />
+      <SignatureBlock qrDataUrl={qrDataUrl} company={company} />
 
       <p className="mt-4 text-center text-xs text-foreground/50">
         Total GST: {formatINR(totalGst)} · Prices inclusive of GST · Status:{" "}

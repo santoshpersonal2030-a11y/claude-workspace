@@ -7,6 +7,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { createRefund, razorpayConfigured } from "@/lib/razorpay";
 import { generateEInvoice, cancelEInvoice } from "@/lib/einvoice";
 import { generateEwayBill, updateEwayBillPartB } from "@/lib/ewaybill";
+import { saveCompany } from "@/lib/company-settings";
 import {
   sendReviewRequest,
   sendBackInStockEmails,
@@ -345,6 +346,26 @@ export async function generateEInvoiceAndEwbAction(
   revalidatePath(`/admin/orders/${orderId}`);
 }
 
+// Bulk: generate e-invoice (IRN) + e-way bill for each selected order in one
+// pass. Each generator is a safe no-op when not applicable (B2C / below
+// threshold / already issued), so a mixed selection is fine.
+export async function bulkGenerateEInvoicesAction(
+  formData: FormData,
+): Promise<void> {
+  await assertAdmin();
+  const ids = formData
+    .getAll("order_ids")
+    .map((v) => String(v))
+    .filter(Boolean);
+
+  for (const orderId of ids) {
+    await generateEInvoice(orderId);
+    await generateEwayBill(orderId);
+  }
+
+  revalidatePath("/admin/bookings");
+}
+
 // Updates the e-way bill Part-B (vehicle details).
 export async function updateEwayBillPartBAction(
   formData: FormData,
@@ -472,6 +493,24 @@ export async function assignPandit(formData: FormData): Promise<void> {
 
   await admin.from("bookings").update(update).eq("id", id);
   revalidatePath("/admin/bookings");
+}
+
+// ── Company settings ────────────────────────────────────────────────────────
+
+// Saves the seller/business details shown on invoices (DB-backed, editable
+// without a redeploy). Revalidates the receipt pages so they pick up changes.
+export async function saveCompanySettings(formData: FormData): Promise<void> {
+  await assertAdmin();
+  await saveCompany({
+    name: str(formData.get("name")),
+    gstin: str(formData.get("gstin")),
+    state: str(formData.get("state")),
+    upi: str(formData.get("upi")),
+    email: str(formData.get("email")),
+    phone: str(formData.get("phone")),
+    address: str(formData.get("address")),
+  });
+  revalidatePath("/admin/settings");
 }
 
 // ── Contact messages ────────────────────────────────────────────────────────

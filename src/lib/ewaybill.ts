@@ -4,7 +4,8 @@
 // threshold (default ₹50,000).
 
 import { createAdminClient } from "@/lib/supabase/admin";
-import { COMPANY } from "@/lib/company";
+import type { Company } from "@/lib/company";
+import { getCompany } from "@/lib/company-settings";
 import { STATE_CODES } from "@/lib/india";
 import { invoiceNumber } from "@/lib/invoice";
 
@@ -35,8 +36,8 @@ type OrderRow = {
   }[];
 };
 
-function buildPayload(order: OrderRow) {
-  const sellerCode = STATE_CODES[COMPANY.state] ?? "";
+function buildPayload(order: OrderRow, company: Company) {
+  const sellerCode = STATE_CODES[company.state] ?? "";
   const buyerCode = order.state ? (STATE_CODES[order.state] ?? "") : "";
   return {
     supplyType: "O",
@@ -44,7 +45,7 @@ function buildPayload(order: OrderRow) {
     docType: "INV",
     docNo: invoiceNumber(order.invoice_no, order.invoice_fy),
     docDate: new Date(order.created_at).toLocaleDateString("en-GB"),
-    fromGstin: COMPANY.gstin,
+    fromGstin: company.gstin,
     fromStateCode: sellerCode,
     toGstin: order.customer_gstin ?? "URP",
     toTrdName: order.delivery_name ?? "",
@@ -85,13 +86,14 @@ export async function generateEwayBill(
   }
 
   try {
+    const company = await getCompany();
     const res = await fetch(process.env.EWB_API_URL!, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${process.env.EWB_AUTH_TOKEN}`,
       },
-      body: JSON.stringify(buildPayload(order as OrderRow)),
+      body: JSON.stringify(buildPayload(order as OrderRow, company)),
     });
     if (!res.ok) return { ok: false, error: `EWB API error ${res.status}` };
     const data = (await res.json()) as { ewayBillNo?: string | number };

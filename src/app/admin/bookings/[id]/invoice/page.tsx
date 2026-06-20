@@ -6,6 +6,7 @@ import BookingReceipt from "@/components/receipts/BookingReceipt";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { invoiceNumber } from "@/lib/invoice";
 import { qrDataUrl, invoiceQrPayload } from "@/lib/qr";
+import { getCompany } from "@/lib/company-settings";
 
 export const metadata = { title: "Booking receipt" };
 
@@ -26,10 +27,13 @@ export default async function AdminBookingInvoicePage({
 
   if (!booking) notFound();
 
+  const company = await getCompany();
   const qr = await qrDataUrl(
     invoiceQrPayload(
       invoiceNumber(booking.invoice_no, booking.invoice_fy, "BKG"),
       booking.total_amount,
+      company.upi,
+      company.name,
     ),
   );
 
@@ -54,7 +58,7 @@ export default async function AdminBookingInvoicePage({
           <PrintButton />
         </div>
       </div>
-      <BookingReceipt booking={booking} qrDataUrl={qr} />
+      <BookingReceipt booking={booking} qrDataUrl={qr} company={company} />
     </div>
   );
 }

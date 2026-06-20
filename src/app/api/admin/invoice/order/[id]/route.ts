@@ -4,6 +4,7 @@ import { getAdminUser } from "@/lib/admin";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { buildOrderInvoicePdf } from "@/lib/invoice-pdf";
 import { getLogoJpeg } from "@/lib/logo";
+import { getCompany } from "@/lib/company-settings";
 import { invoiceNumber } from "@/lib/invoice";
 
 const FIELDS =
@@ -27,7 +28,7 @@ export async function GET(
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  const pdf = buildOrderInvoicePdf(order, await getLogoJpeg());
+  const pdf = buildOrderInvoicePdf(order, await getLogoJpeg(), await getCompany());
   const name = invoiceNumber(order.invoice_no, order.invoice_fy).replace(
     /\//g,
     "-",
