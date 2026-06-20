@@ -11,6 +11,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { Constants } from "@/lib/database.types";
 import { CARRIERS } from "@/lib/carriers";
 import { razorpayConfigured } from "@/lib/razorpay";
+import { invoiceNumber } from "@/lib/invoice";
 import { formatINR } from "@/lib/poojas";
 
 const inputClass =
@@ -43,6 +44,12 @@ export default async function AdminOrderDetailPage({
   const remaining = payment
     ? payment.amount - payment.refunded_amount
     : 0;
+
+  const { data: creditNotes } = await admin
+    .from("credit_notes")
+    .select("id, invoice_no, invoice_fy, amount, created_at")
+    .eq("order_id", order.id)
+    .order("created_at", { ascending: false });
 
   return (
     <div>
@@ -243,6 +250,11 @@ export default async function AdminOrderDetailPage({
                   placeholder={`Amount ₹ (blank = full ${formatINR(remaining)})`}
                   className={`${inputClass} w-full`}
                 />
+                <input
+                  name="reason"
+                  placeholder="Reason (optional)"
+                  className={`${inputClass} w-full`}
+                />
                 <button
                   type="submit"
                   className="w-full rounded-full border border-maroon-300 py-2 text-sm font-semibold text-maroon-700 hover:bg-maroon-50"
@@ -253,6 +265,27 @@ export default async function AdminOrderDetailPage({
                   A full refund also cancels the order.
                 </p>
               </form>
+            )}
+
+            {creditNotes && creditNotes.length > 0 && (
+              <div className="mt-4 border-t border-saffron-50 pt-3">
+                <div className="text-xs font-medium text-foreground/55">
+                  Credit notes
+                </div>
+                <ul className="mt-1 space-y-1 text-sm">
+                  {creditNotes.map((cn) => (
+                    <li key={cn.id} className="flex justify-between">
+                      <Link
+                        href={`/admin/credit-notes/${cn.id}`}
+                        className="font-semibold text-saffron-700 hover:text-saffron-800"
+                      >
+                        {invoiceNumber(cn.invoice_no, cn.invoice_fy, "CN")}
+                      </Link>
+                      <span>{formatINR(cn.amount)}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             )}
           </div>
         </div>

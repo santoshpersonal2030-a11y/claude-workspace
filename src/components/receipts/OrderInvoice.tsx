@@ -1,6 +1,8 @@
 import { formatINR } from "@/lib/poojas";
 import { COMPANY } from "@/lib/company";
 import { invoiceNumber, isInterState } from "@/lib/invoice";
+import { placeOfSupply } from "@/lib/india";
+import { amountInWords } from "@/lib/amount-in-words";
 
 export type OrderInvoiceData = {
   invoice_no: number | null;
@@ -93,7 +95,7 @@ export default function OrderInvoice({ order }: { order: OrderInvoiceData }) {
         </div>
         {order.state && (
           <div className="mt-1 text-xs text-foreground/55">
-            Place of supply: {order.state}
+            Place of supply: {placeOfSupply(order.state)}
           </div>
         )}
       </div>
@@ -160,7 +162,12 @@ export default function OrderInvoice({ order }: { order: OrderInvoiceData }) {
         </div>
       </div>
 
-      <p className="mt-8 text-center text-xs text-foreground/50">
+      <p className="mt-4 text-sm text-foreground/70">
+        <span className="text-foreground/55">Amount in words: </span>
+        {amountInWords(order.total_amount)}
+      </p>
+
+      <p className="mt-6 text-center text-xs text-foreground/50">
         Total GST: {formatINR(totalGst)} · Prices inclusive of GST · Status:{" "}
         {order.status}
       </p>

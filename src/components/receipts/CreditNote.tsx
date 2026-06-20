@@ -1,0 +1,101 @@
+import { formatINR } from "@/lib/poojas";
+import { COMPANY } from "@/lib/company";
+import { invoiceNumber } from "@/lib/invoice";
+import { amountInWords } from "@/lib/amount-in-words";
+
+export type CreditNoteData = {
+  invoice_no: number | null;
+  invoice_fy: number | null;
+  created_at: string;
+  amount: number;
+  reason: string | null;
+  orders: {
+    invoice_no: number | null;
+    invoice_fy: number | null;
+    delivery_name: string | null;
+    delivery_phone: string | null;
+    address: string | null;
+    city: string | null;
+    state: string | null;
+    pincode: string | null;
+  } | null;
+};
+
+export default function CreditNote({ note }: { note: CreditNoteData }) {
+  const order = note.orders;
+  return (
+    <div className="rounded-2xl border border-saffron-100 p-8">
+      <div className="flex items-start justify-between">
+        <div>
+          <div className="font-heading text-xl text-maroon-800">
+            🪔 {COMPANY.name}
+          </div>
+          {COMPANY.addressLines.map((l) => (
+            <p key={l} className="text-xs text-foreground/55">
+              {l}
+            </p>
+          ))}
+          <p className="text-xs text-foreground/55">GSTIN: {COMPANY.gstin}</p>
+        </div>
+        <div className="text-right text-sm">
+          <div className="font-heading text-lg text-maroon-700">
+            Credit Note
+          </div>
+          <div className="text-foreground/60">
+            {invoiceNumber(note.invoice_no, note.invoice_fy, "CN")}
+          </div>
+          <div className="text-foreground/60">
+            {new Date(note.created_at).toLocaleDateString("en-IN")}
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-6 text-sm">
+        <div className="text-foreground/55">Issued to</div>
+        <div className="font-medium text-foreground">
+          {order?.delivery_name ?? "Customer"}
+        </div>
+        {order?.delivery_phone && (
+          <div className="text-foreground/70">{order.delivery_phone}</div>
+        )}
+        {order?.address && (
+          <div className="text-foreground/70">{order.address}</div>
+        )}
+        <div className="text-foreground/70">
+          {[order?.city, order?.state, order?.pincode]
+            .filter(Boolean)
+            .join(" · ")}
+        </div>
+        {order?.invoice_no && (
+          <div className="mt-2 text-xs text-foreground/55">
+            Against invoice:{" "}
+            {invoiceNumber(order.invoice_no, order.invoice_fy)}
+          </div>
+        )}
+      </div>
+
+      <div className="mt-6 ml-auto w-64 space-y-1 text-sm">
+        <div className="flex justify-between border-t border-saffron-100 pt-1 text-base font-semibold">
+          <span>Refund amount</span>
+          <span className="text-saffron-700">{formatINR(note.amount)}</span>
+        </div>
+      </div>
+
+      <p className="mt-4 text-sm text-foreground/70">
+        <span className="text-foreground/55">Amount in words: </span>
+        {amountInWords(note.amount)}
+      </p>
+      {note.reason && (
+        <p className="mt-2 text-sm text-foreground/70">
+          <span className="text-foreground/55">Reason: </span>
+          {note.reason}
+        </p>
+      )}
+
+      <p className="mt-8 text-center text-xs text-foreground/50">
+        This credit note reflects a refund processed to your original payment
+        method.
+      </p>
+    </div>
+  );
+}

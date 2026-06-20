@@ -169,6 +169,57 @@ export type Database = {
         }
         Relationships: []
       }
+      credit_notes: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          invoice_fy: number | null
+          invoice_no: number | null
+          order_id: string | null
+          payment_id: string | null
+          reason: string | null
+          user_id: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          invoice_fy?: number | null
+          invoice_no?: number | null
+          order_id?: string | null
+          payment_id?: string | null
+          reason?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          invoice_fy?: number | null
+          invoice_no?: number | null
+          order_id?: string | null
+          payment_id?: string | null
+          reason?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "credit_notes_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "credit_notes_payment_id_fkey"
+            columns: ["payment_id"]
+            isOneToOne: false
+            referencedRelation: "payments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       invoice_counters: {
         Row: {
           doc_type: string

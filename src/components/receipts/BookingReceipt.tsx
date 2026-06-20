@@ -1,5 +1,6 @@
 import { formatINR } from "@/lib/poojas";
 import { invoiceNumber } from "@/lib/invoice";
+import { amountInWords } from "@/lib/amount-in-words";
 import { COMPANY } from "@/lib/company";
 
 export type BookingReceiptData = {
@@ -100,7 +101,12 @@ export default function BookingReceipt({
         </div>
       </div>
 
-      <p className="mt-8 text-center text-xs text-foreground/50">
+      <p className="mt-4 text-sm text-foreground/70">
+        <span className="text-foreground/55">Amount in words: </span>
+        {amountInWords(booking.total_amount)}
+      </p>
+
+      <p className="mt-6 text-center text-xs text-foreground/50">
         Religious services are GST-exempt · Status: {booking.status} · Thank you
         for booking with BookMyPoojari
       </p>

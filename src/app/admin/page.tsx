@@ -70,6 +70,8 @@ export default async function AdminOverviewPage({
     payments,
     lowStockRes,
     stockSubs,
+    allPaidOrders,
+    allActiveBookings,
   ] = await Promise.all([
     count("bookings"),
     count("orders"),
@@ -98,7 +100,33 @@ export default async function AdminOverviewPage({
       .from("stock_subscriptions")
       .select("product_id")
       .is("notified_at", null),
+    admin
+      .from("orders")
+      .select("total_amount, created_at")
+      .in("status", PAID_ORDER_STATUSES),
+    admin
+      .from("bookings")
+      .select("total_amount, created_at")
+      .in("status", ACTIVE_BOOKING_STATUSES),
   ]);
+
+  // Revenue grouped by financial year (FY starts 1 April).
+  const fyOf = (d: string) => {
+    const dt = new Date(d);
+    return dt.getMonth() + 1 >= 4 ? dt.getFullYear() : dt.getFullYear() - 1;
+  };
+  const fyMap = new Map<number, { store: number; booking: number }>();
+  for (const o of allPaidOrders.data ?? []) {
+    const e = fyMap.get(fyOf(o.created_at)) ?? { store: 0, booking: 0 };
+    e.store += o.total_amount;
+    fyMap.set(fyOf(o.created_at), e);
+  }
+  for (const b of allActiveBookings.data ?? []) {
+    const e = fyMap.get(fyOf(b.created_at)) ?? { store: 0, booking: 0 };
+    e.booking += b.total_amount;
+    fyMap.set(fyOf(b.created_at), e);
+  }
+  const fyRows = [...fyMap.entries()].sort((a, b) => b[0] - a[0]);
 
   const lowStock = lowStockRes.data ?? [];
   const waiting = new Map<string, number>();
@@ -314,7 +342,42 @@ export default async function AdminOverviewPage({
         )}
       </div>
 
-      <div className="mt-8 grid gap-6 lg:grid-cols-2">
+      {/* Revenue by financial year */}
+      <div className="mt-6 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm">
+        <h2 className="font-heading text-lg text-maroon-700">
+          Revenue by financial year
+        </h2>
+        {fyRows.length ? (
+          <table className="mt-3 w-full text-sm">
+            <thead>
+              <tr className="border-b border-saffron-50 text-left text-foreground/55">
+                <th className="py-2">FY</th>
+                <th className="py-2 text-right">Store</th>
+                <th className="py-2 text-right">Bookings</th>
+                <th className="py-2 text-right">Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              {fyRows.map(([fy, v]) => (
+                <tr key={fy} className="border-b border-saffron-50">
+                  <td className="py-2">
+                    {fy}–{String((fy + 1) % 100).padStart(2, "0")}
+                  </td>
+                  <td className="py-2 text-right">{formatINR(v.store)}</td>
+                  <td className="py-2 text-right">{formatINR(v.booking)}</td>
+                  <td className="py-2 text-right font-semibold text-saffron-700">
+                    {formatINR(v.store + v.booking)}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <p className="mt-3 text-sm text-foreground/50">No revenue yet.</p>
+        )}
+      </div>
+
+      <div className="mt-6 grid gap-6 lg:grid-cols-2">
         <div className="rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm">
           <h2 className="font-heading text-lg text-maroon-700">
             Recent bookings

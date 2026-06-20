@@ -7,6 +7,7 @@ import OrderStatusTracker from "@/components/OrderStatusTracker";
 import ProductThumb from "@/components/ProductThumb";
 import TrackingLink from "@/components/TrackingLink";
 import ReorderButton from "@/components/ReorderButton";
+import { invoiceNumber } from "@/lib/invoice";
 import { formatINR } from "@/lib/poojas";
 import { createClient } from "@/lib/supabase/server";
 
@@ -43,6 +44,12 @@ export default async function OrderDetailPage({
     .maybeSingle();
 
   if (!order) notFound();
+
+  const { data: creditNotes } = await supabase
+    .from("credit_notes")
+    .select("id, invoice_no, invoice_fy, amount")
+    .eq("order_id", order.id)
+    .order("created_at", { ascending: false });
 
   // Items still purchasable, for the Reorder button (uses current price).
   const reorderItems = order.order_items
@@ -169,6 +176,28 @@ export default async function OrderDetailPage({
               </div>
             </dl>
           </div>
+
+          {/* Credit notes */}
+          {creditNotes && creditNotes.length > 0 && (
+            <div className="mt-6 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm">
+              <h2 className="font-heading text-lg text-maroon-700">
+                Credit notes
+              </h2>
+              <ul className="mt-3 space-y-1 text-sm">
+                {creditNotes.map((cn) => (
+                  <li key={cn.id} className="flex justify-between">
+                    <Link
+                      href={`/account/credit-notes/${cn.id}`}
+                      className="font-semibold text-saffron-700 hover:text-saffron-800"
+                    >
+                      {invoiceNumber(cn.invoice_no, cn.invoice_fy, "CN")}
+                    </Link>
+                    <span>{formatINR(cn.amount)}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           {/* Delivery address */}
           {(order.delivery_name || order.address) && (

@@ -337,7 +337,7 @@ export async function refundOrder(formData: FormData): Promise<void> {
 
   const { data: payment } = await admin
     .from("payments")
-    .select("id, amount, refunded_amount, razorpay_payment_id, status")
+    .select("id, amount, refunded_amount, razorpay_payment_id, status, user_id")
     .eq("order_id", orderId)
     .eq("payment_for", "order")
     .maybeSingle();
@@ -373,6 +373,15 @@ export async function refundOrder(formData: FormData): Promise<void> {
   if (fullyRefunded) {
     await admin.from("orders").update({ status: "cancelled" }).eq("id", orderId);
   }
+
+  // Issue an FY-numbered credit note for the refund.
+  await admin.from("credit_notes").insert({
+    order_id: orderId,
+    payment_id: payment.id,
+    user_id: payment.user_id,
+    amount: refundInr,
+    reason: str(formData.get("reason")) || null,
+  });
 
   await sendRefundConfirmation(orderId, refundInr);
 
