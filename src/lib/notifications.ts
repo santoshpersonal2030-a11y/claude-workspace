@@ -212,7 +212,7 @@ export async function sendOrderStatusUpdate(
     const admin = createAdminClient();
     const { data: order } = await admin
       .from("orders")
-      .select("user_id")
+      .select("user_id, tracking_number, estimated_delivery")
       .eq("id", orderId)
       .maybeSingle();
     if (!order) return;
@@ -221,8 +221,18 @@ export async function sendOrderStatusUpdate(
     if (!recipient) return;
 
     const message = ORDER_STATUS_MESSAGE[status] ?? `is now ${status}`;
+    const details: string[] = [];
+    if (order.tracking_number) {
+      details.push(`<p>Tracking number: <strong>${order.tracking_number}</strong></p>`);
+    }
+    if (order.estimated_delivery) {
+      details.push(
+        `<p>Estimated delivery: <strong>${order.estimated_delivery}</strong></p>`,
+      );
+    }
     const body = `
       <p>Hi ${recipient.name}, your order ${message}.</p>
+      ${details.join("")}
       <a href="${siteUrl}/account/orders" style="display:inline-block;background:#d97706;color:#fff;text-decoration:none;padding:10px 20px;border-radius:999px;margin-top:8px">Track your order</a>`;
 
     await sendEmail({

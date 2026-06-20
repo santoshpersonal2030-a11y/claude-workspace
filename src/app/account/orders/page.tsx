@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -26,7 +27,9 @@ export default async function OrdersPage() {
 
   const { data: orders } = await supabase
     .from("orders")
-    .select("id, status, total_amount, created_at, order_items(product_name, quantity)")
+    .select(
+      "id, status, total_amount, created_at, tracking_number, estimated_delivery, order_items(product_name, quantity)",
+    )
     .order("created_at", { ascending: false });
 
   return (
@@ -67,8 +70,27 @@ export default async function OrdersPage() {
                   <div className="mt-4">
                     <OrderStatusTracker status={order.status} />
                   </div>
-                  <div className="mt-3 border-t border-saffron-50 pt-3 text-right font-semibold text-saffron-700">
-                    {formatINR(order.total_amount)}
+                  {(order.tracking_number || order.estimated_delivery) && (
+                    <p className="mt-3 text-xs text-foreground/55">
+                      {order.tracking_number && (
+                        <>Tracking: {order.tracking_number}</>
+                      )}
+                      {order.tracking_number && order.estimated_delivery && " · "}
+                      {order.estimated_delivery && (
+                        <>Est. delivery: {order.estimated_delivery}</>
+                      )}
+                    </p>
+                  )}
+                  <div className="mt-3 flex items-center justify-between border-t border-saffron-50 pt-3">
+                    <Link
+                      href={`/account/orders/${order.id}`}
+                      className="text-sm font-semibold text-saffron-700 hover:text-saffron-800"
+                    >
+                      View details →
+                    </Link>
+                    <span className="font-semibold text-saffron-700">
+                      {formatINR(order.total_amount)}
+                    </span>
                   </div>
                 </div>
               ))}

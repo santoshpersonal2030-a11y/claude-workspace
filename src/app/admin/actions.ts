@@ -203,7 +203,19 @@ export async function updateOrderStatus(formData: FormData): Promise<void> {
 
   const id = str(formData.get("id"));
   const status = str(formData.get("status")) as OrderStatus;
-  await admin.from("orders").update({ status }).eq("id", id);
+
+  const update: {
+    status: OrderStatus;
+    tracking_number?: string | null;
+    estimated_delivery?: string | null;
+  } = { status };
+  if (formData.has("tracking_number")) {
+    update.tracking_number = str(formData.get("tracking_number")) || null;
+  }
+  if (formData.has("estimated_delivery")) {
+    update.estimated_delivery = str(formData.get("estimated_delivery")) || null;
+  }
+  await admin.from("orders").update(update).eq("id", id);
 
   // Email the customer about the transition; delivery also invites a review.
   if (status === "delivered") {

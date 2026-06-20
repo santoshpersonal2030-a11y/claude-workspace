@@ -7,10 +7,19 @@ const inputClass =
 
 export default async function AdminProductsPage() {
   const admin = createAdminClient();
-  const { data: products } = await admin
-    .from("products")
-    .select("*")
-    .order("name", { ascending: true });
+  const [{ data: products }, { data: subs }] = await Promise.all([
+    admin.from("products").select("*").order("name", { ascending: true }),
+    admin
+      .from("stock_subscriptions")
+      .select("product_id")
+      .is("notified_at", null),
+  ]);
+
+  // Demand signal: how many people are waiting for each product to restock.
+  const waiting = new Map<string, number>();
+  for (const s of subs ?? []) {
+    waiting.set(s.product_id, (waiting.get(s.product_id) ?? 0) + 1);
+  }
 
   return (
     <div>
@@ -135,6 +144,14 @@ export default async function AdminProductsPage() {
               className={inputClass}
             />
             <div className="flex items-center gap-3">
+              {(waiting.get(p.id) ?? 0) > 0 && (
+                <span
+                  className="whitespace-nowrap rounded-full bg-maroon-50 px-2 py-0.5 text-xs font-medium text-maroon-700"
+                  title="People waiting for a restock"
+                >
+                  🔔 {waiting.get(p.id)}
+                </span>
+              )}
               <label className="flex items-center gap-1 text-xs text-foreground/70">
                 <input
                   type="checkbox"

@@ -215,12 +215,14 @@ export type Database = {
           created_at: string
           delivery_name: string | null
           delivery_phone: string | null
+          estimated_delivery: string | null
           id: string
           pincode: string | null
           shipping: number
           status: Database["public"]["Enums"]["order_status"]
           subtotal: number
           total_amount: number
+          tracking_number: string | null
           updated_at: string
           user_id: string
         }
@@ -230,12 +232,14 @@ export type Database = {
           created_at?: string
           delivery_name?: string | null
           delivery_phone?: string | null
+          estimated_delivery?: string | null
           id?: string
           pincode?: string | null
           shipping?: number
           status?: Database["public"]["Enums"]["order_status"]
           subtotal?: number
           total_amount?: number
+          tracking_number?: string | null
           updated_at?: string
           user_id: string
         }
@@ -245,12 +249,14 @@ export type Database = {
           created_at?: string
           delivery_name?: string | null
           delivery_phone?: string | null
+          estimated_delivery?: string | null
           id?: string
           pincode?: string | null
           shipping?: number
           status?: Database["public"]["Enums"]["order_status"]
           subtotal?: number
           total_amount?: number
+          tracking_number?: string | null
           updated_at?: string
           user_id?: string
         }

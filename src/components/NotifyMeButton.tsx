@@ -8,8 +8,10 @@ import { createClient } from "@/lib/supabase/client";
 // the signed-in email if available, otherwise asks for one.
 export default function NotifyMeButton({
   productSlug,
+  compact = false,
 }: {
   productSlug: string;
+  compact?: boolean;
 }) {
   const supabase = useMemo(() => createClient(), []);
   const [open, setOpen] = useState(false);
@@ -52,8 +54,12 @@ export default function NotifyMeButton({
 
   if (done) {
     return (
-      <p className="rounded-xl bg-green-50 px-4 py-3 text-sm text-green-800">
-        🔔 We&apos;ll email you when this is back in stock.
+      <p
+        className={`rounded-xl bg-green-50 text-green-800 ${
+          compact ? "px-3 py-2 text-xs" : "px-4 py-3 text-sm"
+        }`}
+      >
+        🔔 We&apos;ll email you when it&apos;s back.
       </p>
     );
   }
@@ -63,9 +69,13 @@ export default function NotifyMeButton({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="rounded-full border border-saffron-300 px-6 py-2.5 text-sm font-semibold text-saffron-700 hover:bg-saffron-50"
+        className={
+          compact
+            ? "mt-4 w-full rounded-full border border-saffron-300 py-2.5 text-sm font-semibold text-saffron-700 hover:bg-saffron-50"
+            : "rounded-full border border-saffron-300 px-6 py-2.5 text-sm font-semibold text-saffron-700 hover:bg-saffron-50"
+        }
       >
-        🔔 Notify me when it&apos;s back
+        🔔 Notify me
       </button>
     );
   }

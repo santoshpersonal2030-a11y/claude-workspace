@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 
 import AddToCartButton from "@/components/AddToCartButton";
+import NotifyMeButton from "@/components/NotifyMeButton";
 import RatingStars from "@/components/RatingStars";
 import ProductThumb from "@/components/ProductThumb";
 import WishlistButton from "@/components/WishlistButton";
@@ -221,7 +222,11 @@ export default function StoreBrowser({
                     </span>
                   )}
                 </div>
-                <AddToCartButton product={product} />
+                {product.stock > 0 ? (
+                  <AddToCartButton product={product} />
+                ) : (
+                  <NotifyMeButton productSlug={product.slug} compact />
+                )}
               </div>
             );
           })}

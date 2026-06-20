@@ -31,7 +31,7 @@ export default async function AdminBookingsPage() {
     admin
       .from("orders")
       .select(
-        "id, status, total_amount, created_at, delivery_name, delivery_phone, order_items(product_name, quantity)",
+        "id, status, total_amount, created_at, delivery_name, delivery_phone, tracking_number, estimated_delivery, order_items(product_name, quantity)",
       )
       .order("created_at", { ascending: false }),
     admin
@@ -142,31 +142,32 @@ export default async function AdminBookingsPage() {
         <div className="mt-4 space-y-3">
           {orders.data?.length ? (
             orders.data.map((o) => (
-              <div
+              <form
                 key={o.id}
-                className="flex flex-wrap items-center gap-3 rounded-xl border border-saffron-100 bg-white p-3 shadow-sm"
+                action={updateOrderStatus}
+                className="rounded-xl border border-saffron-100 bg-white p-3 shadow-sm"
               >
-                <div className="min-w-48 flex-1">
-                  <div className="font-medium text-maroon-700">
-                    {o.delivery_name ?? "Customer"}
-                    {o.delivery_phone ? (
-                      <span className="ml-2 text-xs text-foreground/50">
-                        {o.delivery_phone}
-                      </span>
-                    ) : null}
+                <input type="hidden" name="id" value={o.id} />
+                <div className="flex flex-wrap items-center gap-3">
+                  <div className="min-w-48 flex-1">
+                    <div className="font-medium text-maroon-700">
+                      {o.delivery_name ?? "Customer"}
+                      {o.delivery_phone ? (
+                        <span className="ml-2 text-xs text-foreground/50">
+                          {o.delivery_phone}
+                        </span>
+                      ) : null}
+                    </div>
+                    <div className="text-xs text-foreground/55">
+                      {formatDate(o.created_at)} ·{" "}
+                      {o.order_items
+                        .map((i) => `${i.product_name} ×${i.quantity}`)
+                        .join(", ")}
+                    </div>
                   </div>
-                  <div className="text-xs text-foreground/55">
-                    {formatDate(o.created_at)} ·{" "}
-                    {o.order_items
-                      .map((i) => `${i.product_name} ×${i.quantity}`)
-                      .join(", ")}
+                  <div className="font-medium text-saffron-700">
+                    {formatINR(o.total_amount)}
                   </div>
-                </div>
-                <div className="font-medium text-saffron-700">
-                  {formatINR(o.total_amount)}
-                </div>
-                <form action={updateOrderStatus} className="flex gap-2">
-                  <input type="hidden" name="id" value={o.id} />
                   <select
                     name="status"
                     defaultValue={o.status}
@@ -184,8 +185,24 @@ export default async function AdminBookingsPage() {
                   >
                     Update
                   </button>
-                </form>
-              </div>
+                </div>
+                <div className="mt-2 flex flex-wrap items-center gap-2 border-t border-saffron-50 pt-2 text-xs text-foreground/55">
+                  <span>Tracking</span>
+                  <input
+                    name="tracking_number"
+                    defaultValue={o.tracking_number ?? ""}
+                    placeholder="e.g. 1Z…"
+                    className={selectClass}
+                  />
+                  <span>ETA</span>
+                  <input
+                    name="estimated_delivery"
+                    type="date"
+                    defaultValue={o.estimated_delivery ?? ""}
+                    className={selectClass}
+                  />
+                </div>
+              </form>
             ))
           ) : (
             <p className="text-sm text-foreground/55">No orders yet.</p>
