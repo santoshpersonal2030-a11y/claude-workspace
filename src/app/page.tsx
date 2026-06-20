@@ -1,8 +1,10 @@
 import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import AddToCartButton from "@/components/AddToCartButton";
+import RatingStars from "@/components/RatingStars";
 import { formatINR } from "@/lib/poojas";
-import { getPopularPoojas, getPandits } from "@/lib/queries";
+import { getPopularPoojas, getPandits, getProducts } from "@/lib/queries";
 
 // Re-fetch popular poojas from the database at most once every 5 minutes.
 export const revalidate = 300;
@@ -131,6 +133,10 @@ const reasons = [
 export default async function Home() {
   const popularPoojas = await getPopularPoojas();
   const featuredPandits = (await getPandits()).slice(0, 3);
+  const featuredProducts = (await getProducts())
+    .slice()
+    .sort((a, b) => b.reviewCount - a.reviewCount)
+    .slice(0, 4);
 
   return (
     <>
@@ -249,6 +255,81 @@ export default async function Home() {
             ))}
           </div>
         </section>
+
+        {/* Shop bestsellers */}
+        {featuredProducts.length > 0 && (
+          <section className="mx-auto max-w-6xl px-4 pb-16 sm:px-6">
+            <div className="flex items-end justify-between gap-4">
+              <div>
+                <h2 className="font-heading text-3xl text-maroon-800">
+                  Shop bestselling samagri
+                </h2>
+                <p className="mt-2 text-foreground/70">
+                  Top-rated kits and essentials, delivered to your door.
+                </p>
+              </div>
+              <Link
+                href="/store"
+                className="hidden whitespace-nowrap text-sm font-semibold text-saffron-700 hover:text-saffron-800 sm:block"
+              >
+                Visit the store →
+              </Link>
+            </div>
+
+            <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+              {featuredProducts.map((product) => {
+                const discount =
+                  product.mrp && product.mrp > product.price
+                    ? Math.round(
+                        ((product.mrp - product.price) / product.mrp) * 100,
+                      )
+                    : 0;
+                return (
+                  <div
+                    key={product.slug}
+                    className="flex flex-col rounded-2xl border border-saffron-100 bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md"
+                  >
+                    <div className="flex items-start justify-between">
+                      <Link href={`/store/${product.slug}`} className="text-4xl">
+                        🪔
+                      </Link>
+                      {discount > 0 && (
+                        <span className="rounded-full bg-green-50 px-2 py-0.5 text-xs font-semibold text-green-700">
+                          {discount}% off
+                        </span>
+                      )}
+                    </div>
+                    <h3 className="mt-4 font-heading text-base text-maroon-700">
+                      <Link
+                        href={`/store/${product.slug}`}
+                        className="hover:text-saffron-700"
+                      >
+                        {product.name}
+                      </Link>
+                    </h3>
+                    <div className="mt-1">
+                      <RatingStars
+                        rating={product.rating}
+                        reviewCount={product.reviewCount}
+                      />
+                    </div>
+                    <div className="mt-2 flex flex-1 items-end gap-2">
+                      <span className="font-heading text-lg text-saffron-700">
+                        {formatINR(product.price)}
+                      </span>
+                      {discount > 0 && product.mrp && (
+                        <span className="text-xs text-foreground/40 line-through">
+                          {formatINR(product.mrp)}
+                        </span>
+                      )}
+                    </div>
+                    <AddToCartButton product={product} />
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        )}
 
         {/* Featured pandits */}
         {featuredPandits.length > 0 && (

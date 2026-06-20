@@ -128,6 +128,8 @@ export type StoreProduct = {
   category: string | null;
   imageUrl: string | null;
   stock: number;
+  rating: number;
+  reviewCount: number;
 };
 
 function rowToProduct(row: ProductRow): StoreProduct {
@@ -140,6 +142,8 @@ function rowToProduct(row: ProductRow): StoreProduct {
     category: row.category,
     imageUrl: row.image_url,
     stock: row.stock,
+    rating: Number(row.rating),
+    reviewCount: row.review_count,
   };
 }
 
@@ -265,6 +269,31 @@ export async function getProductBySlug(
   } catch (err) {
     console.warn("getProductBySlug: returning null —", err);
     return null;
+  }
+}
+
+// Other active products in the same category, for "You may also like".
+export async function getRelatedProducts(
+  slug: string,
+  category: string | null,
+  limit = 4,
+): Promise<StoreProduct[]> {
+  if (!category) return [];
+  try {
+    const { data, error } = await db
+      .from("products")
+      .select("*")
+      .eq("active", true)
+      .eq("category", category)
+      .neq("slug", slug)
+      .order("review_count", { ascending: false })
+      .limit(limit);
+
+    if (error) throw error;
+    return (data ?? []).map(rowToProduct);
+  } catch (err) {
+    console.warn("getRelatedProducts: returning empty list —", err);
+    return [];
   }
 }
 

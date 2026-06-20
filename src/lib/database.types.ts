@@ -432,6 +432,8 @@ export type Database = {
           mrp: number | null
           name: string
           price: number
+          rating: number
+          review_count: number
           slug: string
           stock: number
           updated_at: string
@@ -446,6 +448,8 @@ export type Database = {
           mrp?: number | null
           name: string
           price: number
+          rating?: number
+          review_count?: number
           slug: string
           stock?: number
           updated_at?: string
@@ -460,6 +464,8 @@ export type Database = {
           mrp?: number | null
           name?: string
           price?: number
+          rating?: number
+          review_count?: number
           slug?: string
           stock?: number
           updated_at?: string

@@ -4,8 +4,14 @@ import { notFound } from "next/navigation";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import AddToCartButton from "@/components/AddToCartButton";
+import ProductPurchase from "@/components/ProductPurchase";
+import RatingStars from "@/components/RatingStars";
 import { formatINR } from "@/lib/poojas";
-import { getProductBySlug, getProductSlugs } from "@/lib/queries";
+import {
+  getProductBySlug,
+  getProductSlugs,
+  getRelatedProducts,
+} from "@/lib/queries";
 
 // Re-fetch from the database at most once every 5 minutes.
 export const revalidate = 300;
@@ -37,6 +43,8 @@ export default async function ProductDetailPage({
   const { slug } = await params;
   const product = await getProductBySlug(slug);
   if (!product) notFound();
+
+  const related = await getRelatedProducts(product.slug, product.category);
 
   const discount =
     product.mrp && product.mrp > product.price
@@ -79,6 +87,13 @@ export default async function ProductDetailPage({
                 {product.name}
               </h1>
 
+              <div className="mt-2">
+                <RatingStars
+                  rating={product.rating}
+                  reviewCount={product.reviewCount}
+                />
+              </div>
+
               <div className="mt-4 flex items-center gap-3">
                 <span className="font-heading text-3xl text-saffron-700">
                   {formatINR(product.price)}
@@ -109,8 +124,8 @@ export default async function ProductDetailPage({
                 </p>
               )}
 
-              <div className="mt-8 max-w-xs">
-                <AddToCartButton product={product} />
+              <div className="mt-8 max-w-sm">
+                <ProductPurchase product={product} />
               </div>
 
               <p className="mt-4 text-sm text-foreground/60">
@@ -119,6 +134,58 @@ export default async function ProductDetailPage({
               </p>
             </div>
           </div>
+
+          {/* Related products */}
+          {related.length > 0 && (
+            <div className="mt-16">
+              <h2 className="font-heading text-2xl text-maroon-800">
+                You may also like
+              </h2>
+              <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                {related.map((item) => {
+                  const itemDiscount =
+                    item.mrp && item.mrp > item.price
+                      ? Math.round(((item.mrp - item.price) / item.mrp) * 100)
+                      : 0;
+                  return (
+                    <div
+                      key={item.slug}
+                      className="flex flex-col rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm"
+                    >
+                      <Link href={`/store/${item.slug}`} className="text-3xl">
+                        🪔
+                      </Link>
+                      <h3 className="mt-3 font-heading text-base text-maroon-700">
+                        <Link
+                          href={`/store/${item.slug}`}
+                          className="hover:text-saffron-700"
+                        >
+                          {item.name}
+                        </Link>
+                      </h3>
+                      <div className="mt-1">
+                        <RatingStars
+                          rating={item.rating}
+                          reviewCount={item.reviewCount}
+                        />
+                      </div>
+                      <div className="mt-2 flex items-center gap-2">
+                        <span className="font-heading text-lg text-saffron-700">
+                          {formatINR(item.price)}
+                        </span>
+                        {itemDiscount > 0 && item.mrp && (
+                          <span className="text-xs text-foreground/40 line-through">
+                            {formatINR(item.mrp)}
+                          </span>
+                        )}
+                      </div>
+                      <AddToCartButton product={item} />
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </section>
       </main>
       <Footer />

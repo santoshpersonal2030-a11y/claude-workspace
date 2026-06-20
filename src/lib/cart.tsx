@@ -105,6 +105,40 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+// ── Mini-cart drawer open/close state ──────────────────────────────────────
+
+let drawerOpen = false;
+const drawerListeners = new Set<() => void>();
+
+function emitDrawer() {
+  drawerListeners.forEach((l) => l());
+}
+
+export function openCart() {
+  drawerOpen = true;
+  emitDrawer();
+}
+
+export function closeCart() {
+  drawerOpen = false;
+  emitDrawer();
+}
+
+function subscribeDrawer(cb: () => void): () => void {
+  drawerListeners.add(cb);
+  return () => {
+    drawerListeners.delete(cb);
+  };
+}
+
+export function useCartDrawer(): boolean {
+  return useSyncExternalStore(
+    subscribeDrawer,
+    () => drawerOpen,
+    () => false,
+  );
+}
+
 export function useCart() {
   const current = useSyncExternalStore(
     subscribe,

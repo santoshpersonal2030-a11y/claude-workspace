@@ -1,19 +1,19 @@
 "use client";
 
-import Link from "next/link";
+import { useCart, openCart } from "@/lib/cart";
 
-import { useCart } from "@/lib/cart";
-
-// Cart indicator for the header. Lives on the client so it can show the live
-// item count without making the surrounding pages dynamic.
+// Cart indicator for the header. Opens the slide-out mini-cart on click. Lives
+// on the client so it can show the live item count without making the
+// surrounding pages dynamic.
 export default function CartButton() {
   const { count } = useCart();
 
   return (
-    <Link
-      href="/cart"
+    <button
+      type="button"
+      onClick={openCart}
       className="relative flex h-9 w-9 items-center justify-center rounded-full text-foreground/80 transition-colors hover:bg-saffron-50 hover:text-saffron-700"
-      aria-label={`Cart with ${count} item${count === 1 ? "" : "s"}`}
+      aria-label={`Open cart with ${count} item${count === 1 ? "" : "s"}`}
     >
       <span className="text-lg" aria-hidden="true">
         🛒
@@ -23,6 +23,6 @@ export default function CartButton() {
           {count}
         </span>
       )}
-    </Link>
+    </button>
   );
 }
