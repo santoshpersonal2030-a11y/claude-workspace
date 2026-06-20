@@ -109,6 +109,27 @@ export type Database = {
           },
         ]
       }
+      carts: {
+        Row: {
+          items: Json
+          notified_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          items?: Json
+          notified_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          items?: Json
+          notified_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       contact_messages: {
         Row: {
           created_at: string
@@ -473,6 +494,7 @@ export type Database = {
           description: string | null
           id: string
           image_url: string | null
+          images: string[]
           mrp: number | null
           name: string
           price: number
@@ -489,6 +511,7 @@ export type Database = {
           description?: string | null
           id?: string
           image_url?: string | null
+          images?: string[]
           mrp?: number | null
           name: string
           price: number
@@ -505,6 +528,7 @@ export type Database = {
           description?: string | null
           id?: string
           image_url?: string | null
+          images?: string[]
           mrp?: number | null
           name?: string
           price?: number

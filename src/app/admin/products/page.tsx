@@ -1,5 +1,6 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { saveProduct } from "@/app/admin/actions";
+import ProductImageManager from "@/components/admin/ProductImageManager";
 
 const inputClass =
   "w-full rounded-lg border border-saffron-200 bg-cream px-2 py-1.5 text-sm outline-none focus:border-saffron-400";
@@ -101,33 +102,12 @@ export default async function AdminProductsPage() {
               name="description"
               defaultValue={p.description ?? ""}
             />
-            <div className="flex items-center gap-2 sm:col-span-6">
-              {p.image_url ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={p.image_url}
-                  alt={p.name}
-                  className="h-9 w-9 flex-shrink-0 rounded object-cover"
-                />
-              ) : (
-                <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded bg-cream-100/60">
-                  🪔
-                </span>
-              )}
-              <input
-                name="image_url"
-                defaultValue={p.image_url ?? ""}
-                placeholder="Image URL"
-                className={`${inputClass} flex-1`}
-              />
-              <input
-                name="image"
-                type="file"
-                accept="image/*"
-                className="text-xs"
-                title="Upload to replace"
-              />
-            </div>
+            <ProductImageManager
+              slug={p.slug}
+              initialImages={
+                p.images?.length ? p.images : p.image_url ? [p.image_url] : []
+              }
+            />
             <input name="name" defaultValue={p.name} className={inputClass} />
             <input
               name="category"

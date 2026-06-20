@@ -2,6 +2,9 @@
 
 import { useMemo, useSyncExternalStore } from "react";
 
+import { createClient } from "@/lib/supabase/client";
+import type { Json } from "@/lib/database.types";
+
 export type CartItem = {
   slug: string;
   name: string;
@@ -41,6 +44,38 @@ function commit(next: CartItem[]) {
     // storage may be unavailable; state still updates in memory
   }
   listeners.forEach((l) => l());
+  scheduleRemoteSync();
+}
+
+// ── Server-side cart snapshot (for abandoned-cart reminders) ────────────────
+// For signed-in users we mirror the cart into the `carts` table, debounced.
+
+const supabase = createClient();
+let syncTimer: ReturnType<typeof setTimeout> | null = null;
+
+function scheduleRemoteSync() {
+  if (syncTimer) clearTimeout(syncTimer);
+  syncTimer = setTimeout(() => {
+    void syncRemoteCart();
+  }, 1500);
+}
+
+async function syncRemoteCart() {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return;
+
+  if (items.length === 0) {
+    await supabase.from("carts").delete().eq("user_id", user.id);
+    return;
+  }
+  await supabase.from("carts").upsert({
+    user_id: user.id,
+    items: items as unknown as Json,
+    updated_at: new Date().toISOString(),
+    notified_at: null,
+  });
 }
 
 function subscribe(cb: () => void): () => void {

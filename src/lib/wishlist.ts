@@ -94,6 +94,7 @@ export function useWishlist() {
   );
   return {
     ready: snap.ready,
+    count: snap.ids.size,
     has: (id: string) => snap.ids.has(id),
     toggle: toggleWishlist,
   };

@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 
 import { assertAdmin } from "@/lib/admin";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { sendReviewRequest } from "@/lib/notifications";
+import { sendReviewRequest, sendBackInStockEmails } from "@/lib/notifications";
 import type { Database } from "@/lib/database.types";
 
 type BookingStatus = Database["public"]["Enums"]["booking_status"];
@@ -71,13 +71,29 @@ export async function saveProduct(formData: FormData): Promise<void> {
   const id = str(formData.get("id"));
   const slug = str(formData.get("slug"));
 
-  // An uploaded file takes precedence over a pasted URL; otherwise keep the URL.
-  let imageUrl = str(formData.get("image_url")) || null;
+  // Gallery URLs come from the client image manager (JSON array).
+  let images: string[] = [];
+  const imagesRaw = str(formData.get("images"));
+  if (imagesRaw) {
+    try {
+      const parsed = JSON.parse(imagesRaw);
+      if (Array.isArray(parsed)) images = parsed.filter((u) => typeof u === "string");
+    } catch {
+      // ignore malformed input
+    }
+  }
+
+  // A server-uploaded file or pasted URL provides the cover.
+  let cover = str(formData.get("image_url")) || null;
   const file = formData.get("image");
   if (file instanceof File && file.size > 0) {
     const uploaded = await uploadProductImage(admin, file, slug);
-    if (uploaded) imageUrl = uploaded;
+    if (uploaded) cover = uploaded;
   }
+  // Fall back to the first gallery image for the cover.
+  cover = cover ?? images[0] ?? null;
+
+  const stock = num(formData.get("stock"));
 
   const payload = {
     slug,
@@ -86,13 +102,23 @@ export async function saveProduct(formData: FormData): Promise<void> {
     category: str(formData.get("category")) || null,
     price: num(formData.get("price")),
     mrp: optNum(formData.get("mrp")),
-    stock: num(formData.get("stock")),
-    image_url: imageUrl,
+    stock,
+    image_url: cover,
+    images,
     active: formData.get("active") === "on",
   };
 
   if (id) {
+    // Detect an out-of-stock → in-stock transition to notify wishlisters.
+    const { data: existing } = await admin
+      .from("products")
+      .select("stock")
+      .eq("id", id)
+      .maybeSingle();
     await admin.from("products").update(payload).eq("id", id);
+    if (existing && existing.stock <= 0 && stock > 0) {
+      await sendBackInStockEmails(id);
+    }
   } else {
     await admin.from("products").insert(payload);
   }

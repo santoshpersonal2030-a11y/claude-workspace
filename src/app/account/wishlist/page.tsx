@@ -22,26 +22,30 @@ export default async function WishlistPage() {
   const { data: rows } = await supabase
     .from("wishlists")
     .select(
-      "created_at, products(id, slug, name, description, price, mrp, category, image_url, stock, rating, review_count)",
+      "created_at, products(id, slug, name, description, price, mrp, category, image_url, images, stock, rating, review_count)",
     )
     .order("created_at", { ascending: false });
 
   const products: StoreProduct[] = (rows ?? [])
     .map((r) => r.products)
     .filter((p): p is NonNullable<typeof p> => Boolean(p))
-    .map((p) => ({
-      id: p.id,
-      slug: p.slug,
-      name: p.name,
-      description: p.description,
-      price: p.price,
-      mrp: p.mrp,
-      category: p.category,
-      imageUrl: p.image_url,
-      stock: p.stock,
-      rating: Number(p.rating),
-      reviewCount: p.review_count,
-    }));
+    .map((p) => {
+      const images = p.images ?? [];
+      return {
+        id: p.id,
+        slug: p.slug,
+        name: p.name,
+        description: p.description,
+        price: p.price,
+        mrp: p.mrp,
+        category: p.category,
+        imageUrl: p.image_url ?? images[0] ?? null,
+        images: images.length > 0 ? images : p.image_url ? [p.image_url] : [],
+        stock: p.stock,
+        rating: Number(p.rating),
+        reviewCount: p.review_count,
+      };
+    });
 
   return (
     <>

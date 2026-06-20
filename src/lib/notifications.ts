@@ -104,6 +104,73 @@ export async function sendBookingConfirmation(
   }
 }
 
+export async function sendBackInStockEmails(productId: string): Promise<void> {
+  try {
+    const admin = createAdminClient();
+    const { data: product } = await admin
+      .from("products")
+      .select("name, slug, stock")
+      .eq("id", productId)
+      .maybeSingle();
+    if (!product || product.stock <= 0) return;
+
+    const { data: wishers } = await admin
+      .from("wishlists")
+      .select("user_id")
+      .eq("product_id", productId);
+    if (!wishers?.length) return;
+
+    for (const w of wishers) {
+      const recipient = await emailForUser(admin, w.user_id);
+      if (!recipient) continue;
+      const body = `
+        <p>Hi ${recipient.name}, good news — <strong>${product.name}</strong> is back in stock!</p>
+        <a href="${siteUrl}/store/${product.slug}" style="display:inline-block;background:#d97706;color:#fff;text-decoration:none;padding:10px 20px;border-radius:999px;margin-top:8px">Shop now</a>`;
+      await sendEmail({
+        to: recipient.email,
+        subject: `${product.name} is back in stock 🛍️`,
+        html: emailLayout("Back in stock", body),
+      });
+    }
+  } catch (err) {
+    console.error("sendBackInStockEmails failed:", err);
+  }
+}
+
+type CartLineItem = { name?: string; price?: number; quantity?: number };
+
+export async function sendAbandonedCartEmail(
+  userId: string,
+  items: CartLineItem[],
+): Promise<void> {
+  try {
+    const admin = createAdminClient();
+    const recipient = await emailForUser(admin, userId);
+    if (!recipient) return;
+
+    const rows = items
+      .filter((i) => i.name)
+      .map(
+        (i) =>
+          `<li style="margin:6px 0">${i.name} × ${i.quantity ?? 1}</li>`,
+      )
+      .join("");
+
+    const body = `
+      <p>Hi ${recipient.name}, you left some items in your cart. They're still waiting for you!</p>
+      <ul style="padding-left:18px">${rows}</ul>
+      <a href="${siteUrl}/cart" style="display:inline-block;background:#d97706;color:#fff;text-decoration:none;padding:10px 20px;border-radius:999px;margin-top:8px">Complete your order</a>`;
+
+    await sendEmail({
+      to: recipient.email,
+      subject: "You left something in your cart 🛒",
+      html: emailLayout("Still thinking it over?", body),
+    });
+  } catch (err) {
+    console.error("sendAbandonedCartEmail failed:", err);
+  }
+}
+
 export async function sendReviewRequest(orderId: string): Promise<void> {
   try {
     const admin = createAdminClient();

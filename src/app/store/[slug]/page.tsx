@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import AddToCartButton from "@/components/AddToCartButton";
 import ProductPurchase from "@/components/ProductPurchase";
 import ProductThumb from "@/components/ProductThumb";
+import ProductGallery from "@/components/ProductGallery";
 import WishlistButton from "@/components/WishlistButton";
 import RatingStars from "@/components/RatingStars";
 import ProductReviews from "@/components/ProductReviews";
@@ -79,12 +80,7 @@ export default async function ProductDetailPage({
 
         <section className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
           <div className="grid gap-10 lg:grid-cols-2">
-            <ProductThumb
-              imageUrl={product.imageUrl}
-              name={product.name}
-              className="aspect-square w-full rounded-2xl border border-saffron-100"
-              emojiSize="text-8xl"
-            />
+            <ProductGallery images={product.images} name={product.name} />
 
             <div>
               {product.category && (

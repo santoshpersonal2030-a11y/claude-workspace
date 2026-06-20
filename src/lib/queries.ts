@@ -128,12 +128,14 @@ export type StoreProduct = {
   mrp: number | null;
   category: string | null;
   imageUrl: string | null;
+  images: string[];
   stock: number;
   rating: number;
   reviewCount: number;
 };
 
 function rowToProduct(row: ProductRow): StoreProduct {
+  const images = row.images ?? [];
   return {
     id: row.id,
     slug: row.slug,
@@ -142,7 +144,9 @@ function rowToProduct(row: ProductRow): StoreProduct {
     price: row.price,
     mrp: row.mrp,
     category: row.category,
-    imageUrl: row.image_url,
+    // Cover prefers the explicit image_url, then the first gallery image.
+    imageUrl: row.image_url ?? images[0] ?? null,
+    images: images.length > 0 ? images : row.image_url ? [row.image_url] : [],
     stock: row.stock,
     rating: Number(row.rating),
     reviewCount: row.review_count,
