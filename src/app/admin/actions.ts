@@ -6,6 +6,7 @@ import { assertAdmin } from "@/lib/admin";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createRefund, razorpayConfigured } from "@/lib/razorpay";
 import { generateEInvoice, cancelEInvoice } from "@/lib/einvoice";
+import { generateEwayBill } from "@/lib/ewaybill";
 import {
   sendReviewRequest,
   sendBackInStockEmails,
@@ -320,6 +321,16 @@ export async function cancelEInvoiceAction(formData: FormData): Promise<void> {
   await assertAdmin();
   const orderId = str(formData.get("id"));
   await cancelEInvoice(orderId);
+  revalidatePath(`/admin/orders/${orderId}`);
+}
+
+// Generates an e-way bill for a consignment over the threshold.
+export async function generateEwayBillAction(
+  formData: FormData,
+): Promise<void> {
+  await assertAdmin();
+  const orderId = str(formData.get("id"));
+  await generateEwayBill(orderId);
   revalidatePath(`/admin/orders/${orderId}`);
 }
 

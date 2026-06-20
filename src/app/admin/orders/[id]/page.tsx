@@ -8,8 +8,10 @@ import {
   refundOrder,
   generateEInvoiceAction,
   cancelEInvoiceAction,
+  generateEwayBillAction,
 } from "@/app/admin/actions";
 import { withinCancelWindow } from "@/lib/einvoice";
+import { EWB_THRESHOLD } from "@/lib/ewaybill";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { Constants } from "@/lib/database.types";
 import { CARRIERS } from "@/lib/carriers";
@@ -30,7 +32,7 @@ export default async function AdminOrderDetailPage({
   const { data: order } = await admin
     .from("orders")
     .select(
-      "id, status, subtotal, shipping, total_amount, created_at, delivery_name, delivery_phone, address, city, pincode, tracking_number, estimated_delivery, carrier, customer_gstin, irn, irn_date, irn_cancelled_at, order_items(id, product_name, quantity, unit_price, line_total)",
+      "id, status, subtotal, shipping, total_amount, created_at, delivery_name, delivery_phone, address, city, pincode, tracking_number, estimated_delivery, carrier, customer_gstin, irn, irn_date, irn_cancelled_at, ewb_no, ewb_date, order_items(id, product_name, quantity, unit_price, line_total)",
     )
     .eq("id", id)
     .maybeSingle();
@@ -343,6 +345,38 @@ export default async function AdminOrderDetailPage({
                   className="mt-2 rounded-full bg-saffron-600 px-4 py-1.5 text-xs font-semibold text-white hover:bg-saffron-700"
                 >
                   Generate e-invoice
+                </button>
+              </form>
+            )}
+          </div>
+
+          {/* E-way bill */}
+          <div className="rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm">
+            <h2 className="font-heading text-lg text-maroon-700">E-way bill</h2>
+            {order.total_amount < EWB_THRESHOLD ? (
+              <p className="mt-2 text-sm text-foreground/55">
+                Below the {formatINR(EWB_THRESHOLD)} threshold — not required.
+              </p>
+            ) : order.ewb_no ? (
+              <div className="mt-2 text-sm text-foreground/75">
+                <p>
+                  <span className="text-foreground/55">EWB No: </span>
+                  {order.ewb_no}
+                </p>
+                {order.ewb_date && (
+                  <p className="text-xs text-foreground/55">
+                    Generated {new Date(order.ewb_date).toLocaleString("en-IN")}
+                  </p>
+                )}
+              </div>
+            ) : (
+              <form action={generateEwayBillAction} className="mt-2">
+                <input type="hidden" name="id" value={order.id} />
+                <button
+                  type="submit"
+                  className="rounded-full bg-saffron-600 px-4 py-1.5 text-xs font-semibold text-white hover:bg-saffron-700"
+                >
+                  Generate e-way bill
                 </button>
               </form>
             )}

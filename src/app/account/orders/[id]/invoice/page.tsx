@@ -24,7 +24,7 @@ export default async function OrderInvoicePage({
   const { data: order } = await supabase
     .from("orders")
     .select(
-      "id, invoice_no, invoice_fy, status, irn, signed_qr, subtotal, shipping, total_amount, created_at, delivery_name, delivery_phone, address, city, state, pincode, order_items(id, product_name, quantity, unit_price, line_total, gst_rate, hsn_code)",
+      "id, invoice_no, invoice_fy, status, irn, signed_qr, ewb_no, subtotal, shipping, total_amount, created_at, delivery_name, delivery_phone, address, city, state, pincode, order_items(id, product_name, quantity, unit_price, line_total, gst_rate, hsn_code)",
     )
     .eq("id", id)
     .maybeSingle();

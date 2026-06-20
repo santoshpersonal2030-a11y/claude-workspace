@@ -1,6 +1,6 @@
 import { PdfDoc } from "@/lib/pdf";
 import { COMPANY } from "@/lib/company";
-import { logoRgb } from "@/lib/logo";
+import { logoJpeg } from "@/lib/logo";
 import { invoiceNumber, isInterState } from "@/lib/invoice";
 import { placeOfSupply } from "@/lib/india";
 import { amountInWords } from "@/lib/amount-in-words";
@@ -8,8 +8,8 @@ import type { OrderInvoiceData } from "@/components/receipts/OrderInvoice";
 import type { BookingReceiptData } from "@/components/receipts/BookingReceipt";
 
 function drawLogo(doc: PdfDoc): void {
-  const logo = logoRgb();
-  doc.image(L, doc.fromTop(62), 36, 36, logo.data, logo.w, logo.h);
+  const logo = logoJpeg();
+  doc.imageJpeg(L, doc.fromTop(62), 36, 36, logo.data, logo.w, logo.h);
 }
 
 // Rupee formatting for PDF (ASCII-safe — Helvetica lacks the ₹ glyph).
@@ -18,10 +18,7 @@ const rs = (n: number) => `Rs. ${new Intl.NumberFormat("en-IN").format(n)}`;
 const L = 40;
 const R = 555;
 
-export function buildOrderInvoicePdf(
-  order: OrderInvoiceData,
-  extra?: { irn?: string | null },
-): Buffer {
+export function buildOrderInvoicePdf(order: OrderInvoiceData): Buffer {
   const doc = new PdfDoc();
   const yt = (o: number) => doc.fromTop(o);
 
@@ -50,11 +47,14 @@ export function buildOrderInvoicePdf(
     `Date: ${new Date(order.created_at).toLocaleDateString("en-IN")}`,
     { size: 9, align: "right" },
   );
-  if (extra?.irn) {
-    doc.text(R, yt(90), `IRN: ${extra.irn.slice(0, 24)}…`, {
+  if (order.irn) {
+    doc.text(R, yt(90), `IRN: ${order.irn.slice(0, 24)}…`, {
       size: 7,
       align: "right",
     });
+  }
+  if (order.ewb_no) {
+    doc.text(R, yt(99), `EWB: ${order.ewb_no}`, { size: 7, align: "right" });
   }
 
   doc.line(L, yt(108), R, yt(108));
@@ -88,19 +88,26 @@ export function buildOrderInvoicePdf(
     });
   }
 
-  // Items table
-  let ty = Math.max(by, 178) + 6;
-  doc.text(L, yt(ty), "Item", { size: 8, bold: true });
-  doc.text(300, yt(ty), "HSN", { size: 8, bold: true });
-  doc.text(345, yt(ty), "Rate", { size: 8, bold: true });
-  doc.text(395, yt(ty), "Qty", { size: 8, bold: true });
-  doc.text(475, yt(ty), "Price", { size: 8, bold: true, align: "right" });
-  doc.text(R, yt(ty), "Total", { size: 8, bold: true, align: "right" });
-  ty += 5;
-  doc.line(L, yt(ty), R, yt(ty));
-  ty += 13;
+  // Items table (auto-paginated)
+  const PAGE_BOTTOM = 770;
+  const drawItemsHeader = (atY: number): number => {
+    doc.text(L, yt(atY), "Item", { size: 8, bold: true });
+    doc.text(300, yt(atY), "HSN", { size: 8, bold: true });
+    doc.text(345, yt(atY), "Rate", { size: 8, bold: true });
+    doc.text(395, yt(atY), "Qty", { size: 8, bold: true });
+    doc.text(475, yt(atY), "Price", { size: 8, bold: true, align: "right" });
+    doc.text(R, yt(atY), "Total", { size: 8, bold: true, align: "right" });
+    const next = atY + 5;
+    doc.line(L, yt(next), R, yt(next));
+    return next + 13;
+  };
 
+  let ty = drawItemsHeader(Math.max(by, 178) + 6);
   for (const i of order.order_items) {
+    if (ty > PAGE_BOTTOM) {
+      doc.newPage();
+      ty = drawItemsHeader(50);
+    }
     doc.text(L, yt(ty), i.product_name.slice(0, 42), { size: 9 });
     doc.text(300, yt(ty), i.hsn_code ?? "-", { size: 9 });
     doc.text(345, yt(ty), `${Number(i.gst_rate)}%`, { size: 9 });
@@ -111,6 +118,12 @@ export function buildOrderInvoicePdf(
   }
   doc.line(L, yt(ty), R, yt(ty));
   ty += 14;
+
+  // Keep the totals block together on a page.
+  if (ty > 640) {
+    doc.newPage();
+    ty = 60;
+  }
 
   // Tax summary + totals
   const interState = isInterState(order.state, COMPANY.state);

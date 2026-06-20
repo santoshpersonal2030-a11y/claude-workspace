@@ -12,6 +12,7 @@ export type OrderInvoiceData = {
   created_at: string;
   status: string;
   irn?: string | null;
+  ewb_no?: string | null;
   delivery_name: string | null;
   delivery_phone: string | null;
   address: string | null;
@@ -102,6 +103,11 @@ export default function OrderInvoice({
           {order.irn && (
             <div className="mt-1 max-w-[180px] break-all text-[9px] text-foreground/45">
               IRN: {order.irn}
+            </div>
+          )}
+          {order.ewb_no && (
+            <div className="text-[9px] text-foreground/45">
+              EWB: {order.ewb_no}
             </div>
           )}
         </div>
