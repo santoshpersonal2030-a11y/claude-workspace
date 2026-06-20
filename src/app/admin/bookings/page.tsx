@@ -1,5 +1,6 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import {
+  assignPandit,
   updateBookingStatus,
   updateOrderStatus,
 } from "@/app/admin/actions";
@@ -19,11 +20,12 @@ function formatDate(value: string) {
 
 export default async function AdminBookingsPage() {
   const admin = createAdminClient();
-  const [bookings, orders] = await Promise.all([
+  const [bookings, orders, roster] = await Promise.all([
     admin
       .from("bookings")
+      // Two FKs point at pandits, so disambiguate with explicit constraint hints.
       .select(
-        "id, booking_date, time_slot, status, total_amount, city, poojas(name), pandits(full_name)",
+        "id, booking_date, time_slot, status, total_amount, city, pandit_id, poojas(name), preferred:pandits!bookings_preferred_pandit_id_fkey(full_name), assigned:pandits!bookings_pandit_id_fkey(full_name)",
       )
       .order("created_at", { ascending: false }),
     admin
@@ -32,7 +34,14 @@ export default async function AdminBookingsPage() {
         "id, status, total_amount, created_at, delivery_name, delivery_phone, order_items(product_name, quantity)",
       )
       .order("created_at", { ascending: false }),
+    admin
+      .from("pandits")
+      .select("id, full_name")
+      .eq("active", true)
+      .order("full_name", { ascending: true }),
   ]);
+
+  const pandits = roster.data ?? [];
 
   const bookingStatuses = Constants.public.Enums.booking_status;
   const orderStatuses = Constants.public.Enums.order_status;
@@ -47,41 +56,76 @@ export default async function AdminBookingsPage() {
             bookings.data.map((b) => (
               <div
                 key={b.id}
-                className="flex flex-wrap items-center gap-3 rounded-xl border border-saffron-100 bg-white p-3 shadow-sm"
+                className="rounded-xl border border-saffron-100 bg-white p-3 shadow-sm"
               >
-                <div className="min-w-48 flex-1">
-                  <div className="font-medium text-maroon-700">
-                    {b.poojas?.name ?? "Pooja"}
+                <div className="flex flex-wrap items-center gap-3">
+                  <div className="min-w-48 flex-1">
+                    <div className="font-medium text-maroon-700">
+                      {b.poojas?.name ?? "Pooja"}
+                    </div>
+                    <div className="text-xs text-foreground/55">
+                      {formatDate(b.booking_date)} · {b.time_slot}
+                      {b.city ? ` · ${b.city}` : ""}
+                      {b.preferred?.full_name
+                        ? ` · prefers ${b.preferred.full_name}`
+                        : ""}
+                      {b.assigned?.full_name
+                        ? ` · assigned ${b.assigned.full_name}`
+                        : ""}
+                    </div>
                   </div>
-                  <div className="text-xs text-foreground/55">
-                    {formatDate(b.booking_date)} · {b.time_slot}
-                    {b.city ? ` · ${b.city}` : ""}
-                    {b.pandits?.full_name
-                      ? ` · prefers ${b.pandits.full_name}`
-                      : ""}
+                  <div className="font-medium text-saffron-700">
+                    {formatINR(b.total_amount)}
                   </div>
+                  <form action={updateBookingStatus} className="flex gap-2">
+                    <input type="hidden" name="id" value={b.id} />
+                    <select
+                      name="status"
+                      defaultValue={b.status}
+                      className={selectClass}
+                    >
+                      {bookingStatuses.map((s) => (
+                        <option key={s} value={s}>
+                          {s}
+                        </option>
+                      ))}
+                    </select>
+                    <button
+                      type="submit"
+                      className="rounded-full bg-saffron-600 px-4 py-1.5 text-xs font-semibold text-white hover:bg-saffron-700"
+                    >
+                      Update
+                    </button>
+                  </form>
                 </div>
-                <div className="font-medium text-saffron-700">
-                  {formatINR(b.total_amount)}
-                </div>
-                <form action={updateBookingStatus} className="flex gap-2">
+
+                {/* Assign the actual pandit */}
+                <form
+                  action={assignPandit}
+                  className="mt-2 flex items-center gap-2 border-t border-saffron-50 pt-2"
+                >
                   <input type="hidden" name="id" value={b.id} />
+                  <input type="hidden" name="current_status" value={b.status} />
+                  <span className="text-xs font-medium text-foreground/50">
+                    Assign Pandit
+                  </span>
                   <select
-                    name="status"
-                    defaultValue={b.status}
+                    name="pandit_id"
+                    defaultValue={b.pandit_id ?? ""}
                     className={selectClass}
                   >
-                    {bookingStatuses.map((s) => (
-                      <option key={s} value={s}>
-                        {s}
+                    <option value="">— Unassigned —</option>
+                    {pandits.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.full_name}
                       </option>
                     ))}
                   </select>
                   <button
                     type="submit"
-                    className="rounded-full bg-saffron-600 px-4 py-1.5 text-xs font-semibold text-white hover:bg-saffron-700"
+                    className="rounded-full border border-saffron-300 px-4 py-1.5 text-xs font-semibold text-saffron-700 hover:bg-saffron-50"
                   >
-                    Update
+                    Assign
                   </button>
                 </form>
               </div>

@@ -38,6 +38,43 @@ const testimonials = [
   },
 ];
 
+const faqs = [
+  {
+    q: "How do I book a Pandit?",
+    a: "Choose your ceremony, pick a date, time and language, optionally add a samagri kit, then sign in and pay securely. We assign a verified Pandit for your location and confirm your booking instantly.",
+  },
+  {
+    q: "Are the Pandits verified?",
+    a: "Yes. Every Pandit on BookMyPoojari is background-checked for authenticity and experience, and is rated by real families who have booked them.",
+  },
+  {
+    q: "What is included in the price?",
+    a: "The price covers the dakshina/service for the ceremony. You can optionally add a samagri kit that includes all the items required for the pooja, delivered to your door.",
+  },
+  {
+    q: "Can I choose my language or a preferred Pandit?",
+    a: "Absolutely. You select your preferred language at booking and can choose a specific Pandit from those who speak it. We honour your choice subject to availability.",
+  },
+  {
+    q: "What is your cancellation policy?",
+    a: "You can cancel up to 24 hours before the scheduled time for a full refund. See our Refund & Cancellation policy for full details.",
+  },
+  {
+    q: "Do you deliver samagri across India?",
+    a: "Yes. Ready-made samagri kits and individual items are delivered to your door, with free delivery on orders over ₹999.",
+  },
+];
+
+const faqJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: faqs.map((f) => ({
+    "@type": "Question",
+    name: f.q,
+    acceptedAnswer: { "@type": "Answer", text: f.a },
+  })),
+};
+
 const trustStats = [
   { value: "500+", label: "Verified Pandits" },
   { value: "50,000+", label: "Poojas Performed" },
@@ -377,6 +414,35 @@ export default async function Home() {
             >
               Visit the Samagri Store
             </Link>
+          </div>
+        </section>
+
+        {/* FAQ */}
+        <section className="mx-auto max-w-3xl px-4 pb-16 sm:px-6">
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+          />
+          <h2 className="text-center font-heading text-3xl text-maroon-800">
+            Frequently asked questions
+          </h2>
+          <div className="mt-8 space-y-3">
+            {faqs.map((faq) => (
+              <details
+                key={faq.q}
+                className="group rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm"
+              >
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-medium text-maroon-700">
+                  {faq.q}
+                  <span className="text-saffron-600 transition-transform group-open:rotate-45">
+                    +
+                  </span>
+                </summary>
+                <p className="mt-3 text-sm leading-relaxed text-foreground/70">
+                  {faq.a}
+                </p>
+              </details>
+            ))}
           </div>
         </section>
 

@@ -54,8 +54,9 @@ export async function POST(request: Request) {
     : 0;
   const total = servicePrice + samagriPrice;
 
-  // Resolve an optional preferred-pandit slug to its id (ignored if invalid).
-  let panditId: string | null = null;
+  // Resolve the customer's optional preferred-pandit slug to its id (ignored if
+  // invalid). This is a preference — an admin assigns the actual pandit later.
+  let preferredPanditId: string | null = null;
   if (body.panditSlug) {
     const { data: pandit } = await supabase
       .from("pandits")
@@ -63,7 +64,7 @@ export async function POST(request: Request) {
       .eq("slug", body.panditSlug)
       .eq("active", true)
       .maybeSingle();
-    panditId = pandit?.id ?? null;
+    preferredPanditId = pandit?.id ?? null;
   }
 
   const { data: booking, error: bookingError } = await supabase
@@ -71,7 +72,7 @@ export async function POST(request: Request) {
     .insert({
       user_id: user.id,
       pooja_id: pooja.id,
-      pandit_id: panditId,
+      preferred_pandit_id: preferredPanditId,
       booking_date: body.bookingDate,
       time_slot: body.timeSlot,
       language: body.language ?? null,

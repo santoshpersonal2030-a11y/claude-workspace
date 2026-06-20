@@ -13,7 +13,7 @@ import {
 import { createClient } from "@/lib/supabase/client";
 import { payWithRazorpay } from "@/lib/razorpay-client";
 
-type PanditOption = { slug: string; fullName: string };
+type PanditOption = { slug: string; fullName: string; languages: string[] };
 
 export default function BookingForm({
   pooja,
@@ -43,6 +43,19 @@ export default function BookingForm({
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setUser(data.user));
   }, [supabase]);
+
+  // Only offer pandits who speak the chosen language.
+  const availablePandits = pandits.filter((p) =>
+    p.languages.includes(language),
+  );
+
+  // Switching language clears a preferred pandit who doesn't speak it.
+  function handleLanguageChange(next: string) {
+    setLanguage(next);
+    if (panditSlug && !pandits.some((p) => p.slug === panditSlug && p.languages.includes(next))) {
+      setPanditSlug("");
+    }
+  }
 
   const today = new Date().toISOString().split("T")[0];
   const total = pooja.startingPrice + (addKit ? kitPrice : 0);
@@ -233,7 +246,7 @@ export default function BookingForm({
           </label>
           <select
             value={language}
-            onChange={(e) => setLanguage(e.target.value)}
+            onChange={(e) => handleLanguageChange(e.target.value)}
             className="w-full rounded-xl border border-saffron-200 bg-cream px-3 py-2.5 text-sm outline-none focus:border-saffron-400 focus:ring-2 focus:ring-saffron-100"
           >
             {languages.map((l) => (
@@ -255,14 +268,16 @@ export default function BookingForm({
               className="w-full rounded-xl border border-saffron-200 bg-cream px-3 py-2.5 text-sm outline-none focus:border-saffron-400 focus:ring-2 focus:ring-saffron-100"
             >
               <option value="">Any available Pandit</option>
-              {pandits.map((p) => (
+              {availablePandits.map((p) => (
                 <option key={p.slug} value={p.slug}>
                   {p.fullName}
                 </option>
               ))}
             </select>
             <p className="mt-1 text-xs text-foreground/50">
-              We&apos;ll try to honour your choice, subject to availability.
+              {availablePandits.length > 0
+                ? `Showing Pandits who speak ${language}. We'll honour your choice subject to availability.`
+                : `No listed Pandits for ${language} yet — we'll assign a suitable priest.`}
             </p>
           </div>
         )}

@@ -26,6 +26,7 @@ export type Database = {
           pandit_id: string | null
           pincode: string | null
           pooja_id: string
+          preferred_pandit_id: string | null
           samagri_kit: boolean
           samagri_price: number
           service_price: number
@@ -46,6 +47,7 @@ export type Database = {
           pandit_id?: string | null
           pincode?: string | null
           pooja_id: string
+          preferred_pandit_id?: string | null
           samagri_kit?: boolean
           samagri_price?: number
           service_price: number
@@ -66,6 +68,7 @@ export type Database = {
           pandit_id?: string | null
           pincode?: string | null
           pooja_id?: string
+          preferred_pandit_id?: string | null
           samagri_kit?: boolean
           samagri_price?: number
           service_price?: number
@@ -88,6 +91,13 @@ export type Database = {
             columns: ["pooja_id"]
             isOneToOne: false
             referencedRelation: "poojas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_preferred_pandit_id_fkey"
+            columns: ["preferred_pandit_id"]
+            isOneToOne: false
+            referencedRelation: "pandits"
             referencedColumns: ["id"]
           },
           {

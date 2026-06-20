@@ -42,6 +42,7 @@ export default async function PoojaDetailPage({
   const pandits = panditRoster.map((p) => ({
     slug: p.slug,
     fullName: p.fullName,
+    languages: p.languages,
   }));
 
   const includes = getIncludes(pooja);

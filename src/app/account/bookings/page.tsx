@@ -24,7 +24,9 @@ export default async function BookingsPage() {
 
   const { data: bookings } = await supabase
     .from("bookings")
-    .select("id, booking_date, time_slot, status, total_amount, city, poojas(name, emoji), pandits(full_name)")
+    .select(
+      "id, booking_date, time_slot, status, total_amount, city, poojas(name, emoji), preferred:pandits!bookings_preferred_pandit_id_fkey(full_name), assigned:pandits!bookings_pandit_id_fkey(full_name)",
+    )
     .order("created_at", { ascending: false });
 
   return (
@@ -63,11 +65,15 @@ export default async function BookingsPage() {
                       · {booking.time_slot}
                       {booking.city ? ` · ${booking.city}` : ""}
                     </p>
-                    {booking.pandits?.full_name && (
-                      <p className="mt-1 text-xs text-foreground/50">
-                        Preferred Pandit: {booking.pandits.full_name}
+                    {booking.assigned?.full_name ? (
+                      <p className="mt-1 text-xs text-green-700">
+                        Pandit assigned: {booking.assigned.full_name}
                       </p>
-                    )}
+                    ) : booking.preferred?.full_name ? (
+                      <p className="mt-1 text-xs text-foreground/50">
+                        Preferred Pandit: {booking.preferred.full_name}
+                      </p>
+                    ) : null}
                   </div>
                   <div className="font-semibold text-saffron-700">
                     {formatINR(booking.total_amount)}

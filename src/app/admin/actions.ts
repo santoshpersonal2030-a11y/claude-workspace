@@ -100,6 +100,29 @@ export async function updateOrderStatus(formData: FormData): Promise<void> {
   revalidatePath("/admin/bookings");
 }
 
+// Assigns (or clears) the actual pandit on a booking. Assigning also advances a
+// still-open booking to "assigned"; clearing leaves the status untouched.
+export async function assignPandit(formData: FormData): Promise<void> {
+  await assertAdmin();
+  const admin = createAdminClient();
+
+  const id = str(formData.get("id"));
+  const panditId = str(formData.get("pandit_id")) || null;
+
+  const update: { pandit_id: string | null; status?: BookingStatus } = {
+    pandit_id: panditId,
+  };
+  if (panditId) {
+    const currentStatus = str(formData.get("current_status")) as BookingStatus;
+    if (currentStatus === "pending" || currentStatus === "confirmed") {
+      update.status = "assigned";
+    }
+  }
+
+  await admin.from("bookings").update(update).eq("id", id);
+  revalidatePath("/admin/bookings");
+}
+
 // ── Contact messages ────────────────────────────────────────────────────────
 
 export async function setMessageHandled(formData: FormData): Promise<void> {
