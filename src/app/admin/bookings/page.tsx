@@ -4,6 +4,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import {
   assignPandit,
   bulkGenerateEInvoicesAction,
+  confirmBookingTime,
   updateBookingStatus,
   updateOrderStatus,
 } from "@/app/admin/actions";
@@ -23,6 +24,16 @@ function formatDate(value: string) {
   });
 }
 
+function formatConfirmedTime(value: string) {
+  return new Date(value).toLocaleString("en-IN", {
+    timeZone: "Asia/Kolkata",
+    day: "numeric",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
 export default async function AdminBookingsPage() {
   const admin = createAdminClient();
   const [bookings, orders, roster] = await Promise.all([
@@ -30,7 +41,7 @@ export default async function AdminBookingsPage() {
       .from("bookings")
       // Two FKs point at pandits, so disambiguate with explicit constraint hints.
       .select(
-        "id, booking_date, time_slot, status, total_amount, city, pandit_id, poojas(name), preferred:pandits!bookings_preferred_pandit_id_fkey(full_name), assigned:pandits!bookings_pandit_id_fkey(full_name)",
+        "id, booking_date, time_slot, starts_at, status, total_amount, city, pandit_id, poojas(name), preferred:pandits!bookings_preferred_pandit_id_fkey(full_name), assigned:pandits!bookings_pandit_id_fkey(full_name)",
       )
       .order("created_at", { ascending: false }),
     admin
@@ -84,6 +95,9 @@ export default async function AdminBookingsPage() {
                         : ""}
                       {b.assigned?.full_name
                         ? ` · assigned ${b.assigned.full_name}`
+                        : ""}
+                      {b.starts_at
+                        ? ` · ⏰ confirmed ${formatConfirmedTime(b.starts_at)}`
                         : ""}
                     </div>
                     <Link
@@ -145,6 +159,52 @@ export default async function AdminBookingsPage() {
                     className="rounded-full border border-saffron-300 px-4 py-1.5 text-xs font-semibold text-saffron-700 hover:bg-saffron-50"
                   >
                     Assign
+                  </button>
+                </form>
+
+                {/* Confirm the agreed time (e.g. muhurat) — anchors the slot so
+                    it blocks the priest's calendar and engages the overlap guard. */}
+                <form
+                  action={confirmBookingTime}
+                  className="mt-2 flex flex-wrap items-center gap-2 border-t border-saffron-50 pt-2"
+                >
+                  <input type="hidden" name="id" value={b.id} />
+                  <span className="text-xs font-medium text-foreground/50">
+                    Confirm time
+                  </span>
+                  <select
+                    name="pandit_id"
+                    defaultValue={b.pandit_id ?? ""}
+                    required
+                    className={selectClass}
+                  >
+                    <option value="" disabled>
+                      — Pandit —
+                    </option>
+                    {pandits.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.full_name}
+                      </option>
+                    ))}
+                  </select>
+                  <input
+                    type="date"
+                    name="confirm_date"
+                    defaultValue={b.booking_date}
+                    required
+                    className={selectClass}
+                  />
+                  <input
+                    type="time"
+                    name="confirm_time"
+                    required
+                    className={selectClass}
+                  />
+                  <button
+                    type="submit"
+                    className="rounded-full bg-saffron-600 px-4 py-1.5 text-xs font-semibold text-white hover:bg-saffron-700"
+                  >
+                    Confirm
                   </button>
                 </form>
               </div>

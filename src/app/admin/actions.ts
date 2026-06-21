@@ -215,6 +215,57 @@ export async function updateBookingStatus(formData: FormData): Promise<void> {
   revalidatePath("/admin/bookings");
 }
 
+// Confirms a booking's time: assigns the priest and anchors the exact start/end
+// (e.g. after agreeing a muhurat with the customer), flipping it to "confirmed".
+// Anchoring the time engages the bookings_no_overlap constraint, so the booking
+// now blocks that priest's calendar. A clash is swallowed (constraint error) so
+// the admin UI doesn't crash — the booking stays unconfirmed to retry.
+export async function confirmBookingTime(formData: FormData): Promise<void> {
+  await assertAdmin();
+  const admin = createAdminClient();
+
+  const id = str(formData.get("id"));
+  const panditId = str(formData.get("pandit_id")) || null;
+  const date = str(formData.get("confirm_date"));
+  const time = str(formData.get("confirm_time"));
+  if (!id || !panditId || !date || !time) return;
+
+  const { data: booking } = await admin
+    .from("bookings")
+    .select("pooja_id")
+    .eq("id", id)
+    .maybeSingle();
+  if (!booking?.pooja_id) return;
+
+  const { data: pooja } = await admin
+    .from("poojas")
+    .select("duration_hours")
+    .eq("id", booking.pooja_id)
+    .maybeSingle();
+  const durationHours = Number(pooja?.duration_hours ?? 1);
+
+  const startsAt = new Date(`${date}T${time}:00+05:30`).toISOString();
+  const endsAt = new Date(
+    new Date(startsAt).getTime() + durationHours * 3_600_000,
+  ).toISOString();
+
+  const { error } = await admin
+    .from("bookings")
+    .update({
+      pandit_id: panditId,
+      starts_at: startsAt,
+      ends_at: endsAt,
+      status: "confirmed",
+    })
+    .eq("id", id);
+  if (error) {
+    // Most likely bookings_no_overlap — the priest is already busy then.
+    console.warn("confirmBookingTime conflict:", error.message);
+  }
+
+  revalidatePath("/admin/bookings");
+}
+
 export async function updateOrderStatus(formData: FormData): Promise<void> {
   await assertAdmin();
   const admin = createAdminClient();
