@@ -27,6 +27,8 @@ export type Database = {
           language: string | null
           notes: string | null
           pandit_id: string | null
+          peak_label: string | null
+          peak_surcharge: number
           pincode: string | null
           pooja_id: string
           preferred_pandit_id: string | null
@@ -54,6 +56,8 @@ export type Database = {
           language?: string | null
           notes?: string | null
           pandit_id?: string | null
+          peak_label?: string | null
+          peak_surcharge?: number
           pincode?: string | null
           pooja_id: string
           preferred_pandit_id?: string | null
@@ -81,6 +85,8 @@ export type Database = {
           language?: string | null
           notes?: string | null
           pandit_id?: string | null
+          peak_label?: string | null
+          peak_surcharge?: number
           pincode?: string | null
           pooja_id?: string
           preferred_pandit_id?: string | null
@@ -637,6 +643,30 @@ export type Database = {
           },
         ]
       }
+      peak_days: {
+        Row: {
+          active: boolean
+          created_at: string
+          date: string
+          label: string
+          surcharge_pct: number
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          date: string
+          label: string
+          surcharge_pct?: number
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          date?: string
+          label?: string
+          surcharge_pct?: number
+        }
+        Relationships: []
+      }
       payroll_run_items: {
         Row: {
           base_salary: number
@@ -1108,6 +1138,8 @@ export type Database = {
           p_language: string | null
           p_notes: string | null
           p_pandit_id: string
+          p_peak_label?: string | null
+          p_peak_surcharge?: number
           p_pincode: string | null
           p_pooja_id: string
           p_samagri_kit: boolean

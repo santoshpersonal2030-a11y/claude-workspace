@@ -59,9 +59,34 @@ export default function BookingForm({
     slots: string[];
   } | null>(null);
 
+  const [peakDays, setPeakDays] = useState<
+    Record<string, { label: string; pct: number }>
+  >({});
+
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setUser(data.user));
   }, [supabase]);
+
+  // Load upcoming peak days once to preview the premium (server is authoritative).
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/peak-days")
+      .then((r) => r.json())
+      .then((data: { peakDays?: { date: string; label: string; surchargePct: number }[] }) => {
+        if (cancelled) return;
+        const map: Record<string, { label: string; pct: number }> = {};
+        for (const d of data.peakDays ?? []) {
+          map[d.date] = { label: d.label, pct: d.surchargePct };
+        }
+        setPeakDays(map);
+      })
+      .catch(() => {
+        if (!cancelled) setPeakDays({});
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   // Only offer pandits who speak the chosen language.
   const availablePandits = pandits.filter((p) =>
@@ -144,7 +169,15 @@ export default function BookingForm({
   }
 
   const today = new Date().toISOString().split("T")[0];
-  const total = pooja.startingPrice + (addKit ? kitPrice : 0) + travelFee;
+
+  // Peak-day premium preview for the chosen date (% uplift on the dakshina).
+  const peak = date ? peakDays[date] : undefined;
+  const peakSurcharge = peak
+    ? Math.round((pooja.startingPrice * peak.pct) / 100)
+    : 0;
+
+  const total =
+    pooja.startingPrice + (addKit ? kitPrice : 0) + travelFee + peakSurcharge;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -271,6 +304,12 @@ export default function BookingForm({
               <dd className="font-medium">
                 {travelFee === 0 ? "Free (local)" : formatINR(travelFee)}
               </dd>
+            </div>
+          )}
+          {peakSurcharge > 0 && peak && (
+            <div className="flex justify-between">
+              <dt className="text-foreground/60">{peak.label} (+{peak.pct}%)</dt>
+              <dd className="font-medium">{formatINR(peakSurcharge)}</dd>
             </div>
           )}
           <div className="flex justify-between border-t border-saffron-50 pt-2 text-base">
@@ -504,6 +543,15 @@ export default function BookingForm({
         <div className="mt-4 flex items-center justify-between text-sm text-foreground/60">
           <span>Travel ({travelBand.label})</span>
           <span>{travelFee === 0 ? "Free" : `+ ${formatINR(travelFee)}`}</span>
+        </div>
+      )}
+
+      {peakSurcharge > 0 && peak && (
+        <div className="mt-2 flex items-center justify-between text-sm text-saffron-700">
+          <span>
+            🎉 {peak.label} premium (+{peak.pct}%)
+          </span>
+          <span>+ {formatINR(peakSurcharge)}</span>
         </div>
       )}
 

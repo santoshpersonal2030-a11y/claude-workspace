@@ -11,6 +11,7 @@ const tabs = [
   { href: "/admin/pandits", label: "Pandits" },
   { href: "/admin/payroll", label: "Payroll" },
   { href: "/admin/muhurat", label: "Muhurat" },
+  { href: "/admin/peak-days", label: "Peak days" },
   { href: "/admin/coverage", label: "Coverage" },
   { href: "/admin/messages", label: "Messages" },
   { href: "/admin/settings", label: "Settings" },

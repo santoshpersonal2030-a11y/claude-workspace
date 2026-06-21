@@ -7,6 +7,7 @@ import {
   razorpayConfigured,
 } from "@/lib/razorpay";
 import { resolveTravelBand, isValidPincode } from "@/lib/travel";
+import { getPeakDay, peakSurchargeAmount } from "@/lib/peak-days";
 
 const DEFAULT_KIT_PRICE = 751;
 
@@ -98,7 +99,16 @@ export async function POST(request: Request) {
         })
       : null;
   const travelFee = band?.fee ?? 0;
-  const total = servicePrice + samagriPrice + travelFee;
+
+  // Peak-day premium (server-authoritative): a percentage uplift on the
+  // dakshina for festival / high-demand dates. Snapshotted on the booking.
+  const peakDay = await getPeakDay(body.bookingDate);
+  const peakSurcharge = peakDay
+    ? peakSurchargeAmount(servicePrice, peakDay.surchargePct)
+    : 0;
+  const peakLabel = peakDay?.label ?? null;
+
+  const total = servicePrice + samagriPrice + travelFee + peakSurcharge;
 
   // Scheduled path: a flexible pooja with a specific serving pandit and a slot
   // time → reserve the exact slot atomically (race-safe gap + overlap guard).
@@ -131,6 +141,8 @@ export async function POST(request: Request) {
         p_samagri_price: samagriPrice,
         p_travel_fee: travelFee,
         p_travel_band: band?.id ?? null,
+        p_peak_surcharge: peakSurcharge,
+        p_peak_label: peakLabel,
       },
     );
 
@@ -163,6 +175,8 @@ export async function POST(request: Request) {
         samagri_price: samagriPrice,
         travel_fee: travelFee,
         travel_band: band?.id ?? null,
+        peak_surcharge: peakSurcharge,
+        peak_label: peakLabel,
         total_amount: total,
         status: "pending",
       })

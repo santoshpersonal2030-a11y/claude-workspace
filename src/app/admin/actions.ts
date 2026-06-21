@@ -860,6 +860,38 @@ export async function deletePayrollRun(formData: FormData): Promise<void> {
   revalidatePath("/admin/payroll");
 }
 
+// ── Peak-day pricing ──────────────────────────────────────────────────────
+
+// Adds/updates a peak day (festival / high-demand date) carrying a % premium
+// on the dakshina. Keyed by date.
+export async function savePeakDay(formData: FormData): Promise<void> {
+  await assertAdmin();
+  const admin = createAdminClient();
+
+  const date = str(formData.get("date"));
+  const label = str(formData.get("label"));
+  if (!date || !label) return;
+
+  await admin.from("peak_days").upsert(
+    {
+      date,
+      label,
+      surcharge_pct: pct(formData.get("surcharge_pct")),
+      active: formData.get("active") === "on",
+    },
+    { onConflict: "date" },
+  );
+  revalidatePath("/admin/peak-days");
+}
+
+export async function deletePeakDay(formData: FormData): Promise<void> {
+  await assertAdmin();
+  const admin = createAdminClient();
+  const date = str(formData.get("date"));
+  if (date) await admin.from("peak_days").delete().eq("date", date);
+  revalidatePath("/admin/peak-days");
+}
+
 // ── Contact messages ────────────────────────────────────────────────────────
 
 export async function setMessageHandled(formData: FormData): Promise<void> {
