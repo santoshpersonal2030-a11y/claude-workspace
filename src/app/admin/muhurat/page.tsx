@@ -2,6 +2,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import {
   saveMuhuratWindow,
   deleteMuhuratWindow,
+  importMuhuratWindows,
 } from "@/app/admin/actions";
 import { Constants } from "@/lib/database.types";
 
@@ -108,6 +109,40 @@ export default async function AdminMuhuratPage() {
             className="rounded-full bg-saffron-600 px-5 py-2 text-sm font-semibold text-white hover:bg-saffron-700"
           >
             Add window
+          </button>
+        </div>
+      </form>
+
+      {/* Bulk import */}
+      <form
+        action={importMuhuratWindows}
+        className="mt-6 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm"
+      >
+        <h2 className="font-heading text-lg text-maroon-700">
+          Bulk import (CSV)
+        </h2>
+        <p className="mt-1 text-xs text-foreground/60">
+          One window per line:{" "}
+          <code className="rounded bg-cream px-1">
+            date, start, end, scope, label, note
+          </code>
+          . <strong>scope</strong> is a pooja slug (e.g. <code>griha-pravesh</code>),
+          a category (e.g. <code>Life Event</code>), or blank for all ceremonies.
+          Source-agnostic — paste candidates from any panchang source; all rows
+          import as <strong>pending</strong> until an astrologer approves them.
+        </p>
+        <textarea
+          name="csv"
+          rows={5}
+          placeholder={`2026-11-12, 06:24, 08:10, griha-pravesh, Abhijit Muhurat, Tithi Dwitiya\n2026-11-19, 10:30, 12:15, Life Event, , Rohini Nakshatra`}
+          className="mt-3 w-full rounded-lg border border-saffron-200 bg-cream px-3 py-2 font-mono text-xs outline-none focus:border-saffron-400"
+        />
+        <div className="mt-3 flex justify-end">
+          <button
+            type="submit"
+            className="rounded-full bg-maroon-700 px-5 py-2 text-sm font-semibold text-white hover:bg-maroon-800"
+          >
+            Import windows
           </button>
         </div>
       </form>

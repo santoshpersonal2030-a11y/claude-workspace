@@ -17,6 +17,7 @@ import {
   sendCreditNoteEmail,
 } from "@/lib/notifications";
 import type { Database } from "@/lib/database.types";
+import { Constants } from "@/lib/database.types";
 
 type BookingStatus = Database["public"]["Enums"]["booking_status"];
 type OrderStatus = Database["public"]["Enums"]["order_status"];
@@ -298,6 +299,63 @@ export async function deleteMuhuratWindow(formData: FormData): Promise<void> {
   const admin = createAdminClient();
   const id = str(formData.get("id"));
   if (id) await admin.from("muhurat_windows").delete().eq("id", id);
+  revalidatePath("/admin/muhurat");
+}
+
+// Bulk-imports muhurat windows from pasted CSV — one window per line:
+//   date, start, end, scope, label, note
+// `scope` is a pooja slug, a category name, or blank (all ceremonies). This is
+// source-agnostic: candidates from any panchang source/engine can be pasted in,
+// always landing UNAPPROVED so an astrologer still gates what customers see.
+export async function importMuhuratWindows(formData: FormData): Promise<void> {
+  await assertAdmin();
+  const admin = createAdminClient();
+
+  const raw = str(formData.get("csv"));
+  if (!raw) return;
+
+  const categories = new Set<string>(
+    Constants.public.Enums.pooja_category.map((c) => c.toLowerCase()),
+  );
+  const categoryByLower = new Map(
+    Constants.public.Enums.pooja_category.map((c) => [c.toLowerCase(), c]),
+  );
+
+  const rows: Database["public"]["Tables"]["muhurat_windows"]["Insert"][] = [];
+  for (const line of raw.split("\n")) {
+    const trimmed = line.trim();
+    if (!trimmed) continue;
+    // Skip an optional header row.
+    if (/^date\s*,/i.test(trimmed)) continue;
+
+    const parts = trimmed.split(",").map((s) => s.trim());
+    const [date, start, end, scope = "", label = ""] = parts;
+    const note = parts.slice(5).join(",").trim();
+    if (!date || !start || !end) continue;
+
+    const scopeLower = scope.toLowerCase();
+    const isCategory = categories.has(scopeLower);
+
+    rows.push({
+      date,
+      start_time: start,
+      end_time: end,
+      category: isCategory
+        ? (categoryByLower.get(
+            scopeLower,
+          ) as Database["public"]["Enums"]["pooja_category"])
+        : null,
+      pooja_slug: !isCategory && scope ? scope : null,
+      label: label || null,
+      note: note || null,
+      approved: false,
+      source: "import",
+    });
+  }
+
+  if (rows.length > 0) {
+    await admin.from("muhurat_windows").insert(rows);
+  }
   revalidatePath("/admin/muhurat");
 }
 
