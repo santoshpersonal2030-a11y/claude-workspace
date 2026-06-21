@@ -220,6 +220,42 @@ export async function updateBookingStatus(formData: FormData): Promise<void> {
 // Anchoring the time engages the bookings_no_overlap constraint, so the booking
 // now blocks that priest's calendar. A clash is swallowed (constraint error) so
 // the admin UI doesn't crash — the booking stays unconfirmed to retry.
+// ── Muhurat calendar ─────────────────────────────────────────────────────
+
+export async function saveMuhuratWindow(formData: FormData): Promise<void> {
+  await assertAdmin();
+  const admin = createAdminClient();
+
+  const id = str(formData.get("id"));
+  const payload = {
+    date: str(formData.get("date")),
+    start_time: str(formData.get("start_time")),
+    end_time: str(formData.get("end_time")),
+    category: (str(formData.get("category")) || null) as PoojaCategory | null,
+    pooja_slug: str(formData.get("pooja_slug")) || null,
+    label: str(formData.get("label")) || null,
+    note: str(formData.get("note")) || null,
+    approved: formData.get("approved") === "on",
+    source: str(formData.get("source")) || "manual",
+  };
+  if (!payload.date || !payload.start_time || !payload.end_time) return;
+
+  if (id) {
+    await admin.from("muhurat_windows").update(payload).eq("id", id);
+  } else {
+    await admin.from("muhurat_windows").insert(payload);
+  }
+  revalidatePath("/admin/muhurat");
+}
+
+export async function deleteMuhuratWindow(formData: FormData): Promise<void> {
+  await assertAdmin();
+  const admin = createAdminClient();
+  const id = str(formData.get("id"));
+  if (id) await admin.from("muhurat_windows").delete().eq("id", id);
+  revalidatePath("/admin/muhurat");
+}
+
 export async function confirmBookingTime(formData: FormData): Promise<void> {
   await assertAdmin();
   const admin = createAdminClient();

@@ -286,6 +286,51 @@ export type Database = {
         }
         Relationships: []
       }
+      muhurat_windows: {
+        Row: {
+          approved: boolean
+          category: Database["public"]["Enums"]["pooja_category"] | null
+          created_at: string
+          date: string
+          end_time: string
+          id: string
+          label: string | null
+          note: string | null
+          pooja_slug: string | null
+          source: string
+          start_time: string
+          updated_at: string
+        }
+        Insert: {
+          approved?: boolean
+          category?: Database["public"]["Enums"]["pooja_category"] | null
+          created_at?: string
+          date: string
+          end_time: string
+          id?: string
+          label?: string | null
+          note?: string | null
+          pooja_slug?: string | null
+          source?: string
+          start_time: string
+          updated_at?: string
+        }
+        Update: {
+          approved?: boolean
+          category?: Database["public"]["Enums"]["pooja_category"] | null
+          created_at?: string
+          date?: string
+          end_time?: string
+          id?: string
+          label?: string | null
+          note?: string | null
+          pooja_slug?: string | null
+          source?: string
+          start_time?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       order_items: {
         Row: {
           gst_rate: number

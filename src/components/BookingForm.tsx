@@ -82,24 +82,34 @@ export default function BookingForm({
       : null;
   const travelFee = travelBand?.fee ?? 0;
 
-  // A flexible pooja booked with a specific serving pandit reserves an exact
-  // engine slot; everything else (muhurat, "any available") is propose-confirm.
-  const scheduled = Boolean(
-    !pooja.requiresMuhurat && selectedPandit && travelBand,
-  );
-  const slotKey = scheduled ? `${panditSlug}|${date}|${pincode}` : "";
+  const isMuhurat = Boolean(pooja.requiresMuhurat);
 
-  // Load real slots when scheduling is in play and the inputs are ready. Only
-  // setState happens in the async callback, never synchronously in the effect.
+  // A flexible pooja booked with a specific serving pandit reserves an exact
+  // engine slot. Muhurat poojas fetch their auspicious windows (date-based, no
+  // pandit needed). Everything else uses the standard slot windows.
+  const scheduled = Boolean(!isMuhurat && selectedPandit && travelBand);
+  const slotMode: "muhurat" | "scheduled" | "static" = isMuhurat
+    ? "muhurat"
+    : scheduled
+      ? "scheduled"
+      : "static";
+  const wantsLive = slotMode !== "static";
+  const slotKey = !wantsLive
+    ? ""
+    : slotMode === "muhurat"
+      ? `m|${date}`
+      : `s|${panditSlug}|${date}|${pincode}`;
+
+  // Load live slots (muhurat windows or engine slots) when needed. Only the
+  // async callback calls setState, never the effect body (React 19 rule).
   useEffect(() => {
-    if (!scheduled || !date || !panditSlug) return;
+    if (!wantsLive || !date) return;
     let cancelled = false;
-    const params = new URLSearchParams({
-      panditSlug,
-      poojaSlug: pooja.slug,
-      date,
-      pincode,
-    });
+    const params = new URLSearchParams({ poojaSlug: pooja.slug, date });
+    if (slotMode === "scheduled") {
+      params.set("panditSlug", panditSlug);
+      params.set("pincode", pincode);
+    }
     fetch(`/api/availability?${params.toString()}`)
       .then((r) => r.json())
       .then((data: { slots?: string[] }) => {
@@ -111,15 +121,14 @@ export default function BookingForm({
     return () => {
       cancelled = true;
     };
-  }, [scheduled, date, panditSlug, pincode, pooja.slug, slotKey]);
+  }, [wantsLive, slotMode, date, panditSlug, pincode, pooja.slug, slotKey]);
 
   // Derived slot state — no setState-in-effect. Slots are "ready" when the
   // cached results match the current inputs; otherwise we're loading. A chosen
   // slot that's no longer offered is dropped at render time.
-  const slotsReady = scheduled ? slotData?.key === slotKey : true;
-  const loadingSlots =
-    scheduled && Boolean(date) && Boolean(panditSlug) && !slotsReady;
-  const slotOptions = scheduled
+  const slotsReady = wantsLive ? slotData?.key === slotKey : true;
+  const loadingSlots = wantsLive && Boolean(date) && !slotsReady;
+  const slotOptions = wantsLive
     ? slotsReady
       ? (slotData?.slots ?? [])
       : []
@@ -320,18 +329,22 @@ export default function BookingForm({
 
         <div>
           <label className="mb-1 block text-sm font-medium text-foreground/80">
-            {scheduled ? "Available time" : "Preferred time"}
+            {slotMode === "muhurat"
+              ? "Auspicious time"
+              : scheduled
+                ? "Available time"
+                : "Preferred time"}
           </label>
           <select
             required
             value={effectiveSlot}
             onChange={(e) => setSlot(e.target.value)}
-            disabled={scheduled && (loadingSlots || !slotsReady)}
+            disabled={wantsLive && (loadingSlots || !slotsReady)}
             className="w-full rounded-xl border border-saffron-200 bg-cream px-3 py-2.5 text-sm outline-none focus:border-saffron-400 focus:ring-2 focus:ring-saffron-100 disabled:opacity-60"
           >
             <option value="" disabled>
-              {scheduled && (loadingSlots || !slotsReady)
-                ? "Loading available times…"
+              {wantsLive && (loadingSlots || !slotsReady)
+                ? "Loading times…"
                 : "Select a time slot"}
             </option>
             {slotOptions.map((t) => (
@@ -350,6 +363,12 @@ export default function BookingForm({
             <p className="mt-1 text-xs text-foreground/50">
               Live availability for {selectedPandit?.fullName}, spaced for travel
               &amp; setup time.
+            </p>
+          )}
+          {slotMode === "muhurat" && slotsReady && slotOptions.length > 0 && (
+            <p className="mt-1 text-xs text-foreground/50">
+              Auspicious windows for this date — the Pandit confirms the final
+              muhurat.
             </p>
           )}
         </div>

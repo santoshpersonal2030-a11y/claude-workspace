@@ -14,15 +14,16 @@ function istMinutes(iso: string): number {
   return (utcMin + IST_OFFSET_MIN + 1440) % 1440;
 }
 
-// A `time` column comes back as "HH:MM:SS"; the engine wants "HH:MM".
+// A `time` column comes back as "HH:MM:SS"; we want "HH:MM".
 function hhmm(t: string | null, fallback: string): string {
   return t ? t.slice(0, 5) : fallback;
 }
 
-// Returns the bookable start times for a pooja with a specific priest on a
-// given date. Muhurat poojas return a flag instead of hard slots (the timing
-// is proposed by the customer and confirmed by the priest). Falls back to the
-// standard slots if the database is unreachable, so the form never dead-ends.
+// Returns bookable times for a pooja on a date. Muhurat poojas return their
+// approved auspicious windows (or the standard slots as a propose-confirm
+// fallback until the calendar is populated); flexible poojas return
+// engine-generated slots for a specific priest. Degrades to the standard slots
+// if the database is unreachable, so the form never dead-ends.
 export async function GET(request: Request) {
   const url = new URL(request.url);
   const panditSlug = url.searchParams.get("panditSlug");
@@ -30,7 +31,7 @@ export async function GET(request: Request) {
   const date = url.searchParams.get("date");
   const pincode = url.searchParams.get("pincode");
 
-  if (!panditSlug || !poojaSlug || !date) {
+  if (!poojaSlug || !date) {
     return NextResponse.json({ error: "Missing params" }, { status: 400 });
   }
 
@@ -39,7 +40,7 @@ export async function GET(request: Request) {
 
     const { data: pooja } = await admin
       .from("poojas")
-      .select("duration_hours, requires_muhurat")
+      .select("duration_hours, requires_muhurat, category")
       .eq("slug", poojaSlug)
       .maybeSingle();
 
@@ -47,8 +48,41 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Pooja not found" }, { status: 404 });
     }
 
+    // ── Muhurat poojas: approved auspicious windows for the date ───────────
     if (pooja.requires_muhurat) {
-      return NextResponse.json({ muhurat: true, slots: timeSlots });
+      const { data: windows } = await admin
+        .from("muhurat_windows")
+        .select("start_time, end_time, label, category, pooja_slug")
+        .eq("approved", true)
+        .eq("date", date);
+
+      const matched = (windows ?? []).filter(
+        (w) =>
+          w.pooja_slug === poojaSlug ||
+          (w.pooja_slug == null && w.category === pooja.category),
+      );
+
+      if (matched.length === 0) {
+        // No curated window yet → propose-then-confirm with standard slots.
+        return NextResponse.json({
+          muhurat: true,
+          curated: false,
+          slots: timeSlots,
+        });
+      }
+
+      const slots = matched
+        .map((w) => {
+          const range = `${hhmm(w.start_time, "")}–${hhmm(w.end_time, "")}`;
+          return w.label ? `${range} (${w.label})` : range;
+        })
+        .sort();
+      return NextResponse.json({ muhurat: true, curated: true, slots });
+    }
+
+    // ── Flexible poojas: engine slots for a specific priest ────────────────
+    if (!panditSlug) {
+      return NextResponse.json({ muhurat: false, slots: timeSlots });
     }
 
     const { data: pandit } = await admin
@@ -65,8 +99,6 @@ export async function GET(request: Request) {
       return NextResponse.json({ muhurat: false, slots: [], blackout: true });
     }
 
-    // The priest's already-booked jobs that day (service role bypasses RLS so
-    // we see every customer's booking, not just the caller's).
     const dayStart = `${date}T00:00:00+05:30`;
     const dayEnd = `${date}T23:59:59+05:30`;
     const { data: rows } = await admin
@@ -80,15 +112,15 @@ export async function GET(request: Request) {
 
     const existing: DayJob[] = (rows ?? [])
       .filter((r) => r.starts_at && r.ends_at)
-      .map((r) => {
-        const startMin = istMinutes(r.starts_at as string);
-        const durationMin = Math.round(
+      .map((r) => ({
+        startMin: istMinutes(r.starts_at as string),
+        durationMin: Math.round(
           (new Date(r.ends_at as string).getTime() -
             new Date(r.starts_at as string).getTime()) /
             60000,
-        );
-        return { startMin, durationMin, pincode: r.pincode };
-      });
+        ),
+        pincode: r.pincode,
+      }));
 
     const slots = availableStartTimes({
       workStart: hhmm(pandit.work_start, "06:00"),
@@ -101,8 +133,6 @@ export async function GET(request: Request) {
 
     return NextResponse.json({ muhurat: false, slots });
   } catch {
-    // DB unreachable (e.g. sandbox build/egress-blocked) — degrade to the
-    // standard slot list so booking still works.
     return NextResponse.json({ muhurat: false, slots: timeSlots });
   }
 }
