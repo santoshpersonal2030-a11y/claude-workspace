@@ -8,6 +8,7 @@ import { createRefund, razorpayConfigured } from "@/lib/razorpay";
 import { generateEInvoice, cancelEInvoice } from "@/lib/einvoice";
 import { generateEwayBill, updateEwayBillPartB } from "@/lib/ewaybill";
 import { saveCompany } from "@/lib/company-settings";
+import { buildRunItems } from "@/lib/payroll-data";
 import {
   sendReviewRequest,
   sendBackInStockEmails,
@@ -606,6 +607,155 @@ export async function saveCompanySettings(formData: FormData): Promise<void> {
     address: str(formData.get("address")),
   });
   revalidatePath("/admin/settings");
+}
+
+// ── Priest payroll ──────────────────────────────────────────────────────────
+
+// Parses a bounded percentage (0–100) from a form field.
+function pct(value: FormDataEntryValue | null): number {
+  const n = Number(value) || 0;
+  return Math.min(100, Math.max(0, n));
+}
+
+// Saves (upserts) a priest's compensation profile — the mix-and-match of
+// salary, travel allowance, commission, dakshina retention, consultant
+// retainer, incentives and statutory PF/gratuity.
+export async function savePriestCompensation(
+  formData: FormData,
+): Promise<void> {
+  await assertAdmin();
+  const admin = createAdminClient();
+
+  const panditId = str(formData.get("pandit_id"));
+  if (!panditId) return;
+
+  const basis = str(formData.get("commission_basis"));
+  const payload = {
+    pandit_id: panditId,
+    model: str(formData.get("model")) as Database["public"]["Enums"]["comp_model"],
+    base_salary: num(formData.get("base_salary")),
+    travel_allowance: num(formData.get("travel_allowance")),
+    commission_pct: pct(formData.get("commission_pct")),
+    commission_basis: basis === "total" ? "total" : "service",
+    keeps_dakshina: formData.get("keeps_dakshina") === "on",
+    consultant_fee: num(formData.get("consultant_fee")),
+    incentive_per_booking: num(formData.get("incentive_per_booking")),
+    pf_enabled: formData.get("pf_enabled") === "on",
+    pf_employee_pct: pct(formData.get("pf_employee_pct")),
+    pf_employer_pct: pct(formData.get("pf_employer_pct")),
+    pf_wage_ceiling: num(formData.get("pf_wage_ceiling")),
+    gratuity_enabled: formData.get("gratuity_enabled") === "on",
+    gratuity_pct: pct(formData.get("gratuity_pct")),
+    notes: str(formData.get("notes")) || null,
+    updated_at: new Date().toISOString(),
+  };
+
+  await admin
+    .from("priest_compensation")
+    .upsert(payload, { onConflict: "pandit_id" });
+
+  revalidatePath("/admin/payroll/compensation");
+}
+
+// Creates (or reuses) the payroll run for a period and computes every active
+// priest's payslip line for it. Idempotent: re-running rebuilds unpaid lines.
+export async function createPayrollRun(formData: FormData): Promise<void> {
+  await assertAdmin();
+  const admin = createAdminClient();
+
+  const year = Math.round(Number(formData.get("period_year")) || 0);
+  const month = Math.round(Number(formData.get("period_month")) || 0);
+  if (year < 2000 || month < 1 || month > 12) return;
+
+  const { data: existing } = await admin
+    .from("payroll_runs")
+    .select("id")
+    .eq("period_year", year)
+    .eq("period_month", month)
+    .maybeSingle();
+
+  let runId = existing?.id;
+  if (!runId) {
+    const { data: inserted } = await admin
+      .from("payroll_runs")
+      .insert({ period_year: year, period_month: month })
+      .select("id")
+      .single();
+    runId = inserted?.id;
+  }
+  if (!runId) return;
+
+  await buildRunItems(admin, runId, year, month);
+  revalidatePath("/admin/payroll");
+  revalidatePath(`/admin/payroll/${runId}`);
+}
+
+// Rebuilds the unpaid payslip lines of an existing run (e.g. after editing a
+// compensation profile or marking more bookings completed).
+export async function regeneratePayrollRun(formData: FormData): Promise<void> {
+  await assertAdmin();
+  const admin = createAdminClient();
+
+  const runId = str(formData.get("run_id"));
+  if (!runId) return;
+  const { data: run } = await admin
+    .from("payroll_runs")
+    .select("period_year, period_month")
+    .eq("id", runId)
+    .maybeSingle();
+  if (!run) return;
+
+  await buildRunItems(admin, runId, run.period_year, run.period_month);
+  revalidatePath(`/admin/payroll/${runId}`);
+}
+
+// Marks a single payslip line paid/unpaid, recording an optional payment ref.
+export async function setPayrollItemPaid(formData: FormData): Promise<void> {
+  await assertAdmin();
+  const admin = createAdminClient();
+
+  const id = str(formData.get("id"));
+  const runId = str(formData.get("run_id"));
+  if (!id) return;
+  const paid = formData.get("paid") === "true";
+
+  await admin
+    .from("payroll_run_items")
+    .update({
+      paid,
+      paid_at: paid ? new Date().toISOString() : null,
+      payment_ref: paid ? str(formData.get("payment_ref")) || null : null,
+    })
+    .eq("id", id);
+
+  revalidatePath(`/admin/payroll/${runId}`);
+}
+
+// Advances a run's lifecycle: draft → finalized → paid (or back to draft).
+export async function setPayrollRunStatus(formData: FormData): Promise<void> {
+  await assertAdmin();
+  const admin = createAdminClient();
+
+  const runId = str(formData.get("run_id"));
+  const status = str(formData.get("status"));
+  if (!runId || !["draft", "finalized", "paid"].includes(status)) return;
+
+  await admin
+    .from("payroll_runs")
+    .update({ status, updated_at: new Date().toISOString() })
+    .eq("id", runId);
+
+  revalidatePath("/admin/payroll");
+  revalidatePath(`/admin/payroll/${runId}`);
+}
+
+// Deletes a payroll run and all its lines (cascade).
+export async function deletePayrollRun(formData: FormData): Promise<void> {
+  await assertAdmin();
+  const admin = createAdminClient();
+  const runId = str(formData.get("run_id"));
+  if (runId) await admin.from("payroll_runs").delete().eq("id", runId);
+  revalidatePath("/admin/payroll");
 }
 
 // ── Contact messages ────────────────────────────────────────────────────────

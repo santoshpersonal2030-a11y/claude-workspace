@@ -20,6 +20,7 @@ export type Database = {
           booking_date: string
           city: string
           created_at: string
+          ends_at: string | null
           id: string
           invoice_fy: number | null
           invoice_no: number | null
@@ -33,7 +34,6 @@ export type Database = {
           samagri_price: number
           service_price: number
           starts_at: string | null
-          ends_at: string | null
           status: Database["public"]["Enums"]["booking_status"]
           time_slot: string
           total_amount: number
@@ -47,6 +47,7 @@ export type Database = {
           booking_date: string
           city: string
           created_at?: string
+          ends_at?: string | null
           id?: string
           invoice_fy?: number | null
           invoice_no?: number | null
@@ -60,7 +61,6 @@ export type Database = {
           samagri_price?: number
           service_price: number
           starts_at?: string | null
-          ends_at?: string | null
           status?: Database["public"]["Enums"]["booking_status"]
           time_slot: string
           total_amount: number
@@ -74,6 +74,7 @@ export type Database = {
           booking_date?: string
           city?: string
           created_at?: string
+          ends_at?: string | null
           id?: string
           invoice_fy?: number | null
           invoice_no?: number | null
@@ -87,7 +88,6 @@ export type Database = {
           samagri_price?: number
           service_price?: number
           starts_at?: string | null
-          ends_at?: string | null
           status?: Database["public"]["Enums"]["booking_status"]
           time_slot?: string
           total_amount?: number
@@ -157,8 +157,8 @@ export type Database = {
           name: string | null
           phone: string | null
           state: string | null
-          upi: string | null
           updated_at: string
+          upi: string | null
         }
         Insert: {
           address?: string | null
@@ -168,8 +168,8 @@ export type Database = {
           name?: string | null
           phone?: string | null
           state?: string | null
-          upi?: string | null
           updated_at?: string
+          upi?: string | null
         }
         Update: {
           address?: string | null
@@ -179,8 +179,8 @@ export type Database = {
           name?: string | null
           phone?: string | null
           state?: string | null
-          upi?: string | null
           updated_at?: string
+          upi?: string | null
         }
         Relationships: []
       }
@@ -389,10 +389,6 @@ export type Database = {
           city: string | null
           created_at: string
           customer_gstin: string | null
-          irn: string | null
-          irn_cancelled_at: string | null
-          irn_date: string | null
-          signed_qr: string | null
           delivery_name: string | null
           delivery_phone: string | null
           estimated_delivery: string | null
@@ -404,8 +400,12 @@ export type Database = {
           id: string
           invoice_fy: number | null
           invoice_no: number | null
+          irn: string | null
+          irn_cancelled_at: string | null
+          irn_date: string | null
           pincode: string | null
           shipping: number
+          signed_qr: string | null
           state: string | null
           status: Database["public"]["Enums"]["order_status"]
           subtotal: number
@@ -420,10 +420,6 @@ export type Database = {
           city?: string | null
           created_at?: string
           customer_gstin?: string | null
-          irn?: string | null
-          irn_cancelled_at?: string | null
-          irn_date?: string | null
-          signed_qr?: string | null
           delivery_name?: string | null
           delivery_phone?: string | null
           estimated_delivery?: string | null
@@ -435,8 +431,12 @@ export type Database = {
           id?: string
           invoice_fy?: number | null
           invoice_no?: number | null
+          irn?: string | null
+          irn_cancelled_at?: string | null
+          irn_date?: string | null
           pincode?: string | null
           shipping?: number
+          signed_qr?: string | null
           state?: string | null
           status?: Database["public"]["Enums"]["order_status"]
           subtotal?: number
@@ -451,10 +451,6 @@ export type Database = {
           city?: string | null
           created_at?: string
           customer_gstin?: string | null
-          irn?: string | null
-          irn_cancelled_at?: string | null
-          irn_date?: string | null
-          signed_qr?: string | null
           delivery_name?: string | null
           delivery_phone?: string | null
           estimated_delivery?: string | null
@@ -466,8 +462,12 @@ export type Database = {
           id?: string
           invoice_fy?: number | null
           invoice_no?: number | null
+          irn?: string | null
+          irn_cancelled_at?: string | null
+          irn_date?: string | null
           pincode?: string | null
           shipping?: number
+          signed_qr?: string | null
           state?: string | null
           status?: Database["public"]["Enums"]["order_status"]
           subtotal?: number
@@ -490,71 +490,71 @@ export type Database = {
         Row: {
           active: boolean
           bio: string | null
+          blackout_dates: string[]
           created_at: string
           experience_years: number | null
           full_name: string
+          home_pincode: string | null
           id: string
           languages: string[]
+          max_travel_mins: number
           photo_url: string | null
           rating: number
           regions: string[]
           review_count: number
-          home_pincode: string | null
-          max_travel_mins: number
           service_pincodes: string[]
           slug: string | null
           specializations: string[]
-          blackout_dates: string[]
-          work_start: string
-          work_end: string
           updated_at: string
           verified: boolean
+          work_end: string
+          work_start: string
         }
         Insert: {
           active?: boolean
           bio?: string | null
+          blackout_dates?: string[]
           created_at?: string
           experience_years?: number | null
           full_name: string
+          home_pincode?: string | null
           id?: string
           languages?: string[]
+          max_travel_mins?: number
           photo_url?: string | null
           rating?: number
           regions?: string[]
           review_count?: number
-          home_pincode?: string | null
-          max_travel_mins?: number
           service_pincodes?: string[]
           slug?: string | null
           specializations?: string[]
-          blackout_dates?: string[]
-          work_start?: string
-          work_end?: string
           updated_at?: string
           verified?: boolean
+          work_end?: string
+          work_start?: string
         }
         Update: {
           active?: boolean
           bio?: string | null
+          blackout_dates?: string[]
           created_at?: string
           experience_years?: number | null
           full_name?: string
+          home_pincode?: string | null
           id?: string
           languages?: string[]
+          max_travel_mins?: number
           photo_url?: string | null
           rating?: number
           regions?: string[]
           review_count?: number
-          home_pincode?: string | null
-          max_travel_mins?: number
           service_pincodes?: string[]
           slug?: string | null
           specializations?: string[]
-          blackout_dates?: string[]
-          work_start?: string
-          work_end?: string
           updated_at?: string
           verified?: boolean
+          work_end?: string
+          work_start?: string
         }
         Relationships: []
       }
@@ -631,6 +631,129 @@ export type Database = {
           },
         ]
       }
+      payroll_run_items: {
+        Row: {
+          base_salary: number
+          bookings_count: number
+          bookings_value: number
+          commission: number
+          consultant_fee: number
+          created_at: string
+          dakshina_retained: number
+          deductions: number
+          gratuity: number
+          gross: number
+          id: string
+          incentive: number
+          model: Database["public"]["Enums"]["comp_model"]
+          net_pay: number
+          notes: string | null
+          paid: boolean
+          paid_at: string | null
+          pandit_id: string
+          payment_ref: string | null
+          pf_employee: number
+          pf_employer: number
+          run_id: string
+          travel_allowance: number
+        }
+        Insert: {
+          base_salary?: number
+          bookings_count?: number
+          bookings_value?: number
+          commission?: number
+          consultant_fee?: number
+          created_at?: string
+          dakshina_retained?: number
+          deductions?: number
+          gratuity?: number
+          gross?: number
+          id?: string
+          incentive?: number
+          model?: Database["public"]["Enums"]["comp_model"]
+          net_pay?: number
+          notes?: string | null
+          paid?: boolean
+          paid_at?: string | null
+          pandit_id: string
+          payment_ref?: string | null
+          pf_employee?: number
+          pf_employer?: number
+          run_id: string
+          travel_allowance?: number
+        }
+        Update: {
+          base_salary?: number
+          bookings_count?: number
+          bookings_value?: number
+          commission?: number
+          consultant_fee?: number
+          created_at?: string
+          dakshina_retained?: number
+          deductions?: number
+          gratuity?: number
+          gross?: number
+          id?: string
+          incentive?: number
+          model?: Database["public"]["Enums"]["comp_model"]
+          net_pay?: number
+          notes?: string | null
+          paid?: boolean
+          paid_at?: string | null
+          pandit_id?: string
+          payment_ref?: string | null
+          pf_employee?: number
+          pf_employer?: number
+          run_id?: string
+          travel_allowance?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payroll_run_items_pandit_id_fkey"
+            columns: ["pandit_id"]
+            isOneToOne: false
+            referencedRelation: "pandits"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payroll_run_items_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "payroll_runs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payroll_runs: {
+        Row: {
+          created_at: string
+          id: string
+          notes: string | null
+          period_month: number
+          period_year: number
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          period_month: number
+          period_year: number
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          period_month?: number
+          period_year?: number
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       poojas: {
         Row: {
           active: boolean
@@ -690,6 +813,80 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      priest_compensation: {
+        Row: {
+          base_salary: number
+          commission_basis: string
+          commission_pct: number
+          consultant_fee: number
+          created_at: string
+          effective_from: string | null
+          gratuity_enabled: boolean
+          gratuity_pct: number
+          incentive_per_booking: number
+          keeps_dakshina: boolean
+          model: Database["public"]["Enums"]["comp_model"]
+          notes: string | null
+          pandit_id: string
+          pf_employee_pct: number
+          pf_employer_pct: number
+          pf_enabled: boolean
+          pf_wage_ceiling: number
+          travel_allowance: number
+          updated_at: string
+        }
+        Insert: {
+          base_salary?: number
+          commission_basis?: string
+          commission_pct?: number
+          consultant_fee?: number
+          created_at?: string
+          effective_from?: string | null
+          gratuity_enabled?: boolean
+          gratuity_pct?: number
+          incentive_per_booking?: number
+          keeps_dakshina?: boolean
+          model?: Database["public"]["Enums"]["comp_model"]
+          notes?: string | null
+          pandit_id: string
+          pf_employee_pct?: number
+          pf_employer_pct?: number
+          pf_enabled?: boolean
+          pf_wage_ceiling?: number
+          travel_allowance?: number
+          updated_at?: string
+        }
+        Update: {
+          base_salary?: number
+          commission_basis?: string
+          commission_pct?: number
+          consultant_fee?: number
+          created_at?: string
+          effective_from?: string | null
+          gratuity_enabled?: boolean
+          gratuity_pct?: number
+          incentive_per_booking?: number
+          keeps_dakshina?: boolean
+          model?: Database["public"]["Enums"]["comp_model"]
+          notes?: string | null
+          pandit_id?: string
+          pf_employee_pct?: number
+          pf_employer_pct?: number
+          pf_enabled?: boolean
+          pf_wage_ceiling?: number
+          travel_allowance?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "priest_compensation_pandit_id_fkey"
+            columns: ["pandit_id"]
+            isOneToOne: true
+            referencedRelation: "pandits"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       product_reviews: {
         Row: {
@@ -899,22 +1096,22 @@ export type Database = {
     Functions: {
       create_booking_atomic: {
         Args: {
-          p_user_id: string
-          p_pooja_id: string
-          p_pandit_id: string
-          p_starts_at: string
-          p_duration_min: number
-          p_time_slot: string
-          p_language: string | null
           p_address: string
           p_city: string
-          p_pincode: string | null
+          p_duration_min: number
+          p_language: string | null
           p_notes: string | null
+          p_pandit_id: string
+          p_pincode: string | null
+          p_pooja_id: string
           p_samagri_kit: boolean
-          p_service_price: number
           p_samagri_price: number
-          p_travel_fee: number
+          p_service_price: number
+          p_starts_at: string
+          p_time_slot: string
           p_travel_band: string | null
+          p_travel_fee: number
+          p_user_id: string
         }
         Returns: string
       }
@@ -931,6 +1128,13 @@ export type Database = {
         | "assigned"
         | "completed"
         | "cancelled"
+      comp_model:
+        | "fixed"
+        | "dakshina"
+        | "commission"
+        | "salary_commission"
+        | "consultant"
+        | "incentive"
       order_status:
         | "pending"
         | "paid"
@@ -1085,6 +1289,14 @@ export const Constants = {
         "assigned",
         "completed",
         "cancelled",
+      ],
+      comp_model: [
+        "fixed",
+        "dakshina",
+        "commission",
+        "salary_commission",
+        "consultant",
+        "incentive",
       ],
       order_status: [
         "pending",
