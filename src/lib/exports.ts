@@ -420,3 +420,74 @@ export async function buildGstr3b(
 
   return { taxable, igst, cgst, sgst, cess: 0, exempt };
 }
+
+// Builds a CSV of one payroll run's payslip lines — the full per-priest pay
+// breakdown for the accountant. Service-role read (payroll tables are locked).
+export async function buildPayrollRunCsv(runId: string): Promise<string> {
+  const admin = createAdminClient();
+
+  const { data: run } = await admin
+    .from("payroll_runs")
+    .select("period_year, period_month")
+    .eq("id", runId)
+    .maybeSingle();
+
+  const [{ data: items }, { data: pandits }] = await Promise.all([
+    admin
+      .from("payroll_run_items")
+      .select("*")
+      .eq("run_id", runId)
+      .order("net_pay", { ascending: false }),
+    admin.from("pandits").select("id, full_name"),
+  ]);
+
+  const nameById = new Map((pandits ?? []).map((p) => [p.id, p.full_name]));
+  const period = run ? `${run.period_year}-${String(run.period_month).padStart(2, "0")}` : "";
+
+  const headers = [
+    "Period",
+    "Priest",
+    "Model",
+    "Bookings",
+    "Bookings value",
+    "Base salary",
+    "Travel allowance",
+    "Commission",
+    "Consultant fee",
+    "Incentive",
+    "Gross",
+    "PF (employee)",
+    "Deductions",
+    "Net pay",
+    "PF (employer)",
+    "Gratuity",
+    "Dakshina retained",
+    "Paid",
+    "Paid at",
+    "Payment ref",
+  ];
+  const rows = (items ?? []).map((i) => [
+    period,
+    nameById.get(i.pandit_id) ?? i.pandit_id,
+    i.model,
+    i.bookings_count,
+    i.bookings_value,
+    i.base_salary,
+    i.travel_allowance,
+    i.commission,
+    i.consultant_fee,
+    i.incentive,
+    i.gross,
+    i.pf_employee,
+    i.deductions,
+    i.net_pay,
+    i.pf_employer,
+    i.gratuity,
+    i.dakshina_retained,
+    i.paid ? "Yes" : "No",
+    i.paid_at ? new Date(i.paid_at).toISOString().slice(0, 10) : "",
+    i.payment_ref ?? "",
+  ]);
+
+  return toCsv(headers, rows);
+}

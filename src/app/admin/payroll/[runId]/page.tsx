@@ -65,6 +65,12 @@ export default async function PayrollRunDetailPage({
               ↻ Recompute unpaid
             </button>
           </form>
+          <a
+            href={`/api/admin/export/payroll/${run.id}`}
+            className="rounded-full border border-saffron-300 px-4 py-1.5 text-xs font-semibold text-saffron-700 hover:bg-saffron-50"
+          >
+            ⤓ Export CSV
+          </a>
           {(["draft", "finalized", "paid"] as const).map((s) => (
             <form key={s} action={setPayrollRunStatus}>
               <input type="hidden" name="run_id" value={run.id} />
