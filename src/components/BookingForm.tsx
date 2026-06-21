@@ -211,10 +211,22 @@ export default function BookingForm({
         Fill in your details and we&apos;ll arrange everything.
       </p>
 
+      {pooja.requiresMuhurat ? (
+        <p className="mt-3 rounded-xl bg-gold-400/20 px-3 py-2 text-xs text-maroon-800">
+          🕉️ This ceremony is performed at an auspicious muhurat. Pick your
+          preferred date — the Pandit will confirm the exact auspicious timing
+          with you.
+        </p>
+      ) : (
+        <p className="mt-3 rounded-xl bg-green-50 px-3 py-2 text-xs text-green-700">
+          ✓ Flexible timing — choose any date and slot that suits you.
+        </p>
+      )}
+
       <div className="mt-5 space-y-4">
         <div>
           <label className="mb-1 block text-sm font-medium text-foreground/80">
-            Date
+            {pooja.requiresMuhurat ? "Preferred date" : "Date"}
           </label>
           <input
             type="date"

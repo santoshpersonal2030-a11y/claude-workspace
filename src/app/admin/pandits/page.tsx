@@ -53,6 +53,24 @@ export default async function AdminPanditsPage() {
             className={inputClass}
           />
           <input
+            name="home_pincode"
+            placeholder="Home pincode (411004)"
+            title="Local band — no travel fee"
+            className={inputClass}
+          />
+          <input
+            name="service_pincodes"
+            placeholder="Service pincodes (411004, 411001)"
+            title="All pincodes the priest will travel to"
+            className={inputClass}
+          />
+          <input
+            name="max_travel_mins"
+            type="number"
+            placeholder="Max travel mins (30)"
+            className={inputClass}
+          />
+          <input
             name="rating"
             type="number"
             step="0.1"
@@ -139,6 +157,28 @@ export default async function AdminPanditsPage() {
               title="Rating"
               className={inputClass}
             />
+            <div className="grid gap-2 sm:col-span-full sm:grid-cols-3">
+              <input
+                name="home_pincode"
+                defaultValue={p.home_pincode ?? ""}
+                placeholder="Home pincode (local, no fee)"
+                className={inputClass}
+              />
+              <input
+                name="service_pincodes"
+                defaultValue={(p.service_pincodes ?? []).join(", ")}
+                placeholder="Service pincodes (comma-separated)"
+                className={inputClass}
+              />
+              <input
+                name="max_travel_mins"
+                type="number"
+                defaultValue={p.max_travel_mins ?? 30}
+                title="Max travel minutes"
+                placeholder="Max travel mins"
+                className={inputClass}
+              />
+            </div>
             <div className="flex items-center gap-3">
               <input
                 type="hidden"

@@ -14,6 +14,12 @@ export type Pandit = {
   // Pooja categories this priest performs — the primary "right pandit for this
   // pooja" matcher. Empty means generalist / not yet specified.
   specializations: PoojaCategory[];
+  // Service area (manual coverage). homePincode = local/no-fee band; every
+  // pincode the priest is willing to travel to is listed in servicePincodes
+  // (which always includes homePincode). maxTravelMins is an advisory cap.
+  homePincode: string | null;
+  servicePincodes: string[];
+  maxTravelMins: number;
   rating: number;
   reviewCount: number;
   photoUrl: string | null;
@@ -29,6 +35,9 @@ export const pandits: Pandit[] = [
     languages: ["Hindi", "Sanskrit", "Bhojpuri"],
     regions: ["Delhi NCR"],
     specializations: ["Home", "Festival"],
+    homePincode: "110001",
+    servicePincodes: ["110001", "110002", "110005"],
+    maxTravelMins: 30,
     rating: 4.9,
     reviewCount: 312,
     photoUrl: null,
@@ -42,6 +51,9 @@ export const pandits: Pandit[] = [
     languages: ["Hindi", "Sanskrit", "Marathi"],
     regions: ["Mumbai", "Pune"],
     specializations: ["Life Event", "Home"],
+    homePincode: "400050",
+    servicePincodes: ["400050", "400058", "411001"],
+    maxTravelMins: 30,
     rating: 4.8,
     reviewCount: 256,
     photoUrl: null,
@@ -55,6 +67,9 @@ export const pandits: Pandit[] = [
     languages: ["Tamil", "Sanskrit", "English"],
     regions: ["Bengaluru", "Chennai"],
     specializations: ["Festival", "Remedial", "Home"],
+    homePincode: "560034",
+    servicePincodes: ["560034", "560001", "560078"],
+    maxTravelMins: 30,
     rating: 4.9,
     reviewCount: 401,
     photoUrl: null,
@@ -68,6 +83,9 @@ export const pandits: Pandit[] = [
     languages: ["Hindi", "Sanskrit"],
     regions: ["Lucknow", "Kanpur"],
     specializations: ["Remedial", "Ancestral"],
+    homePincode: "226001",
+    servicePincodes: ["226001", "226010", "208001"],
+    maxTravelMins: 30,
     rating: 4.7,
     reviewCount: 188,
     photoUrl: null,
@@ -81,6 +99,9 @@ export const pandits: Pandit[] = [
     languages: ["Gujarati", "Hindi", "Sanskrit"],
     regions: ["Ahmedabad", "Surat"],
     specializations: ["Festival", "Home"],
+    homePincode: "380015",
+    servicePincodes: ["380015", "380001", "395001"],
+    maxTravelMins: 30,
     rating: 4.9,
     reviewCount: 357,
     photoUrl: null,
@@ -94,6 +115,9 @@ export const pandits: Pandit[] = [
     languages: ["Hindi", "Sanskrit", "English"],
     regions: ["Pune", "Mumbai"],
     specializations: ["Home"],
+    homePincode: "411004",
+    servicePincodes: ["411004", "411001", "411038"],
+    maxTravelMins: 30,
     rating: 4.8,
     reviewCount: 142,
     photoUrl: null,

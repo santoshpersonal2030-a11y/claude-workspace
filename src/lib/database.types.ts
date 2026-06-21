@@ -442,6 +442,9 @@ export type Database = {
           rating: number
           regions: string[]
           review_count: number
+          home_pincode: string | null
+          max_travel_mins: number
+          service_pincodes: string[]
           slug: string | null
           specializations: string[]
           updated_at: string
@@ -459,6 +462,9 @@ export type Database = {
           rating?: number
           regions?: string[]
           review_count?: number
+          home_pincode?: string | null
+          max_travel_mins?: number
+          service_pincodes?: string[]
           slug?: string | null
           specializations?: string[]
           updated_at?: string
@@ -476,6 +482,9 @@ export type Database = {
           rating?: number
           regions?: string[]
           review_count?: number
+          home_pincode?: string | null
+          max_travel_mins?: number
+          service_pincodes?: string[]
           slug?: string | null
           specializations?: string[]
           updated_at?: string
@@ -568,6 +577,7 @@ export type Database = {
           long_description: string | null
           name: string
           popular: boolean
+          requires_muhurat: boolean
           samagri_kit_price: number | null
           sanskrit_name: string | null
           short_description: string | null
@@ -586,6 +596,7 @@ export type Database = {
           long_description?: string | null
           name: string
           popular?: boolean
+          requires_muhurat?: boolean
           samagri_kit_price?: number | null
           sanskrit_name?: string | null
           short_description?: string | null
@@ -604,6 +615,7 @@ export type Database = {
           long_description?: string | null
           name?: string
           popular?: boolean
+          requires_muhurat?: boolean
           samagri_kit_price?: number | null
           sanskrit_name?: string | null
           short_description?: string | null

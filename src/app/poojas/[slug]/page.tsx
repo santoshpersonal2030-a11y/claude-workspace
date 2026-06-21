@@ -97,9 +97,26 @@ export default async function PoojaDetailPage({
             <div className="mt-4 flex items-start gap-4">
               <div className="text-5xl">{pooja.emoji}</div>
               <div>
-                <span className="rounded-full bg-saffron-50 px-3 py-1 text-xs font-medium text-saffron-700">
-                  {pooja.category}
-                </span>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="rounded-full bg-saffron-50 px-3 py-1 text-xs font-medium text-saffron-700">
+                    {pooja.category}
+                  </span>
+                  {pooja.requiresMuhurat ? (
+                    <span
+                      className="rounded-full bg-gold-400 px-3 py-1 text-xs font-medium text-maroon-800"
+                      title="This ceremony is performed at an auspicious muhurat — the Pandit will confirm the exact timing."
+                    >
+                      🕉️ Auspicious muhurat
+                    </span>
+                  ) : (
+                    <span
+                      className="rounded-full bg-green-50 px-3 py-1 text-xs font-medium text-green-700"
+                      title="Flexible timing — choose any available slot."
+                    >
+                      ✓ Flexible timing
+                    </span>
+                  )}
+                </div>
                 <h1 className="mt-2 font-heading text-4xl text-maroon-800">
                   {pooja.name}
                 </h1>

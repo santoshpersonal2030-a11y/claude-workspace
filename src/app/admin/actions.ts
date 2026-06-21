@@ -155,6 +155,7 @@ export async function savePooja(formData: FormData): Promise<void> {
     samagri_kit_price: optNum(formData.get("samagri_kit_price")),
     duration_hours: Number(formData.get("duration_hours")) || 1,
     popular: formData.get("popular") === "on",
+    requires_muhurat: formData.get("requires_muhurat") === "on",
     active: formData.get("active") === "on",
   };
 
@@ -179,6 +180,9 @@ export async function savePandit(formData: FormData): Promise<void> {
     languages: csvToArray(formData.get("languages")),
     regions: csvToArray(formData.get("regions")),
     specializations: csvToArray(formData.get("specializations")),
+    home_pincode: str(formData.get("home_pincode")) || null,
+    service_pincodes: csvToArray(formData.get("service_pincodes")),
+    max_travel_mins: num(formData.get("max_travel_mins")) || 30,
     rating: clampFloat(formData.get("rating"), 5),
     review_count: num(formData.get("review_count")),
     verified: formData.get("verified") === "on",

@@ -9,7 +9,8 @@ import {
   TIER_BADGE_CLASS,
   type PanditTier,
 } from "@/lib/pandit-tier";
-import { poojaCategories, type PoojaCategory } from "@/lib/poojas";
+import { poojaCategories, formatINR, type PoojaCategory } from "@/lib/poojas";
+import { resolveTravelBand, isValidPincode } from "@/lib/travel";
 
 function initials(name: string) {
   return name
@@ -24,18 +25,29 @@ function initials(name: string) {
 export default function PanditDirectory({ pandits }: { pandits: Pandit[] }) {
   const [tier, setTier] = useState<PanditTier | "All">("All");
   const [category, setCategory] = useState<PoojaCategory | "All">("All");
+  const [pincode, setPincode] = useState("");
 
-  const filtered = useMemo(
-    () =>
-      pandits.filter((p) => {
-        const info = panditTierInfo(p.experienceYears);
-        if (tier !== "All" && info.tier !== tier) return false;
-        if (category !== "All" && !p.specializations.includes(category))
-          return false;
-        return true;
-      }),
-    [pandits, tier, category],
-  );
+  const pinActive = isValidPincode(pincode);
+
+  const filtered = useMemo(() => {
+    const list = pandits.filter((p) => {
+      const info = panditTierInfo(p.experienceYears);
+      if (tier !== "All" && info.tier !== tier) return false;
+      if (category !== "All" && !p.specializations.includes(category))
+        return false;
+      if (pinActive && !resolveTravelBand(pincode, p)) return false;
+      return true;
+    });
+    // When filtering by pincode, surface local (no-fee) priests first.
+    if (pinActive) {
+      return list.sort(
+        (a, b) =>
+          (resolveTravelBand(pincode, a)?.fee ?? 0) -
+          (resolveTravelBand(pincode, b)?.fee ?? 0),
+      );
+    }
+    return list;
+  }, [pandits, tier, category, pincode, pinActive]);
 
   const selectClass =
     "rounded-full border border-saffron-200 bg-white px-4 py-2 text-sm text-foreground/80 outline-none focus:border-saffron-400";
@@ -44,6 +56,18 @@ export default function PanditDirectory({ pandits }: { pandits: Pandit[] }) {
     <>
       {/* Filters */}
       <div className="flex flex-wrap items-center gap-3">
+        <label className="text-sm font-medium text-foreground/60">
+          Your pincode
+          <input
+            value={pincode}
+            onChange={(e) =>
+              setPincode(e.target.value.replace(/\D/g, "").slice(0, 6))
+            }
+            inputMode="numeric"
+            placeholder="e.g. 411004"
+            className="ml-2 w-32 rounded-full border border-saffron-200 bg-white px-4 py-2 text-sm text-foreground/80 outline-none focus:border-saffron-400"
+          />
+        </label>
         <label className="text-sm font-medium text-foreground/60">
           Tier
           <select
@@ -81,9 +105,16 @@ export default function PanditDirectory({ pandits }: { pandits: Pandit[] }) {
         </span>
       </div>
 
+      {pincode && !pinActive && (
+        <p className="mt-2 text-xs text-maroon-600">
+          Enter a valid 6-digit pincode to see who serves your area.
+        </p>
+      )}
+
       <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {filtered.map((pandit) => {
           const info = panditTierInfo(pandit.experienceYears);
+          const band = pinActive ? resolveTravelBand(pincode, pandit) : null;
           return (
             <div
               key={pandit.slug}
@@ -137,6 +168,14 @@ export default function PanditDirectory({ pandits }: { pandits: Pandit[] }) {
                     </span>
                   ))}
                 </div>
+              )}
+
+              {band && (
+                <p className="mt-3 text-xs font-medium text-green-700">
+                  {band.fee === 0
+                    ? `✓ Serves ${pincode} — no travel fee`
+                    : `✓ Serves ${pincode} — +${formatINR(band.fee)} travel (${band.label})`}
+                </p>
               )}
 
               <dl className="mt-4 space-y-1 text-xs text-foreground/60">

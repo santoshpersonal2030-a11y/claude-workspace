@@ -40,6 +40,7 @@ function rowToPooja(row: PoojaRow): Pooja {
     longDescription: row.long_description ?? undefined,
     includes: row.includes ?? undefined,
     popular: row.popular,
+    requiresMuhurat: row.requires_muhurat,
   };
 }
 
@@ -200,6 +201,9 @@ function rowToPandit(row: PanditRow): Pandit {
     languages: row.languages,
     regions: row.regions,
     specializations: (row.specializations ?? []) as Pandit["specializations"],
+    homePincode: row.home_pincode,
+    servicePincodes: row.service_pincodes ?? [],
+    maxTravelMins: row.max_travel_mins ?? 30,
     rating: Number(row.rating),
     reviewCount: row.review_count,
     photoUrl: row.photo_url,

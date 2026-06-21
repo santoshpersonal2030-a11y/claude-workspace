@@ -21,6 +21,9 @@ export type Pooja = {
   longDescription?: string;
   includes?: string[];
   popular?: boolean;
+  // True when the ceremony needs an auspicious muhurat (timing confirmed by the
+  // priest); false/undefined means flexible timing the customer can freely pick.
+  requiresMuhurat?: boolean;
 };
 
 export const poojas: Pooja[] = [
@@ -34,6 +37,7 @@ export const poojas: Pooja[] = [
       "Auspicious puja seeking the blessings of Lord Vishnu for prosperity and well-being.",
     durationHours: 2,
     startingPrice: 2100,
+    requiresMuhurat: false,
     popular: true,
   },
   {
@@ -46,6 +50,7 @@ export const poojas: Pooja[] = [
       "House-warming ceremony to purify and bless a new home before you move in.",
     durationHours: 3,
     startingPrice: 5100,
+    requiresMuhurat: true,
     popular: true,
   },
   {
@@ -58,6 +63,7 @@ export const poojas: Pooja[] = [
       "Invoke Lord Ganesha to remove obstacles before any new beginning or festival.",
     durationHours: 1.5,
     startingPrice: 1500,
+    requiresMuhurat: false,
     popular: true,
   },
   {
@@ -70,6 +76,7 @@ export const poojas: Pooja[] = [
       "Diwali puja for wealth, abundance and the blessings of Goddess Lakshmi.",
     durationHours: 2,
     startingPrice: 2500,
+    requiresMuhurat: true,
     popular: true,
   },
   {
@@ -82,6 +89,7 @@ export const poojas: Pooja[] = [
       "Traditional naming ceremony to welcome and bless a newborn child.",
     durationHours: 2,
     startingPrice: 3100,
+    requiresMuhurat: true,
   },
   {
     slug: "mundan",
@@ -93,6 +101,7 @@ export const poojas: Pooja[] = [
       "First haircut ceremony performed for the health and long life of a child.",
     durationHours: 1.5,
     startingPrice: 2500,
+    requiresMuhurat: true,
   },
   {
     slug: "navagraha-shanti",
@@ -104,6 +113,7 @@ export const poojas: Pooja[] = [
       "Remedial puja to pacify the nine planets and reduce their malefic effects.",
     durationHours: 3,
     startingPrice: 5100,
+    requiresMuhurat: true,
   },
   {
     slug: "rudrabhishek",
@@ -115,6 +125,7 @@ export const poojas: Pooja[] = [
       "Powerful abhishek of Lord Shiva for health, peace and removal of negativity.",
     durationHours: 2.5,
     startingPrice: 4100,
+    requiresMuhurat: false,
   },
   {
     slug: "bhoomi-puja",
@@ -126,6 +137,7 @@ export const poojas: Pooja[] = [
       "Ground-breaking ceremony seeking blessings before construction begins.",
     durationHours: 2,
     startingPrice: 3100,
+    requiresMuhurat: true,
   },
   {
     slug: "satyanarayan-vrat",
@@ -137,6 +149,7 @@ export const poojas: Pooja[] = [
       "Blessing ceremony for a new vehicle for safe and auspicious journeys.",
     durationHours: 1,
     startingPrice: 1100,
+    requiresMuhurat: false,
   },
   {
     slug: "pitru-paksha-shraddh",
@@ -148,6 +161,7 @@ export const poojas: Pooja[] = [
       "Ritual offerings to honour ancestors and seek their blessings and peace.",
     durationHours: 2,
     startingPrice: 2100,
+    requiresMuhurat: true,
   },
   {
     slug: "vivah-sanskar",
@@ -159,6 +173,7 @@ export const poojas: Pooja[] = [
       "Complete Vedic wedding rituals performed by an experienced Pandit.",
     durationHours: 4,
     startingPrice: 11000,
+    requiresMuhurat: true,
   },
 ];
 

@@ -74,6 +74,17 @@ export default async function AdminPoojasPage() {
                 />
                 Popular
               </label>
+              <label
+                className="flex items-center gap-1"
+                title="Needs an auspicious muhurat (propose-then-confirm). Off = flexible timing."
+              >
+                <input
+                  type="checkbox"
+                  name="requires_muhurat"
+                  defaultChecked={p.requires_muhurat}
+                />
+                Muhurat
+              </label>
             </div>
             <button
               type="submit"
