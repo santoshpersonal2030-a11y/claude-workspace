@@ -11,16 +11,7 @@ import {
 } from "@/lib/pandit-tier";
 import { poojaCategories, formatINR, type PoojaCategory } from "@/lib/poojas";
 import { resolveTravelBand, isValidPincode } from "@/lib/travel";
-
-function initials(name: string) {
-  return name
-    .replace(/^(Pandit|Acharya|Vidwan)\s+/i, "")
-    .split(" ")
-    .map((w) => w[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
-}
+import PanditAvatar from "@/components/PanditAvatar";
 
 export default function PanditDirectory({ pandits }: { pandits: Pandit[] }) {
   const [tier, setTier] = useState<PanditTier | "All">("All");
@@ -121,9 +112,12 @@ export default function PanditDirectory({ pandits }: { pandits: Pandit[] }) {
               className="flex flex-col rounded-2xl border border-saffron-100 bg-white p-6 shadow-sm"
             >
               <div className="flex items-center gap-4">
-                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-saffron-100 font-heading text-lg text-saffron-700">
-                  {initials(pandit.fullName)}
-                </div>
+                <PanditAvatar
+                  photoUrl={pandit.photoUrl}
+                  name={pandit.fullName}
+                  className="h-14 w-14"
+                  sizes="56px"
+                />
                 <div>
                   <Link
                     href={`/pandits/${pandit.slug}`}

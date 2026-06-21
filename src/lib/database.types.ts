@@ -499,6 +499,8 @@ export type Database = {
           languages: string[]
           max_travel_mins: number
           photo_url: string | null
+          qualifications: string[]
+          achievements: string[]
           rating: number
           regions: string[]
           review_count: number
@@ -522,6 +524,8 @@ export type Database = {
           languages?: string[]
           max_travel_mins?: number
           photo_url?: string | null
+          qualifications?: string[]
+          achievements?: string[]
           rating?: number
           regions?: string[]
           review_count?: number
@@ -545,6 +549,8 @@ export type Database = {
           languages?: string[]
           max_travel_mins?: number
           photo_url?: string | null
+          qualifications?: string[]
+          achievements?: string[]
           rating?: number
           regions?: string[]
           review_count?: number

@@ -50,6 +50,15 @@ function csvToArray(value: FormDataEntryValue | null): string[] {
     .filter(Boolean);
 }
 
+// Splits a textarea into one entry per line — used for qualifications and
+// achievements, whose entries may themselves contain commas.
+function linesToArray(value: FormDataEntryValue | null): string[] {
+  return str(value)
+    .split("\n")
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
 // ── Products ───────────────────────────────────────────────────────────────
 
 const IMAGE_BUCKET = "product-images";
@@ -168,19 +177,53 @@ export async function savePooja(formData: FormData): Promise<void> {
 
 // ── Pandits ─────────────────────────────────────────────────────────────────
 
+// Uploads a priest photo to Storage and returns its public URL, or null.
+async function uploadPanditPhoto(
+  admin: ReturnType<typeof createAdminClient>,
+  file: File,
+  slug: string,
+): Promise<string | null> {
+  const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
+  const path = `${slug || "pandit"}/${Date.now()}.${ext}`;
+  const { error } = await admin.storage
+    .from("pandit-photos")
+    .upload(path, file, {
+      contentType: file.type || "image/jpeg",
+      upsert: true,
+    });
+  if (error) {
+    console.error("Pandit photo upload failed:", error.message);
+    return null;
+  }
+  return admin.storage.from("pandit-photos").getPublicUrl(path).data.publicUrl;
+}
+
 export async function savePandit(formData: FormData): Promise<void> {
   await assertAdmin();
   const admin = createAdminClient();
 
   const id = str(formData.get("id"));
+  const slug = str(formData.get("slug"));
+
+  // Photo: a freshly uploaded file wins, else keep the pasted/existing URL.
+  let photoUrl = str(formData.get("photo_url")) || null;
+  const file = formData.get("photo");
+  if (file instanceof File && file.size > 0) {
+    const uploaded = await uploadPanditPhoto(admin, file, slug);
+    if (uploaded) photoUrl = uploaded;
+  }
+
   const payload = {
-    slug: str(formData.get("slug")),
+    slug,
     full_name: str(formData.get("full_name")),
     bio: str(formData.get("bio")) || null,
     experience_years: num(formData.get("experience_years")),
     languages: csvToArray(formData.get("languages")),
     regions: csvToArray(formData.get("regions")),
     specializations: csvToArray(formData.get("specializations")),
+    qualifications: linesToArray(formData.get("qualifications")),
+    achievements: linesToArray(formData.get("achievements")),
+    photo_url: photoUrl,
     home_pincode: str(formData.get("home_pincode")) || null,
     service_pincodes: csvToArray(formData.get("service_pincodes")),
     max_travel_mins: num(formData.get("max_travel_mins")) || 30,
@@ -201,6 +244,7 @@ export async function savePandit(formData: FormData): Promise<void> {
 
   revalidatePath("/admin/pandits");
   revalidatePath("/pandits");
+  if (slug) revalidatePath(`/pandits/${slug}`);
 }
 
 // ── Bookings & orders status ────────────────────────────────────────────────

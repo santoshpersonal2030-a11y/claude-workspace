@@ -88,6 +88,27 @@ export default async function AdminPanditsPage() {
             placeholder="Short bio"
             className={`${inputClass} sm:col-span-2`}
           />
+          <label className="text-xs text-foreground/60 sm:col-span-1">
+            Photo
+            <input
+              name="photo"
+              type="file"
+              accept="image/*"
+              className={`${inputClass} file:mr-2 file:rounded file:border-0 file:bg-saffron-100 file:px-2 file:py-1 file:text-xs file:text-saffron-700`}
+            />
+          </label>
+          <textarea
+            name="qualifications"
+            placeholder="Qualifications — one per line"
+            rows={3}
+            className={`${inputClass} sm:col-span-2 lg:col-span-1`}
+          />
+          <textarea
+            name="achievements"
+            placeholder="Achievements — one per line"
+            rows={3}
+            className={`${inputClass} sm:col-span-2`}
+          />
         </div>
         <div className="mt-3 flex items-center justify-between">
           <div className="flex gap-4 text-sm text-foreground/70">
@@ -118,6 +139,7 @@ export default async function AdminPanditsPage() {
             <input type="hidden" name="id" value={p.id} />
             <input type="hidden" name="slug" value={p.slug ?? ""} />
             <input type="hidden" name="bio" defaultValue={p.bio ?? ""} />
+            <input type="hidden" name="photo_url" defaultValue={p.photo_url ?? ""} />
             <input
               name="full_name"
               defaultValue={p.full_name}
@@ -205,6 +227,39 @@ export default async function AdminPanditsPage() {
                 defaultValue={(p.blackout_dates ?? []).join(", ")}
                 placeholder="Blackout dates (2026-11-01, 2026-11-12)"
                 title="Dates the priest is unavailable (YYYY-MM-DD, comma-separated)"
+                className={inputClass}
+              />
+            </div>
+            <div className="grid gap-2 sm:col-span-full sm:grid-cols-[auto_1fr_1fr]">
+              <label className="flex flex-col gap-1 text-xs text-foreground/60">
+                Photo
+                <input
+                  name="photo"
+                  type="file"
+                  accept="image/*"
+                  title={
+                    p.photo_url ? "Replaces the current photo" : "Upload a photo"
+                  }
+                  className={`${inputClass} file:mr-2 file:rounded file:border-0 file:bg-saffron-100 file:px-2 file:py-1 file:text-xs file:text-saffron-700`}
+                />
+                {p.photo_url && (
+                  <span className="text-[10px] text-green-700">
+                    ✓ photo set
+                  </span>
+                )}
+              </label>
+              <textarea
+                name="qualifications"
+                defaultValue={(p.qualifications ?? []).join("\n")}
+                placeholder="Qualifications — one per line"
+                rows={3}
+                className={inputClass}
+              />
+              <textarea
+                name="achievements"
+                defaultValue={(p.achievements ?? []).join("\n")}
+                placeholder="Achievements — one per line"
+                rows={3}
                 className={inputClass}
               />
             </div>

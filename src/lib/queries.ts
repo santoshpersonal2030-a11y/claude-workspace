@@ -201,6 +201,8 @@ function rowToPandit(row: PanditRow): Pandit {
     languages: row.languages,
     regions: row.regions,
     specializations: (row.specializations ?? []) as Pandit["specializations"],
+    qualifications: row.qualifications ?? [],
+    achievements: row.achievements ?? [],
     homePincode: row.home_pincode,
     servicePincodes: row.service_pincodes ?? [],
     maxTravelMins: row.max_travel_mins ?? 30,

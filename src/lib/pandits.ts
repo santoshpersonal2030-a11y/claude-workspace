@@ -14,6 +14,10 @@ export type Pandit = {
   // Pooja categories this priest performs — the primary "right pandit for this
   // pooja" matcher. Empty means generalist / not yet specified.
   specializations: PoojaCategory[];
+  // Formal qualifications (degrees, gurukul/paathshala, lineage, certs) and
+  // notable achievements/awards — showcased on the public profile.
+  qualifications: string[];
+  achievements: string[];
   // Service area (manual coverage). homePincode = local/no-fee band; every
   // pincode the priest is willing to travel to is listed in servicePincodes
   // (which always includes homePincode). maxTravelMins is an advisory cap.
@@ -35,6 +39,14 @@ export const pandits: Pandit[] = [
     languages: ["Hindi", "Sanskrit", "Bhojpuri"],
     regions: ["Delhi NCR"],
     specializations: ["Home", "Festival"],
+    qualifications: [
+      "Shastri (Karmakanda), Sampurnanand Sanskrit University, Varanasi",
+      "Trained in the Kashi tradition under Pt. Bhavani Shankar",
+    ],
+    achievements: [
+      "Performed 1000+ Satyanarayan Kathas across Delhi NCR",
+      "Lead priest for community Maha Rudrabhishek, 2022",
+    ],
     homePincode: "110001",
     servicePincodes: ["110001", "110002", "110005"],
     maxTravelMins: 30,
@@ -51,6 +63,14 @@ export const pandits: Pandit[] = [
     languages: ["Hindi", "Sanskrit", "Marathi"],
     regions: ["Mumbai", "Pune"],
     specializations: ["Life Event", "Home"],
+    qualifications: [
+      "Acharya (Veda-Vedanga), Tilak Maharashtra Vidyapeeth, Pune",
+      "Specialist diploma in Vivah & Sanskar vidhi",
+    ],
+    achievements: [
+      "Solemnised 500+ weddings and thread ceremonies",
+      "Recognised by local mandals for naming-ceremony guidance",
+    ],
     homePincode: "400050",
     servicePincodes: ["400050", "400058", "411001"],
     maxTravelMins: 30,
@@ -67,6 +87,14 @@ export const pandits: Pandit[] = [
     languages: ["Tamil", "Sanskrit", "English"],
     regions: ["Bengaluru", "Chennai"],
     specializations: ["Festival", "Remedial", "Home"],
+    qualifications: [
+      "Ghanapathi — mastery of Krishna Yajurveda recitation",
+      "Vedic studies, Sringeri Sharada Peetham tradition",
+    ],
+    achievements: [
+      "Conducted 300+ Ganapathi & Navagraha Homams",
+      "Invited ritvik for temple Kumbhabhishekam, 2019 & 2023",
+    ],
     homePincode: "560034",
     servicePincodes: ["560034", "560001", "560078"],
     maxTravelMins: 30,
@@ -83,6 +111,14 @@ export const pandits: Pandit[] = [
     languages: ["Hindi", "Sanskrit"],
     regions: ["Lucknow", "Kanpur"],
     specializations: ["Remedial", "Ancestral"],
+    qualifications: [
+      "Shastri in Jyotish & Karmakanda, Lucknow",
+      "Trained in Pitru-karma and graha-shanti vidhi as per the shastras",
+    ],
+    achievements: [
+      "Performed Pitru Paksha shraddh for 200+ families",
+      "Known for precise Rudrabhishek and Navagraha shanti rituals",
+    ],
     homePincode: "226001",
     servicePincodes: ["226001", "226010", "208001"],
     maxTravelMins: 30,
@@ -99,6 +135,14 @@ export const pandits: Pandit[] = [
     languages: ["Gujarati", "Hindi", "Sanskrit"],
     regions: ["Ahmedabad", "Surat"],
     specializations: ["Festival", "Home"],
+    qualifications: [
+      "Acharya with 30 years in festival poojas and community havans",
+      "Veda-paathshala training, Ahmedabad",
+    ],
+    achievements: [
+      "Led large community havans for 500+ attendees",
+      "Three decades of disciplined, shastra-aligned practice",
+    ],
     homePincode: "380015",
     servicePincodes: ["380015", "380001", "395001"],
     maxTravelMins: 30,
@@ -115,6 +159,14 @@ export const pandits: Pandit[] = [
     languages: ["Hindi", "Sanskrit", "English"],
     regions: ["Pune", "Mumbai"],
     specializations: ["Home"],
+    qualifications: [
+      "Shastri (Karmakanda), Pune",
+      "Fluent ritual explanation in Hindi, Sanskrit & English",
+    ],
+    achievements: [
+      "Popular for family-friendly home poojas and Satyanarayan Katha",
+      "Consistently 4.8★ across 140+ reviews",
+    ],
     homePincode: "411004",
     servicePincodes: ["411004", "411001", "411038"],
     maxTravelMins: 30,

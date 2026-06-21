@@ -5,6 +5,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { getPanditBySlug, getPanditSlugs } from "@/lib/queries";
 import { panditTierInfo, TIER_BADGE_CLASS } from "@/lib/pandit-tier";
+import PanditAvatar from "@/components/PanditAvatar";
 
 export const revalidate = 300;
 
@@ -25,16 +26,6 @@ export async function generateMetadata({
     title: `${pandit.fullName} — Verified Pandit`,
     description: pandit.bio,
   };
-}
-
-function initials(name: string) {
-  return name
-    .replace(/^(Pandit|Acharya)\s+/i, "")
-    .split(" ")
-    .map((w) => w[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
 }
 
 export default async function PanditDetailPage({
@@ -76,9 +67,12 @@ export default async function PanditDetailPage({
             </nav>
 
             <div className="mt-5 flex items-center gap-5">
-              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-saffron-100 font-heading text-2xl text-saffron-700">
-                {initials(pandit.fullName)}
-              </div>
+              <PanditAvatar
+                photoUrl={pandit.photoUrl}
+                name={pandit.fullName}
+                className="h-20 w-20 text-2xl"
+                sizes="80px"
+              />
               <div>
                 <h1 className="font-heading text-3xl text-maroon-800">
                   {pandit.fullName}
@@ -128,6 +122,44 @@ export default async function PanditDetailPage({
                   </div>
                 ))}
               </div>
+
+              {pandit.qualifications.length > 0 && (
+                <div className="mt-8">
+                  <h2 className="font-heading text-2xl text-maroon-800">
+                    Qualifications
+                  </h2>
+                  <ul className="mt-3 space-y-2">
+                    {pandit.qualifications.map((q) => (
+                      <li
+                        key={q}
+                        className="flex gap-3 text-sm text-foreground/75"
+                      >
+                        <span className="mt-0.5 text-saffron-600">🎓</span>
+                        <span>{q}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {pandit.achievements.length > 0 && (
+                <div className="mt-8">
+                  <h2 className="font-heading text-2xl text-maroon-800">
+                    Achievements
+                  </h2>
+                  <ul className="mt-3 space-y-2">
+                    {pandit.achievements.map((a) => (
+                      <li
+                        key={a}
+                        className="flex gap-3 text-sm text-foreground/75"
+                      >
+                        <span className="mt-0.5 text-gold-600">🏆</span>
+                        <span>{a}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
 
             <div className="lg:sticky lg:top-24 lg:self-start">
