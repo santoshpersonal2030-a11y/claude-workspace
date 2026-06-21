@@ -13,6 +13,7 @@ import {
 import { createClient } from "@/lib/supabase/client";
 import { payWithRazorpay } from "@/lib/razorpay-client";
 import type { PanditTier } from "@/lib/pandit-tier";
+import { resolveTravelBand, isValidPincode } from "@/lib/travel";
 
 type PanditOption = {
   slug: string;
@@ -20,6 +21,8 @@ type PanditOption = {
   languages: string[];
   tier?: PanditTier;
   experienceYears?: number;
+  homePincode?: string | null;
+  servicePincodes?: string[];
 };
 
 export default function BookingForm({
@@ -39,6 +42,7 @@ export default function BookingForm({
   const [language, setLanguage] = useState("Hindi");
   const [panditSlug, setPanditSlug] = useState("");
   const [city, setCity] = useState("");
+  const [pincode, setPincode] = useState("");
   const [address, setAddress] = useState("");
   const [addKit, setAddKit] = useState(true);
   const [notes, setNotes] = useState("");
@@ -46,6 +50,14 @@ export default function BookingForm({
   const [paid, setPaid] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Live availability (engine-generated slots) for a specific flexible-pooja
+  // pandit, tagged with the input key the slots were fetched for so stale
+  // results are ignored without a synchronous reset.
+  const [slotData, setSlotData] = useState<{
+    key: string;
+    slots: string[];
+  } | null>(null);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setUser(data.user));
@@ -56,6 +68,64 @@ export default function BookingForm({
     p.languages.includes(language),
   );
 
+  const selectedPandit = pandits.find((p) => p.slug === panditSlug);
+  const pinValid = isValidPincode(pincode);
+
+  // Travel fee preview (server recomputes authoritatively). Resolves only when
+  // a specific pandit and a valid, served pincode are known.
+  const travelBand =
+    selectedPandit && pinValid
+      ? resolveTravelBand(pincode, {
+          homePincode: selectedPandit.homePincode ?? null,
+          servicePincodes: selectedPandit.servicePincodes ?? [],
+        })
+      : null;
+  const travelFee = travelBand?.fee ?? 0;
+
+  // A flexible pooja booked with a specific serving pandit reserves an exact
+  // engine slot; everything else (muhurat, "any available") is propose-confirm.
+  const scheduled = Boolean(
+    !pooja.requiresMuhurat && selectedPandit && travelBand,
+  );
+  const slotKey = scheduled ? `${panditSlug}|${date}|${pincode}` : "";
+
+  // Load real slots when scheduling is in play and the inputs are ready. Only
+  // setState happens in the async callback, never synchronously in the effect.
+  useEffect(() => {
+    if (!scheduled || !date || !panditSlug) return;
+    let cancelled = false;
+    const params = new URLSearchParams({
+      panditSlug,
+      poojaSlug: pooja.slug,
+      date,
+      pincode,
+    });
+    fetch(`/api/availability?${params.toString()}`)
+      .then((r) => r.json())
+      .then((data: { slots?: string[] }) => {
+        if (!cancelled) setSlotData({ key: slotKey, slots: data.slots ?? [] });
+      })
+      .catch(() => {
+        if (!cancelled) setSlotData({ key: slotKey, slots: timeSlots });
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [scheduled, date, panditSlug, pincode, pooja.slug, slotKey]);
+
+  // Derived slot state — no setState-in-effect. Slots are "ready" when the
+  // cached results match the current inputs; otherwise we're loading. A chosen
+  // slot that's no longer offered is dropped at render time.
+  const slotsReady = scheduled ? slotData?.key === slotKey : true;
+  const loadingSlots =
+    scheduled && Boolean(date) && Boolean(panditSlug) && !slotsReady;
+  const slotOptions = scheduled
+    ? slotsReady
+      ? (slotData?.slots ?? [])
+      : []
+    : timeSlots;
+  const effectiveSlot = slotOptions.includes(slot) ? slot : "";
+
   // Switching language clears a preferred pandit who doesn't speak it.
   function handleLanguageChange(next: string) {
     setLanguage(next);
@@ -65,7 +135,7 @@ export default function BookingForm({
   }
 
   const today = new Date().toISOString().split("T")[0];
-  const total = pooja.startingPrice + (addKit ? kitPrice : 0);
+  const total = pooja.startingPrice + (addKit ? kitPrice : 0) + travelFee;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -85,11 +155,13 @@ export default function BookingForm({
         body: JSON.stringify({
           poojaSlug: pooja.slug,
           bookingDate: date,
-          timeSlot: slot,
+          timeSlot: effectiveSlot,
+          startTime: scheduled ? effectiveSlot : undefined,
           language,
           panditSlug: panditSlug || undefined,
           address,
           city,
+          pincode: pincode || undefined,
           notes,
           samagriKit: addKit,
         }),
@@ -184,6 +256,14 @@ export default function BookingForm({
             <dt className="text-foreground/60">Samagri kit</dt>
             <dd className="font-medium">{addKit ? "Yes" : "No"}</dd>
           </div>
+          {travelBand && (
+            <div className="flex justify-between">
+              <dt className="text-foreground/60">Travel</dt>
+              <dd className="font-medium">
+                {travelFee === 0 ? "Free (local)" : formatINR(travelFee)}
+              </dd>
+            </div>
+          )}
           <div className="flex justify-between border-t border-saffron-50 pt-2 text-base">
             <dt className="font-semibold">Estimated total</dt>
             <dd className="font-semibold text-saffron-700">
@@ -240,23 +320,38 @@ export default function BookingForm({
 
         <div>
           <label className="mb-1 block text-sm font-medium text-foreground/80">
-            Preferred time
+            {scheduled ? "Available time" : "Preferred time"}
           </label>
           <select
             required
-            value={slot}
+            value={effectiveSlot}
             onChange={(e) => setSlot(e.target.value)}
-            className="w-full rounded-xl border border-saffron-200 bg-cream px-3 py-2.5 text-sm outline-none focus:border-saffron-400 focus:ring-2 focus:ring-saffron-100"
+            disabled={scheduled && (loadingSlots || !slotsReady)}
+            className="w-full rounded-xl border border-saffron-200 bg-cream px-3 py-2.5 text-sm outline-none focus:border-saffron-400 focus:ring-2 focus:ring-saffron-100 disabled:opacity-60"
           >
             <option value="" disabled>
-              Select a time slot
+              {scheduled && (loadingSlots || !slotsReady)
+                ? "Loading available times…"
+                : "Select a time slot"}
             </option>
-            {timeSlots.map((t) => (
+            {slotOptions.map((t) => (
               <option key={t} value={t}>
                 {t}
               </option>
             ))}
           </select>
+          {scheduled && slotsReady && !loadingSlots && slotOptions.length === 0 && (
+            <p className="mt-1 text-xs text-maroon-600">
+              {selectedPandit?.fullName?.split(" ")[0] ?? "This Pandit"} has no
+              free slots on this date — please pick another day.
+            </p>
+          )}
+          {scheduled && slotOptions.length > 0 && (
+            <p className="mt-1 text-xs text-foreground/50">
+              Live availability for {selectedPandit?.fullName}, spaced for travel
+              &amp; setup time.
+            </p>
+          )}
         </div>
 
         <div>
@@ -303,18 +398,42 @@ export default function BookingForm({
           </div>
         )}
 
-        <div>
-          <label className="mb-1 block text-sm font-medium text-foreground/80">
-            City
-          </label>
-          <input
-            type="text"
-            required
-            value={city}
-            onChange={(e) => setCity(e.target.value)}
-            placeholder="e.g. Pune"
-            className="w-full rounded-xl border border-saffron-200 bg-cream px-3 py-2.5 text-sm outline-none focus:border-saffron-400 focus:ring-2 focus:ring-saffron-100"
-          />
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="mb-1 block text-sm font-medium text-foreground/80">
+              City
+            </label>
+            <input
+              type="text"
+              required
+              value={city}
+              onChange={(e) => setCity(e.target.value)}
+              placeholder="e.g. Pune"
+              className="w-full rounded-xl border border-saffron-200 bg-cream px-3 py-2.5 text-sm outline-none focus:border-saffron-400 focus:ring-2 focus:ring-saffron-100"
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-sm font-medium text-foreground/80">
+              Pincode
+            </label>
+            <input
+              type="text"
+              inputMode="numeric"
+              required
+              value={pincode}
+              onChange={(e) =>
+                setPincode(e.target.value.replace(/\D/g, "").slice(0, 6))
+              }
+              placeholder="e.g. 411004"
+              className="w-full rounded-xl border border-saffron-200 bg-cream px-3 py-2.5 text-sm outline-none focus:border-saffron-400 focus:ring-2 focus:ring-saffron-100"
+            />
+            {selectedPandit && pinValid && !travelBand && (
+              <p className="mt-1 text-xs text-maroon-600">
+                {selectedPandit.fullName?.split(" ")[0]} doesn&apos;t serve this
+                pincode.
+              </p>
+            )}
+          </div>
         </div>
 
         <div>
@@ -362,7 +481,14 @@ export default function BookingForm({
         </div>
       </div>
 
-      <div className="mt-5 flex items-center justify-between border-t border-saffron-50 pt-4">
+      {travelBand && (
+        <div className="mt-4 flex items-center justify-between text-sm text-foreground/60">
+          <span>Travel ({travelBand.label})</span>
+          <span>{travelFee === 0 ? "Free" : `+ ${formatINR(travelFee)}`}</span>
+        </div>
+      )}
+
+      <div className="mt-2 flex items-center justify-between border-t border-saffron-50 pt-4">
         <span className="text-sm text-foreground/60">Total payable</span>
         <span className="font-heading text-xl text-saffron-700">
           {formatINR(total)}

@@ -54,6 +54,8 @@ export default async function PoojaDetailPage({
     languages: p.languages,
     tier: panditTier(p.experienceYears),
     experienceYears: p.experienceYears,
+    homePincode: p.homePincode,
+    servicePincodes: p.servicePincodes,
   }));
 
   // Cross-sell samagri: prefer kits/essentials, then fill with bestsellers.

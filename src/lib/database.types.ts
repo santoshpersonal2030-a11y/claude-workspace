@@ -32,9 +32,13 @@ export type Database = {
           samagri_kit: boolean
           samagri_price: number
           service_price: number
+          starts_at: string | null
+          ends_at: string | null
           status: Database["public"]["Enums"]["booking_status"]
           time_slot: string
           total_amount: number
+          travel_band: string | null
+          travel_fee: number
           updated_at: string
           user_id: string
         }
@@ -55,9 +59,13 @@ export type Database = {
           samagri_kit?: boolean
           samagri_price?: number
           service_price: number
+          starts_at?: string | null
+          ends_at?: string | null
           status?: Database["public"]["Enums"]["booking_status"]
           time_slot: string
           total_amount: number
+          travel_band?: string | null
+          travel_fee?: number
           updated_at?: string
           user_id: string
         }
@@ -78,9 +86,13 @@ export type Database = {
           samagri_kit?: boolean
           samagri_price?: number
           service_price?: number
+          starts_at?: string | null
+          ends_at?: string | null
           status?: Database["public"]["Enums"]["booking_status"]
           time_slot?: string
           total_amount?: number
+          travel_band?: string | null
+          travel_fee?: number
           updated_at?: string
           user_id?: string
         }
@@ -840,6 +852,27 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      create_booking_atomic: {
+        Args: {
+          p_user_id: string
+          p_pooja_id: string
+          p_pandit_id: string
+          p_starts_at: string
+          p_duration_min: number
+          p_time_slot: string
+          p_language: string | null
+          p_address: string
+          p_city: string
+          p_pincode: string | null
+          p_notes: string | null
+          p_samagri_kit: boolean
+          p_service_price: number
+          p_samagri_price: number
+          p_travel_fee: number
+          p_travel_band: string | null
+        }
+        Returns: string
+      }
       decrement_stock_for_order: {
         Args: { p_order_id: string }
         Returns: undefined
