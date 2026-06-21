@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { getPanditBySlug, getPanditSlugs } from "@/lib/queries";
+import { panditTierInfo, TIER_BADGE_CLASS } from "@/lib/pandit-tier";
 
 export const revalidate = 300;
 
@@ -45,11 +46,15 @@ export default async function PanditDetailPage({
   const pandit = await getPanditBySlug(slug);
   if (!pandit) notFound();
 
+  const tier = panditTierInfo(pandit.experienceYears);
   const facts = [
     { label: "Experience", value: `${pandit.experienceYears}+ years` },
     { label: "Rating", value: `${pandit.rating.toFixed(1)} ★ (${pandit.reviewCount})` },
     { label: "Languages", value: pandit.languages.join(", ") },
     { label: "Serves", value: pandit.regions.join(", ") },
+    ...(pandit.specializations.length > 0
+      ? [{ label: "Performs", value: pandit.specializations.join(", ") }]
+      : []),
   ];
 
   return (
@@ -78,7 +83,13 @@ export default async function PanditDetailPage({
                 <h1 className="font-heading text-3xl text-maroon-800">
                   {pandit.fullName}
                 </h1>
-                <div className="mt-1 flex items-center gap-2 text-sm">
+                <div className="mt-1 flex flex-wrap items-center gap-2 text-sm">
+                  <span
+                    className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${TIER_BADGE_CLASS[tier.tier]}`}
+                    title={tier.blurb}
+                  >
+                    {tier.tier}
+                  </span>
                   <span className="text-gold-600">
                     ★ {pandit.rating.toFixed(1)}
                   </span>

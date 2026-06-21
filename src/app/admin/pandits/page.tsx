@@ -1,5 +1,6 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { savePandit } from "@/app/admin/actions";
+import { panditTierInfo } from "@/lib/pandit-tier";
 
 const inputClass =
   "w-full rounded-lg border border-saffron-200 bg-cream px-2 py-1.5 text-sm outline-none focus:border-saffron-400";
@@ -15,7 +16,9 @@ export default async function AdminPanditsPage() {
     <div>
       <h1 className="font-heading text-2xl text-maroon-800">Pandits</h1>
       <p className="mt-1 text-sm text-foreground/60">
-        Manage the verified roster. Languages and regions are comma-separated.
+        Manage the verified roster. Languages, regions and specializations are
+        comma-separated. The tier badge is derived automatically from years of
+        experience (Pandit &lt;5 · Acharya 5–15 · Vidwan 16+).
       </p>
 
       {/* Add new */}
@@ -41,6 +44,12 @@ export default async function AdminPanditsPage() {
           <input
             name="regions"
             placeholder="Regions (Pune, Mumbai)"
+            className={inputClass}
+          />
+          <input
+            name="specializations"
+            placeholder="Specializations (Home, Festival)"
+            title="Pooja categories: Home, Festival, Life Event, Remedial, Ancestral"
             className={inputClass}
           />
           <input
@@ -86,7 +95,7 @@ export default async function AdminPanditsPage() {
           <form
             key={p.id}
             action={savePandit}
-            className="grid items-center gap-2 rounded-xl border border-saffron-100 bg-white p-3 shadow-sm sm:grid-cols-[1.3fr_1.2fr_1.2fr_0.7fr_0.7fr_auto]"
+            className="grid items-center gap-2 rounded-xl border border-saffron-100 bg-white p-3 shadow-sm sm:grid-cols-[1.2fr_1fr_1fr_1fr_0.6fr_0.6fr_auto]"
           >
             <input type="hidden" name="id" value={p.id} />
             <input type="hidden" name="slug" value={p.slug ?? ""} />
@@ -109,10 +118,17 @@ export default async function AdminPanditsPage() {
               className={inputClass}
             />
             <input
+              name="specializations"
+              defaultValue={(p.specializations ?? []).join(", ")}
+              placeholder="Specializations"
+              title="Pooja categories: Home, Festival, Life Event, Remedial, Ancestral"
+              className={inputClass}
+            />
+            <input
               name="experience_years"
               type="number"
               defaultValue={p.experience_years ?? 0}
-              title="Experience (years)"
+              title={`Experience (years) — tier: ${panditTierInfo(p.experience_years ?? 0).tier}`}
               className={inputClass}
             />
             <input
@@ -129,6 +145,12 @@ export default async function AdminPanditsPage() {
                 name="review_count"
                 defaultValue={p.review_count}
               />
+              <span
+                className="rounded-full bg-saffron-50 px-2 py-0.5 text-[11px] font-semibold text-saffron-700"
+                title="Derived from years of experience"
+              >
+                {panditTierInfo(p.experience_years ?? 0).tier}
+              </span>
               <label className="flex items-center gap-1 text-xs text-foreground/70">
                 <input type="checkbox" name="verified" defaultChecked={p.verified} />
                 Ver.

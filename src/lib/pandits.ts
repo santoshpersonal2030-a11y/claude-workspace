@@ -2,6 +2,8 @@
 // Like the pooja catalog, this is mirrored in the Supabase `pandits` table and
 // used as a build-time / offline fallback by src/lib/queries.ts.
 
+import type { PoojaCategory } from "@/lib/poojas";
+
 export type Pandit = {
   slug: string;
   fullName: string;
@@ -9,6 +11,9 @@ export type Pandit = {
   experienceYears: number;
   languages: string[];
   regions: string[];
+  // Pooja categories this priest performs — the primary "right pandit for this
+  // pooja" matcher. Empty means generalist / not yet specified.
+  specializations: PoojaCategory[];
   rating: number;
   reviewCount: number;
   photoUrl: string | null;
@@ -23,6 +28,7 @@ export const pandits: Pandit[] = [
     experienceYears: 22,
     languages: ["Hindi", "Sanskrit", "Bhojpuri"],
     regions: ["Delhi NCR"],
+    specializations: ["Home", "Festival"],
     rating: 4.9,
     reviewCount: 312,
     photoUrl: null,
@@ -35,6 +41,7 @@ export const pandits: Pandit[] = [
     experienceYears: 18,
     languages: ["Hindi", "Sanskrit", "Marathi"],
     regions: ["Mumbai", "Pune"],
+    specializations: ["Life Event", "Home"],
     rating: 4.8,
     reviewCount: 256,
     photoUrl: null,
@@ -47,6 +54,7 @@ export const pandits: Pandit[] = [
     experienceYears: 25,
     languages: ["Tamil", "Sanskrit", "English"],
     regions: ["Bengaluru", "Chennai"],
+    specializations: ["Festival", "Remedial", "Home"],
     rating: 4.9,
     reviewCount: 401,
     photoUrl: null,
@@ -59,6 +67,7 @@ export const pandits: Pandit[] = [
     experienceYears: 15,
     languages: ["Hindi", "Sanskrit"],
     regions: ["Lucknow", "Kanpur"],
+    specializations: ["Remedial", "Ancestral"],
     rating: 4.7,
     reviewCount: 188,
     photoUrl: null,
@@ -71,6 +80,7 @@ export const pandits: Pandit[] = [
     experienceYears: 30,
     languages: ["Gujarati", "Hindi", "Sanskrit"],
     regions: ["Ahmedabad", "Surat"],
+    specializations: ["Festival", "Home"],
     rating: 4.9,
     reviewCount: 357,
     photoUrl: null,
@@ -83,6 +93,7 @@ export const pandits: Pandit[] = [
     experienceYears: 12,
     languages: ["Hindi", "Sanskrit", "English"],
     regions: ["Pune", "Mumbai"],
+    specializations: ["Home"],
     rating: 4.8,
     reviewCount: 142,
     photoUrl: null,

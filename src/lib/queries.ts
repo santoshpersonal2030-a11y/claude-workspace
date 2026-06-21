@@ -199,6 +199,7 @@ function rowToPandit(row: PanditRow): Pandit {
     experienceYears: row.experience_years ?? 0,
     languages: row.languages,
     regions: row.regions,
+    specializations: (row.specializations ?? []) as Pandit["specializations"],
     rating: Number(row.rating),
     reviewCount: row.review_count,
     photoUrl: row.photo_url,
@@ -241,6 +242,38 @@ export async function getPanditBySlug(slug: string): Promise<Pandit | null> {
     console.warn("getPanditBySlug: falling back to seed roster —", err);
     return seedPanditBySlug(slug) ?? null;
   }
+}
+
+// Pandits who specialise in a given pooja category — the primary "right pandit
+// for this pooja" matcher. Specialists are returned verified-first, then most
+// experienced (i.e. highest tier), then highest rated. If nobody lists this
+// category we fall back to the full roster (generalists) so the booking flow
+// is never left without a priest to choose.
+export async function getPanditsForPooja(
+  category: string,
+): Promise<Pandit[]> {
+  try {
+    const { data, error } = await db
+      .from("pandits")
+      .select("*")
+      .eq("active", true)
+      .not("slug", "is", null)
+      .contains("specializations", [category])
+      .order("verified", { ascending: false })
+      .order("experience_years", { ascending: false })
+      .order("rating", { ascending: false });
+
+    if (error) throw error;
+    if (data && data.length > 0) return data.map(rowToPandit);
+  } catch (err) {
+    console.warn("getPanditsForPooja: falling back to seed roster —", err);
+    const specialists = seedPandits
+      .filter((p) => p.specializations.includes(category as never))
+      .sort((a, b) => b.experienceYears - a.experienceYears);
+    if (specialists.length > 0) return specialists;
+  }
+  // No specialists for this category → offer the full roster as generalists.
+  return getPandits();
 }
 
 export async function getPanditSlugs(): Promise<string[]> {

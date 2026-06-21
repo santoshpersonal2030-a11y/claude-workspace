@@ -178,6 +178,7 @@ export async function savePandit(formData: FormData): Promise<void> {
     experience_years: num(formData.get("experience_years")),
     languages: csvToArray(formData.get("languages")),
     regions: csvToArray(formData.get("regions")),
+    specializations: csvToArray(formData.get("specializations")),
     rating: clampFloat(formData.get("rating"), 5),
     review_count: num(formData.get("review_count")),
     verified: formData.get("verified") === "on",

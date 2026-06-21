@@ -12,8 +12,15 @@ import {
 } from "@/lib/poojas";
 import { createClient } from "@/lib/supabase/client";
 import { payWithRazorpay } from "@/lib/razorpay-client";
+import type { PanditTier } from "@/lib/pandit-tier";
 
-type PanditOption = { slug: string; fullName: string; languages: string[] };
+type PanditOption = {
+  slug: string;
+  fullName: string;
+  languages: string[];
+  tier?: PanditTier;
+  experienceYears?: number;
+};
 
 export default function BookingForm({
   pooja,
@@ -271,6 +278,8 @@ export default function BookingForm({
               {availablePandits.map((p) => (
                 <option key={p.slug} value={p.slug}>
                   {p.fullName}
+                  {p.tier ? ` — ${p.tier}` : ""}
+                  {p.experienceYears ? ` (${p.experienceYears} yrs)` : ""}
                 </option>
               ))}
             </select>

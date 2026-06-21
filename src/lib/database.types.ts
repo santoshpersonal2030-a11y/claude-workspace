@@ -443,6 +443,7 @@ export type Database = {
           regions: string[]
           review_count: number
           slug: string | null
+          specializations: string[]
           updated_at: string
           verified: boolean
         }
@@ -459,6 +460,7 @@ export type Database = {
           regions?: string[]
           review_count?: number
           slug?: string | null
+          specializations?: string[]
           updated_at?: string
           verified?: boolean
         }
@@ -475,6 +477,7 @@ export type Database = {
           regions?: string[]
           review_count?: number
           slug?: string | null
+          specializations?: string[]
           updated_at?: string
           verified?: boolean
         }

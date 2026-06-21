@@ -10,9 +10,10 @@ import { getIncludes, formatINR } from "@/lib/poojas";
 import {
   getPoojaBySlug,
   getPoojaSlugs,
-  getPandits,
+  getPanditsForPooja,
   getProducts,
 } from "@/lib/queries";
+import { panditTier } from "@/lib/pandit-tier";
 
 // Re-fetch from the database at most once every 5 minutes.
 export const revalidate = 300;
@@ -45,11 +46,14 @@ export default async function PoojaDetailPage({
   const pooja = await getPoojaBySlug(slug);
   if (!pooja) notFound();
 
-  const panditRoster = await getPandits();
+  // Priests who specialise in this pooja's category come first.
+  const panditRoster = await getPanditsForPooja(pooja.category);
   const pandits = panditRoster.map((p) => ({
     slug: p.slug,
     fullName: p.fullName,
     languages: p.languages,
+    tier: panditTier(p.experienceYears),
+    experienceYears: p.experienceYears,
   }));
 
   // Cross-sell samagri: prefer kits/essentials, then fill with bestsellers.

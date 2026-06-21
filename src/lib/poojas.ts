@@ -1,12 +1,19 @@
 // Central catalog of poojas offered on BookMyPoojari.
 // This is the seed data; later it will be served from the database (Supabase).
 
+export type PoojaCategory =
+  | "Home"
+  | "Festival"
+  | "Life Event"
+  | "Remedial"
+  | "Ancestral";
+
 export type Pooja = {
   slug: string;
   name: string;
   sanskritName?: string;
   emoji: string;
-  category: "Home" | "Festival" | "Life Event" | "Remedial" | "Ancestral";
+  category: PoojaCategory;
   shortDescription: string;
   durationHours: number;
   startingPrice: number; // in INR, the dakshina/service starting price
@@ -157,7 +164,7 @@ export const poojas: Pooja[] = [
 
 export const popularPoojas = poojas.filter((p) => p.popular);
 
-export const poojaCategories = [
+export const poojaCategories: readonly PoojaCategory[] = [
   "Home",
   "Festival",
   "Life Event",
