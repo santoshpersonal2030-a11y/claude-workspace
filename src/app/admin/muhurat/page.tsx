@@ -3,8 +3,10 @@ import {
   saveMuhuratWindow,
   deleteMuhuratWindow,
   importMuhuratWindows,
+  generateMuhuratWindows,
 } from "@/app/admin/actions";
 import { Constants } from "@/lib/database.types";
+import { CITY_COORDS } from "@/lib/muhurat-engine";
 
 const inputClass =
   "w-full rounded-lg border border-saffron-200 bg-cream px-2 py-1.5 text-sm outline-none focus:border-saffron-400";
@@ -31,6 +33,8 @@ export default async function AdminMuhuratPage() {
   const windows = windowsRes.data ?? [];
   const muhuratPoojas = poojasRes.data ?? [];
   const categories = Constants.public.Enums.pooja_category;
+  const cities = Object.keys(CITY_COORDS);
+  const today = new Date().toISOString().slice(0, 10);
 
   return (
     <div>
@@ -110,6 +114,73 @@ export default async function AdminMuhuratPage() {
           >
             Add window
           </button>
+        </div>
+      </form>
+
+      {/* Computed generation */}
+      <form
+        action={generateMuhuratWindows}
+        className="mt-6 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm"
+      >
+        <h2 className="font-heading text-lg text-maroon-700">
+          Generate (computed engine)
+        </h2>
+        <p className="mt-1 text-xs text-foreground/60">
+          Computes the daily <strong>Abhijit Muhurat</strong> (auspicious midday
+          window) from sunrise/sunset for the chosen city — no external API. Each
+          window&apos;s note lists the Rahu Kalam / Yamaganda / Gulika periods to
+          avoid. All rows land <strong>pending</strong> for astrologer approval.
+          Tithi/nakshatra-specific muhurats still need a panchang source.
+        </p>
+        <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+          <label className="text-xs text-foreground/60">
+            From
+            <input
+              name="from"
+              type="date"
+              required
+              defaultValue={today}
+              className={inputClass}
+            />
+          </label>
+          <label className="text-xs text-foreground/60">
+            To
+            <input name="to" type="date" required className={inputClass} />
+          </label>
+          <label className="text-xs text-foreground/60">
+            City
+            <select name="city" className={inputClass} defaultValue="New Delhi">
+              {cities.map((c) => (
+                <option key={c} value={c}>
+                  {c}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="text-xs text-foreground/60">
+            Pooja (optional)
+            <select name="scope" className={inputClass} defaultValue="">
+              <option value="">— All / any —</option>
+              {muhuratPoojas.map((p) => (
+                <option key={p.slug} value={p.slug}>
+                  {p.name}
+                </option>
+              ))}
+              {categories.map((c) => (
+                <option key={c} value={c}>
+                  Category: {c}
+                </option>
+              ))}
+            </select>
+          </label>
+          <div className="flex items-end">
+            <button
+              type="submit"
+              className="w-full rounded-full bg-maroon-700 px-5 py-2 text-sm font-semibold text-white hover:bg-maroon-800"
+            >
+              Generate
+            </button>
+          </div>
         </div>
       </form>
 

@@ -9,6 +9,7 @@ import { generateEInvoice, cancelEInvoice } from "@/lib/einvoice";
 import { generateEwayBill, updateEwayBillPartB } from "@/lib/ewaybill";
 import { saveCompany } from "@/lib/company-settings";
 import { buildRunItems } from "@/lib/payroll-data";
+import { generateAbhijitCandidates, CITY_COORDS } from "@/lib/muhurat-engine";
 import {
   sendReviewRequest,
   sendBackInStockEmails,
@@ -356,6 +357,52 @@ export async function importMuhuratWindows(formData: FormData): Promise<void> {
   if (rows.length > 0) {
     await admin.from("muhurat_windows").insert(rows);
   }
+  revalidatePath("/admin/muhurat");
+}
+
+// Generates Abhijit-Muhurat candidates over a date range from the pure
+// astronomical engine (no API) and inserts them as PENDING windows for the
+// chosen city + scope. Always unapproved so an astrologer still gates them.
+export async function generateMuhuratWindows(
+  formData: FormData,
+): Promise<void> {
+  await assertAdmin();
+  const admin = createAdminClient();
+
+  const from = str(formData.get("from"));
+  const to = str(formData.get("to"));
+  const city = str(formData.get("city")) || "New Delhi";
+  if (!from || !to) return;
+
+  const coords = CITY_COORDS[city] ?? CITY_COORDS["New Delhi"];
+  const candidates = generateAbhijitCandidates(from, to, coords.lat, coords.lng);
+  if (candidates.length === 0) return;
+
+  const scope = str(formData.get("scope"));
+  const scopeLower = scope.toLowerCase();
+  const isCategory = Constants.public.Enums.pooja_category.some(
+    (c) => c.toLowerCase() === scopeLower,
+  );
+  const category = isCategory
+    ? (Constants.public.Enums.pooja_category.find(
+        (c) => c.toLowerCase() === scopeLower,
+      ) as Database["public"]["Enums"]["pooja_category"])
+    : null;
+  const poojaSlug = !isCategory && scope ? scope : null;
+
+  const rows = candidates.map((c) => ({
+    date: c.date,
+    start_time: c.start_time,
+    end_time: c.end_time,
+    category,
+    pooja_slug: poojaSlug,
+    label: c.label,
+    note: `${city}: ${c.note}`,
+    approved: false,
+    source: "computed",
+  }));
+
+  await admin.from("muhurat_windows").insert(rows);
   revalidatePath("/admin/muhurat");
 }
 
