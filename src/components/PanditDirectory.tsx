@@ -10,7 +10,12 @@ import {
   type PanditTier,
 } from "@/lib/pandit-tier";
 import { poojaCategories, formatINR, type PoojaCategory } from "@/lib/poojas";
-import { resolveTravelBand, isValidPincode } from "@/lib/travel";
+import {
+  resolveTravelBand,
+  isValidPincode,
+  servesNearby,
+  nearbyProximity,
+} from "@/lib/travel";
 import PanditAvatar from "@/components/PanditAvatar";
 
 export default function PanditDirectory({ pandits }: { pandits: Pandit[] }) {
@@ -26,19 +31,34 @@ export default function PanditDirectory({ pandits }: { pandits: Pandit[] }) {
       if (tier !== "All" && info.tier !== tier) return false;
       if (category !== "All" && !p.specializations.includes(category))
         return false;
-      if (pinActive && !resolveTravelBand(pincode, p)) return false;
+      // With a pincode set, keep priests who serve it exactly OR who serve a
+      // nearby pincode in the same region (auto-expanded coverage).
+      if (pinActive && !resolveTravelBand(pincode, p) && !servesNearby(pincode, p))
+        return false;
       return true;
     });
-    // When filtering by pincode, surface local (no-fee) priests first.
+    // When filtering by pincode, surface exact (lowest-fee) priests first, then
+    // nearby (approximate) ones ranked by how close their coverage is.
     if (pinActive) {
-      return list.sort(
-        (a, b) =>
-          (resolveTravelBand(pincode, a)?.fee ?? 0) -
-          (resolveTravelBand(pincode, b)?.fee ?? 0),
-      );
+      const rank = (p: Pandit) => {
+        const band = resolveTravelBand(pincode, p);
+        if (band) return band.fee; // 0 / 500 — exact matches sort first
+        return 100000 - nearbyProximity(pincode, p); // nearby after exact
+      };
+      return [...list].sort((a, b) => rank(a) - rank(b));
     }
     return list;
   }, [pandits, tier, category, pincode, pinActive]);
+
+  const nearbyCount = useMemo(
+    () =>
+      pinActive
+        ? filtered.filter(
+            (p) => !resolveTravelBand(pincode, p) && servesNearby(pincode, p),
+          ).length
+        : 0,
+    [filtered, pincode, pinActive],
+  );
 
   const selectClass =
     "rounded-full border border-saffron-200 bg-white px-4 py-2 text-sm text-foreground/80 outline-none focus:border-saffron-400";
@@ -102,10 +122,18 @@ export default function PanditDirectory({ pandits }: { pandits: Pandit[] }) {
         </p>
       )}
 
+      {pinActive && nearbyCount > 0 && (
+        <p className="mt-2 text-xs text-foreground/55">
+          Showing priests who serve {pincode} directly, plus {nearbyCount} who
+          cover nearby areas — their travel fee is confirmed when you book.
+        </p>
+      )}
+
       <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {filtered.map((pandit) => {
           const info = panditTierInfo(pandit.experienceYears);
           const band = pinActive ? resolveTravelBand(pincode, pandit) : null;
+          const nearby = pinActive && !band && servesNearby(pincode, pandit);
           return (
             <div
               key={pandit.slug}
@@ -169,6 +197,12 @@ export default function PanditDirectory({ pandits }: { pandits: Pandit[] }) {
                   {band.fee === 0
                     ? `✓ Serves ${pincode} — no travel fee`
                     : `✓ Serves ${pincode} — +${formatINR(band.fee)} travel (${band.label})`}
+                </p>
+              )}
+              {nearby && (
+                <p className="mt-3 text-xs font-medium text-saffron-700">
+                  📍 Serves areas near {pincode} — travel fee confirmed at
+                  booking
                 </p>
               )}
 

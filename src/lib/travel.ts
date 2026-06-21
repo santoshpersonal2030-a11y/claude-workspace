@@ -61,3 +61,51 @@ const PINCODE_RE = /^[1-9][0-9]{5}$/;
 export function isValidPincode(pincode: string): boolean {
   return PINCODE_RE.test(pincode.trim());
 }
+
+// ── Nearby (approximate) coverage ───────────────────────────────────────────
+// Until real geo distances exist, we approximate proximity by shared leading
+// pincode digits. Indian PIN codes are hierarchical: the first 3 digits pin
+// down a sorting district, so two pincodes sharing 3+ leading digits are in the
+// same area. This powers a "may also serve your area" expansion so a customer
+// in an un-listed-but-adjacent pincode still sees plausible priests.
+
+/** Count of leading digits two pincodes share (0–6). */
+export function sharedPincodePrefix(a: string, b: string): number {
+  const x = a.trim();
+  const y = b.trim();
+  let n = 0;
+  while (n < 6 && x[n] && x[n] === y[n]) n++;
+  return n;
+}
+
+// Default region granularity: 3 leading digits ≈ same sorting district.
+const NEARBY_PREFIX = 3;
+
+/**
+ * Best shared-prefix length between the customer pincode and any pincode the
+ * priest serves (home or listed), EXCLUDING an exact match. Higher = closer.
+ * Returns 0 when nothing is in the same region.
+ */
+export function nearbyProximity(pincode: string, pandit: ServiceArea): number {
+  const pin = pincode.trim();
+  if (!isValidPincode(pin)) return 0;
+  const candidates = [
+    ...(pandit.homePincode ? [pandit.homePincode] : []),
+    ...pandit.servicePincodes,
+  ];
+  let best = 0;
+  for (const c of candidates) {
+    if (c === pin) continue; // exact handled by resolveTravelBand
+    best = Math.max(best, sharedPincodePrefix(pin, c));
+  }
+  return best;
+}
+
+/**
+ * True when the priest doesn't serve the pincode exactly but serves a pincode
+ * in the same region (shares NEARBY_PREFIX+ leading digits).
+ */
+export function servesNearby(pincode: string, pandit: ServiceArea): boolean {
+  if (resolveTravelBand(pincode, pandit)) return false;
+  return nearbyProximity(pincode, pandit) >= NEARBY_PREFIX;
+}
