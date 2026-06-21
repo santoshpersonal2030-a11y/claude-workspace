@@ -179,6 +179,35 @@ export default async function AdminPanditsPage() {
                 className={inputClass}
               />
             </div>
+            <div className="grid gap-2 sm:col-span-full sm:grid-cols-[auto_auto_1fr]">
+              <label className="flex items-center gap-1 text-xs text-foreground/60">
+                Works
+                <input
+                  name="work_start"
+                  type="time"
+                  defaultValue={(p.work_start ?? "06:00").slice(0, 5)}
+                  title="Earliest a pooja can start"
+                  className={inputClass}
+                />
+              </label>
+              <label className="flex items-center gap-1 text-xs text-foreground/60">
+                to
+                <input
+                  name="work_end"
+                  type="time"
+                  defaultValue={(p.work_end ?? "21:00").slice(0, 5)}
+                  title="Latest a pooja must finish"
+                  className={inputClass}
+                />
+              </label>
+              <input
+                name="blackout_dates"
+                defaultValue={(p.blackout_dates ?? []).join(", ")}
+                placeholder="Blackout dates (2026-11-01, 2026-11-12)"
+                title="Dates the priest is unavailable (YYYY-MM-DD, comma-separated)"
+                className={inputClass}
+              />
+            </div>
             <div className="flex items-center gap-3">
               <input
                 type="hidden"
