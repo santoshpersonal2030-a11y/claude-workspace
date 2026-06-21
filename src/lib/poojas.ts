@@ -175,6 +175,54 @@ export const poojas: Pooja[] = [
     startingPrice: 11000,
     requiresMuhurat: true,
   },
+  {
+    slug: "haldi-ceremony",
+    name: "Haldi Ceremony",
+    sanskritName: "हल्दी",
+    emoji: "🌼",
+    category: "Life Event",
+    shortDescription:
+      "Joyful turmeric ceremony for the bride and groom, for blessings and a radiant glow before the wedding.",
+    durationHours: 1.5,
+    startingPrice: 2100,
+    requiresMuhurat: false,
+  },
+  {
+    slug: "sagai-engagement",
+    name: "Engagement (Sagai / Roka)",
+    sanskritName: "सगाई",
+    emoji: "💑",
+    category: "Life Event",
+    shortDescription:
+      "Ring and roka ceremony formalising the betrothal with the blessings of both families.",
+    durationHours: 1.5,
+    startingPrice: 3100,
+    requiresMuhurat: true,
+  },
+  {
+    slug: "annaprashan",
+    name: "Annaprashan (First Rice)",
+    sanskritName: "अन्नप्राशन",
+    emoji: "🍚",
+    category: "Life Event",
+    shortDescription:
+      "First-grain ceremony marking when a baby begins to eat solid food, for health and nourishment.",
+    durationHours: 1.5,
+    startingPrice: 2500,
+    requiresMuhurat: true,
+  },
+  {
+    slug: "antyeshti",
+    name: "Antyeshti (Last Rites)",
+    sanskritName: "अन्त्येष्टि",
+    emoji: "🪷",
+    category: "Ancestral",
+    shortDescription:
+      "Funeral rites performed with dignity and compassion, strictly as per Vedic tradition.",
+    durationHours: 3,
+    startingPrice: 5100,
+    requiresMuhurat: false,
+  },
 ];
 
 export const popularPoojas = poojas.filter((p) => p.popular);
