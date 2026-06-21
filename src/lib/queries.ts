@@ -192,7 +192,32 @@ export async function getProductSlugs(): Promise<string[]> {
 
 type PanditRow = Database["public"]["Tables"]["pandits"]["Row"];
 
-function rowToPandit(row: PanditRow): Pandit {
+// Public-safe pandit columns (excludes login_email / user_id, which are blocked
+// from the anon role at the DB level — selecting "*" as anon would error).
+const PANDIT_PUBLIC_FIELDS =
+  "slug, full_name, bio, experience_years, languages, regions, specializations, qualifications, achievements, home_pincode, service_pincodes, max_travel_mins, rating, review_count, photo_url, verified, active";
+
+type PanditPublicRow = Pick<
+  PanditRow,
+  | "slug"
+  | "full_name"
+  | "bio"
+  | "experience_years"
+  | "languages"
+  | "regions"
+  | "specializations"
+  | "qualifications"
+  | "achievements"
+  | "home_pincode"
+  | "service_pincodes"
+  | "max_travel_mins"
+  | "rating"
+  | "review_count"
+  | "photo_url"
+  | "verified"
+>;
+
+function rowToPandit(row: PanditPublicRow): Pandit {
   return {
     slug: row.slug ?? "",
     fullName: row.full_name,
@@ -219,7 +244,7 @@ export async function getPandits(): Promise<Pandit[]> {
   try {
     const { data, error } = await db
       .from("pandits")
-      .select("*")
+      .select(PANDIT_PUBLIC_FIELDS)
       .eq("active", true)
       .not("slug", "is", null)
       .order("verified", { ascending: false })
@@ -237,7 +262,7 @@ export async function getPanditBySlug(slug: string): Promise<Pandit | null> {
   try {
     const { data, error } = await db
       .from("pandits")
-      .select("*")
+      .select(PANDIT_PUBLIC_FIELDS)
       .eq("slug", slug)
       .eq("active", true)
       .maybeSingle();
@@ -261,7 +286,7 @@ export async function getPanditsForPooja(
   try {
     const { data, error } = await db
       .from("pandits")
-      .select("*")
+      .select(PANDIT_PUBLIC_FIELDS)
       .eq("active", true)
       .not("slug", "is", null)
       .contains("specializations", [category])

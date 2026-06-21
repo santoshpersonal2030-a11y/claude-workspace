@@ -503,6 +503,7 @@ export type Database = {
           home_pincode: string | null
           id: string
           languages: string[]
+          login_email: string | null
           max_travel_mins: number
           photo_url: string | null
           qualifications: string[]
@@ -514,6 +515,7 @@ export type Database = {
           slug: string | null
           specializations: string[]
           updated_at: string
+          user_id: string | null
           verified: boolean
           work_end: string
           work_start: string
@@ -528,6 +530,7 @@ export type Database = {
           home_pincode?: string | null
           id?: string
           languages?: string[]
+          login_email?: string | null
           max_travel_mins?: number
           photo_url?: string | null
           qualifications?: string[]
@@ -539,6 +542,7 @@ export type Database = {
           slug?: string | null
           specializations?: string[]
           updated_at?: string
+          user_id?: string | null
           verified?: boolean
           work_end?: string
           work_start?: string
@@ -553,6 +557,7 @@ export type Database = {
           home_pincode?: string | null
           id?: string
           languages?: string[]
+          login_email?: string | null
           max_travel_mins?: number
           photo_url?: string | null
           qualifications?: string[]
@@ -564,6 +569,7 @@ export type Database = {
           slug?: string | null
           specializations?: string[]
           updated_at?: string
+          user_id?: string | null
           verified?: boolean
           work_end?: string
           work_start?: string

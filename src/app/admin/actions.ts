@@ -225,6 +225,7 @@ export async function savePandit(formData: FormData): Promise<void> {
     specializations: csvToArray(formData.get("specializations")),
     qualifications: linesToArray(formData.get("qualifications")),
     achievements: linesToArray(formData.get("achievements")),
+    login_email: str(formData.get("login_email")) || null,
     photo_url: photoUrl,
     home_pincode: str(formData.get("home_pincode")) || null,
     service_pincodes: csvToArray(formData.get("service_pincodes")),

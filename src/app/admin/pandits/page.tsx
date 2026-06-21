@@ -109,6 +109,13 @@ export default async function AdminPanditsPage() {
             rows={3}
             className={`${inputClass} sm:col-span-2`}
           />
+          <input
+            name="login_email"
+            type="email"
+            placeholder="Portal login email (optional)"
+            title="The email this priest signs in with — links their self-service portal"
+            className={`${inputClass} sm:col-span-2 lg:col-span-1`}
+          />
         </div>
         <div className="mt-3 flex items-center justify-between">
           <div className="flex gap-4 text-sm text-foreground/70">
@@ -261,6 +268,14 @@ export default async function AdminPanditsPage() {
                 placeholder="Achievements — one per line"
                 rows={3}
                 className={inputClass}
+              />
+              <input
+                name="login_email"
+                type="email"
+                defaultValue={p.login_email ?? ""}
+                placeholder="Portal login email (grants priest self-service)"
+                title="The email this priest signs in with — links their portal access"
+                className={`${inputClass} sm:col-span-full`}
               />
             </div>
             <div className="flex items-center gap-3">
