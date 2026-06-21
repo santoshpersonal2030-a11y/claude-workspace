@@ -447,6 +447,9 @@ export type Database = {
           service_pincodes: string[]
           slug: string | null
           specializations: string[]
+          blackout_dates: string[]
+          work_start: string
+          work_end: string
           updated_at: string
           verified: boolean
         }
@@ -467,6 +470,9 @@ export type Database = {
           service_pincodes?: string[]
           slug?: string | null
           specializations?: string[]
+          blackout_dates?: string[]
+          work_start?: string
+          work_end?: string
           updated_at?: string
           verified?: boolean
         }
@@ -487,6 +493,9 @@ export type Database = {
           service_pincodes?: string[]
           slug?: string | null
           specializations?: string[]
+          blackout_dates?: string[]
+          work_start?: string
+          work_end?: string
           updated_at?: string
           verified?: boolean
         }
