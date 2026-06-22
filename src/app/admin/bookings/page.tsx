@@ -13,6 +13,7 @@ import { Constants } from "@/lib/database.types";
 import { CARRIERS } from "@/lib/carriers";
 import EwbValidity from "@/components/EwbValidity";
 import { formatINR } from "@/lib/poojas";
+import { nudgeState } from "@/lib/nudge";
 
 const selectClass =
   "rounded-lg border border-saffron-200 bg-cream px-2 py-1.5 text-sm outline-none focus:border-saffron-400";
@@ -47,7 +48,7 @@ export default async function AdminBookingsPage({
       .from("bookings")
       // Two FKs point at pandits, so disambiguate with explicit constraint hints.
       .select(
-        "id, booking_date, time_slot, starts_at, status, priest_response, decline_reason, total_amount, city, pandit_id, poojas(name), preferred:pandits!bookings_preferred_pandit_id_fkey(full_name), assigned:pandits!bookings_pandit_id_fkey(full_name), declined_by:pandits!bookings_declined_by_pandit_id_fkey(full_name)",
+        "id, booking_date, time_slot, starts_at, status, priest_response, decline_reason, last_nudged_at, total_amount, city, pandit_id, poojas(name), preferred:pandits!bookings_preferred_pandit_id_fkey(full_name), assigned:pandits!bookings_pandit_id_fkey(full_name), declined_by:pandits!bookings_declined_by_pandit_id_fkey(full_name)",
       )
       .order("created_at", { ascending: false }),
     admin
@@ -163,24 +164,37 @@ export default async function AdminBookingsPage({
                         ✓ Accepted by {b.assigned?.full_name ?? "priest"}
                       </div>
                     )}
-                    {b.pandit_id && b.priest_response === "pending" && (
-                      <div className="flex items-center gap-2 text-xs font-medium text-amber-700">
-                        <span>
-                          ⏳ Awaiting {b.assigned?.full_name ?? "priest"}&apos;s
-                          response
-                        </span>
-                        <form action={nudgePriest}>
-                          <input type="hidden" name="id" value={b.id} />
-                          <button
-                            type="submit"
-                            className="rounded-full border border-saffron-300 px-2 py-0.5 text-[11px] font-semibold text-saffron-700 hover:bg-saffron-50"
-                            title="Re-send the accept/decline request"
-                          >
-                            🔔 Nudge
-                          </button>
-                        </form>
-                      </div>
-                    )}
+                    {b.pandit_id &&
+                      b.priest_response === "pending" &&
+                      (() => {
+                        const { canNudge, agoLabel } = nudgeState(
+                          b.last_nudged_at,
+                        );
+                        return (
+                          <div className="flex items-center gap-2 text-xs font-medium text-amber-700">
+                            <span>
+                              ⏳ Awaiting {b.assigned?.full_name ?? "priest"}
+                              &apos;s response
+                            </span>
+                            {canNudge ? (
+                              <form action={nudgePriest}>
+                                <input type="hidden" name="id" value={b.id} />
+                                <button
+                                  type="submit"
+                                  className="rounded-full border border-saffron-300 px-2 py-0.5 text-[11px] font-semibold text-saffron-700 hover:bg-saffron-50"
+                                  title="Re-send the accept/decline request"
+                                >
+                                  🔔 Nudge
+                                </button>
+                              </form>
+                            ) : (
+                              <span className="text-[11px] font-normal text-foreground/45">
+                                nudged {agoLabel}
+                              </span>
+                            )}
+                          </div>
+                        );
+                      })()}
                     {!b.pandit_id && b.declined_by?.full_name && (
                       <div className="text-xs font-medium text-red-600">
                         ✕ Declined by {b.declined_by.full_name} — reassign

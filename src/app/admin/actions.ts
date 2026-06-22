@@ -24,6 +24,7 @@ import {
   notifyPriestAssignment,
 } from "@/lib/notifications";
 import { logPriestEvent } from "@/lib/booking-events";
+import { NUDGE_COOLDOWN_MIN } from "@/lib/nudge";
 import type { Database } from "@/lib/database.types";
 import { Constants } from "@/lib/database.types";
 
@@ -809,7 +810,8 @@ export async function assignPandit(formData: FormData): Promise<void> {
 
 // Re-sends the accept/decline request to a priest who hasn't responded yet
 // (a "nudge"). Only acts on a booking still assigned to that priest and awaiting
-// their response, so it can't be used to spam accepted/declined bookings.
+// their response, and is rate-limited to once per NUDGE_COOLDOWN_MIN so it can't
+// be spammed.
 export async function nudgePriest(formData: FormData): Promise<void> {
   await assertAdmin();
   const admin = createAdminClient();
@@ -818,12 +820,23 @@ export async function nudgePriest(formData: FormData): Promise<void> {
 
   const { data: booking } = await admin
     .from("bookings")
-    .select("id, pandit_id, priest_response")
+    .select("id, pandit_id, priest_response, last_nudged_at")
     .eq("id", id)
     .maybeSingle();
   if (!booking?.pandit_id || booking.priest_response !== "pending") return;
 
+  // Cooldown: skip silently if nudged within the window.
+  if (booking.last_nudged_at) {
+    const elapsedMin =
+      (Date.now() - new Date(booking.last_nudged_at).getTime()) / 60000;
+    if (elapsedMin < NUDGE_COOLDOWN_MIN) return;
+  }
+
   await notifyPriestAssignment(id);
+  await admin
+    .from("bookings")
+    .update({ last_nudged_at: new Date().toISOString() })
+    .eq("id", id);
   revalidatePath("/admin/bookings");
   revalidatePath(`/admin/bookings/${id}`);
 }

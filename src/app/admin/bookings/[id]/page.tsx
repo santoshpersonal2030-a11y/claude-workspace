@@ -5,6 +5,7 @@ import { updateBookingDetails, nudgePriest } from "@/app/admin/actions";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { Constants } from "@/lib/database.types";
 import { PRIEST_EVENT_LABEL, type PriestEventAction } from "@/lib/booking-events";
+import { nudgeState } from "@/lib/nudge";
 import { languages, timeSlots, formatINR } from "@/lib/poojas";
 
 function formatStamp(value: string) {
@@ -39,7 +40,7 @@ export default async function AdminBookingDetailPage({
       admin
         .from("bookings")
         .select(
-          "id, status, booking_date, time_slot, language, address, city, pincode, notes, pandit_id, priest_response, priest_responded_at, samagri_kit, service_price, samagri_price, total_amount, created_at, poojas(name, emoji), preferred:pandits!bookings_preferred_pandit_id_fkey(full_name), assigned:pandits!bookings_pandit_id_fkey(full_name)",
+          "id, status, booking_date, time_slot, language, address, city, pincode, notes, pandit_id, priest_response, priest_responded_at, last_nudged_at, samagri_kit, service_price, samagri_price, total_amount, created_at, poojas(name, emoji), preferred:pandits!bookings_preferred_pandit_id_fkey(full_name), assigned:pandits!bookings_pandit_id_fkey(full_name)",
         )
         .eq("id", id)
         .maybeSingle(),
@@ -237,18 +238,27 @@ export default async function AdminBookingDetailPage({
           <h2 className="font-heading text-lg text-maroon-700">
             Priest response
           </h2>
-          {booking.pandit_id && booking.priest_response === "pending" && (
-            <form action={nudgePriest}>
-              <input type="hidden" name="id" value={booking.id} />
-              <button
-                type="submit"
-                className="rounded-full border border-saffron-300 px-4 py-1.5 text-xs font-semibold text-saffron-700 hover:bg-saffron-50"
-                title="Re-send the accept/decline request to the assigned priest"
-              >
-                🔔 Nudge priest
-              </button>
-            </form>
-          )}
+          {booking.pandit_id &&
+            booking.priest_response === "pending" &&
+            (() => {
+              const { canNudge, agoLabel } = nudgeState(booking.last_nudged_at);
+              return canNudge ? (
+                <form action={nudgePriest}>
+                  <input type="hidden" name="id" value={booking.id} />
+                  <button
+                    type="submit"
+                    className="rounded-full border border-saffron-300 px-4 py-1.5 text-xs font-semibold text-saffron-700 hover:bg-saffron-50"
+                    title="Re-send the accept/decline request to the assigned priest"
+                  >
+                    🔔 Nudge priest
+                  </button>
+                </form>
+              ) : (
+                <span className="text-xs text-foreground/45">
+                  Nudged {agoLabel}
+                </span>
+              );
+            })()}
         </div>
 
         <p className="mt-2 text-sm text-foreground/70">

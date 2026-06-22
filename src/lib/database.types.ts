@@ -69,6 +69,7 @@ export type Database = {
           invoice_fy: number | null
           invoice_no: number | null
           language: string | null
+          last_nudged_at: string | null
           notes: string | null
           pandit_id: string | null
           peak_label: string | null
@@ -102,6 +103,7 @@ export type Database = {
           invoice_fy?: number | null
           invoice_no?: number | null
           language?: string | null
+          last_nudged_at?: string | null
           notes?: string | null
           pandit_id?: string | null
           peak_label?: string | null
@@ -135,6 +137,7 @@ export type Database = {
           invoice_fy?: number | null
           invoice_no?: number | null
           language?: string | null
+          last_nudged_at?: string | null
           notes?: string | null
           pandit_id?: string | null
           peak_label?: string | null
