@@ -276,21 +276,23 @@ export async function getPanditBySlug(slug: string): Promise<Pandit | null> {
   }
 }
 
-// Pandits who specialise in a given pooja category — the primary "right pandit
-// for this pooja" matcher. Specialists are returned verified-first, then most
-// experienced (i.e. highest tier), then highest rated. If nobody lists this
-// category we fall back to the full roster (generalists) so the booking flow
-// is never left without a priest to choose.
+// Pandits who specialise in a pooja — matched on its occasion category OR its
+// ritual type (so a "Havan" or "Shanti" specialist is surfaced for those rites,
+// not just the broad category). Specialists are returned verified-first, then
+// most experienced (highest tier), then highest rated. If nobody matches we fall
+// back to the full roster (generalists) so the booking flow always has a priest.
 export async function getPanditsForPooja(
   category: string,
+  ritualType?: string,
 ): Promise<Pandit[]> {
+  const tags = ritualType ? [category, ritualType] : [category];
   try {
     const { data, error } = await db
       .from("pandits")
       .select(PANDIT_PUBLIC_FIELDS)
       .eq("active", true)
       .not("slug", "is", null)
-      .contains("specializations", [category])
+      .overlaps("specializations", tags)
       .order("verified", { ascending: false })
       .order("experience_years", { ascending: false })
       .order("rating", { ascending: false });
@@ -300,11 +302,11 @@ export async function getPanditsForPooja(
   } catch (err) {
     console.warn("getPanditsForPooja: falling back to seed roster —", err);
     const specialists = seedPandits
-      .filter((p) => p.specializations.includes(category as never))
+      .filter((p) => tags.some((t) => p.specializations.includes(t as never)))
       .sort((a, b) => b.experienceYears - a.experienceYears);
     if (specialists.length > 0) return specialists;
   }
-  // No specialists for this category → offer the full roster as generalists.
+  // No specialists matched → offer the full roster as generalists.
   return getPandits();
 }
 

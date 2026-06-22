@@ -46,8 +46,8 @@ export default async function PoojaDetailPage({
   const pooja = await getPoojaBySlug(slug);
   if (!pooja) notFound();
 
-  // Priests who specialise in this pooja's category come first.
-  const panditRoster = await getPanditsForPooja(pooja.category);
+  // Priests who specialise in this pooja's category or ritual type come first.
+  const panditRoster = await getPanditsForPooja(pooja.category, pooja.ritualType);
   const pandits = panditRoster.map((p) => ({
     slug: p.slug,
     fullName: p.fullName,

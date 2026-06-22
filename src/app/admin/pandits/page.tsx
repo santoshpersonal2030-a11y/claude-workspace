@@ -48,8 +48,8 @@ export default async function AdminPanditsPage() {
           />
           <input
             name="specializations"
-            placeholder="Specializations (Home, Festival)"
-            title="Pooja categories: Home, Festival, Life Event, Remedial, Ancestral"
+            placeholder="Specializations (Home, Havan, Shanti)"
+            title="Pooja categories (Home, Festival, Life Event, Remedial, Ancestral) and/or ritual types (Sanskar, Pooja, Havan, Shanti, Katha, Abhishek, Shraddh)"
             className={inputClass}
           />
           <input
@@ -175,7 +175,7 @@ export default async function AdminPanditsPage() {
               name="specializations"
               defaultValue={(p.specializations ?? []).join(", ")}
               placeholder="Specializations"
-              title="Pooja categories: Home, Festival, Life Event, Remedial, Ancestral"
+              title="Pooja categories (Home, Festival, Life Event, Remedial, Ancestral) and/or ritual types (Sanskar, Pooja, Havan, Shanti, Katha, Abhishek, Shraddh)"
               className={inputClass}
             />
             <input
