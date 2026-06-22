@@ -3,6 +3,23 @@ import Link from "next/link";
 import { getPriestPandit } from "@/lib/priest";
 import { acceptMyBooking, declineMyBooking } from "@/app/priest/actions";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { PRIEST_EVENT_LABEL, type PriestEventAction } from "@/lib/booking-events";
+
+function formatStamp(value: string): string {
+  return new Date(value).toLocaleString("en-IN", {
+    timeZone: "Asia/Kolkata",
+    day: "numeric",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+const EVENT_DOT: Record<PriestEventAction, string> = {
+  assigned: "bg-amber-400",
+  accepted: "bg-emerald-500",
+  declined: "bg-red-500",
+};
 
 const MONTH_NAMES = [
   "January", "February", "March", "April", "May", "June",
@@ -84,6 +101,16 @@ export default async function PriestCalendarPage({
     .eq("priest_response", "pending")
     .gte("booking_date", today)
     .order("booking_date", { ascending: true });
+
+  // This priest's own response history (assigned/accepted/declined), recent
+  // first — the priest-side mirror of the admin booking timeline.
+  const { data: events } = await admin
+    .from("booking_priest_events")
+    .select("id, action, reason, created_at, bookings(poojas(name))")
+    .eq("pandit_id", pandit.id)
+    .order("created_at", { ascending: false })
+    .limit(15);
+  const history = events ?? [];
 
   const byDay = new Map<number, CalBooking[]>();
   for (const b of (monthBookings ?? []) as CalBooking[]) {
@@ -259,6 +286,42 @@ export default async function PriestCalendarPage({
         <Legend className="bg-emerald-100 text-emerald-800" label="Accepted" />
         <Legend className="bg-amber-100 text-amber-800" label="Awaiting you" />
       </div>
+
+      {/* Recent activity */}
+      {history.length > 0 && (
+        <section className="mt-8">
+          <h2 className="font-heading text-xl text-maroon-800">
+            Recent activity
+          </h2>
+          <ol className="mt-3 space-y-3 border-l border-saffron-100 pl-4">
+            {history.map((e) => (
+              <li key={e.id} className="relative">
+                <span
+                  className={`absolute -left-[21px] top-1.5 h-2.5 w-2.5 rounded-full ${
+                    EVENT_DOT[e.action as PriestEventAction] ?? "bg-stone-300"
+                  }`}
+                />
+                <div className="text-sm">
+                  <span className="font-medium text-maroon-700">
+                    {PRIEST_EVENT_LABEL[e.action as PriestEventAction] ??
+                      e.action}
+                  </span>
+                  {e.bookings?.poojas?.name
+                    ? ` · ${e.bookings.poojas.name}`
+                    : ""}
+                  <span className="text-foreground/45">
+                    {" "}
+                    · {formatStamp(e.created_at)}
+                  </span>
+                </div>
+                {e.reason && (
+                  <div className="text-xs text-foreground/60">“{e.reason}”</div>
+                )}
+              </li>
+            ))}
+          </ol>
+        </section>
+      )}
     </div>
   );
 }
