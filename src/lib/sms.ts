@@ -14,14 +14,19 @@
 // is itself a no-op, so kinds can be rolled out one DLT approval at a time):
 //   SMS_TEMPLATE_PRIEST_ASSIGNMENT   vars: [poojaName, date]
 //   SMS_TEMPLATE_ADMIN_DECLINE       vars: [panditName, poojaName, date]
+//   SMS_TEMPLATE_CUSTOMER_CONFIRMED  vars: [panditName, poojaName, date]
 
-export type SmsKind = "priest_assignment" | "admin_decline";
+export type SmsKind =
+  | "priest_assignment"
+  | "admin_decline"
+  | "customer_confirmed";
 
 // Each kind's template-name env var. The ordered VAR1..VARn the caller supplies
 // must match the placeholders in that DLT-approved template.
 const TEMPLATE_ENV: Record<SmsKind, string> = {
   priest_assignment: "SMS_TEMPLATE_PRIEST_ASSIGNMENT",
   admin_decline: "SMS_TEMPLATE_ADMIN_DECLINE",
+  customer_confirmed: "SMS_TEMPLATE_CUSTOMER_CONFIRMED",
 };
 
 // True once the provider key + sender ID are set (a per-kind template may still

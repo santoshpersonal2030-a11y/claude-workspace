@@ -221,6 +221,61 @@ export async function notifyAdminBookingDeclined(
   }
 }
 
+// Notifies the customer that their assigned priest has accepted, so the booking
+// is now confirmed with a named Pandit. Email + (best-effort) SMS. Triggered
+// when a priest accepts in their portal. Never throws into the caller.
+export async function notifyCustomerPriestAccepted(
+  bookingId: string,
+): Promise<void> {
+  try {
+    const admin = createAdminClient();
+    const { data: booking } = await admin
+      .from("bookings")
+      .select(
+        "id, user_id, booking_date, time_slot, poojas(name), assigned:pandits!bookings_pandit_id_fkey(full_name)",
+      )
+      .eq("id", bookingId)
+      .maybeSingle();
+    if (!booking) return;
+
+    const priestName = booking.assigned?.full_name ?? "your Pandit";
+    const poojaName = booking.poojas?.name ?? "your pooja";
+
+    const recipient = await emailForUser(admin, booking.user_id);
+    if (recipient) {
+      const body = `
+        <p>Hi ${recipient.name}, good news — <strong>${priestName}</strong> has confirmed and will perform your ceremony.</p>
+        <table style="width:100%;border-collapse:collapse;margin:16px 0">
+          <tr><td style="padding:4px 0;color:#9a8c7a">Pooja</td><td style="padding:4px 0;text-align:right">${poojaName}</td></tr>
+          <tr><td style="padding:4px 0;color:#9a8c7a">Pandit</td><td style="padding:4px 0;text-align:right">${priestName}</td></tr>
+          <tr><td style="padding:4px 0;color:#9a8c7a">Date</td><td style="padding:4px 0;text-align:right">${booking.booking_date}</td></tr>
+          <tr><td style="padding:4px 0;color:#9a8c7a">Time</td><td style="padding:4px 0;text-align:right">${(booking.time_slot ?? "").slice(0, 5)}</td></tr>
+        </table>
+        <a href="${siteUrl}/account/bookings" style="display:inline-block;background:#d97706;color:#fff;text-decoration:none;padding:10px 20px;border-radius:999px">View your booking</a>`;
+      await sendEmail({
+        to: recipient.email,
+        subject: "Your Pandit is confirmed 🙏",
+        html: emailLayout("Your Pandit is confirmed", body),
+      });
+    }
+
+    const { data: profile } = await admin
+      .from("profiles")
+      .select("phone")
+      .eq("id", booking.user_id)
+      .maybeSingle();
+    if (profile?.phone) {
+      await sendTemplatedSms({
+        to: profile.phone,
+        kind: "customer_confirmed",
+        vars: [priestName, poojaName, booking.booking_date],
+      });
+    }
+  } catch (err) {
+    console.error("notifyCustomerPriestAccepted failed:", err);
+  }
+}
+
 export async function sendBackInStockEmails(productId: string): Promise<void> {
   try {
     const admin = createAdminClient();

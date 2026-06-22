@@ -5,7 +5,10 @@ import { redirect } from "next/navigation";
 
 import { assertPriest } from "@/lib/priest";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { notifyAdminBookingDeclined } from "@/lib/notifications";
+import {
+  notifyAdminBookingDeclined,
+  notifyCustomerPriestAccepted,
+} from "@/lib/notifications";
 
 function str(value: FormDataEntryValue | null): string {
   return ((value as string) ?? "").trim();
@@ -87,7 +90,7 @@ export async function acceptMyBooking(formData: FormData): Promise<void> {
     redirect("/priest/calendar?clash=1");
   }
 
-  await admin
+  const { data: accepted } = await admin
     .from("bookings")
     .update({
       priest_response: "accepted",
@@ -95,7 +98,13 @@ export async function acceptMyBooking(formData: FormData): Promise<void> {
     })
     .eq("id", id)
     .eq("pandit_id", pandit.id)
-    .eq("priest_response", "pending");
+    .eq("priest_response", "pending")
+    .select("id");
+
+  // Let the customer know their Pandit is confirmed (best-effort).
+  if (accepted && accepted.length > 0) {
+    await notifyCustomerPriestAccepted(id);
+  }
 
   revalidatePath("/priest/calendar");
   revalidatePath("/priest");

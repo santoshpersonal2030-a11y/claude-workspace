@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { getPriestPandit } from "@/lib/priest";
 import { createAdminClient } from "@/lib/supabase/admin";
 import {
@@ -9,7 +11,12 @@ import {
 } from "@/lib/payroll";
 import { formatINR } from "@/lib/poojas";
 
-export default async function PriestPayslipsPage() {
+export default async function PriestPayslipsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ fy?: string }>;
+}) {
+  const { fy: fyParam } = await searchParams;
   const pandit = (await getPriestPandit())!;
   const admin = createAdminClient();
 
@@ -22,32 +29,45 @@ export default async function PriestPayslipsPage() {
     )
     .eq("pandit_id", pandit.id);
 
-  const lines = (items ?? []).slice().sort((a, b) => {
+  const allLines = (items ?? []).slice().sort((a, b) => {
     const ay = a.payroll_runs?.period_year ?? 0;
     const by = b.payroll_runs?.period_year ?? 0;
     if (ay !== by) return by - ay;
     return (b.payroll_runs?.period_month ?? 0) - (a.payroll_runs?.period_month ?? 0);
   });
 
-  // Financial year (India: Apr–Mar). Sum this priest's pay for the current FY.
+  // Financial year (India: Apr–Mar). Offer a selector across the FYs the priest
+  // has payslips in (plus the current FY), mirroring the admin year-end view.
   const now = new Date();
-  const currentFy = financialYearOf(now.getFullYear(), now.getMonth() + 1);
-  const fyLines = lines.filter((l) => {
+  const fySet = new Set<number>([
+    financialYearOf(now.getFullYear(), now.getMonth() + 1),
+  ]);
+  for (const l of allLines) {
     const r = l.payroll_runs;
-    return r && financialYearOf(r.period_year, r.period_month) === currentFy;
+    if (r) fySet.add(financialYearOf(r.period_year, r.period_month));
+  }
+  const availableFys = [...fySet].sort((a, b) => b - a);
+  const requested = fyParam ? Number.parseInt(fyParam, 10) : NaN;
+  const selectedFy = availableFys.includes(requested)
+    ? requested
+    : availableFys[0];
+
+  const lines = allLines.filter((l) => {
+    const r = l.payroll_runs;
+    return r && financialYearOf(r.period_year, r.period_month) === selectedFy;
   });
   const sum = (pick: (l: (typeof lines)[number]) => number) =>
-    fyLines.reduce((s, l) => s + pick(l), 0);
+    lines.reduce((s, l) => s + pick(l), 0);
   const fy = {
-    label: fyLabel(currentFy),
+    label: fyLabel(selectedFy),
     net: sum((l) => l.net_pay),
-    paid: fyLines.filter((l) => l.paid).reduce((s, l) => s + l.net_pay, 0),
+    paid: lines.filter((l) => l.paid).reduce((s, l) => s + l.net_pay, 0),
     gross: sum((l) => l.gross),
     pf: sum((l) => l.pf_employee + l.pf_employer),
     gratuity: sum((l) => l.gratuity),
     dakshina: sum((l) => l.dakshina_retained),
     ceremonies: sum((l) => l.bookings_count),
-    payslips: fyLines.length,
+    payslips: lines.length,
   };
 
   return (
@@ -58,17 +78,35 @@ export default async function PriestPayslipsPage() {
         ceremonies. Download a payslip for your records.
       </p>
 
-      {lines.length === 0 ? (
+      {availableFys.length > 1 && (
+        <div className="mt-4 flex flex-wrap items-center gap-2">
+          <span className="text-xs text-foreground/55">Financial year:</span>
+          {availableFys.map((y) => (
+            <Link
+              key={y}
+              href={`/priest/payslips?fy=${y}`}
+              className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                y === selectedFy
+                  ? "bg-maroon-700 text-white"
+                  : "border border-stone-200 text-foreground/60 hover:bg-stone-50"
+              }`}
+            >
+              {fyLabel(y)}
+            </Link>
+          ))}
+        </div>
+      )}
+
+      {allLines.length === 0 ? (
         <p className="mt-6 text-sm text-foreground/55">
           No payslips yet. They appear once the admin runs payroll for a month.
         </p>
       ) : (
         <>
-          {fy.payslips > 0 && (
-            <div className="mt-6 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm">
+          <div className="mt-6 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm">
               <div className="flex flex-wrap items-baseline justify-between gap-2">
                 <h2 className="font-heading text-lg text-maroon-800">
-                  This financial year (FY {fy.label})
+                  Financial year FY {fy.label}
                 </h2>
                 <span className="text-xs text-foreground/55">
                   {fy.payslips} payslip{fy.payslips === 1 ? "" : "s"} ·{" "}
@@ -88,7 +126,6 @@ export default async function PriestPayslipsPage() {
                 )}
               </div>
             </div>
-          )}
 
           <div className="mt-6 overflow-x-auto">
             <table className="w-full min-w-[640px] border-collapse text-sm">
@@ -105,6 +142,13 @@ export default async function PriestPayslipsPage() {
               </tr>
             </thead>
             <tbody>
+              {lines.length === 0 && (
+                <tr>
+                  <td colSpan={8} className="py-6 text-center text-foreground/50">
+                    No payslips in FY {fy.label}.
+                  </td>
+                </tr>
+              )}
               {lines.map((l) => (
                 <tr key={l.id} className="border-b border-saffron-50">
                   <td className="py-2 pr-3 font-medium text-maroon-700">
