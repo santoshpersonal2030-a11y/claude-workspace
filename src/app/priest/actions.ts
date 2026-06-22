@@ -10,6 +10,7 @@ import {
   notifyCustomerPriestAccepted,
   notifyCustomerReassigning,
 } from "@/lib/notifications";
+import { logPriestEvent } from "@/lib/booking-events";
 
 function str(value: FormDataEntryValue | null): string {
   return ((value as string) ?? "").trim();
@@ -102,8 +103,13 @@ export async function acceptMyBooking(formData: FormData): Promise<void> {
     .eq("priest_response", "pending")
     .select("id");
 
-  // Let the customer know their Pandit is confirmed (best-effort).
+  // Log the acceptance and let the customer know their Pandit is confirmed.
   if (accepted && accepted.length > 0) {
+    await logPriestEvent({
+      bookingId: id,
+      panditId: pandit.id,
+      action: "accepted",
+    });
     await notifyCustomerPriestAccepted(id);
   }
 
@@ -144,9 +150,15 @@ export async function declineMyBooking(formData: FormData): Promise<void> {
     .in("status", ["assigned", "confirmed"] as const)
     .select("id");
 
-  // Only notify if a booking was actually declined (it was theirs + open):
+  // Only act if a booking was actually declined (it was theirs + open): log it,
   // alert the team to reassign, and reassure the customer.
   if (updated && updated.length > 0) {
+    await logPriestEvent({
+      bookingId: id,
+      panditId: pandit.id,
+      action: "declined",
+      reason,
+    });
     await notifyAdminBookingDeclined(id, pandit.full_name, reason);
     await notifyCustomerReassigning(id);
   }

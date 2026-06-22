@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      booking_priest_events: {
+        Row: {
+          action: string
+          booking_id: string
+          created_at: string
+          id: string
+          pandit_id: string | null
+          reason: string | null
+        }
+        Insert: {
+          action: string
+          booking_id: string
+          created_at?: string
+          id?: string
+          pandit_id?: string | null
+          reason?: string | null
+        }
+        Update: {
+          action?: string
+          booking_id?: string
+          created_at?: string
+          id?: string
+          pandit_id?: string | null
+          reason?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "booking_priest_events_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "booking_priest_events_pandit_id_fkey"
+            columns: ["pandit_id"]
+            isOneToOne: false
+            referencedRelation: "pandits"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bookings: {
         Row: {
           address: string

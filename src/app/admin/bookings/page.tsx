@@ -5,6 +5,7 @@ import {
   assignPandit,
   bulkGenerateEInvoicesAction,
   confirmBookingTime,
+  nudgePriest,
   updateBookingStatus,
   updateOrderStatus,
 } from "@/app/admin/actions";
@@ -163,9 +164,21 @@ export default async function AdminBookingsPage({
                       </div>
                     )}
                     {b.pandit_id && b.priest_response === "pending" && (
-                      <div className="text-xs font-medium text-amber-700">
-                        ⏳ Awaiting {b.assigned?.full_name ?? "priest"}&apos;s
-                        response
+                      <div className="flex items-center gap-2 text-xs font-medium text-amber-700">
+                        <span>
+                          ⏳ Awaiting {b.assigned?.full_name ?? "priest"}&apos;s
+                          response
+                        </span>
+                        <form action={nudgePriest}>
+                          <input type="hidden" name="id" value={b.id} />
+                          <button
+                            type="submit"
+                            className="rounded-full border border-saffron-300 px-2 py-0.5 text-[11px] font-semibold text-saffron-700 hover:bg-saffron-50"
+                            title="Re-send the accept/decline request"
+                          >
+                            🔔 Nudge
+                          </button>
+                        </form>
                       </div>
                     )}
                     {!b.pandit_id && b.declined_by?.full_name && (

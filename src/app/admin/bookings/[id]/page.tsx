@@ -1,10 +1,27 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { updateBookingDetails } from "@/app/admin/actions";
+import { updateBookingDetails, nudgePriest } from "@/app/admin/actions";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { Constants } from "@/lib/database.types";
+import { PRIEST_EVENT_LABEL, type PriestEventAction } from "@/lib/booking-events";
 import { languages, timeSlots, formatINR } from "@/lib/poojas";
+
+function formatStamp(value: string) {
+  return new Date(value).toLocaleString("en-IN", {
+    timeZone: "Asia/Kolkata",
+    day: "numeric",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+const EVENT_DOT: Record<PriestEventAction, string> = {
+  assigned: "bg-amber-400",
+  accepted: "bg-emerald-500",
+  declined: "bg-red-500",
+};
 
 const inputClass =
   "w-full rounded-lg border border-saffron-200 bg-cream px-2 py-1.5 text-sm outline-none focus:border-saffron-400";
@@ -17,23 +34,30 @@ export default async function AdminBookingDetailPage({
   const { id } = await params;
   const admin = createAdminClient();
 
-  const [{ data: booking }, { data: roster }] = await Promise.all([
-    admin
-      .from("bookings")
-      .select(
-        "id, status, booking_date, time_slot, language, address, city, pincode, notes, pandit_id, samagri_kit, service_price, samagri_price, total_amount, created_at, poojas(name, emoji), preferred:pandits!bookings_preferred_pandit_id_fkey(full_name)",
-      )
-      .eq("id", id)
-      .maybeSingle(),
-    admin
-      .from("pandits")
-      .select("id, full_name")
-      .eq("active", true)
-      .order("full_name", { ascending: true }),
-  ]);
+  const [{ data: booking }, { data: roster }, { data: events }] =
+    await Promise.all([
+      admin
+        .from("bookings")
+        .select(
+          "id, status, booking_date, time_slot, language, address, city, pincode, notes, pandit_id, priest_response, priest_responded_at, samagri_kit, service_price, samagri_price, total_amount, created_at, poojas(name, emoji), preferred:pandits!bookings_preferred_pandit_id_fkey(full_name), assigned:pandits!bookings_pandit_id_fkey(full_name)",
+        )
+        .eq("id", id)
+        .maybeSingle(),
+      admin
+        .from("pandits")
+        .select("id, full_name")
+        .eq("active", true)
+        .order("full_name", { ascending: true }),
+      admin
+        .from("booking_priest_events")
+        .select("id, action, reason, created_at, pandit:pandits(full_name)")
+        .eq("booking_id", id)
+        .order("created_at", { ascending: true }),
+    ]);
 
   if (!booking) notFound();
   const pandits = roster ?? [];
+  const history = events ?? [];
 
   return (
     <div>
@@ -206,6 +230,75 @@ export default async function AdminBookingDetailPage({
           </dl>
         </div>
       </form>
+
+      {/* Priest response & history */}
+      <div className="mt-6 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 className="font-heading text-lg text-maroon-700">
+            Priest response
+          </h2>
+          {booking.pandit_id && booking.priest_response === "pending" && (
+            <form action={nudgePriest}>
+              <input type="hidden" name="id" value={booking.id} />
+              <button
+                type="submit"
+                className="rounded-full border border-saffron-300 px-4 py-1.5 text-xs font-semibold text-saffron-700 hover:bg-saffron-50"
+                title="Re-send the accept/decline request to the assigned priest"
+              >
+                🔔 Nudge priest
+              </button>
+            </form>
+          )}
+        </div>
+
+        <p className="mt-2 text-sm text-foreground/70">
+          {!booking.pandit_id ? (
+            "No priest currently assigned."
+          ) : booking.priest_response === "accepted" ? (
+            <span className="text-emerald-700">
+              ✓ Accepted by {booking.assigned?.full_name ?? "priest"}
+              {booking.priest_responded_at
+                ? ` · ${formatStamp(booking.priest_responded_at)}`
+                : ""}
+            </span>
+          ) : (
+            <span className="text-amber-700">
+              ⏳ Awaiting {booking.assigned?.full_name ?? "priest"}&apos;s
+              response
+            </span>
+          )}
+        </p>
+
+        {history.length > 0 && (
+          <ol className="mt-4 space-y-3 border-l border-saffron-100 pl-4">
+            {history.map((e) => (
+              <li key={e.id} className="relative">
+                <span
+                  className={`absolute -left-[21px] top-1.5 h-2.5 w-2.5 rounded-full ${
+                    EVENT_DOT[e.action as PriestEventAction] ?? "bg-stone-300"
+                  }`}
+                />
+                <div className="text-sm">
+                  <span className="font-medium text-maroon-700">
+                    {PRIEST_EVENT_LABEL[e.action as PriestEventAction] ??
+                      e.action}
+                  </span>
+                  {e.pandit?.full_name ? ` · ${e.pandit.full_name}` : ""}
+                  <span className="text-foreground/45">
+                    {" "}
+                    · {formatStamp(e.created_at)}
+                  </span>
+                </div>
+                {e.reason && (
+                  <div className="text-xs text-foreground/60">
+                    “{e.reason}”
+                  </div>
+                )}
+              </li>
+            ))}
+          </ol>
+        )}
+      </div>
     </div>
   );
 }

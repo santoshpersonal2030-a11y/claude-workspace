@@ -23,6 +23,7 @@ import {
   sendCreditNoteEmail,
   notifyPriestAssignment,
 } from "@/lib/notifications";
+import { logPriestEvent } from "@/lib/booking-events";
 import type { Database } from "@/lib/database.types";
 import { Constants } from "@/lib/database.types";
 
@@ -496,7 +497,8 @@ export async function confirmBookingTime(formData: FormData): Promise<void> {
     // Most likely bookings_no_overlap — the priest is already busy then.
     console.warn("confirmBookingTime conflict:", error.message);
   } else {
-    // Ask the assigned priest to accept or decline the confirmed slot.
+    // Log the assignment and ask the priest to accept or decline the slot.
+    await logPriestEvent({ bookingId: id, panditId, action: "assigned" });
     await notifyPriestAssignment(id);
   }
 
@@ -792,9 +794,33 @@ export async function assignPandit(formData: FormData): Promise<void> {
   }
 
   await admin.from("bookings").update(update).eq("id", id);
-  // Tell the newly-assigned priest to accept or decline (best-effort).
-  if (panditId) await notifyPriestAssignment(id);
+  // Log the assignment and ask the priest to accept or decline (best-effort).
+  if (panditId) {
+    await logPriestEvent({ bookingId: id, panditId, action: "assigned" });
+    await notifyPriestAssignment(id);
+  }
   revalidatePath("/admin/bookings");
+}
+
+// Re-sends the accept/decline request to a priest who hasn't responded yet
+// (a "nudge"). Only acts on a booking still assigned to that priest and awaiting
+// their response, so it can't be used to spam accepted/declined bookings.
+export async function nudgePriest(formData: FormData): Promise<void> {
+  await assertAdmin();
+  const admin = createAdminClient();
+  const id = str(formData.get("id"));
+  if (!id) return;
+
+  const { data: booking } = await admin
+    .from("bookings")
+    .select("id, pandit_id, priest_response")
+    .eq("id", id)
+    .maybeSingle();
+  if (!booking?.pandit_id || booking.priest_response !== "pending") return;
+
+  await notifyPriestAssignment(id);
+  revalidatePath("/admin/bookings");
+  revalidatePath(`/admin/bookings/${id}`);
 }
 
 // ── Company settings ────────────────────────────────────────────────────────
