@@ -20,6 +20,11 @@ import {
   type DayJob,
 } from "../src/lib/scheduling.ts";
 import { panditTier, panditTierInfo } from "../src/lib/pandit-tier.ts";
+import {
+  normalisePhone,
+  smsConfigured,
+  sendTemplatedSms,
+} from "../src/lib/sms.ts";
 
 // ── travel.ts ───────────────────────────────────────────────────────────────
 
@@ -127,4 +132,30 @@ test("panditTierInfo handles invalid years (entry tier)", () => {
   assert.equal(panditTierInfo(-3).tier, "Pandit");
   assert.equal(panditTierInfo(Number.NaN).tier, "Pandit");
   assert.equal(panditTierInfo(22).tier, "Vidwan");
+});
+
+// ── sms.ts ──────────────────────────────────────────────────────────────────
+
+test("normalisePhone strips +91/0/spaces to a 10-digit mobile", () => {
+  assert.equal(normalisePhone("+91 98765 43210"), "9876543210");
+  assert.equal(normalisePhone("09876543210"), "9876543210");
+  assert.equal(normalisePhone("98765-43210"), "9876543210");
+  assert.equal(normalisePhone("919876543210"), "9876543210");
+});
+
+test("normalisePhone rejects invalid Indian mobiles", () => {
+  assert.equal(normalisePhone("12345"), null); // too short
+  assert.equal(normalisePhone("5000000000"), null); // must start 6-9
+  assert.equal(normalisePhone("abcd"), null);
+});
+
+test("sms is a no-op without provider config (dormant until keyed)", async () => {
+  // The test env has no TWO_FACTOR_API_KEY/SMS_SENDER_ID set.
+  assert.equal(smsConfigured(), false);
+  const sent = await sendTemplatedSms({
+    to: "9876543210",
+    kind: "priest_assignment",
+    vars: ["Ganesh Puja", "2026-07-01"],
+  });
+  assert.equal(sent, false);
 });

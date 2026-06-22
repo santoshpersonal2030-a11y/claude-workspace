@@ -3,7 +3,7 @@
 
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendEmail, emailLayout } from "@/lib/email";
-import { sendSms } from "@/lib/sms";
+import { sendTemplatedSms } from "@/lib/sms";
 import { trackingUrl } from "@/lib/carriers";
 import { simplePdf } from "@/lib/pdf";
 import { buildOrderInvoicePdf } from "@/lib/invoice-pdf";
@@ -161,9 +161,10 @@ export async function notifyPriestAssignment(bookingId: string): Promise<void> {
     }
 
     if (priest.phone) {
-      await sendSms({
+      await sendTemplatedSms({
         to: priest.phone,
-        message: `BookMyPoojari: new ceremony assigned — ${booking?.poojas?.name ?? "Pooja"} on ${booking?.booking_date}. Accept/decline at ${siteUrl}/priest/calendar`,
+        kind: "priest_assignment",
+        vars: [booking?.poojas?.name ?? "Pooja", booking?.booking_date ?? ""],
       });
     }
   } catch (err) {
@@ -209,9 +210,10 @@ export async function notifyAdminBookingDeclined(
     });
 
     if (company.phone) {
-      await sendSms({
+      await sendTemplatedSms({
         to: company.phone,
-        message: `BookMyPoojari: ${panditName} declined ${booking.poojas?.name ?? "a booking"} on ${booking.booking_date}. Reassign at ${siteUrl}/admin/bookings`,
+        kind: "admin_decline",
+        vars: [panditName, booking.poojas?.name ?? "a booking", booking.booking_date],
       });
     }
   } catch (err) {
