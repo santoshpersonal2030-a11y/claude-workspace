@@ -137,12 +137,20 @@ export default async function LifeEventPage({
             <p className="text-sm text-foreground/70">
               Not sure which ceremony you need, or planning something special?
             </p>
-            <Link
-              href="/contact"
-              className="mt-4 inline-block rounded-full bg-saffron-600 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-saffron-700"
-            >
-              Talk to us
-            </Link>
+            <div className="mt-4 flex flex-wrap justify-center gap-3">
+              <Link
+                href="/muhurat"
+                className="inline-block rounded-full bg-saffron-600 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-saffron-700"
+              >
+                See auspicious dates
+              </Link>
+              <Link
+                href="/contact"
+                className="inline-block rounded-full border border-saffron-300 px-6 py-2.5 text-sm font-semibold text-saffron-700 transition-colors hover:bg-saffron-50"
+              >
+                Talk to us
+              </Link>
+            </div>
           </div>
         </section>
       </main>

@@ -6,6 +6,7 @@ import WishlistNavButton from "@/components/WishlistNavButton";
 const navLinks = [
   { href: "/poojas", label: "Book a Pooja" },
   { href: "/ceremonies", label: "Ceremonies" },
+  { href: "/muhurat", label: "Shubh Muhurat" },
   { href: "/store", label: "Samagri Store" },
   { href: "/pandits", label: "Our Pandits" },
   { href: "/how-it-works", label: "How It Works" },
