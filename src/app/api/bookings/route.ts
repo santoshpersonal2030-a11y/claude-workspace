@@ -8,6 +8,7 @@ import {
 } from "@/lib/razorpay";
 import { resolveTravelBand, isValidPincode } from "@/lib/travel";
 import { getPeakDay, peakSurchargeAmount } from "@/lib/peak-days";
+import { geoConfigured, resolveTravelBandGeo } from "@/lib/geo";
 
 const DEFAULT_KIT_PRICE = 751;
 
@@ -91,13 +92,25 @@ export async function POST(request: Request) {
   // Travel fee (server-authoritative) when a specific pandit + valid pincode
   // are known. resolveTravelBand returns null if the pandit doesn't serve it.
   const pincode = body.pincode?.trim() || null;
-  const band =
+  let band =
     pandit && pincode && isValidPincode(pincode)
       ? resolveTravelBand(pincode, {
           homePincode: pandit.home_pincode,
           servicePincodes: pandit.service_pincodes,
         })
       : null;
+
+  // Geo upgrade: when Google Distance Matrix is configured, refine the band by
+  // real driving distance/time. Falls back to the manual band on any failure.
+  if (pandit && pincode && isValidPincode(pincode) && geoConfigured()) {
+    const geo = await resolveTravelBandGeo(
+      pandit.home_pincode,
+      pincode,
+      pandit.max_travel_mins,
+    );
+    if (geo) band = geo.band;
+  }
+
   const travelFee = band?.fee ?? 0;
 
   // Peak-day premium (server-authoritative): a percentage uplift on the
