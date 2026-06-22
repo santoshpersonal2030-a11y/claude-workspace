@@ -405,6 +405,11 @@ export function vivahExclusionReason(
   if (separation(jupiterLon(dn), sunLon) < GURU_ASTA) return "Guru asta (Jupiter combust)";
   if (separation(venusLon(dn), sunLon) < SHUKRA_ASTA) return "Shukra asta (Venus combust)";
 
+  // Vishti (Bhadra) karana is avoided for auspicious work.
+  const elong = rev(moonLon - sunLon);
+  const k = Math.floor(elong / 6);
+  if (k >= 1 && k <= 56 && (k - 1) % 7 === 6) return "Vishti (Bhadra) karana";
+
   return null;
 }
 
@@ -414,6 +419,94 @@ export function sunRashi(dateStr: string, istHour = 12): string {
   const dn = dayNumber(y, m, d, istHour - IST_OFFSET_HOURS);
   const sid = rev(sunData(dn).lon - lahiriAyanamsa(y));
   return RASHIS[Math.floor(sid / 30)];
+}
+
+// ── Karana (Vishti/Bhadra) ──────────────────────────────────────────────────
+const KARANAS_MOVABLE = [
+  "Bava", "Balava", "Kaulava", "Taitila", "Gara", "Vanija", "Vishti",
+];
+
+// The karana (half-tithi) at an instant. Vishti = Bhadra, which is avoided.
+export function karanaAt(dateStr: string, istHour = 12): {
+  name: string;
+  isVishti: boolean;
+} {
+  const [y, m, d] = dateStr.split("-").map(Number);
+  const dn = dayNumber(y, m, d, istHour - IST_OFFSET_HOURS);
+  const elong = rev(moonLongitude(dn) - sunData(dn).lon);
+  const k = Math.floor(elong / 6); // 0..59
+  let name: string;
+  if (k === 0) name = "Kimstughna";
+  else if (k >= 57) name = ["Shakuni", "Chatushpada", "Naga"][k - 57];
+  else name = KARANAS_MOVABLE[(k - 1) % 7];
+  return { name, isVishti: name === "Vishti" };
+}
+
+// ── Guru / Shukra Bala (planetary sign strength) ────────────────────────────
+// Sign-based dignity for the marriage karakas. +2 exalted, +1 own, 0 neutral,
+// -2 debilitated. (Combustion is handled separately as a hard exclusion.)
+function signStrength(
+  sign: number,
+  exalt: number,
+  debil: number,
+  own: number[],
+): number {
+  if (sign === exalt) return 2;
+  if (sign === debil) return -2;
+  if (own.includes(sign)) return 1;
+  return 0;
+}
+
+function guruBala(dn: number, ayan: number): number {
+  const sign = Math.floor(rev(jupiterLon(dn) - ayan) / 30);
+  return signStrength(sign, 3 /*Karka*/, 9 /*Makara*/, [8 /*Dhanu*/, 11 /*Meena*/]);
+}
+
+function shukraBala(dn: number, ayan: number): number {
+  const sign = Math.floor(rev(venusLon(dn) - ayan) / 30);
+  return signStrength(sign, 11 /*Meena*/, 5 /*Kanya*/, [1 /*Vrishabha*/, 6 /*Tula*/]);
+}
+
+// Best-of-class vivah nakshatras (carry a little extra weight in scoring).
+const PRIME_NAKSHATRAS = new Set([4, 12, 21, 26, 27]); // Rohini, U.Phalguni, U.Ashadha, U.Bhadrapada, Revati
+const GOOD_TITHIS = new Set([2, 3, 5, 7, 10, 11, 13]);
+const GOOD_WEEKDAYS = new Set([1, 3, 4, 5]); // Mon, Wed, Thu, Fri
+
+export type VivahQuality = { score: number; tier: string; factors: string[] };
+
+// A 0–100 triage score for an (already non-excluded) vivah date, blending
+// nakshatra/tithi/weekday quality with Guru & Shukra bala.
+export function vivahQuality(dateStr: string, istHour = 12): VivahQuality {
+  const [y, m, d] = dateStr.split("-").map(Number);
+  const dn = dayNumber(y, m, d, istHour - IST_OFFSET_HOURS);
+  const ayan = lahiriAyanamsa(y);
+  const sunLon = sunData(dn).lon;
+  const moonLon = moonLongitude(dn);
+  const tithi = Math.floor(rev(moonLon - sunLon) / 12) + 1;
+  const nak = Math.floor(rev(moonLon - ayan) / (360 / 27)) + 1;
+  const wd = weekdayOf(dateStr);
+  const gb = guruBala(dn, ayan);
+  const sb = shukraBala(dn, ayan);
+
+  const factors: string[] = [];
+  let score = 50;
+
+  if (PRIME_NAKSHATRAS.has(nak)) { score += 12; factors.push(`${NAKSHATRAS[nak - 1]} (prime)`); }
+  else { score += 6; factors.push(NAKSHATRAS[nak - 1]); }
+
+  if (GOOD_TITHIS.has(tithi)) { score += 8; factors.push(`${tithiName(tithi)} ✓`); }
+
+  if (GOOD_WEEKDAYS.has(wd)) { score += 8; factors.push("favourable weekday"); }
+  else if (wd === 2 || wd === 6) { score -= 6; factors.push("Tue/Sat weekday"); }
+
+  score += gb * 5;
+  factors.push(`Guru bala ${gb >= 0 ? "+" : ""}${gb}`);
+  score += sb * 5;
+  factors.push(`Shukra bala ${sb >= 0 ? "+" : ""}${sb}`);
+
+  score = Math.max(0, Math.min(100, Math.round(score)));
+  const tier = score >= 80 ? "Excellent" : score >= 65 ? "Good" : "Fair";
+  return { score, tier, factors };
 }
 
 export type MuhuratCandidate = {
@@ -491,21 +584,23 @@ export function generateVivahCandidates(
     const p = panchangaAt(dateStr, midHour);
     if (!p) continue;
 
-    // Strict adds masa (Kharmas/Chaturmas) + planetary (Guru/Shukra asta)
-    // exclusions; lenient keeps just nakshatra + tithi.
+    // Strict adds masa (Kharmas/Chaturmas) + planetary (Guru/Shukra asta) +
+    // Vishti-karana exclusions; lenient keeps just nakshatra + tithi.
     if (strict) {
       if (vivahExclusionReason(dateStr, midHour) !== null) continue;
     } else if (!isAuspiciousForVivah(p)) {
       continue;
     }
 
+    const q = vivahQuality(dateStr, midHour);
     out.push({
       date: dateStr,
       start_time: minutesToHHMM(periods.abhijit.start),
       end_time: minutesToHHMM(periods.abhijit.end),
-      label: `Vivah Muhurat — ${p.nakshatraName}`,
+      label: `Vivah Muhurat (${q.tier} ${q.score}) — ${p.nakshatraName}`,
       note:
         `${p.nakshatraName} nakshatra, ${p.tithiName}, Sun in ${sunRashi(dateStr, midHour)}. ` +
+        `Quality ${q.score}/100 (${q.tier}): ${q.factors.join(", ")}. ` +
         `Abhijit window. Avoid Rahu Kalam ${minutesToHHMM(periods.rahu.start)}-${minutesToHHMM(periods.rahu.end)}. ` +
         `Computed${strict ? " (strict rules)" : ""} — verify before publishing.`,
     });
