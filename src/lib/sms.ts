@@ -12,14 +12,16 @@
 //   SMS_SENDER_ID       - the 6-char DLT header / sender ID (e.g. BKMPJI)
 // Plus, per kind, the approved template name (a kind with no template configured
 // is itself a no-op, so kinds can be rolled out one DLT approval at a time):
-//   SMS_TEMPLATE_PRIEST_ASSIGNMENT   vars: [poojaName, date]
-//   SMS_TEMPLATE_ADMIN_DECLINE       vars: [panditName, poojaName, date]
-//   SMS_TEMPLATE_CUSTOMER_CONFIRMED  vars: [panditName, poojaName, date]
+//   SMS_TEMPLATE_PRIEST_ASSIGNMENT    vars: [poojaName, date]
+//   SMS_TEMPLATE_ADMIN_DECLINE        vars: [panditName, poojaName, date]
+//   SMS_TEMPLATE_CUSTOMER_CONFIRMED   vars: [panditName, poojaName, date]
+//   SMS_TEMPLATE_CUSTOMER_REASSIGNING vars: [poojaName, date]
 
 export type SmsKind =
   | "priest_assignment"
   | "admin_decline"
-  | "customer_confirmed";
+  | "customer_confirmed"
+  | "customer_reassigning";
 
 // Each kind's template-name env var. The ordered VAR1..VARn the caller supplies
 // must match the placeholders in that DLT-approved template.
@@ -27,6 +29,7 @@ const TEMPLATE_ENV: Record<SmsKind, string> = {
   priest_assignment: "SMS_TEMPLATE_PRIEST_ASSIGNMENT",
   admin_decline: "SMS_TEMPLATE_ADMIN_DECLINE",
   customer_confirmed: "SMS_TEMPLATE_CUSTOMER_CONFIRMED",
+  customer_reassigning: "SMS_TEMPLATE_CUSTOMER_REASSIGNING",
 };
 
 // True once the provider key + sender ID are set (a per-kind template may still

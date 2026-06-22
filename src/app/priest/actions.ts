@@ -8,6 +8,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import {
   notifyAdminBookingDeclined,
   notifyCustomerPriestAccepted,
+  notifyCustomerReassigning,
 } from "@/lib/notifications";
 
 function str(value: FormDataEntryValue | null): string {
@@ -120,7 +121,13 @@ export async function declineMyBooking(formData: FormData): Promise<void> {
   const admin = createAdminClient();
   const id = str(formData.get("booking_id"));
   if (!id) return;
-  const reason = str(formData.get("reason")) || null;
+  const reason = str(formData.get("reason"));
+
+  // A reason is required so the team (and audit trail) knows why it bounced.
+  if (!reason) {
+    revalidatePath("/priest/calendar");
+    redirect("/priest/calendar?needreason=1");
+  }
 
   const { data: updated } = await admin
     .from("bookings")
@@ -137,9 +144,11 @@ export async function declineMyBooking(formData: FormData): Promise<void> {
     .in("status", ["assigned", "confirmed"] as const)
     .select("id");
 
-  // Only alert the team if a booking was actually declined (it was theirs+open).
+  // Only notify if a booking was actually declined (it was theirs + open):
+  // alert the team to reassign, and reassure the customer.
   if (updated && updated.length > 0) {
     await notifyAdminBookingDeclined(id, pandit.full_name, reason);
+    await notifyCustomerReassigning(id);
   }
 
   revalidatePath("/priest/calendar");

@@ -34,7 +34,12 @@ function formatConfirmedTime(value: string) {
   });
 }
 
-export default async function AdminBookingsPage() {
+export default async function AdminBookingsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ presp?: string }>;
+}) {
+  const { presp } = await searchParams;
   const admin = createAdminClient();
   const [bookings, orders, roster] = await Promise.all([
     admin
@@ -62,6 +67,40 @@ export default async function AdminBookingsPage() {
   const bookingStatuses = Constants.public.Enums.booking_status;
   const orderStatuses = Constants.public.Enums.order_status;
 
+  // Priest-response triage: awaiting the assigned priest, accepted, or declined
+  // and now unassigned (needs reassignment).
+  type Resp = "awaiting" | "accepted" | "reassign" | "other";
+  const respState = (b: {
+    pandit_id: string | null;
+    priest_response: string;
+    declined_by: { full_name: string } | null;
+  }): Resp => {
+    if (b.pandit_id && b.priest_response === "pending") return "awaiting";
+    if (b.pandit_id && b.priest_response === "accepted") return "accepted";
+    if (!b.pandit_id && b.declined_by?.full_name) return "reassign";
+    return "other";
+  };
+  const allBookings = bookings.data ?? [];
+  const counts = { awaiting: 0, accepted: 0, reassign: 0 };
+  for (const b of allBookings) {
+    const s = respState(b);
+    if (s !== "other") counts[s] += 1;
+  }
+  const RESP_FILTERS = ["awaiting", "accepted", "reassign"] as const;
+  const activeResp = (RESP_FILTERS as readonly string[]).includes(presp ?? "")
+    ? (presp as Resp)
+    : null;
+  const shownBookings = activeResp
+    ? allBookings.filter((b) => respState(b) === activeResp)
+    : allBookings;
+
+  const respChips: { key: string | null; label: string }[] = [
+    { key: null, label: `All (${allBookings.length})` },
+    { key: "awaiting", label: `⏳ Awaiting (${counts.awaiting})` },
+    { key: "accepted", label: `✓ Accepted (${counts.accepted})` },
+    { key: "reassign", label: `✕ Needs reassign (${counts.reassign})` },
+  ];
+
   return (
     <div className="space-y-10">
       {/* Bookings */}
@@ -75,9 +114,27 @@ export default async function AdminBookingsPage() {
             ⬇ Export CSV
           </a>
         </div>
+
+        {/* Priest-response triage filter */}
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          {respChips.map((c) => (
+            <Link
+              key={c.label}
+              href={c.key ? `/admin/bookings?presp=${c.key}` : "/admin/bookings"}
+              className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                activeResp === c.key || (!activeResp && c.key === null)
+                  ? "bg-maroon-700 text-white"
+                  : "border border-stone-200 text-foreground/60 hover:bg-stone-50"
+              }`}
+            >
+              {c.label}
+            </Link>
+          ))}
+        </div>
+
         <div className="mt-4 space-y-3">
-          {bookings.data?.length ? (
-            bookings.data.map((b) => (
+          {shownBookings.length ? (
+            shownBookings.map((b) => (
               <div
                 key={b.id}
                 className="rounded-xl border border-saffron-100 bg-white p-3 shadow-sm"
@@ -227,7 +284,9 @@ export default async function AdminBookingsPage() {
               </div>
             ))
           ) : (
-            <p className="text-sm text-foreground/55">No bookings yet.</p>
+            <p className="text-sm text-foreground/55">
+              {activeResp ? "No bookings in this state." : "No bookings yet."}
+            </p>
           )}
         </div>
       </section>

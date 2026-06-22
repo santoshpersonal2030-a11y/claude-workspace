@@ -276,6 +276,57 @@ export async function notifyCustomerPriestAccepted(
   }
 }
 
+// Reassures the customer that, although their assigned priest became
+// unavailable, the team is arranging another verified Pandit. Kept deliberately
+// blame-free. Email + best-effort SMS. Never throws into the caller.
+export async function notifyCustomerReassigning(
+  bookingId: string,
+): Promise<void> {
+  try {
+    const admin = createAdminClient();
+    const { data: booking } = await admin
+      .from("bookings")
+      .select("id, user_id, booking_date, time_slot, poojas(name)")
+      .eq("id", bookingId)
+      .maybeSingle();
+    if (!booking) return;
+
+    const poojaName = booking.poojas?.name ?? "your pooja";
+
+    const recipient = await emailForUser(admin, booking.user_id);
+    if (recipient) {
+      const body = `
+        <p>Hi ${recipient.name}, we're arranging another verified Pandit for your ceremony — your booking remains on track and we'll confirm the new Pandit shortly. No action is needed from you.</p>
+        <table style="width:100%;border-collapse:collapse;margin:16px 0">
+          <tr><td style="padding:4px 0;color:#9a8c7a">Pooja</td><td style="padding:4px 0;text-align:right">${poojaName}</td></tr>
+          <tr><td style="padding:4px 0;color:#9a8c7a">Date</td><td style="padding:4px 0;text-align:right">${booking.booking_date}</td></tr>
+          <tr><td style="padding:4px 0;color:#9a8c7a">Time</td><td style="padding:4px 0;text-align:right">${(booking.time_slot ?? "").slice(0, 5)}</td></tr>
+        </table>
+        <a href="${siteUrl}/account/bookings" style="display:inline-block;background:#d97706;color:#fff;text-decoration:none;padding:10px 20px;border-radius:999px">View your booking</a>`;
+      await sendEmail({
+        to: recipient.email,
+        subject: "Update on your booking — arranging your Pandit 🙏",
+        html: emailLayout("We're arranging your Pandit", body),
+      });
+    }
+
+    const { data: profile } = await admin
+      .from("profiles")
+      .select("phone")
+      .eq("id", booking.user_id)
+      .maybeSingle();
+    if (profile?.phone) {
+      await sendTemplatedSms({
+        to: profile.phone,
+        kind: "customer_reassigning",
+        vars: [poojaName, booking.booking_date],
+      });
+    }
+  } catch (err) {
+    console.error("notifyCustomerReassigning failed:", err);
+  }
+}
+
 export async function sendBackInStockEmails(productId: string): Promise<void> {
   try {
     const admin = createAdminClient();

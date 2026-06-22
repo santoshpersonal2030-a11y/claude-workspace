@@ -47,14 +47,14 @@ const RESPONSE_BADGE: Record<string, string> = {
 export default async function PriestCalendarPage({
   searchParams,
 }: {
-  searchParams: Promise<{ m?: string; clash?: string }>;
+  searchParams: Promise<{ m?: string; clash?: string; needreason?: string }>;
 }) {
   const pandit = (await getPriestPandit())!;
   const admin = createAdminClient();
   const today = todayIST();
 
   // Which month to show: ?m=YYYY-MM, else the current IST month.
-  const { m, clash } = await searchParams;
+  const { m, clash, needreason } = await searchParams;
   const monthKey = m && MONTH_RE.test(m) ? m : today.slice(0, 7);
   const [year, month] = monthKey.split("-").map(Number);
   const firstDay = `${monthKey}-01`;
@@ -114,6 +114,13 @@ export default async function PriestCalendarPage({
         </div>
       )}
 
+      {needreason && (
+        <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
+          Please add a short reason before declining — it helps the team
+          reassign quickly.
+        </div>
+      )}
+
       {/* Awaiting response */}
       {pending.length > 0 && (
         <section className="mt-6 rounded-2xl border border-amber-200 bg-amber-50/60 p-5">
@@ -159,7 +166,10 @@ export default async function PriestCalendarPage({
                     <input type="hidden" name="booking_id" value={b.id} />
                     <input
                       name="reason"
-                      placeholder="Reason (optional)"
+                      required
+                      minLength={3}
+                      placeholder="Reason (required)"
+                      title="A short reason is required to decline"
                       className="w-44 rounded-lg border border-saffron-200 bg-cream px-2 py-1.5 text-xs outline-none focus:border-saffron-400"
                     />
                     <button
