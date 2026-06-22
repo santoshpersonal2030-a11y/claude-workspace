@@ -563,7 +563,157 @@ export function generateAbhijitCandidates(
 // favourable and tithi is not forbidden, each timed to that day's Abhijit
 // window. Computed (tithi/nakshatra via the lunar engine) — candidates only,
 // still gated by astrologer approval.
-export function generateVivahCandidates(
+// ── Per-ceremony muhurat rule registry ──────────────────────────────────────
+// Each muhurat-requiring ceremony has its own favourable nakshatras and the
+// subset of masa/planetary exclusions that traditionally apply. Vivah and
+// Griha Pravesh are the most restrictive; child sanskars mainly avoid bad
+// nakshatra/tithi and Vishti.
+
+export type MuhuratRuleSet = {
+  name: string;
+  nakshatras: Set<number>;
+  forbiddenTithis: Set<number>;
+  kharmas: boolean;
+  chaturmas: boolean;
+  asta: boolean;
+  vishti: boolean;
+  shukraBala: boolean; // weigh Venus strength (marriage karaka) in the score
+};
+
+const RIKTA_AND_AMAVASYA = new Set([4, 9, 14, 19, 24, 29, 30]);
+
+const DEFAULT_RULES: MuhuratRuleSet = {
+  name: "Muhurat",
+  nakshatras: new Set([1, 4, 5, 7, 8, 12, 13, 14, 15, 17, 21, 22, 23, 24, 26, 27]),
+  forbiddenTithis: RIKTA_AND_AMAVASYA,
+  kharmas: false,
+  chaturmas: false,
+  asta: false,
+  vishti: true,
+  shukraBala: false,
+};
+
+export const CEREMONY_RULES: Record<string, MuhuratRuleSet> = {
+  "vivah-sanskar": {
+    name: "Vivah",
+    nakshatras: VIVAH_NAKSHATRAS,
+    forbiddenTithis: FORBIDDEN_TITHIS,
+    kharmas: true, chaturmas: true, asta: true, vishti: true, shukraBala: true,
+  },
+  "sagai-engagement": {
+    name: "Engagement",
+    nakshatras: new Set([4, 5, 10, 12, 13, 15, 17, 21, 26, 27]),
+    forbiddenTithis: FORBIDDEN_TITHIS,
+    kharmas: true, chaturmas: true, asta: true, vishti: true, shukraBala: true,
+  },
+  "griha-pravesh": {
+    name: "Griha Pravesh",
+    nakshatras: new Set([4, 5, 8, 12, 13, 14, 17, 21, 22, 24, 26, 27]),
+    forbiddenTithis: FORBIDDEN_TITHIS,
+    kharmas: true, chaturmas: true, asta: true, vishti: true, shukraBala: false,
+  },
+  "bhoomi-puja": {
+    name: "Bhoomi Puja",
+    nakshatras: new Set([4, 5, 8, 12, 13, 14, 17, 21, 22, 24, 26, 27]),
+    forbiddenTithis: FORBIDDEN_TITHIS,
+    kharmas: true, chaturmas: true, asta: false, vishti: true, shukraBala: false,
+  },
+  namkaran: {
+    name: "Namkaran",
+    nakshatras: new Set([1, 4, 5, 7, 8, 13, 14, 15, 17, 22, 23, 24, 26, 27]),
+    forbiddenTithis: RIKTA_AND_AMAVASYA,
+    kharmas: false, chaturmas: false, asta: false, vishti: true, shukraBala: false,
+  },
+  annaprashan: {
+    name: "Annaprashan",
+    nakshatras: new Set([4, 5, 7, 8, 13, 14, 15, 17, 21, 22, 23, 24, 26, 27]),
+    forbiddenTithis: RIKTA_AND_AMAVASYA,
+    kharmas: false, chaturmas: false, asta: false, vishti: true, shukraBala: false,
+  },
+  mundan: {
+    name: "Mundan",
+    nakshatras: new Set([1, 5, 7, 8, 13, 14, 15, 18, 22, 23, 24, 27]),
+    forbiddenTithis: RIKTA_AND_AMAVASYA,
+    kharmas: false, chaturmas: false, asta: false, vishti: true, shukraBala: false,
+  },
+};
+
+export function rulesFor(slug: string): MuhuratRuleSet {
+  return CEREMONY_RULES[slug] ?? DEFAULT_RULES;
+}
+
+// Generic exclusion: why a date fails a ceremony's strict rules, or null.
+export function ceremonyExclusionReason(
+  rules: MuhuratRuleSet,
+  dateStr: string,
+  istHour = 12,
+): string | null {
+  const [y, m, d] = dateStr.split("-").map(Number);
+  if (!y) return "invalid date";
+  const dn = dayNumber(y, m, d, istHour - IST_OFFSET_HOURS);
+  const sunLon = sunData(dn).lon;
+  const moonLon = moonLongitude(dn);
+  const tithi = Math.floor(rev(moonLon - sunLon) / 12) + 1;
+  const ayan = lahiriAyanamsa(y);
+  const nak = Math.floor(rev(moonLon - ayan) / (360 / 27)) + 1;
+
+  if (!rules.nakshatras.has(nak)) return "nakshatra not favourable";
+  if (rules.forbiddenTithis.has(tithi)) return `${tithiName(tithi)} tithi avoided`;
+
+  const sid = rev(sunLon - ayan);
+  const sign = Math.floor(sid / 30);
+  if (rules.kharmas && (sign === 8 || sign === 11)) return `Kharmas (Sun in ${RASHIS[sign]})`;
+  if (rules.chaturmas && sid >= 80 && sid < 195) return "Chaturmas (Devshayani period)";
+  if (rules.asta) {
+    if (separation(jupiterLon(dn), sunLon) < GURU_ASTA) return "Guru asta (Jupiter combust)";
+    if (separation(venusLon(dn), sunLon) < SHUKRA_ASTA) return "Shukra asta (Venus combust)";
+  }
+  if (rules.vishti) {
+    const k = Math.floor(rev(moonLon - sunLon) / 6);
+    if (k >= 1 && k <= 56 && (k - 1) % 7 === 6) return "Vishti (Bhadra) karana";
+  }
+  return null;
+}
+
+// Generic 0-100 triage score for a ceremony date (Shukra bala only when the
+// ceremony rules call for it — i.e. marriage/engagement).
+export function muhuratQuality(
+  rules: MuhuratRuleSet,
+  dateStr: string,
+  istHour = 12,
+): VivahQuality {
+  const [y, m, d] = dateStr.split("-").map(Number);
+  const dn = dayNumber(y, m, d, istHour - IST_OFFSET_HOURS);
+  const ayan = lahiriAyanamsa(y);
+  const sunLon = sunData(dn).lon;
+  const moonLon = moonLongitude(dn);
+  const tithi = Math.floor(rev(moonLon - sunLon) / 12) + 1;
+  const nak = Math.floor(rev(moonLon - ayan) / (360 / 27)) + 1;
+  const wd = weekdayOf(dateStr);
+  const gb = guruBala(dn, ayan);
+
+  const factors: string[] = [];
+  let score = 50;
+  if (PRIME_NAKSHATRAS.has(nak)) { score += 12; factors.push(`${NAKSHATRAS[nak - 1]} (prime)`); }
+  else { score += 6; factors.push(NAKSHATRAS[nak - 1]); }
+  if (GOOD_TITHIS.has(tithi)) { score += 8; factors.push(`${tithiName(tithi)} ✓`); }
+  if (GOOD_WEEKDAYS.has(wd)) { score += 8; factors.push("favourable weekday"); }
+  else if (wd === 2 || wd === 6) { score -= 6; factors.push("Tue/Sat weekday"); }
+  score += gb * 5;
+  factors.push(`Guru bala ${gb >= 0 ? "+" : ""}${gb}`);
+  if (rules.shukraBala) {
+    const sb = shukraBala(dn, ayan);
+    score += sb * 5;
+    factors.push(`Shukra bala ${sb >= 0 ? "+" : ""}${sb}`);
+  }
+  score = Math.max(0, Math.min(100, Math.round(score)));
+  return { score, tier: tierFromScore(score), factors };
+}
+
+// Generates muhurat candidates for any ceremony by its rule-set, each timed to
+// the day's Abhijit window and scored for triage.
+export function generateCeremonyCandidates(
+  slug: string,
   from: string,
   to: string,
   lat: number,
@@ -571,6 +721,7 @@ export function generateVivahCandidates(
   strict = true,
   maxDays = 800,
 ): MuhuratCandidate[] {
+  const rules = rulesFor(slug);
   const out: MuhuratCandidate[] = [];
   const start = new Date(`${from}T00:00:00Z`);
   const end = new Date(`${to}T00:00:00Z`);
@@ -584,26 +735,22 @@ export function generateVivahCandidates(
     const dateStr = dt.toISOString().slice(0, 10);
     const periods = computeDayPeriods(dateStr, lat, lng);
     if (!periods) continue;
-    // Evaluate the panchanga at the Abhijit window midpoint.
     const midHour = (periods.abhijit.start + periods.abhijit.end) / 2 / 60;
     const p = panchangaAt(dateStr, midHour);
     if (!p) continue;
 
-    // Strict adds masa (Kharmas/Chaturmas) + planetary (Guru/Shukra asta) +
-    // Vishti-karana exclusions; lenient keeps just nakshatra + tithi.
     if (strict) {
-      if (vivahExclusionReason(dateStr, midHour) !== null) continue;
-    } else if (!isAuspiciousForVivah(p)) {
+      if (ceremonyExclusionReason(rules, dateStr, midHour) !== null) continue;
+    } else if (!rules.nakshatras.has(p.nakshatra) || rules.forbiddenTithis.has(p.tithi)) {
       continue;
     }
 
-    const q = vivahQuality(dateStr, midHour);
+    const q = muhuratQuality(rules, dateStr, midHour);
     out.push({
       date: dateStr,
       start_time: minutesToHHMM(periods.abhijit.start),
       end_time: minutesToHHMM(periods.abhijit.end),
-      // Customer-friendly label; the score lives in quality_score for triage.
-      label: `Vivah Muhurat — ${p.nakshatraName}`,
+      label: `${rules.name} Muhurat — ${p.nakshatraName}`,
       quality_score: q.score,
       note:
         `${p.nakshatraName} nakshatra, ${p.tithiName}, Sun in ${sunRashi(dateStr, midHour)}. ` +
@@ -613,4 +760,16 @@ export function generateVivahCandidates(
     });
   }
   return out;
+}
+
+// Back-compat wrapper — Vivah is just the wedding ceremony's rule-set.
+export function generateVivahCandidates(
+  from: string,
+  to: string,
+  lat: number,
+  lng: number,
+  strict = true,
+  maxDays = 800,
+): MuhuratCandidate[] {
+  return generateCeremonyCandidates("vivah-sanskar", from, to, lat, lng, strict, maxDays);
 }

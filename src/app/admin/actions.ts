@@ -11,7 +11,7 @@ import { saveCompany } from "@/lib/company-settings";
 import { buildRunItems } from "@/lib/payroll-data";
 import {
   generateAbhijitCandidates,
-  generateVivahCandidates,
+  generateCeremonyCandidates,
   CITY_COORDS,
 } from "@/lib/muhurat-engine";
 import {
@@ -380,17 +380,28 @@ export async function generateMuhuratWindows(
   if (!from || !to) return;
 
   const coords = CITY_COORDS[city] ?? CITY_COORDS["New Delhi"];
-  const mode = str(formData.get("mode")) === "vivah" ? "vivah" : "abhijit";
+  const mode = str(formData.get("mode"));
   const strict = formData.get("strict") === "on";
-  const candidates =
-    mode === "vivah"
-      ? generateVivahCandidates(from, to, coords.lat, coords.lng, strict)
-      : generateAbhijitCandidates(from, to, coords.lat, coords.lng);
-  if (candidates.length === 0) return;
-
-  // Vivah candidates default to the wedding pooja when no scope is chosen.
   let scope = str(formData.get("scope"));
-  if (!scope && mode === "vivah") scope = "vivah-sanskar";
+
+  let candidates;
+  if (mode === "ceremony" || mode === "vivah") {
+    // The selected pooja drives the ceremony's classical rules; default to the
+    // wedding ceremony when nothing specific is chosen.
+    const ruleSlug = scope || "vivah-sanskar";
+    if (!scope) scope = "vivah-sanskar";
+    candidates = generateCeremonyCandidates(
+      ruleSlug,
+      from,
+      to,
+      coords.lat,
+      coords.lng,
+      strict,
+    );
+  } else {
+    candidates = generateAbhijitCandidates(from, to, coords.lat, coords.lng);
+  }
+  if (candidates.length === 0) return;
   const scopeLower = scope.toLowerCase();
   const isCategory = Constants.public.Enums.pooja_category.some(
     (c) => c.toLowerCase() === scopeLower,

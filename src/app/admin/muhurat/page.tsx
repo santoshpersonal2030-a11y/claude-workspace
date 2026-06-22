@@ -148,16 +148,17 @@ export default async function AdminMuhuratPage({
         <p className="mt-1 text-xs text-foreground/60">
           Computes muhurats from astronomy — no external API. <strong>Abhijit</strong>
           {" "}gives the daily auspicious midday window (with Rahu/Yamaganda/Gulika
-          to avoid). <strong>Wedding</strong> filters to dates whose
-          nakshatra/tithi favour Vivah (computed lunar engine). All rows land{" "}
+          to avoid). <strong>Ceremony</strong> filters to dates whose
+          nakshatra/tithi favour the chosen pooja (Vivah, Griha Pravesh,
+          Namkaran, Mundan, …) using its classical rules. All rows land{" "}
           <strong>pending</strong> for astrologer approval.
         </p>
         <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-6">
           <label className="text-xs text-foreground/60">
             Mode
-            <select name="mode" className={inputClass} defaultValue="abhijit">
+            <select name="mode" className={inputClass} defaultValue="ceremony">
+              <option value="ceremony">Ceremony (by pooja rules)</option>
               <option value="abhijit">Abhijit (daily)</option>
-              <option value="vivah">Wedding (tithi/nakshatra)</option>
             </select>
           </label>
           <label className="text-xs text-foreground/60">
@@ -211,8 +212,8 @@ export default async function AdminMuhuratPage({
         </div>
         <label className="mt-3 flex items-center gap-2 text-xs text-foreground/70">
           <input type="checkbox" name="strict" defaultChecked />
-          Strict wedding rules (exclude Kharmas &amp; Chaturmas masa, plus Guru /
-          Shukra asta) — Wedding mode only
+          Strict rules (apply the ceremony&apos;s masa &amp; planetary exclusions —
+          Kharmas/Chaturmas, Guru/Shukra asta, Vishti) — Ceremony mode
         </label>
       </form>
 
