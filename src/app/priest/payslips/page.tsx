@@ -12,7 +12,7 @@ export default async function PriestPayslipsPage() {
   const { data: items } = await admin
     .from("payroll_run_items")
     .select(
-      "id, model, gross, deductions, net_pay, paid, paid_at, bookings_count, payroll_runs(period_year, period_month)",
+      "id, model, gross, deductions, net_pay, paid, paid_at, bookings_count, pf_employee, pf_employer, gratuity, dakshina_retained, payroll_runs(period_year, period_month)",
     )
     .eq("pandit_id", pandit.id);
 
@@ -22,6 +22,28 @@ export default async function PriestPayslipsPage() {
     if (ay !== by) return by - ay;
     return (b.payroll_runs?.period_month ?? 0) - (a.payroll_runs?.period_month ?? 0);
   });
+
+  // Financial year (India: Apr–Mar). Sum this priest's pay for the current FY.
+  const fyStartOf = (year: number, month: number) => (month >= 4 ? year : year - 1);
+  const now = new Date();
+  const currentFy = fyStartOf(now.getFullYear(), now.getMonth() + 1);
+  const fyLines = lines.filter((l) => {
+    const r = l.payroll_runs;
+    return r && fyStartOf(r.period_year, r.period_month) === currentFy;
+  });
+  const sum = (pick: (l: (typeof lines)[number]) => number) =>
+    fyLines.reduce((s, l) => s + pick(l), 0);
+  const fy = {
+    label: `${currentFy}–${String((currentFy + 1) % 100).padStart(2, "0")}`,
+    net: sum((l) => l.net_pay),
+    paid: fyLines.filter((l) => l.paid).reduce((s, l) => s + l.net_pay, 0),
+    gross: sum((l) => l.gross),
+    pf: sum((l) => l.pf_employee + l.pf_employer),
+    gratuity: sum((l) => l.gratuity),
+    dakshina: sum((l) => l.dakshina_retained),
+    ceremonies: sum((l) => l.bookings_count),
+    payslips: fyLines.length,
+  };
 
   return (
     <div>
@@ -36,8 +58,35 @@ export default async function PriestPayslipsPage() {
           No payslips yet. They appear once the admin runs payroll for a month.
         </p>
       ) : (
-        <div className="mt-6 overflow-x-auto">
-          <table className="w-full min-w-[640px] border-collapse text-sm">
+        <>
+          {fy.payslips > 0 && (
+            <div className="mt-6 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm">
+              <div className="flex flex-wrap items-baseline justify-between gap-2">
+                <h2 className="font-heading text-lg text-maroon-800">
+                  This financial year (FY {fy.label})
+                </h2>
+                <span className="text-xs text-foreground/55">
+                  {fy.payslips} payslip{fy.payslips === 1 ? "" : "s"} ·{" "}
+                  {fy.ceremonies} ceremonies
+                </span>
+              </div>
+              <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+                <Stat label="Net earned" value={fy.net} primary />
+                <Stat label="Paid out" value={fy.paid} />
+                <Stat label="Gross" value={fy.gross} />
+                <Stat label="PF (you + employer)" value={fy.pf} />
+                <Stat label="Gratuity accrued" value={fy.gratuity} />
+                {fy.dakshina > 0 ? (
+                  <Stat label="Dakshina kept" value={fy.dakshina} />
+                ) : (
+                  <Stat label="Pending" value={fy.net - fy.paid} />
+                )}
+              </div>
+            </div>
+          )}
+
+          <div className="mt-6 overflow-x-auto">
+            <table className="w-full min-w-[640px] border-collapse text-sm">
             <thead>
               <tr className="border-b border-saffron-200 text-left text-xs text-foreground/60">
                 <th className="py-2 pr-3">Period</th>
@@ -97,8 +146,32 @@ export default async function PriestPayslipsPage() {
               ))}
             </tbody>
           </table>
-        </div>
+          </div>
+        </>
       )}
+    </div>
+  );
+}
+
+function Stat({
+  label,
+  value,
+  primary,
+}: {
+  label: string;
+  value: number;
+  primary?: boolean;
+}) {
+  return (
+    <div className="rounded-xl bg-cream/60 p-3">
+      <div
+        className={`font-heading ${
+          primary ? "text-xl text-maroon-800" : "text-lg text-maroon-700"
+        }`}
+      >
+        {formatINR(value)}
+      </div>
+      <div className="mt-0.5 text-[11px] text-foreground/55">{label}</div>
     </div>
   );
 }
