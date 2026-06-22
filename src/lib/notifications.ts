@@ -3,7 +3,20 @@
 
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendEmail, emailLayout } from "@/lib/email";
-import { sendTemplatedSms } from "@/lib/sms";
+import { sendTemplatedSms, type SmsKind } from "@/lib/sms";
+import { sendTemplatedWhatsApp } from "@/lib/whatsapp";
+
+// Fire the mobile channels (SMS + WhatsApp) for a message kind, best-effort.
+// Both are dormant no-ops until their providers/templates are configured.
+async function sendMobile(
+  to: string | null | undefined,
+  kind: SmsKind,
+  vars: string[],
+): Promise<void> {
+  if (!to) return;
+  await sendTemplatedSms({ to, kind, vars });
+  await sendTemplatedWhatsApp({ to, kind, vars });
+}
 import { trackingUrl } from "@/lib/carriers";
 import { simplePdf } from "@/lib/pdf";
 import { buildOrderInvoicePdf } from "@/lib/invoice-pdf";
@@ -160,13 +173,10 @@ export async function notifyPriestAssignment(bookingId: string): Promise<void> {
       });
     }
 
-    if (priest.phone) {
-      await sendTemplatedSms({
-        to: priest.phone,
-        kind: "priest_assignment",
-        vars: [booking?.poojas?.name ?? "Pooja", booking?.booking_date ?? ""],
-      });
-    }
+    await sendMobile(priest.phone, "priest_assignment", [
+      booking?.poojas?.name ?? "Pooja",
+      booking?.booking_date ?? "",
+    ]);
   } catch (err) {
     console.error("notifyPriestAssignment failed:", err);
   }
@@ -209,13 +219,11 @@ export async function notifyAdminBookingDeclined(
       html: emailLayout("Booking needs reassignment", body),
     });
 
-    if (company.phone) {
-      await sendTemplatedSms({
-        to: company.phone,
-        kind: "admin_decline",
-        vars: [panditName, booking.poojas?.name ?? "a booking", booking.booking_date],
-      });
-    }
+    await sendMobile(company.phone, "admin_decline", [
+      panditName,
+      booking.poojas?.name ?? "a booking",
+      booking.booking_date,
+    ]);
   } catch (err) {
     console.error("notifyAdminBookingDeclined failed:", err);
   }
@@ -264,13 +272,11 @@ export async function notifyCustomerPriestAccepted(
       .select("phone")
       .eq("id", booking.user_id)
       .maybeSingle();
-    if (profile?.phone) {
-      await sendTemplatedSms({
-        to: profile.phone,
-        kind: "customer_confirmed",
-        vars: [priestName, poojaName, booking.booking_date],
-      });
-    }
+    await sendMobile(profile?.phone, "customer_confirmed", [
+      priestName,
+      poojaName,
+      booking.booking_date,
+    ]);
   } catch (err) {
     console.error("notifyCustomerPriestAccepted failed:", err);
   }
@@ -315,13 +321,10 @@ export async function notifyCustomerReassigning(
       .select("phone")
       .eq("id", booking.user_id)
       .maybeSingle();
-    if (profile?.phone) {
-      await sendTemplatedSms({
-        to: profile.phone,
-        kind: "customer_reassigning",
-        vars: [poojaName, booking.booking_date],
-      });
-    }
+    await sendMobile(profile?.phone, "customer_reassigning", [
+      poojaName,
+      booking.booking_date,
+    ]);
   } catch (err) {
     console.error("notifyCustomerReassigning failed:", err);
   }
