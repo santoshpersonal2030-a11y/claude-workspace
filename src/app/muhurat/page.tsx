@@ -71,6 +71,12 @@ export default async function MuhuratPage() {
               by our astrologers as per the panchang. Choose a muhurat and we&apos;ll
               arrange a verified Pandit.
             </p>
+            <Link
+              href="/panchang"
+              className="mt-4 inline-block text-sm font-semibold text-saffron-700 hover:text-saffron-800"
+            >
+              Check the panchang for any date →
+            </Link>
           </div>
         </section>
 

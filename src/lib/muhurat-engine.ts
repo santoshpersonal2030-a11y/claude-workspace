@@ -773,3 +773,67 @@ export function generateVivahCandidates(
 ): MuhuratCandidate[] {
   return generateCeremonyCandidates("vivah-sanskar", from, to, lat, lng, strict, maxDays);
 }
+
+// ── Full panchanga (for the public lookup) ──────────────────────────────────
+export const YOGAS = [
+  "Vishkambha", "Priti", "Ayushman", "Saubhagya", "Shobhana", "Atiganda",
+  "Sukarma", "Dhriti", "Shoola", "Ganda", "Vriddhi", "Dhruva", "Vyaghata",
+  "Harshana", "Vajra", "Siddhi", "Vyatipata", "Variyana", "Parigha", "Shiva",
+  "Siddha", "Sadhya", "Shubha", "Shukla", "Brahma", "Indra", "Vaidhriti",
+];
+
+export const WEEKDAY_NAMES = [
+  "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday",
+];
+
+export type FullPanchanga = {
+  date: string;
+  weekday: string;
+  tithi: { num: number; name: string };
+  nakshatra: { num: number; name: string };
+  yoga: { num: number; name: string };
+  karana: { name: string; isVishti: boolean };
+  sunRashi: string;
+  sunrise: number;
+  sunset: number;
+  abhijit: Period;
+  rahu: Period;
+  yamaganda: Period;
+  gulika: Period;
+};
+
+// Complete panchanga for a date + place, evaluated at sunrise (the traditional
+// reference). All times are minutes-from-midnight IST; format with minutesToHHMM.
+export function fullPanchanga(
+  dateStr: string,
+  lat: number,
+  lng: number,
+): FullPanchanga | null {
+  const periods = computeDayPeriods(dateStr, lat, lng);
+  if (!periods) return null;
+  const sunriseHour = periods.sunrise / 60;
+  const p = panchangaAt(dateStr, sunriseHour);
+  if (!p) return null;
+
+  const [y, m, d] = dateStr.split("-").map(Number);
+  const dn = dayNumber(y, m, d, sunriseHour - IST_OFFSET_HOURS);
+  const ayan = lahiriAyanamsa(y);
+  const yn =
+    Math.floor(rev(sunData(dn).lon + moonLongitude(dn) - 2 * ayan) / (360 / 27)) + 1;
+
+  return {
+    date: dateStr,
+    weekday: WEEKDAY_NAMES[weekdayOf(dateStr)],
+    tithi: { num: p.tithi, name: p.tithiName },
+    nakshatra: { num: p.nakshatra, name: p.nakshatraName },
+    yoga: { num: yn, name: YOGAS[yn - 1] },
+    karana: karanaAt(dateStr, sunriseHour),
+    sunRashi: sunRashi(dateStr, sunriseHour),
+    sunrise: periods.sunrise,
+    sunset: periods.sunset,
+    abhijit: periods.abhijit,
+    rahu: periods.rahu,
+    yamaganda: periods.yamaganda,
+    gulika: periods.gulika,
+  };
+}
