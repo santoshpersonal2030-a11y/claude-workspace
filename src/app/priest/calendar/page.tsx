@@ -47,14 +47,14 @@ const RESPONSE_BADGE: Record<string, string> = {
 export default async function PriestCalendarPage({
   searchParams,
 }: {
-  searchParams: Promise<{ m?: string }>;
+  searchParams: Promise<{ m?: string; clash?: string }>;
 }) {
   const pandit = (await getPriestPandit())!;
   const admin = createAdminClient();
   const today = todayIST();
 
   // Which month to show: ?m=YYYY-MM, else the current IST month.
-  const { m } = await searchParams;
+  const { m, clash } = await searchParams;
   const monthKey = m && MONTH_RE.test(m) ? m : today.slice(0, 7);
   const [year, month] = monthKey.split("-").map(Number);
   const firstDay = `${monthKey}-01`;
@@ -106,6 +106,13 @@ export default async function PriestCalendarPage({
         Ceremonies assigned to you. Accept the ones you can perform, or decline
         to send them back to the team for reassignment.
       </p>
+
+      {clash && (
+        <div className="mt-4 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+          Couldn&apos;t accept — it clashes with another ceremony you&apos;ve
+          already accepted that day. Decline one before accepting the other.
+        </div>
+      )}
 
       {/* Awaiting response */}
       {pending.length > 0 && (
