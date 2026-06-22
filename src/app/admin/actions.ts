@@ -381,9 +381,10 @@ export async function generateMuhuratWindows(
 
   const coords = CITY_COORDS[city] ?? CITY_COORDS["New Delhi"];
   const mode = str(formData.get("mode")) === "vivah" ? "vivah" : "abhijit";
+  const strict = formData.get("strict") === "on";
   const candidates =
     mode === "vivah"
-      ? generateVivahCandidates(from, to, coords.lat, coords.lng)
+      ? generateVivahCandidates(from, to, coords.lat, coords.lng, strict)
       : generateAbhijitCandidates(from, to, coords.lat, coords.lng);
   if (candidates.length === 0) return;
 

@@ -303,6 +303,119 @@ export function isAuspiciousForVivah(p: Panchanga): boolean {
   return VIVAH_NAKSHATRAS.has(p.nakshatra) && !FORBIDDEN_TITHIS.has(p.tithi);
 }
 
+// ── Masa & planetary exclusions (stricter Vivah filter) ─────────────────────
+
+const RASHIS = [
+  "Mesha", "Vrishabha", "Mithuna", "Karka", "Simha", "Kanya", "Tula",
+  "Vrishchika", "Dhanu", "Makara", "Kumbha", "Meena",
+];
+
+// Generic Schlyter heliocentric→geocentric ecliptic longitude for a planet.
+type OrbElements = {
+  N: number; i: number; w: number; a: number; e: number; M: number;
+};
+
+function geocentricLon(dn: number, el: OrbElements): number {
+  const { N, i, w, a, e, M } = el;
+  let E = M + (180 / Math.PI) * e * sinD(M) * (1 + e * cosD(M));
+  for (let k = 0; k < 6; k++) {
+    E = E - (E - (180 / Math.PI) * e * sinD(E) - M) / (1 - e * cosD(E));
+  }
+  const xv = a * (cosD(E) - e);
+  const yv = a * (Math.sqrt(1 - e * e) * sinD(E));
+  const v = rev((Math.atan2(yv, xv) * 180) / Math.PI);
+  const r = Math.sqrt(xv * xv + yv * yv);
+  // Heliocentric ecliptic rectangular (only x,y are needed for longitude).
+  const xh = r * (cosD(N) * cosD(v + w) - sinD(N) * sinD(v + w) * cosD(i));
+  const yh = r * (sinD(N) * cosD(v + w) + cosD(N) * sinD(v + w) * cosD(i));
+  // Sun's geocentric rectangular = -(Earth heliocentric); add to get geocentric.
+  const s = sunData(dn);
+  const e_s = 0.016709 - 1.151e-9 * dn;
+  const Es = s.M + (180 / Math.PI) * e_s * sinD(s.M) * (1 + e_s * cosD(s.M));
+  const xvs = cosD(Es) - e_s;
+  const yvs = Math.sqrt(1 - e_s * e_s) * sinD(Es);
+  const rs = Math.sqrt(xvs * xvs + yvs * yvs);
+  const xs = rs * cosD(s.lon);
+  const ys = rs * sinD(s.lon);
+  return rev((Math.atan2(yh + ys, xh + xs) * 180) / Math.PI);
+}
+
+function jupiterLon(dn: number): number {
+  return geocentricLon(dn, {
+    N: 100.4542 + 2.7685e-5 * dn,
+    i: 1.303 - 1.557e-7 * dn,
+    w: 273.8777 + 1.64505e-5 * dn,
+    a: 5.20256,
+    e: 0.048498 + 4.469e-9 * dn,
+    M: rev(19.895 + 0.0830853001 * dn),
+  });
+}
+
+function venusLon(dn: number): number {
+  return geocentricLon(dn, {
+    N: 76.6799 + 2.4659e-5 * dn,
+    i: 3.3946 + 2.75e-8 * dn,
+    w: 54.891 + 1.38374e-5 * dn,
+    a: 0.72333,
+    e: 0.006773 - 1.302e-9 * dn,
+    M: rev(48.0052 + 1.6021302244 * dn),
+  });
+}
+
+// Smallest angular separation (deg) between two ecliptic longitudes.
+function separation(a: number, b: number): number {
+  const d = Math.abs(rev(a - b));
+  return Math.min(d, 360 - d);
+}
+
+// Combustion (asta) thresholds in degrees from the Sun.
+const GURU_ASTA = 11;
+const SHUKRA_ASTA = 10;
+
+// Returns a reason a date is INauspicious for Vivah under the strict rule set,
+// or null if it passes. Layers masa (Kharmas / approx Chaturmas) and planetary
+// (Guru/Shukra asta) exclusions on top of the nakshatra/tithi check.
+export function vivahExclusionReason(
+  dateStr: string,
+  istHour = 12,
+): string | null {
+  const [y, m, d] = dateStr.split("-").map(Number);
+  if (!y) return "invalid date";
+  const dn = dayNumber(y, m, d, istHour - IST_OFFSET_HOURS);
+
+  const sunLon = sunData(dn).lon;
+  const moonLon = moonLongitude(dn);
+  const tithi = Math.floor(rev(moonLon - sunLon) / 12) + 1;
+  const ayan = lahiriAyanamsa(y);
+  const nakshatra = Math.floor(rev(moonLon - ayan) / (360 / 27)) + 1;
+
+  if (!VIVAH_NAKSHATRAS.has(nakshatra)) return "nakshatra not favourable";
+  if (FORBIDDEN_TITHIS.has(tithi)) return `${tithiName(tithi)} tithi avoided`;
+
+  // Solar month (sidereal Sun sign).
+  const sidSun = rev(sunLon - ayan);
+  const sunSign = Math.floor(sidSun / 30); // 0=Mesha … 11=Meena
+  if (sunSign === 8) return "Kharmas (Sun in Dhanu)";
+  if (sunSign === 11) return "Kharmas (Sun in Meena)";
+  // Approximate Chaturmas: Sun sidereal ~Gemini 20° → Libra 15° (Devshayani→
+  // Prabodhini), the monsoon no-wedding window.
+  if (sidSun >= 80 && sidSun < 195) return "Chaturmas (Devshayani period)";
+
+  // Planetary combustion (asta) — Guru/Shukra too close to the Sun.
+  if (separation(jupiterLon(dn), sunLon) < GURU_ASTA) return "Guru asta (Jupiter combust)";
+  if (separation(venusLon(dn), sunLon) < SHUKRA_ASTA) return "Shukra asta (Venus combust)";
+
+  return null;
+}
+
+// Sidereal Sun rashi name for a date (for candidate notes).
+export function sunRashi(dateStr: string, istHour = 12): string {
+  const [y, m, d] = dateStr.split("-").map(Number);
+  const dn = dayNumber(y, m, d, istHour - IST_OFFSET_HOURS);
+  const sid = rev(sunData(dn).lon - lahiriAyanamsa(y));
+  return RASHIS[Math.floor(sid / 30)];
+}
+
 export type MuhuratCandidate = {
   date: string;
   start_time: string;
@@ -357,6 +470,7 @@ export function generateVivahCandidates(
   to: string,
   lat: number,
   lng: number,
+  strict = true,
   maxDays = 800,
 ): MuhuratCandidate[] {
   const out: MuhuratCandidate[] = [];
@@ -375,7 +489,15 @@ export function generateVivahCandidates(
     // Evaluate the panchanga at the Abhijit window midpoint.
     const midHour = (periods.abhijit.start + periods.abhijit.end) / 2 / 60;
     const p = panchangaAt(dateStr, midHour);
-    if (!p || !isAuspiciousForVivah(p)) continue;
+    if (!p) continue;
+
+    // Strict adds masa (Kharmas/Chaturmas) + planetary (Guru/Shukra asta)
+    // exclusions; lenient keeps just nakshatra + tithi.
+    if (strict) {
+      if (vivahExclusionReason(dateStr, midHour) !== null) continue;
+    } else if (!isAuspiciousForVivah(p)) {
+      continue;
+    }
 
     out.push({
       date: dateStr,
@@ -383,9 +505,9 @@ export function generateVivahCandidates(
       end_time: minutesToHHMM(periods.abhijit.end),
       label: `Vivah Muhurat — ${p.nakshatraName}`,
       note:
-        `${p.nakshatraName} nakshatra, ${p.tithiName}. Abhijit window. ` +
-        `Avoid Rahu Kalam ${minutesToHHMM(periods.rahu.start)}-${minutesToHHMM(periods.rahu.end)}. ` +
-        `Computed — verify before publishing.`,
+        `${p.nakshatraName} nakshatra, ${p.tithiName}, Sun in ${sunRashi(dateStr, midHour)}. ` +
+        `Abhijit window. Avoid Rahu Kalam ${minutesToHHMM(periods.rahu.start)}-${minutesToHHMM(periods.rahu.end)}. ` +
+        `Computed${strict ? " (strict rules)" : ""} — verify before publishing.`,
     });
   }
   return out;

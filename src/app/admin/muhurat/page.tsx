@@ -189,6 +189,11 @@ export default async function AdminMuhuratPage() {
             </button>
           </div>
         </div>
+        <label className="mt-3 flex items-center gap-2 text-xs text-foreground/70">
+          <input type="checkbox" name="strict" defaultChecked />
+          Strict wedding rules (exclude Kharmas &amp; Chaturmas masa, plus Guru /
+          Shukra asta) — Wedding mode only
+        </label>
       </form>
 
       {/* Bulk import */}
