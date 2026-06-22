@@ -330,6 +330,36 @@ export async function notifyCustomerReassigning(
   }
 }
 
+// Tells the customer a recurring-pooja booking has been auto-scheduled from their
+// subscription, with a link to review and confirm. Best-effort.
+export async function sendRecurringScheduled(bookingId: string): Promise<void> {
+  try {
+    const admin = createAdminClient();
+    const { data: booking } = await admin
+      .from("bookings")
+      .select("id, user_id, booking_date, time_slot, total_amount, poojas(name)")
+      .eq("id", bookingId)
+      .maybeSingle();
+    if (!booking) return;
+
+    const recipient = await emailForUser(admin, booking.user_id);
+    const poojaName = booking.poojas?.name ?? "your pooja";
+    if (recipient) {
+      const body = `
+        <p>Hi ${recipient.name}, your recurring <strong>${poojaName}</strong> has been scheduled for <strong>${booking.booking_date}</strong> (${(booking.time_slot ?? "").slice(0, 5)}). We'll assign a verified Pandit and be in touch to confirm.</p>
+        <a href="${siteUrl}/account/bookings" style="display:inline-block;background:#d97706;color:#fff;text-decoration:none;padding:10px 20px;border-radius:999px">Review your booking</a>
+        <p style="margin-top:12px;font-size:12px;color:#9a8c7a">Manage or pause your recurring poojas anytime from your account.</p>`;
+      await sendEmail({
+        to: recipient.email,
+        subject: `Your recurring ${poojaName} is scheduled 🙏`,
+        html: emailLayout("Recurring pooja scheduled", body),
+      });
+    }
+  } catch (err) {
+    console.error("sendRecurringScheduled failed:", err);
+  }
+}
+
 export async function sendBackInStockEmails(productId: string): Promise<void> {
   try {
     const admin = createAdminClient();

@@ -866,6 +866,85 @@ export type Database = {
         }
         Relationships: []
       }
+      pooja_subscriptions: {
+        Row: {
+          active: boolean
+          address: string
+          anchor_day: number
+          cadence: string
+          city: string
+          created_at: string
+          id: string
+          language: string | null
+          last_booking_id: string | null
+          next_run: string
+          pincode: string | null
+          pooja_id: string
+          samagri_kit: boolean
+          time_slot: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          active?: boolean
+          address: string
+          anchor_day: number
+          cadence: string
+          city: string
+          created_at?: string
+          id?: string
+          language?: string | null
+          last_booking_id?: string | null
+          next_run: string
+          pincode?: string | null
+          pooja_id: string
+          samagri_kit?: boolean
+          time_slot: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          active?: boolean
+          address?: string
+          anchor_day?: number
+          cadence?: string
+          city?: string
+          created_at?: string
+          id?: string
+          language?: string | null
+          last_booking_id?: string | null
+          next_run?: string
+          pincode?: string | null
+          pooja_id?: string
+          samagri_kit?: boolean
+          time_slot?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pooja_subscriptions_last_booking_id_fkey"
+            columns: ["last_booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pooja_subscriptions_pooja_id_fkey"
+            columns: ["pooja_id"]
+            isOneToOne: false
+            referencedRelation: "poojas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pooja_subscriptions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       poojas: {
         Row: {
           active: boolean
