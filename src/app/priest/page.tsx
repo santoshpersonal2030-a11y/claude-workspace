@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { getPriestPandit } from "@/lib/priest";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { panditTierInfo } from "@/lib/pandit-tier";
@@ -20,7 +22,7 @@ export default async function PriestDashboard() {
   const { data: bookings } = await admin
     .from("bookings")
     .select(
-      "id, booking_date, time_slot, status, city, pincode, service_price, total_amount, language, poojas(name)",
+      "id, booking_date, time_slot, status, priest_response, city, pincode, service_price, total_amount, language, poojas(name)",
     )
     .eq("pandit_id", pandit.id)
     .order("booking_date", { ascending: true });
@@ -29,6 +31,7 @@ export default async function PriestDashboard() {
   const upcoming = all.filter(
     (b) => b.booking_date >= today && b.status !== "cancelled",
   );
+  const awaiting = upcoming.filter((b) => b.priest_response === "pending");
   const past = all.filter(
     (b) => b.booking_date < today || b.status === "completed",
   );
@@ -43,6 +46,19 @@ export default async function PriestDashboard() {
         {tier.tier} · {pandit.experience_years ?? 0} years · Home pincode{" "}
         {pandit.home_pincode ?? "—"}
       </p>
+
+      {awaiting.length > 0 && (
+        <Link
+          href="/priest/calendar"
+          className="mt-5 flex items-center justify-between gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm hover:bg-amber-100"
+        >
+          <span className="font-medium text-maroon-800">
+            {awaiting.length} booking{awaiting.length === 1 ? "" : "s"} awaiting
+            your accept / decline
+          </span>
+          <span className="font-semibold text-saffron-700">Review →</span>
+        </Link>
+      )}
 
       {/* Quick stats */}
       <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3">

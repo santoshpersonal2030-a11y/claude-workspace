@@ -20,6 +20,8 @@ export type Database = {
           booking_date: string
           city: string
           created_at: string
+          decline_reason: string | null
+          declined_by_pandit_id: string | null
           ends_at: string | null
           id: string
           invoice_fy: number | null
@@ -32,6 +34,8 @@ export type Database = {
           pincode: string | null
           pooja_id: string
           preferred_pandit_id: string | null
+          priest_responded_at: string | null
+          priest_response: Database["public"]["Enums"]["priest_response"]
           samagri_kit: boolean
           samagri_price: number
           service_price: number
@@ -49,6 +53,8 @@ export type Database = {
           booking_date: string
           city: string
           created_at?: string
+          decline_reason?: string | null
+          declined_by_pandit_id?: string | null
           ends_at?: string | null
           id?: string
           invoice_fy?: number | null
@@ -61,6 +67,8 @@ export type Database = {
           pincode?: string | null
           pooja_id: string
           preferred_pandit_id?: string | null
+          priest_responded_at?: string | null
+          priest_response?: Database["public"]["Enums"]["priest_response"]
           samagri_kit?: boolean
           samagri_price?: number
           service_price: number
@@ -78,6 +86,8 @@ export type Database = {
           booking_date?: string
           city?: string
           created_at?: string
+          decline_reason?: string | null
+          declined_by_pandit_id?: string | null
           ends_at?: string | null
           id?: string
           invoice_fy?: number | null
@@ -90,6 +100,8 @@ export type Database = {
           pincode?: string | null
           pooja_id?: string
           preferred_pandit_id?: string | null
+          priest_responded_at?: string | null
+          priest_response?: Database["public"]["Enums"]["priest_response"]
           samagri_kit?: boolean
           samagri_price?: number
           service_price?: number
@@ -103,6 +115,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "bookings_declined_by_pandit_id_fkey"
+            columns: ["declined_by_pandit_id"]
+            isOneToOne: false
+            referencedRelation: "pandits"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "bookings_pandit_id_fkey"
             columns: ["pandit_id"]
@@ -1202,6 +1221,7 @@ export type Database = {
         | "Life Event"
         | "Remedial"
         | "Ancestral"
+      priest_response: "pending" | "accepted" | "declined"
       signin_method: "otp" | "google"
     }
     CompositeTypes: {
@@ -1368,6 +1388,7 @@ export const Constants = {
         "Remedial",
         "Ancestral",
       ],
+      priest_response: ["pending", "accepted", "declined"],
       signin_method: ["otp", "google"],
     },
   },

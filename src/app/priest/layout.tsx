@@ -5,6 +5,7 @@ import { getPriestPandit } from "@/lib/priest";
 
 const tabs = [
   { href: "/priest", label: "Dashboard" },
+  { href: "/priest/calendar", label: "Calendar" },
   { href: "/priest/availability", label: "Availability" },
   { href: "/priest/payslips", label: "Payslips" },
 ];

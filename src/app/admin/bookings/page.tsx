@@ -41,7 +41,7 @@ export default async function AdminBookingsPage() {
       .from("bookings")
       // Two FKs point at pandits, so disambiguate with explicit constraint hints.
       .select(
-        "id, booking_date, time_slot, starts_at, status, total_amount, city, pandit_id, poojas(name), preferred:pandits!bookings_preferred_pandit_id_fkey(full_name), assigned:pandits!bookings_pandit_id_fkey(full_name)",
+        "id, booking_date, time_slot, starts_at, status, priest_response, decline_reason, total_amount, city, pandit_id, poojas(name), preferred:pandits!bookings_preferred_pandit_id_fkey(full_name), assigned:pandits!bookings_pandit_id_fkey(full_name), declined_by:pandits!bookings_declined_by_pandit_id_fkey(full_name)",
       )
       .order("created_at", { ascending: false }),
     admin
@@ -100,6 +100,23 @@ export default async function AdminBookingsPage() {
                         ? ` · ⏰ confirmed ${formatConfirmedTime(b.starts_at)}`
                         : ""}
                     </div>
+                    {b.pandit_id && b.priest_response === "accepted" && (
+                      <div className="text-xs font-medium text-emerald-700">
+                        ✓ Accepted by {b.assigned?.full_name ?? "priest"}
+                      </div>
+                    )}
+                    {b.pandit_id && b.priest_response === "pending" && (
+                      <div className="text-xs font-medium text-amber-700">
+                        ⏳ Awaiting {b.assigned?.full_name ?? "priest"}&apos;s
+                        response
+                      </div>
+                    )}
+                    {!b.pandit_id && b.declined_by?.full_name && (
+                      <div className="text-xs font-medium text-red-600">
+                        ✕ Declined by {b.declined_by.full_name} — reassign
+                        {b.decline_reason ? ` · "${b.decline_reason}"` : ""}
+                      </div>
+                    )}
                     <Link
                       href={`/admin/bookings/${b.id}`}
                       className="text-xs font-semibold text-saffron-700 hover:text-saffron-800"

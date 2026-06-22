@@ -27,6 +27,16 @@ import { Constants } from "@/lib/database.types";
 type BookingStatus = Database["public"]["Enums"]["booking_status"];
 type OrderStatus = Database["public"]["Enums"]["order_status"];
 type PoojaCategory = Database["public"]["Enums"]["pooja_category"];
+type PriestResponse = Database["public"]["Enums"]["priest_response"];
+
+// Fields that reset a booking's priest accept/decline state — applied whenever
+// the admin (re)assigns a priest so the new assignee gets a fresh decision.
+const RESET_PRIEST_RESPONSE = {
+  priest_response: "pending" as PriestResponse,
+  priest_responded_at: null,
+  decline_reason: null,
+  declined_by_pandit_id: null,
+};
 
 function num(value: FormDataEntryValue | null): number {
   return Math.max(0, Math.round(Number(value) || 0));
@@ -466,6 +476,7 @@ export async function confirmBookingTime(formData: FormData): Promise<void> {
       starts_at: startsAt,
       ends_at: endsAt,
       status: "confirmed",
+      ...RESET_PRIEST_RESPONSE,
     })
     .eq("id", id);
   if (error) {
@@ -750,8 +761,12 @@ export async function assignPandit(formData: FormData): Promise<void> {
   const id = str(formData.get("id"));
   const panditId = str(formData.get("pandit_id")) || null;
 
-  const update: { pandit_id: string | null; status?: BookingStatus } = {
+  const update: {
+    pandit_id: string | null;
+    status?: BookingStatus;
+  } & typeof RESET_PRIEST_RESPONSE = {
     pandit_id: panditId,
+    ...RESET_PRIEST_RESPONSE,
   };
   if (panditId) {
     const currentStatus = str(formData.get("current_status")) as BookingStatus;
