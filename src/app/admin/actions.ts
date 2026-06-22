@@ -410,6 +410,7 @@ export async function generateMuhuratWindows(
     pooja_slug: poojaSlug,
     label: c.label,
     note: `${city}: ${c.note}`,
+    quality_score: c.quality_score ?? null,
     approved: false,
     source: "computed",
   }));

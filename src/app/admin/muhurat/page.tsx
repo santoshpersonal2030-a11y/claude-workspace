@@ -5,24 +5,44 @@ import {
   importMuhuratWindows,
   generateMuhuratWindows,
 } from "@/app/admin/actions";
+import Link from "next/link";
+
 import { Constants } from "@/lib/database.types";
-import { CITY_COORDS } from "@/lib/muhurat-engine";
+import { CITY_COORDS, tierFromScore } from "@/lib/muhurat-engine";
 
 const inputClass =
   "w-full rounded-lg border border-saffron-200 bg-cream px-2 py-1.5 text-sm outline-none focus:border-saffron-400";
+
+const TIER_BADGE: Record<string, string> = {
+  Excellent: "bg-emerald-100 text-emerald-800",
+  Good: "bg-amber-100 text-amber-800",
+  Fair: "bg-stone-100 text-stone-600",
+};
 
 function hhmm(t: string) {
   return t.slice(0, 5);
 }
 
-export default async function AdminMuhuratPage() {
+export default async function AdminMuhuratPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ sort?: string }>;
+}) {
+  const { sort } = await searchParams;
+  const byScore = sort === "score";
   const admin = createAdminClient();
+
+  let windowsQuery = admin.from("muhurat_windows").select("*");
+  windowsQuery = byScore
+    ? windowsQuery
+        .order("quality_score", { ascending: false, nullsFirst: false })
+        .order("date", { ascending: true })
+    : windowsQuery
+        .order("date", { ascending: true })
+        .order("start_time", { ascending: true });
+
   const [windowsRes, poojasRes] = await Promise.all([
-    admin
-      .from("muhurat_windows")
-      .select("*")
-      .order("date", { ascending: true })
-      .order("start_time", { ascending: true }),
+    windowsQuery,
     admin
       .from("poojas")
       .select("slug, name, requires_muhurat")
@@ -231,7 +251,35 @@ export default async function AdminMuhuratPage() {
       </form>
 
       {/* Existing */}
-      <div className="mt-8 space-y-2">
+      <div className="mt-8 flex items-center justify-between">
+        <h2 className="font-heading text-lg text-maroon-700">
+          Windows ({windows.length})
+        </h2>
+        <div className="flex items-center gap-2 text-xs">
+          <span className="text-foreground/50">Sort:</span>
+          <Link
+            href="/admin/muhurat"
+            className={`rounded-full px-3 py-1 font-semibold ${
+              !byScore
+                ? "bg-saffron-600 text-white"
+                : "border border-saffron-200 text-saffron-700"
+            }`}
+          >
+            Date
+          </Link>
+          <Link
+            href="/admin/muhurat?sort=score"
+            className={`rounded-full px-3 py-1 font-semibold ${
+              byScore
+                ? "bg-saffron-600 text-white"
+                : "border border-saffron-200 text-saffron-700"
+            }`}
+          >
+            Score
+          </Link>
+        </div>
+      </div>
+      <div className="mt-3 space-y-2">
         {windows.length === 0 ? (
           <p className="text-sm text-foreground/55">
             No muhurat windows yet. Add the auspicious dates and times above.
@@ -250,6 +298,16 @@ export default async function AdminMuhuratPage() {
                 {w.pooja_slug ?? w.category ?? "All ceremonies"}
                 {w.label ? ` · ${w.label}` : ""}
               </span>
+              {w.quality_score != null && (
+                <span
+                  className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${
+                    TIER_BADGE[tierFromScore(w.quality_score)]
+                  }`}
+                  title={`Computed quality score ${w.quality_score}/100`}
+                >
+                  {tierFromScore(w.quality_score)} {w.quality_score}
+                </span>
+              )}
               <span
                 className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${
                   w.approved

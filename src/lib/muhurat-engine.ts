@@ -505,8 +505,7 @@ export function vivahQuality(dateStr: string, istHour = 12): VivahQuality {
   factors.push(`Shukra bala ${sb >= 0 ? "+" : ""}${sb}`);
 
   score = Math.max(0, Math.min(100, Math.round(score)));
-  const tier = score >= 80 ? "Excellent" : score >= 65 ? "Good" : "Fair";
-  return { score, tier, factors };
+  return { score, tier: tierFromScore(score), factors };
 }
 
 export type MuhuratCandidate = {
@@ -515,7 +514,13 @@ export type MuhuratCandidate = {
   end_time: string;
   label: string;
   note: string;
+  quality_score?: number;
 };
+
+// Tier label for a 0-100 score (shared by the engine and the admin UI).
+export function tierFromScore(score: number): "Excellent" | "Good" | "Fair" {
+  return score >= 80 ? "Excellent" : score >= 65 ? "Good" : "Fair";
+}
 
 // Generates one Abhijit-Muhurat candidate per date in [from, to], with the
 // inauspicious periods to avoid recorded in the note. `maxDays` guards range.
@@ -597,7 +602,9 @@ export function generateVivahCandidates(
       date: dateStr,
       start_time: minutesToHHMM(periods.abhijit.start),
       end_time: minutesToHHMM(periods.abhijit.end),
-      label: `Vivah Muhurat (${q.tier} ${q.score}) — ${p.nakshatraName}`,
+      // Customer-friendly label; the score lives in quality_score for triage.
+      label: `Vivah Muhurat — ${p.nakshatraName}`,
+      quality_score: q.score,
       note:
         `${p.nakshatraName} nakshatra, ${p.tithiName}, Sun in ${sunRashi(dateStr, midHour)}. ` +
         `Quality ${q.score}/100 (${q.tier}): ${q.factors.join(", ")}. ` +

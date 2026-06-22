@@ -303,6 +303,7 @@ export type Database = {
           label: string | null
           note: string | null
           pooja_slug: string | null
+          quality_score: number | null
           source: string
           start_time: string
           updated_at: string
@@ -317,6 +318,7 @@ export type Database = {
           label?: string | null
           note?: string | null
           pooja_slug?: string | null
+          quality_score?: number | null
           source?: string
           start_time: string
           updated_at?: string
@@ -331,6 +333,7 @@ export type Database = {
           label?: string | null
           note?: string | null
           pooja_slug?: string | null
+          quality_score?: number | null
           source?: string
           start_time?: string
           updated_at?: string
