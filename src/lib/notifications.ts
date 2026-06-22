@@ -3,6 +3,7 @@
 
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendEmail, emailLayout } from "@/lib/email";
+import { sendSms } from "@/lib/sms";
 import { trackingUrl } from "@/lib/carriers";
 import { simplePdf } from "@/lib/pdf";
 import { buildOrderInvoicePdf } from "@/lib/invoice-pdf";
@@ -133,12 +134,12 @@ export async function notifyPriestAssignment(bookingId: string): Promise<void> {
     const { data: booking } = await admin
       .from("bookings")
       .select(
-        "id, booking_date, time_slot, city, pincode, language, poojas(name), assigned:pandits!bookings_pandit_id_fkey(full_name, login_email)",
+        "id, booking_date, time_slot, city, pincode, language, poojas(name), assigned:pandits!bookings_pandit_id_fkey(full_name, login_email, phone)",
       )
       .eq("id", bookingId)
       .maybeSingle();
     const priest = booking?.assigned;
-    if (!priest?.login_email) return;
+    if (!priest) return;
 
     const body = `
       <p>Namaste ${priest.full_name?.trim() || "Panditji"}, a new ceremony has been assigned to you. Please accept it if you're available, or decline so the team can reassign.</p>
@@ -151,11 +152,20 @@ export async function notifyPriestAssignment(bookingId: string): Promise<void> {
       </table>
       <a href="${siteUrl}/priest/calendar" style="display:inline-block;background:#d97706;color:#fff;text-decoration:none;padding:10px 20px;border-radius:999px">Accept or decline →</a>`;
 
-    await sendEmail({
-      to: priest.login_email,
-      subject: "New ceremony assigned — please accept or decline 🙏",
-      html: emailLayout("New booking assigned to you", body),
-    });
+    if (priest.login_email) {
+      await sendEmail({
+        to: priest.login_email,
+        subject: "New ceremony assigned — please accept or decline 🙏",
+        html: emailLayout("New booking assigned to you", body),
+      });
+    }
+
+    if (priest.phone) {
+      await sendSms({
+        to: priest.phone,
+        message: `BookMyPoojari: new ceremony assigned — ${booking?.poojas?.name ?? "Pooja"} on ${booking?.booking_date}. Accept/decline at ${siteUrl}/priest/calendar`,
+      });
+    }
   } catch (err) {
     console.error("notifyPriestAssignment failed:", err);
   }
@@ -197,6 +207,13 @@ export async function notifyAdminBookingDeclined(
       subject: "A priest declined a booking — reassign needed",
       html: emailLayout("Booking needs reassignment", body),
     });
+
+    if (company.phone) {
+      await sendSms({
+        to: company.phone,
+        message: `BookMyPoojari: ${panditName} declined ${booking.poojas?.name ?? "a booking"} on ${booking.booking_date}. Reassign at ${siteUrl}/admin/bookings`,
+      });
+    }
   } catch (err) {
     console.error("notifyAdminBookingDeclined failed:", err);
   }

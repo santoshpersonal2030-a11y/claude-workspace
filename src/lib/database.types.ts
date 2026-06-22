@@ -527,6 +527,7 @@ export type Database = {
           languages: string[]
           login_email: string | null
           max_travel_mins: number
+          phone: string | null
           photo_url: string | null
           qualifications: string[]
           achievements: string[]
@@ -554,6 +555,7 @@ export type Database = {
           languages?: string[]
           login_email?: string | null
           max_travel_mins?: number
+          phone?: string | null
           photo_url?: string | null
           qualifications?: string[]
           achievements?: string[]
@@ -581,6 +583,7 @@ export type Database = {
           languages?: string[]
           login_email?: string | null
           max_travel_mins?: number
+          phone?: string | null
           photo_url?: string | null
           qualifications?: string[]
           achievements?: string[]

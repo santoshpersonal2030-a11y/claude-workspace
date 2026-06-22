@@ -116,6 +116,13 @@ export default async function AdminPanditsPage() {
             title="The email this priest signs in with — links their self-service portal"
             className={`${inputClass} sm:col-span-2 lg:col-span-1`}
           />
+          <input
+            name="phone"
+            type="tel"
+            placeholder="Mobile for SMS (optional)"
+            title="Priest's mobile for transactional SMS alerts (10-digit)"
+            className={`${inputClass} sm:col-span-2 lg:col-span-1`}
+          />
         </div>
         <div className="mt-3 flex items-center justify-between">
           <div className="flex gap-4 text-sm text-foreground/70">
@@ -275,7 +282,15 @@ export default async function AdminPanditsPage() {
                 defaultValue={p.login_email ?? ""}
                 placeholder="Portal login email (grants priest self-service)"
                 title="The email this priest signs in with — links their portal access"
-                className={`${inputClass} sm:col-span-full`}
+                className={inputClass}
+              />
+              <input
+                name="phone"
+                type="tel"
+                defaultValue={p.phone ?? ""}
+                placeholder="Mobile for SMS (10-digit)"
+                title="Priest's mobile for transactional SMS alerts"
+                className={inputClass}
               />
             </div>
             <div className="flex items-center gap-3">
