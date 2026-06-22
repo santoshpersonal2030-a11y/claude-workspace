@@ -151,6 +151,78 @@ export function minutesToHHMM(mins: number): string {
   return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
 }
 
+// ── Choghadiya ───────────────────────────────────────────────────────────────
+// Eight equal divisions each of the day (sunrise→sunset) and night (sunset→next
+// sunrise). The names run in a fixed cycle; the day's first choghadiya is the one
+// ruled by the weekday's lord, and the night starts five steps further along.
+
+export type Choghadiya = {
+  name: string;
+  quality: "good" | "neutral" | "bad";
+  start: number; // minutes from midnight (IST); night values may exceed 1440
+  end: number;
+};
+
+const CHOGHADIYA_CYCLE = [
+  "Udveg", "Char", "Labh", "Amrit", "Kaal", "Shubh", "Rog",
+] as const;
+const CHOGHADIYA_QUALITY: Record<string, "good" | "neutral" | "bad"> = {
+  Amrit: "good", Shubh: "good", Labh: "good",
+  Char: "neutral",
+  Udveg: "bad", Kaal: "bad", Rog: "bad",
+};
+// Index into CHOGHADIYA_CYCLE of the first daytime choghadiya, by weekday (Sun..Sat).
+const CHOGHADIYA_DAY_START = [0, 3, 6, 2, 5, 1, 4];
+
+function buildChoghadiya(
+  startMin: number,
+  totalLen: number,
+  startIdx: number,
+): Choghadiya[] {
+  const slot = totalLen / 8;
+  return Array.from({ length: 8 }, (_, k) => {
+    const name = CHOGHADIYA_CYCLE[(startIdx + k) % 7];
+    return {
+      name,
+      quality: CHOGHADIYA_QUALITY[name],
+      start: startMin + k * slot,
+      end: startMin + (k + 1) * slot,
+    };
+  });
+}
+
+// Day and night choghadiya (eight each) for a date + place. Night periods carry
+// minutes-from-midnight that can exceed 1440 (next day); minutesToHHMM wraps them.
+export function computeChoghadiya(
+  dateStr: string,
+  lat: number,
+  lng: number,
+): { day: Choghadiya[]; night: Choghadiya[] } | null {
+  const periods = computeDayPeriods(dateStr, lat, lng);
+  if (!periods) return null;
+
+  // Next day's sunrise closes the night.
+  const next = new Date(`${dateStr}T00:00:00Z`);
+  next.setUTCDate(next.getUTCDate() + 1);
+  const nextPeriods = computeDayPeriods(
+    next.toISOString().slice(0, 10),
+    lat,
+    lng,
+  );
+  if (!nextPeriods) return null;
+
+  const wd = weekdayOf(dateStr);
+  const dayStart = CHOGHADIYA_DAY_START[wd];
+  const nightStart = (dayStart + 5) % 7;
+  const dayLen = periods.sunset - periods.sunrise;
+  const nightLen = 1440 - periods.sunset + nextPeriods.sunrise;
+
+  return {
+    day: buildChoghadiya(periods.sunrise, dayLen, dayStart),
+    night: buildChoghadiya(periods.sunset, nightLen, nightStart),
+  };
+}
+
 // ── Lunar engine: tithi & nakshatra ─────────────────────────────────────────
 // Geocentric ecliptic longitudes of the Sun and Moon via a compact perturbation
 // series (Schlyter), validated to ~1 arcmin against Meeus' reference — ample for
@@ -340,26 +412,90 @@ function geocentricLon(dn: number, el: OrbElements): number {
   return rev((Math.atan2(yh + ys, xh + xs) * 180) / Math.PI);
 }
 
-function jupiterLon(dn: number): number {
-  return geocentricLon(dn, {
-    N: 100.4542 + 2.7685e-5 * dn,
-    i: 1.303 - 1.557e-7 * dn,
-    w: 273.8777 + 1.64505e-5 * dn,
-    a: 5.20256,
-    e: 0.048498 + 4.469e-9 * dn,
-    M: rev(19.895 + 0.0830853001 * dn),
-  });
-}
-
-function venusLon(dn: number): number {
-  return geocentricLon(dn, {
+// Schlyter orbital elements for the five classical (geocentric) grahas as a
+// function of the day number. Sun & Moon are handled separately; the lunar
+// nodes (Rahu/Ketu) are always retrograde and so excluded here.
+const GRAHA_ELEMENTS: Record<string, (dn: number) => OrbElements> = {
+  Budha: (dn) => ({
+    N: 48.3313 + 3.24587e-5 * dn,
+    i: 7.0047 + 5.0e-8 * dn,
+    w: 29.1241 + 1.01444e-5 * dn,
+    a: 0.387098,
+    e: 0.205635 + 5.59e-10 * dn,
+    M: rev(168.6562 + 4.0923344368 * dn),
+  }),
+  Shukra: (dn) => ({
     N: 76.6799 + 2.4659e-5 * dn,
     i: 3.3946 + 2.75e-8 * dn,
     w: 54.891 + 1.38374e-5 * dn,
     a: 0.72333,
     e: 0.006773 - 1.302e-9 * dn,
     M: rev(48.0052 + 1.6021302244 * dn),
-  });
+  }),
+  Mangal: (dn) => ({
+    N: 49.5574 + 2.11081e-5 * dn,
+    i: 1.8497 - 1.78e-8 * dn,
+    w: 286.5016 + 2.92961e-5 * dn,
+    a: 1.523688,
+    e: 0.093405 + 2.516e-9 * dn,
+    M: rev(18.6021 + 0.5240207766 * dn),
+  }),
+  Guru: (dn) => ({
+    N: 100.4542 + 2.7685e-5 * dn,
+    i: 1.303 - 1.557e-7 * dn,
+    w: 273.8777 + 1.64505e-5 * dn,
+    a: 5.20256,
+    e: 0.048498 + 4.469e-9 * dn,
+    M: rev(19.895 + 0.0830853001 * dn),
+  }),
+  Shani: (dn) => ({
+    N: 113.6634 + 2.3898e-5 * dn,
+    i: 2.4886 - 1.081e-7 * dn,
+    w: 339.3939 + 2.97661e-5 * dn,
+    a: 9.55475,
+    e: 0.055546 - 9.499e-9 * dn,
+    M: rev(316.967 + 0.0334442282 * dn),
+  }),
+};
+
+function grahaLon(name: string, dn: number): number {
+  return geocentricLon(dn, GRAHA_ELEMENTS[name](dn));
+}
+
+function jupiterLon(dn: number): number {
+  return grahaLon("Guru", dn);
+}
+
+function venusLon(dn: number): number {
+  return grahaLon("Shukra", dn);
+}
+
+// Apparent (geocentric) retrograde: ecliptic longitude decreasing over a day.
+// Sampled ±0.5d around the instant so the rate is stable even near a station.
+function isRetrograde(name: string, dn: number): boolean {
+  let delta = grahaLon(name, dn + 0.5) - grahaLon(name, dn - 0.5);
+  while (delta > 180) delta -= 360;
+  while (delta < -180) delta += 360;
+  return delta < 0;
+}
+
+const GRAHA_DISPLAY: Record<string, string> = {
+  Budha: "Budha (Mercury)",
+  Shukra: "Shukra (Venus)",
+  Mangal: "Mangal (Mars)",
+  Guru: "Guru (Jupiter)",
+  Shani: "Shani (Saturn)",
+};
+
+// Classical grahas in apparent retrograde (vakri) on a date, in graha order
+// (Budha, Shukra, Mangal, Guru, Shani). Pure — no ephemeris file/API.
+export function retrogradePlanets(dateStr: string, istHour = 12): string[] {
+  const [y, m, d] = dateStr.split("-").map(Number);
+  if (!y) return [];
+  const dn = dayNumber(y, m, d, istHour - IST_OFFSET_HOURS);
+  return Object.keys(GRAHA_ELEMENTS)
+    .filter((n) => isRetrograde(n, dn))
+    .map((n) => GRAHA_DISPLAY[n]);
 }
 
 // Smallest angular separation (deg) between two ecliptic longitudes.
@@ -800,6 +936,8 @@ export type FullPanchanga = {
   rahu: Period;
   yamaganda: Period;
   gulika: Period;
+  choghadiya: { day: Choghadiya[]; night: Choghadiya[] };
+  retrogrades: string[];
 };
 
 // Complete panchanga for a date + place, evaluated at sunrise (the traditional
@@ -835,5 +973,7 @@ export function fullPanchanga(
     rahu: periods.rahu,
     yamaganda: periods.yamaganda,
     gulika: periods.gulika,
+    choghadiya: computeChoghadiya(dateStr, lat, lng) ?? { day: [], night: [] },
+    retrogrades: retrogradePlanets(dateStr, sunriseHour),
   };
 }

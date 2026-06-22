@@ -13,6 +13,8 @@ import {
   rulesFor,
   generateCeremonyCandidates,
   generateVivahCandidates,
+  retrogradePlanets,
+  computeChoghadiya,
 } from "../src/lib/muhurat-engine.ts";
 
 const DELHI = CITY_COORDS["New Delhi"];
@@ -102,4 +104,57 @@ test("ceremonyExclusionReason returns null or a string reason", () => {
   const rules = rulesFor("vivah-sanskar");
   const r = ceremonyExclusionReason(rules, "2026-08-15", 12);
   assert.ok(r === null || typeof r === "string");
+});
+
+test("retrogradePlanets matches known 2025 stations", () => {
+  // Mars (Dec 2024–Feb 2025) and Jupiter (Oct 2024–Feb 2025) retrograde.
+  const jan = retrogradePlanets("2025-01-15");
+  assert.ok(jan.includes("Mangal (Mars)"), `Jan: ${jan.join(", ")}`);
+  assert.ok(jan.includes("Guru (Jupiter)"), `Jan: ${jan.join(", ")}`);
+
+  // Mercury and Venus both retrograde late March 2025.
+  const mar = retrogradePlanets("2025-03-25");
+  assert.ok(mar.includes("Budha (Mercury)"), `Mar: ${mar.join(", ")}`);
+  assert.ok(mar.includes("Shukra (Venus)"), `Mar: ${mar.join(", ")}`);
+
+  // Saturn retrograde mid-September 2025.
+  assert.ok(retrogradePlanets("2025-09-15").includes("Shani (Saturn)"));
+
+  // Mid-June 2025: all five classical grahas direct.
+  assert.deepEqual(retrogradePlanets("2025-06-15"), []);
+});
+
+test("retrogradePlanets returns names in graha order, never Sun/Moon", () => {
+  const order = ["Budha (Mercury)", "Shukra (Venus)", "Mangal (Mars)", "Guru (Jupiter)", "Shani (Saturn)"];
+  const r = retrogradePlanets("2025-03-25");
+  const idx = r.map((n) => order.indexOf(n));
+  assert.deepEqual(idx, [...idx].sort((a, b) => a - b));
+  assert.ok(!r.some((n) => /Surya|Chandra|Sun|Moon/.test(n)));
+});
+
+test("choghadiya: eight day + eight night, contiguous, correct weekday start", () => {
+  // 2025-01-15 is a Wednesday → day starts with Labh, night with Udveg.
+  const ch = computeChoghadiya("2025-01-15", DELHI.lat, DELHI.lng)!;
+  assert.equal(ch.day.length, 8);
+  assert.equal(ch.night.length, 8);
+  assert.equal(ch.day[0].name, "Labh");
+  assert.equal(ch.day[0].quality, "good");
+  assert.equal(ch.night[0].name, "Udveg");
+  assert.equal(ch.night[0].quality, "bad");
+  // Day's last slot ends exactly where night's first slot begins (sunset).
+  assert.ok(Math.abs(ch.day[7].end - ch.night[0].start) < 1e-6);
+  // Names cycle through the seven choghadiya in order.
+  assert.deepEqual(
+    ch.day.map((c) => c.name),
+    ["Labh", "Amrit", "Kaal", "Shubh", "Rog", "Udveg", "Char", "Labh"],
+  );
+});
+
+test("choghadiya quality classification is consistent", () => {
+  const ch = computeChoghadiya("2025-06-15", DELHI.lat, DELHI.lng)!;
+  for (const c of [...ch.day, ...ch.night]) {
+    if (["Amrit", "Shubh", "Labh"].includes(c.name)) assert.equal(c.quality, "good");
+    else if (c.name === "Char") assert.equal(c.quality, "neutral");
+    else assert.equal(c.quality, "bad");
+  }
 });

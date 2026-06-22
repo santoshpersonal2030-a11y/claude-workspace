@@ -2,6 +2,13 @@ import Link from "next/link";
 
 import type { FullPanchanga } from "@/lib/muhurat-engine";
 
+// Choghadiya card colours by auspiciousness.
+const CHOGH_STYLE: Record<string, string> = {
+  good: "border-emerald-200 bg-emerald-50/60 text-emerald-900",
+  neutral: "border-saffron-200 bg-white text-foreground/80",
+  bad: "border-red-200 bg-red-50/50 text-red-900",
+};
+
 // 12-hour time from minutes-since-midnight (IST).
 function to12h(mins: number): string {
   const t = Math.round(mins);
@@ -101,9 +108,39 @@ export default function PanchangView({
                 Vishti (Bhadra) karana today — avoid auspicious work.
               </p>
             )}
+            {pan.retrogrades.length > 0 && (
+              <p className="pt-1 text-xs text-red-700">
+                Retrograde (vakri): {pan.retrogrades.join(", ")}.
+              </p>
+            )}
           </dl>
         </div>
       </div>
+
+      {pan.choghadiya.day.length > 0 && (
+        <div>
+          <h2 className="font-heading text-2xl text-maroon-800">
+            Choghadiya (daytime)
+          </h2>
+          <p className="mt-1 text-sm text-foreground/55">
+            Eight divisions of the day from sunrise to sunset. Favour the green
+            slots and avoid the red ones for new undertakings.
+          </p>
+          <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
+            {pan.choghadiya.day.map((c, i) => (
+              <div
+                key={i}
+                className={`rounded-xl border p-3 ${CHOGH_STYLE[c.quality]}`}
+              >
+                <div className="font-heading text-base">{c.name}</div>
+                <div className="text-xs opacity-80">
+                  {to12h(c.start)} – {to12h(c.end)}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <p className="text-xs text-foreground/45">
         Times are computed for {city} (IST) from astronomical formulae and are
