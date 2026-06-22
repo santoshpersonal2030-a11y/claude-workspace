@@ -15,6 +15,7 @@ import {
   generateVivahCandidates,
   retrogradePlanets,
   computeChoghadiya,
+  generateChoghadiyaCandidates,
 } from "../src/lib/muhurat-engine.ts";
 
 const DELHI = CITY_COORDS["New Delhi"];
@@ -157,4 +158,25 @@ test("choghadiya quality classification is consistent", () => {
     else if (c.name === "Char") assert.equal(c.quality, "neutral");
     else assert.equal(c.quality, "bad");
   }
+});
+
+test("generateChoghadiyaCandidates: good slots only, scored, optional Char", () => {
+  const days = 7; // 2025-06-01 .. 2025-06-07 inclusive
+  const good = generateChoghadiyaCandidates(
+    "2025-06-01", "2025-06-07", DELHI.lat, DELHI.lng,
+  );
+  // 8 daytime slots cycle 7 names with one repeat, so 3–4 good slots per day.
+  assert.ok(good.length >= 3 * days && good.length <= 4 * days, `count ${good.length}`);
+  for (const c of good) {
+    const name = c.label.replace(" Choghadiya", "");
+    assert.ok(["Amrit", "Shubh", "Labh"].includes(name), `unexpected ${name}`);
+    assert.equal(typeof c.quality_score, "number");
+    assert.ok(c.start_time < c.end_time);
+  }
+  // Including Char yields strictly more candidates.
+  const withChar = generateChoghadiyaCandidates(
+    "2025-06-01", "2025-06-07", DELHI.lat, DELHI.lng, true,
+  );
+  assert.ok(withChar.length > good.length);
+  assert.ok(withChar.some((c) => c.label === "Char Choghadiya"));
 });

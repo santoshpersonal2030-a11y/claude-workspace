@@ -695,6 +695,58 @@ export function generateAbhijitCandidates(
   return out;
 }
 
+// Triage scores for the auspicious daytime choghadiya slots.
+const CHOGHADIYA_SCORE: Record<string, number> = {
+  Amrit: 90, Shubh: 80, Labh: 72, Char: 64,
+};
+
+// Generates one candidate per auspicious DAYTIME choghadiya slot in [from, to].
+// Amrit/Shubh/Labh are always included; Char (movable — good mainly for travel)
+// is included only when `includeChar` is set. Each slot is scored by its kind so
+// the admin can sort, and lands pending like every other generated window.
+export function generateChoghadiyaCandidates(
+  from: string,
+  to: string,
+  lat: number,
+  lng: number,
+  includeChar = false,
+  maxDays = 400,
+): MuhuratCandidate[] {
+  const out: MuhuratCandidate[] = [];
+  const start = new Date(`${from}T00:00:00Z`);
+  const end = new Date(`${to}T00:00:00Z`);
+  if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) return out;
+
+  const wanted = new Set(
+    includeChar ? ["Amrit", "Shubh", "Labh", "Char"] : ["Amrit", "Shubh", "Labh"],
+  );
+
+  for (
+    let d = new Date(start), n = 0;
+    d <= end && n < maxDays;
+    d.setUTCDate(d.getUTCDate() + 1), n++
+  ) {
+    const dateStr = d.toISOString().slice(0, 10);
+    const ch = computeChoghadiya(dateStr, lat, lng);
+    if (!ch) continue;
+    for (const slot of ch.day) {
+      if (!wanted.has(slot.name)) continue;
+      out.push({
+        date: dateStr,
+        start_time: minutesToHHMM(slot.start),
+        end_time: minutesToHHMM(slot.end),
+        label: `${slot.name} Choghadiya`,
+        note:
+          slot.name === "Char"
+            ? "Char (movable) choghadiya — favourable for travel and routine work."
+            : `${slot.name} choghadiya — an auspicious daytime slot.`,
+        quality_score: CHOGHADIYA_SCORE[slot.name],
+      });
+    }
+  }
+  return out;
+}
+
 // Generates Vivah (wedding) muhurat candidates: only dates whose nakshatra is
 // favourable and tithi is not forbidden, each timed to that day's Abhijit
 // window. Computed (tithi/nakshatra via the lunar engine) — candidates only,

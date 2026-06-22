@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 
 import { assertPriest } from "@/lib/priest";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { notifyAdminBookingDeclined } from "@/lib/notifications";
 
 function str(value: FormDataEntryValue | null): string {
   return ((value as string) ?? "").trim();
@@ -73,7 +74,7 @@ export async function declineMyBooking(formData: FormData): Promise<void> {
   if (!id) return;
   const reason = str(formData.get("reason")) || null;
 
-  await admin
+  const { data: updated } = await admin
     .from("bookings")
     .update({
       priest_response: "declined",
@@ -85,7 +86,13 @@ export async function declineMyBooking(formData: FormData): Promise<void> {
     })
     .eq("id", id)
     .eq("pandit_id", pandit.id)
-    .in("status", ["assigned", "confirmed"] as const);
+    .in("status", ["assigned", "confirmed"] as const)
+    .select("id");
+
+  // Only alert the team if a booking was actually declined (it was theirs+open).
+  if (updated && updated.length > 0) {
+    await notifyAdminBookingDeclined(id, pandit.full_name, reason);
+  }
 
   revalidatePath("/priest/calendar");
   revalidatePath("/priest");

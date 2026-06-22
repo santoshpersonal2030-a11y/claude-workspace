@@ -124,6 +124,84 @@ export async function sendBookingConfirmation(
   }
 }
 
+// Notifies the assigned priest (at their login email) that a new ceremony has
+// been assigned to them, with a link to accept or decline in their portal.
+// Best-effort — never throws into the admin action that triggers it.
+export async function notifyPriestAssignment(bookingId: string): Promise<void> {
+  try {
+    const admin = createAdminClient();
+    const { data: booking } = await admin
+      .from("bookings")
+      .select(
+        "id, booking_date, time_slot, city, pincode, language, poojas(name), assigned:pandits!bookings_pandit_id_fkey(full_name, login_email)",
+      )
+      .eq("id", bookingId)
+      .maybeSingle();
+    const priest = booking?.assigned;
+    if (!priest?.login_email) return;
+
+    const body = `
+      <p>Namaste ${priest.full_name?.trim() || "Panditji"}, a new ceremony has been assigned to you. Please accept it if you're available, or decline so the team can reassign.</p>
+      <table style="width:100%;border-collapse:collapse;margin:16px 0">
+        <tr><td style="padding:4px 0;color:#9a8c7a">Pooja</td><td style="padding:4px 0;text-align:right">${booking?.poojas?.name ?? "Pooja"}</td></tr>
+        <tr><td style="padding:4px 0;color:#9a8c7a">Date</td><td style="padding:4px 0;text-align:right">${booking?.booking_date}</td></tr>
+        <tr><td style="padding:4px 0;color:#9a8c7a">Time</td><td style="padding:4px 0;text-align:right">${(booking?.time_slot ?? "").slice(0, 5)}</td></tr>
+        <tr><td style="padding:4px 0;color:#9a8c7a">Location</td><td style="padding:4px 0;text-align:right">${booking?.city ?? ""} ${booking?.pincode ?? ""}</td></tr>
+        ${booking?.language ? `<tr><td style="padding:4px 0;color:#9a8c7a">Language</td><td style="padding:4px 0;text-align:right">${booking.language}</td></tr>` : ""}
+      </table>
+      <a href="${siteUrl}/priest/calendar" style="display:inline-block;background:#d97706;color:#fff;text-decoration:none;padding:10px 20px;border-radius:999px">Accept or decline →</a>`;
+
+    await sendEmail({
+      to: priest.login_email,
+      subject: "New ceremony assigned — please accept or decline 🙏",
+      html: emailLayout("New booking assigned to you", body),
+    });
+  } catch (err) {
+    console.error("notifyPriestAssignment failed:", err);
+  }
+}
+
+// Notifies the operations inbox (company email, falling back to EMAIL_FROM) that
+// a priest declined an assignment, so someone reassigns it. Best-effort.
+export async function notifyAdminBookingDeclined(
+  bookingId: string,
+  panditName: string,
+  reason: string | null,
+): Promise<void> {
+  try {
+    const admin = createAdminClient();
+    const { data: booking } = await admin
+      .from("bookings")
+      .select("id, booking_date, time_slot, city, poojas(name)")
+      .eq("id", bookingId)
+      .maybeSingle();
+    if (!booking) return;
+
+    const company = await getCompany();
+    const to = company.email || process.env.EMAIL_FROM;
+    if (!to) return;
+
+    const body = `
+      <p><strong>${panditName}</strong> declined a ceremony. It has been unassigned and is back in the queue — please assign another priest.</p>
+      <table style="width:100%;border-collapse:collapse;margin:16px 0">
+        <tr><td style="padding:4px 0;color:#9a8c7a">Pooja</td><td style="padding:4px 0;text-align:right">${booking.poojas?.name ?? "Pooja"}</td></tr>
+        <tr><td style="padding:4px 0;color:#9a8c7a">Date</td><td style="padding:4px 0;text-align:right">${booking.booking_date}</td></tr>
+        <tr><td style="padding:4px 0;color:#9a8c7a">Time</td><td style="padding:4px 0;text-align:right">${(booking.time_slot ?? "").slice(0, 5)}</td></tr>
+        <tr><td style="padding:4px 0;color:#9a8c7a">City</td><td style="padding:4px 0;text-align:right">${booking.city ?? ""}</td></tr>
+        ${reason ? `<tr><td style="padding:4px 0;color:#9a8c7a">Reason</td><td style="padding:4px 0;text-align:right">${reason}</td></tr>` : ""}
+      </table>
+      <a href="${siteUrl}/admin/bookings" style="display:inline-block;background:#7a1f1f;color:#fff;text-decoration:none;padding:10px 20px;border-radius:999px">Reassign in admin →</a>`;
+
+    await sendEmail({
+      to,
+      subject: "A priest declined a booking — reassign needed",
+      html: emailLayout("Booking needs reassignment", body),
+    });
+  } catch (err) {
+    console.error("notifyAdminBookingDeclined failed:", err);
+  }
+}
+
 export async function sendBackInStockEmails(productId: string): Promise<void> {
   try {
     const admin = createAdminClient();

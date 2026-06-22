@@ -12,6 +12,7 @@ import { buildRunItems } from "@/lib/payroll-data";
 import {
   generateAbhijitCandidates,
   generateCeremonyCandidates,
+  generateChoghadiyaCandidates,
   CITY_COORDS,
 } from "@/lib/muhurat-engine";
 import {
@@ -20,6 +21,7 @@ import {
   sendOrderStatusUpdate,
   sendRefundConfirmation,
   sendCreditNoteEmail,
+  notifyPriestAssignment,
 } from "@/lib/notifications";
 import type { Database } from "@/lib/database.types";
 import { Constants } from "@/lib/database.types";
@@ -408,6 +410,16 @@ export async function generateMuhuratWindows(
       coords.lng,
       strict,
     );
+  } else if (mode === "choghadiya") {
+    // Auspicious daytime choghadiya slots; the "strict" toggle doubles as
+    // "include Char" here (Char is movable — useful but not top-tier).
+    candidates = generateChoghadiyaCandidates(
+      from,
+      to,
+      coords.lat,
+      coords.lng,
+      strict,
+    );
   } else {
     candidates = generateAbhijitCandidates(from, to, coords.lat, coords.lng);
   }
@@ -482,6 +494,9 @@ export async function confirmBookingTime(formData: FormData): Promise<void> {
   if (error) {
     // Most likely bookings_no_overlap — the priest is already busy then.
     console.warn("confirmBookingTime conflict:", error.message);
+  } else {
+    // Ask the assigned priest to accept or decline the confirmed slot.
+    await notifyPriestAssignment(id);
   }
 
   revalidatePath("/admin/bookings");
@@ -776,6 +791,8 @@ export async function assignPandit(formData: FormData): Promise<void> {
   }
 
   await admin.from("bookings").update(update).eq("id", id);
+  // Tell the newly-assigned priest to accept or decline (best-effort).
+  if (panditId) await notifyPriestAssignment(id);
   revalidatePath("/admin/bookings");
 }
 

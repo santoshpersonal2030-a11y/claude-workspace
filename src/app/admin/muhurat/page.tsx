@@ -150,8 +150,9 @@ export default async function AdminMuhuratPage({
           {" "}gives the daily auspicious midday window (with Rahu/Yamaganda/Gulika
           to avoid). <strong>Ceremony</strong> filters to dates whose
           nakshatra/tithi favour the chosen pooja (Vivah, Griha Pravesh,
-          Namkaran, Mundan, …) using its classical rules. All rows land{" "}
-          <strong>pending</strong> for astrologer approval.
+          Namkaran, Mundan, …) using its classical rules. <strong>Choghadiya</strong>
+          {" "}emits each day&apos;s auspicious daytime slots (Amrit/Shubh/Labh,
+          scored). All rows land <strong>pending</strong> for astrologer approval.
         </p>
         <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-6">
           <label className="text-xs text-foreground/60">
@@ -159,6 +160,7 @@ export default async function AdminMuhuratPage({
             <select name="mode" className={inputClass} defaultValue="ceremony">
               <option value="ceremony">Ceremony (by pooja rules)</option>
               <option value="abhijit">Abhijit (daily)</option>
+              <option value="choghadiya">Choghadiya (auspicious slots)</option>
             </select>
           </label>
           <label className="text-xs text-foreground/60">
@@ -212,8 +214,9 @@ export default async function AdminMuhuratPage({
         </div>
         <label className="mt-3 flex items-center gap-2 text-xs text-foreground/70">
           <input type="checkbox" name="strict" defaultChecked />
-          Strict rules (apply the ceremony&apos;s masa &amp; planetary exclusions —
-          Kharmas/Chaturmas, Guru/Shukra asta, Vishti) — Ceremony mode
+          Strict rules (Ceremony mode: apply masa &amp; planetary exclusions —
+          Kharmas/Chaturmas, Guru/Shukra asta, Vishti) · also includes the Char
+          slot in Choghadiya mode
         </label>
       </form>
 
