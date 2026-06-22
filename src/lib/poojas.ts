@@ -114,6 +114,15 @@ export const poojas: Pooja[] = [
       "Vasant Panchami worship of Goddess Saraswati for learning, music and wisdom.",
     durationHours: 1.5,
     startingPrice: 2100,
+    longDescription:
+      "Worship of Goddess Saraswati, the giver of knowledge, speech and the arts — performed on Vasant Panchami, before exams or new studies, or alongside a child's Vidyarambha. The Pandit invokes the goddess for clarity of mind and success in learning and creative pursuits.",
+    includes: [
+      "Kalash sthapana and Saraswati avahan",
+      "Recitation of Saraswati Vandana and stotra",
+      "Offering of books, pen and instruments for blessing",
+      "Aarti and prasad distribution",
+      "Verified Pandit in your preferred language",
+    ],
     requiresMuhurat: false,
   },
   {
@@ -127,6 +136,15 @@ export const poojas: Pooja[] = [
       "Navratri worship of Goddess Durga for strength, protection and victory over evil.",
     durationHours: 2,
     startingPrice: 3100,
+    longDescription:
+      "Navratri worship of Goddess Durga in her nine forms, invoking Shakti for strength, protection and victory over difficulties. Performed with Durga Saptashati recitation and a sankalp for the family's well-being.",
+    includes: [
+      "Ghatasthapana / Kalash sthapana",
+      "Durga avahan and shodashopachar puja",
+      "Selected paath from the Durga Saptashati",
+      "Aarti, kanya-bhoj guidance and prasad",
+      "Verified Pandit with each vidhi explained",
+    ],
     requiresMuhurat: false,
   },
   {
@@ -140,6 +158,15 @@ export const poojas: Pooja[] = [
       "Midnight worship of Lord Krishna on Janmashtami for joy, devotion and protection.",
     durationHours: 2,
     startingPrice: 2500,
+    longDescription:
+      "Midnight celebration of the birth of Lord Krishna with abhishek of the laddu Gopal, jhula and bhajan. The Pandit guides the vrat and the auspicious madhyaratri puja for joy, devotion and protection of the home.",
+    includes: [
+      "Bal Gopal abhishek and shringar",
+      "Midnight (madhyaratri) Krishna janma puja",
+      "Bhajan, jhula and aarti",
+      "Vrat sankalp and paran guidance",
+      "Verified Pandit and prasad",
+    ],
     requiresMuhurat: false,
   },
   {
@@ -153,6 +180,15 @@ export const poojas: Pooja[] = [
       "Worship of Lord Vishwakarma for tools, machinery and the workplace.",
     durationHours: 1.5,
     startingPrice: 2100,
+    longDescription:
+      "Worship of Lord Vishwakarma, the divine architect, to bless tools, machinery, vehicles and the workplace for safety and productivity. Commonly performed at factories, workshops and offices.",
+    includes: [
+      "Vishwakarma avahan and puja",
+      "Blessing of tools, machines and instruments",
+      "Hawan / aarti for the workplace",
+      "Sankalp for safety and prosperity",
+      "Verified Pandit at your premises",
+    ],
     requiresMuhurat: false,
   },
   {
@@ -166,6 +202,15 @@ export const poojas: Pooja[] = [
       "Recitation of the Hanuman Chalisa for courage, protection and removal of fear.",
     durationHours: 1,
     startingPrice: 1500,
+    longDescription:
+      "A recitation of the Hanuman Chalisa, often in multiples (11, 21 or 108 paath), invoking Lord Hanuman for courage, protection and relief from fear and obstacles. Ideal on Tuesdays, Saturdays or during a difficult phase.",
+    includes: [
+      "Sankalp and Hanuman avahan",
+      "Hanuman Chalisa paath (count as requested)",
+      "Offering of sindoor, chola and bundi",
+      "Aarti and prasad",
+      "Verified Pandit in your language",
+    ],
     requiresMuhurat: false,
   },
   {
@@ -179,6 +224,15 @@ export const poojas: Pooja[] = [
       "Recitation of the Sundarkand for protection, success and the grace of Lord Hanuman.",
     durationHours: 2.5,
     startingPrice: 3100,
+    longDescription:
+      "A complete recitation of the Sundarkand from the Ramcharitmanas — the most auspicious section for success, protection and removal of obstacles — performed with melodious paath and an aarti for the family's well-being.",
+    includes: [
+      "Ganesh and Hanuman puja sankalp",
+      "Full Sundarkand paath with bhajan",
+      "Hanuman aarti and chola offering",
+      "Prasad and family blessings",
+      "Verified Pandit; about 2.5 hours",
+    ],
     requiresMuhurat: false,
   },
   {
@@ -192,6 +246,15 @@ export const poojas: Pooja[] = [
       "Discourse and recitation from the Shrimad Bhagwat for devotion and family blessings.",
     durationHours: 4,
     startingPrice: 11000,
+    longDescription:
+      "A discourse and recitation from the Shrimad Bhagwat Mahapuran — arranged as a single sabha or a multi-day saptah — narrating the leelas of Lord Krishna for devotion, peace and family blessings. Scope and days are tailored to your plan.",
+    includes: [
+      "Vyas-peeth sthapana and sankalp",
+      "Katha vachan from the Shrimad Bhagwat",
+      "Daily aarti and bhajan",
+      "Guidance on bhog and poornahuti",
+      "Experienced Katha-vachak Pandit",
+    ],
     requiresMuhurat: false,
   },
   {
@@ -231,6 +294,15 @@ export const poojas: Pooja[] = [
       "Rite to harmonise a home or workplace and remove vastu dosha before occupying it.",
     durationHours: 2.5,
     startingPrice: 4100,
+    longDescription:
+      "A rite to harmonise the energies of a home, office or plot and pacify vastu dosha before you occupy it or after alterations. Includes a vastu-purush puja and havan invoking the directional deities for peace and prosperity.",
+    includes: [
+      "Vastu-purush mandala puja",
+      "Navagraha and dik-pala invocation",
+      "Vastu shanti havan",
+      "Sankalp for peace and prosperity in the space",
+      "Verified Pandit; samagri guidance",
+    ],
     requiresMuhurat: true,
   },
 
@@ -246,6 +318,15 @@ export const poojas: Pooja[] = [
       "Fire ritual to Lord Ganesha to clear obstacles before any auspicious undertaking.",
     durationHours: 2,
     startingPrice: 3100,
+    longDescription:
+      "A fire ritual to Lord Ganesha, performed before any auspicious undertaking to clear obstacles and invite success — often at the start of a new venture, home or ceremony.",
+    includes: [
+      "Ganapati avahan and shodashopachar puja",
+      "Ganapati homa with modak offering",
+      "Sankalp for the intended purpose",
+      "Poornahuti and aarti",
+      "Verified Pandit; havan-kund setup guidance",
+    ],
     requiresMuhurat: false,
   },
   {
@@ -259,6 +340,15 @@ export const poojas: Pooja[] = [
       "Powerful homa to Lord Shiva for health, longevity and protection from illness.",
     durationHours: 3,
     startingPrice: 6100,
+    longDescription:
+      "A powerful homa centred on the Maha Mrityunjaya mantra to Lord Shiva, performed for recovery from illness, longevity and protection from untimely danger. The jaap count (e.g. 1.25 lakh) is set per the sankalp.",
+    includes: [
+      "Kalash sthapana and Shiva avahan",
+      "Maha Mrityunjaya mantra jaap (count per sankalp)",
+      "Mrityunjaya homa and poornahuti",
+      "Sankalp in the patient's name and nakshatra",
+      "Verified Pandit; about 3 hours",
+    ],
     requiresMuhurat: true,
   },
   {
@@ -272,6 +362,15 @@ export const poojas: Pooja[] = [
       "Durga Saptashati fire ritual for protection, removal of enemies and great obstacles.",
     durationHours: 4,
     startingPrice: 11000,
+    longDescription:
+      "A major homa based on the Durga Saptashati (Chandi Path), invoking Goddess Chandi for protection, removal of enemies and relief from severe obstacles. A grand rite often performed over several hours with multiple ritviks.",
+    includes: [
+      "Kalash sthapana and Devi avahan",
+      "Durga Saptashati paath",
+      "Chandi homa and poornahuti",
+      "Kanya-puja and aarti",
+      "Experienced Pandit team; samagri guidance",
+    ],
     requiresMuhurat: true,
   },
   {
@@ -285,6 +384,15 @@ export const poojas: Pooja[] = [
       "Birthday longevity homa for the health and long life of a child or adult.",
     durationHours: 2,
     startingPrice: 3100,
+    longDescription:
+      "A longevity fire ritual performed on a birthday (especially a child's), invoking the deities of long life and health. A joyful rite seeking a long, healthy and prosperous life for the celebrant.",
+    includes: [
+      "Ayushya sukta and Markandeya invocation",
+      "Ayushya homa with ghee offerings",
+      "Sankalp in the celebrant's name and nakshatra",
+      "Blessing and aarti",
+      "Verified Pandit at your home",
+    ],
     requiresMuhurat: false,
   },
   {
@@ -298,6 +406,15 @@ export const poojas: Pooja[] = [
       "Fire ritual to Lord Dhanvantari for recovery from illness and good health.",
     durationHours: 2.5,
     startingPrice: 4100,
+    longDescription:
+      "A fire ritual to Lord Dhanvantari, the deity of healing and Ayurveda, performed for recovery from illness and lasting good health. Recommended during prolonged sickness or for the family's well-being.",
+    includes: [
+      "Dhanvantari avahan and puja",
+      "Dhanvantari homa with herbal offerings",
+      "Sankalp for the patient's recovery",
+      "Poornahuti and prasad",
+      "Verified Pandit; samagri guidance",
+    ],
     requiresMuhurat: false,
   },
 
@@ -339,6 +456,15 @@ export const poojas: Pooja[] = [
       "Remedial rite to relieve Kaal Sarp dosha and its obstacles in life and career.",
     durationHours: 3,
     startingPrice: 6100,
+    longDescription:
+      "A remedial rite to relieve Kaal Sarp dosha — the chart condition where all planets sit between Rahu and Ketu — which can stall career, marriage and progress. Performed with naga puja and homa, at home or at a recognised kshetra.",
+    includes: [
+      "Naga / Rahu-Ketu avahan and puja",
+      "Kaal Sarp shanti homa",
+      "Silver naga visarjan guidance",
+      "Sankalp for relief from obstacles",
+      "Verified Pandit; muhurat confirmed",
+    ],
     requiresMuhurat: true,
   },
   {
@@ -352,6 +478,15 @@ export const poojas: Pooja[] = [
       "Rite to pacify Mangal (Manglik) dosha, often before marriage, for marital harmony.",
     durationHours: 2.5,
     startingPrice: 5100,
+    longDescription:
+      "A rite to pacify Mangal (Manglik) dosha, often performed before marriage to remove obstacles to a happy married life. Includes Mangal graha puja, jaap and homa as prescribed.",
+    includes: [
+      "Mangal graha avahan and puja",
+      "Mangal mantra jaap (count per sankalp)",
+      "Mangal shanti homa",
+      "Daan and remedy guidance",
+      "Verified Pandit; muhurat confirmed",
+    ],
     requiresMuhurat: true,
   },
   {
@@ -365,6 +500,15 @@ export const poojas: Pooja[] = [
       "Remedial rite to relieve ancestral (pitru) dosha and bring peace and progress.",
     durationHours: 3,
     startingPrice: 5100,
+    longDescription:
+      "A remedial rite to relieve Pitru dosha — ancestral karmic debt that can obstruct progeny, prosperity and peace. Performed with tarpan and a shanti homa for the contentment of the ancestors.",
+    includes: [
+      "Pitru avahan and tarpan",
+      "Pitru dosh shanti homa",
+      "Brahmin bhoj and daan guidance",
+      "Sankalp for family peace and progress",
+      "Verified Pandit; muhurat confirmed",
+    ],
     requiresMuhurat: true,
   },
   {
@@ -378,6 +522,15 @@ export const poojas: Pooja[] = [
       "Rite to pacify Saturn during Sade Sati or Shani dasha for relief from hardship.",
     durationHours: 2.5,
     startingPrice: 4100,
+    longDescription:
+      "A rite to pacify Saturn during Sade Sati, dhaiya or a difficult Shani dasha, for relief from delays, hardship and ill health. Includes Shani graha puja, jaap, homa and the prescribed daan.",
+    includes: [
+      "Shani graha avahan and puja",
+      "Shani mantra jaap (count per sankalp)",
+      "Shani shanti homa with til / oil offerings",
+      "Daan guidance (til, iron, black cloth)",
+      "Verified Pandit; ideally on a Saturday",
+    ],
     requiresMuhurat: true,
   },
 
@@ -393,6 +546,15 @@ export const poojas: Pooja[] = [
       "Recitation of the 700 verses of Durga Saptashati for protection and strength.",
     durationHours: 3,
     startingPrice: 5100,
+    longDescription:
+      "A recitation of the 700 verses of the Durga Saptashati (Chandi Path), invoking the Goddess for protection, strength and the removal of obstacles. Performed as a single or multi-fold paath per your sankalp.",
+    includes: [
+      "Devi avahan and kalash sthapana",
+      "Durga Saptashati paath (folds per sankalp)",
+      "Argala, Keelak and Devi kavach",
+      "Aarti and prasad",
+      "Verified Pandit; about 3 hours",
+    ],
     requiresMuhurat: false,
   },
 
@@ -408,6 +570,15 @@ export const poojas: Pooja[] = [
       "The newborn welcoming rite, performed soon after birth for the baby's well-being.",
     durationHours: 1.5,
     startingPrice: 2500,
+    longDescription:
+      "The first samskara after birth, traditionally performed to welcome the newborn with mantras for health, intellect and long life. A gentle rite the Pandit adapts respectfully to the family and the baby's comfort.",
+    includes: [
+      "Sankalp and Ganesh puja",
+      "Jatakarma mantras for the newborn",
+      "Madhu-ghrita prashan ritual",
+      "Blessings for health and long life",
+      "Verified Pandit; muhurat guided",
+    ],
     requiresMuhurat: true,
   },
   {
@@ -421,6 +592,15 @@ export const poojas: Pooja[] = [
       "Simantonnayana — the blessing of the mother-to-be for a safe and healthy delivery.",
     durationHours: 1.5,
     startingPrice: 2500,
+    longDescription:
+      "Simantonnayana — the traditional baby shower performed in the later months of pregnancy to bless the mother-to-be and pray for a safe, healthy delivery. A warm family rite with puja and blessings.",
+    includes: [
+      "Sankalp and Ganesh-Gauri puja",
+      "Blessing of the expectant mother",
+      "Mantras for a safe and healthy delivery",
+      "Aarti and family blessings",
+      "Verified Pandit in your language",
+    ],
     requiresMuhurat: true,
   },
   {
@@ -447,6 +627,15 @@ export const poojas: Pooja[] = [
       "Cradle ceremony marking the baby's first outing and first sight of the sun.",
     durationHours: 1.5,
     startingPrice: 2500,
+    longDescription:
+      "The cradle ceremony marking the baby's first formal outing and first sight of the sun, performed in the third or fourth month for the child's health and protection. Often combined with placing the baby in the cradle (palna / jhula).",
+    includes: [
+      "Sankalp and Surya darshan ritual",
+      "Cradle (palna) placement and blessing",
+      "Mantras for the child's protection",
+      "Aarti and prasad",
+      "Verified Pandit; muhurat guided",
+    ],
     requiresMuhurat: true,
   },
   {
@@ -473,6 +662,15 @@ export const poojas: Pooja[] = [
       "Ear-piercing sacrament for a child, performed on an auspicious day for health.",
     durationHours: 1.5,
     startingPrice: 2500,
+    longDescription:
+      "The ear-piercing samskara, performed on an auspicious day for the child's health and as a traditional rite of well-being. The Pandit performs the puja and sankalp; the piercing itself is done by your chosen practitioner.",
+    includes: [
+      "Sankalp and Ganesh puja",
+      "Mantras during the karnavedha rite",
+      "Blessing for the child's health",
+      "Aarti and prasad",
+      "Verified Pandit; muhurat confirmed",
+    ],
     requiresMuhurat: true,
   },
   {
@@ -499,6 +697,15 @@ export const poojas: Pooja[] = [
       "The start-of-learning rite, when a child writes their first letters under blessings.",
     durationHours: 1.5,
     startingPrice: 2100,
+    longDescription:
+      "The start-of-learning rite (Aksharabhyasam), when a child writes their first letters under the blessings of Ganesha and Saraswati — often on Vasant Panchami or Vijayadashami. A joyful beginning to the child's education.",
+    includes: [
+      "Ganesh and Saraswati puja",
+      "Guided writing of the first letters",
+      "Blessing of slate, chalk and books",
+      "Aarti and prasad",
+      "Verified Pandit in your language",
+    ],
     requiresMuhurat: true,
   },
   {
@@ -512,6 +719,15 @@ export const poojas: Pooja[] = [
       "Sacred-thread (janeu) ceremony initiating a child into Vedic study and discipline.",
     durationHours: 3,
     startingPrice: 7100,
+    longDescription:
+      "The sacred-thread (janeu / yajnopavita) ceremony initiating a child into Vedic study and discipline, with the Gayatri upadesha. A major samskara performed over a few hours with homa and family blessings.",
+    includes: [
+      "Sankalp, Ganesh puja and homa",
+      "Yajnopavita (janeu) dharan",
+      "Gayatri mantra upadesha",
+      "Bhiksha ritual and blessings",
+      "Experienced Pandit; muhurat confirmed",
+    ],
     requiresMuhurat: true,
   },
   {
@@ -579,6 +795,15 @@ export const poojas: Pooja[] = [
       "Water and sesame offerings to satisfy and honour departed ancestors.",
     durationHours: 1,
     startingPrice: 1500,
+    longDescription:
+      "Water and sesame offerings (tarpan) to satisfy and honour departed ancestors, performed on Amavasya, during Pitru Paksha, or on a death anniversary. A concise but important rite for the peace of the pitrs.",
+    includes: [
+      "Sankalp and pitru avahan",
+      "Til-jal tarpan for the ancestors",
+      "Mantras for the peace of departed souls",
+      "Daan guidance",
+      "Verified Pandit; performed as per tradition",
+    ],
     requiresMuhurat: true,
   },
   {
@@ -592,6 +817,15 @@ export const poojas: Pooja[] = [
       "Rice-ball offerings for the liberation and peace of departed souls.",
     durationHours: 2.5,
     startingPrice: 5100,
+    longDescription:
+      "Rice-ball (pinda) offerings for the liberation and peace of departed souls, performed during Pitru Paksha or at a tirtha such as Gaya. The Pandit performs the full vidhi with tarpan and brahmin-bhoj guidance.",
+    includes: [
+      "Sankalp and pitru avahan",
+      "Pind daan with til and kusha",
+      "Tarpan and ancestral mantras",
+      "Brahmin bhoj and daan guidance",
+      "Verified Pandit; performed strictly per vidhi",
+    ],
     requiresMuhurat: true,
   },
   {

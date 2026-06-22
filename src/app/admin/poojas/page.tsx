@@ -104,6 +104,36 @@ export default async function AdminPoojasPage() {
             >
               Save
             </button>
+
+            <details className="sm:col-span-full">
+              <summary className="cursor-pointer text-xs font-medium text-saffron-700">
+                Long description &amp; what&apos;s included
+              </summary>
+              <div className="mt-2 grid gap-2 sm:grid-cols-2">
+                <label className="text-xs text-foreground/60">
+                  Long description
+                  <textarea
+                    name="long_description"
+                    defaultValue={p.long_description ?? ""}
+                    rows={4}
+                    placeholder="A fuller description shown on the pooja page…"
+                    className={`mt-1 ${inputClass}`}
+                  />
+                </label>
+                <label className="text-xs text-foreground/60">
+                  What&apos;s included (one per line)
+                  <textarea
+                    name="includes"
+                    defaultValue={(p.includes ?? []).join("\n")}
+                    rows={4}
+                    placeholder={
+                      "Leave blank to use the standard inclusions.\nOtherwise one bullet per line."
+                    }
+                    className={`mt-1 ${inputClass}`}
+                  />
+                </label>
+              </div>
+            </details>
           </form>
         ))}
       </div>

@@ -178,6 +178,7 @@ export async function savePooja(formData: FormData): Promise<void> {
   const admin = createAdminClient();
 
   const id = str(formData.get("id"));
+  const includes = linesToArray(formData.get("includes"));
   const payload = {
     name: str(formData.get("name")),
     category: str(formData.get("category")) as PoojaCategory,
@@ -185,6 +186,8 @@ export async function savePooja(formData: FormData): Promise<void> {
     starting_price: num(formData.get("starting_price")),
     samagri_kit_price: optNum(formData.get("samagri_kit_price")),
     duration_hours: Number(formData.get("duration_hours")) || 1,
+    long_description: str(formData.get("long_description")) || null,
+    includes: includes.length > 0 ? includes : null,
     popular: formData.get("popular") === "on",
     requires_muhurat: formData.get("requires_muhurat") === "on",
     active: formData.get("active") === "on",
