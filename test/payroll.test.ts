@@ -4,6 +4,8 @@ import assert from "node:assert/strict";
 import {
   computePay,
   DEFAULT_PROFILE,
+  financialYearOf,
+  fyLabel,
   type CompProfile,
   type Workload,
 } from "../src/lib/payroll.ts";
@@ -112,4 +114,17 @@ test("net never goes negative", () => {
     profile({ base_salary: 1000, pf_enabled: true, pf_employee_pct: 100 }),
   );
   assert.ok(b.netPay >= 0);
+});
+
+test("financialYearOf: Apr–Mar boundary", () => {
+  assert.equal(financialYearOf(2026, 4), 2026); // April starts a new FY
+  assert.equal(financialYearOf(2026, 3), 2025); // March is still the prior FY
+  assert.equal(financialYearOf(2026, 1), 2025); // Jan falls in prior FY
+  assert.equal(financialYearOf(2026, 12), 2026); // Dec is in the FY that began Apr
+});
+
+test("fyLabel: start year → 2025–26 form", () => {
+  assert.equal(fyLabel(2025), "2025–26");
+  assert.equal(fyLabel(1999), "1999–00");
+  assert.equal(fyLabel(2009), "2009–10");
 });

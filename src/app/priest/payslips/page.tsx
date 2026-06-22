@@ -1,6 +1,12 @@
 import { getPriestPandit } from "@/lib/priest";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { periodLabel, compModelLabel, type CompModel } from "@/lib/payroll";
+import {
+  periodLabel,
+  compModelLabel,
+  financialYearOf,
+  fyLabel,
+  type CompModel,
+} from "@/lib/payroll";
 import { formatINR } from "@/lib/poojas";
 
 export default async function PriestPayslipsPage() {
@@ -24,17 +30,16 @@ export default async function PriestPayslipsPage() {
   });
 
   // Financial year (India: Apr–Mar). Sum this priest's pay for the current FY.
-  const fyStartOf = (year: number, month: number) => (month >= 4 ? year : year - 1);
   const now = new Date();
-  const currentFy = fyStartOf(now.getFullYear(), now.getMonth() + 1);
+  const currentFy = financialYearOf(now.getFullYear(), now.getMonth() + 1);
   const fyLines = lines.filter((l) => {
     const r = l.payroll_runs;
-    return r && fyStartOf(r.period_year, r.period_month) === currentFy;
+    return r && financialYearOf(r.period_year, r.period_month) === currentFy;
   });
   const sum = (pick: (l: (typeof lines)[number]) => number) =>
     fyLines.reduce((s, l) => s + pick(l), 0);
   const fy = {
-    label: `${currentFy}–${String((currentFy + 1) % 100).padStart(2, "0")}`,
+    label: fyLabel(currentFy),
     net: sum((l) => l.net_pay),
     paid: fyLines.filter((l) => l.paid).reduce((s, l) => s + l.net_pay, 0),
     gross: sum((l) => l.gross),

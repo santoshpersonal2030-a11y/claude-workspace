@@ -52,12 +52,20 @@ export default async function AdminPayrollPage() {
     <div>
       <div className="flex items-center justify-between">
         <h1 className="font-heading text-2xl text-maroon-800">Payroll</h1>
-        <Link
-          href="/admin/payroll/compensation"
-          className="rounded-full border border-saffron-300 px-4 py-1.5 text-sm font-semibold text-saffron-700 hover:bg-saffron-50"
-        >
-          Edit compensation
-        </Link>
+        <div className="flex flex-wrap items-center gap-2">
+          <Link
+            href="/admin/payroll/year-end"
+            className="rounded-full border border-saffron-300 px-4 py-1.5 text-sm font-semibold text-saffron-700 hover:bg-saffron-50"
+          >
+            Year-end summary
+          </Link>
+          <Link
+            href="/admin/payroll/compensation"
+            className="rounded-full border border-saffron-300 px-4 py-1.5 text-sm font-semibold text-saffron-700 hover:bg-saffron-50"
+          >
+            Edit compensation
+          </Link>
+        </div>
       </div>
       <p className="mt-1 text-sm text-foreground/60">
         Generate a monthly payroll run to compute every active priest&apos;s pay

@@ -219,3 +219,16 @@ const MONTHS = [
 export function periodLabel(year: number, month: number): string {
   return `${MONTHS[Math.min(11, Math.max(0, month - 1))]} ${year}`;
 }
+
+// India's financial year runs April–March. Given a calendar year and month
+// (1–12), return the START year of the FY that period falls in — e.g.
+// Feb 2026 → 2025, Apr 2026 → 2026. Pure so both the priest payslip view and
+// the admin year-end summary derive FYs identically.
+export function financialYearOf(year: number, month: number): number {
+  return month >= 4 ? year : year - 1;
+}
+
+// Human label for an FY identified by its start year, e.g. 2025 → "2025–26".
+export function fyLabel(fyStart: number): string {
+  return `${fyStart}–${String((fyStart + 1) % 100).padStart(2, "0")}`;
+}

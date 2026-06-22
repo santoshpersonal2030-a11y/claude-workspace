@@ -7,6 +7,7 @@ import { toCsv } from "@/lib/csv";
 import { invoiceNumber } from "@/lib/invoice";
 import { placeOfSupply, STATE_CODES } from "@/lib/india";
 import { getCompany } from "@/lib/company-settings";
+import { financialYearOf, fyLabel } from "@/lib/payroll";
 
 const PAID_ORDER_STATUSES = [
   "paid",
@@ -488,6 +489,107 @@ export async function buildPayrollRunCsv(runId: string): Promise<string> {
     i.paid_at ? new Date(i.paid_at).toISOString().slice(0, 10) : "",
     i.payment_ref ?? "",
   ]);
+
+  return toCsv(headers, rows);
+}
+
+// Builds a per-priest, year-to-date CSV for one Indian financial year
+// (Apr–Mar), identified by its START year. Aggregates every payroll line that
+// falls in the FY into one row per priest — the year-end view the accountant
+// needs for Form-16 / PF / gratuity reconciliation. Service-role read.
+export async function buildPayrollYearCsv(fyStart: number): Promise<string> {
+  const admin = createAdminClient();
+
+  const [{ data: items }, { data: pandits }] = await Promise.all([
+    admin
+      .from("payroll_run_items")
+      .select(
+        "pandit_id, bookings_count, gross, deductions, net_pay, pf_employee, pf_employer, gratuity, dakshina_retained, paid, payroll_runs(period_year, period_month)",
+      ),
+    admin.from("pandits").select("id, full_name"),
+  ]);
+
+  const nameById = new Map((pandits ?? []).map((p) => [p.id, p.full_name]));
+
+  type Agg = {
+    payslips: number;
+    ceremonies: number;
+    gross: number;
+    deductions: number;
+    net: number;
+    paid: number;
+    pfEmployee: number;
+    pfEmployer: number;
+    gratuity: number;
+    dakshina: number;
+  };
+  const byPriest = new Map<string, Agg>();
+  for (const i of items ?? []) {
+    const r = i.payroll_runs;
+    if (!r || financialYearOf(r.period_year, r.period_month) !== fyStart) {
+      continue;
+    }
+    const a =
+      byPriest.get(i.pandit_id) ??
+      {
+        payslips: 0,
+        ceremonies: 0,
+        gross: 0,
+        deductions: 0,
+        net: 0,
+        paid: 0,
+        pfEmployee: 0,
+        pfEmployer: 0,
+        gratuity: 0,
+        dakshina: 0,
+      };
+    a.payslips += 1;
+    a.ceremonies += i.bookings_count;
+    a.gross += i.gross;
+    a.deductions += i.deductions;
+    a.net += i.net_pay;
+    if (i.paid) a.paid += i.net_pay;
+    a.pfEmployee += i.pf_employee;
+    a.pfEmployer += i.pf_employer;
+    a.gratuity += i.gratuity;
+    a.dakshina += i.dakshina_retained;
+    byPriest.set(i.pandit_id, a);
+  }
+
+  const headers = [
+    "Financial year",
+    "Priest",
+    "Payslips",
+    "Ceremonies",
+    "Gross",
+    "Deductions",
+    "Net pay",
+    "Paid out",
+    "Pending",
+    "PF (employee)",
+    "PF (employer)",
+    "Gratuity",
+    "Dakshina retained",
+  ];
+  const label = fyLabel(fyStart);
+  const rows = [...byPriest.entries()]
+    .map(([id, a]) => ({ name: nameById.get(id) ?? id, a }))
+    .sort((x, y) => y.a.net - x.a.net)
+    .map(({ name, a }) => [
+      label,
+      name,
+      a.payslips,
+      a.ceremonies,
+      a.gross,
+      a.deductions,
+      a.net,
+      a.paid,
+      a.net - a.paid,
+      a.pfEmployee,
+      a.pfEmployer,
+      a.gratuity,
+      a.dakshina,
+    ]);
 
   return toCsv(headers, rows);
 }
