@@ -1,6 +1,28 @@
 import Link from "next/link";
 
-import type { FullPanchanga } from "@/lib/muhurat-engine";
+import type { Choghadiya, FullPanchanga } from "@/lib/muhurat-engine";
+
+// A titled 8-slot choghadiya grid (day or night).
+function ChoghGrid({ title, slots }: { title: string; slots: Choghadiya[] }) {
+  return (
+    <div className="mt-4">
+      <h3 className="text-sm font-semibold text-foreground/60">{title}</h3>
+      <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
+        {slots.map((c, i) => (
+          <div
+            key={i}
+            className={`rounded-xl border p-3 ${CHOGH_STYLE[c.quality]}`}
+          >
+            <div className="font-heading text-base">{c.name}</div>
+            <div className="text-xs opacity-80">
+              {to12h(c.start)} – {to12h(c.end)}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 // Choghadiya card colours by auspiciousness.
 const CHOGH_STYLE: Record<string, string> = {
@@ -119,26 +141,21 @@ export default function PanchangView({
 
       {pan.choghadiya.day.length > 0 && (
         <div>
-          <h2 className="font-heading text-2xl text-maroon-800">
-            Choghadiya (daytime)
-          </h2>
+          <h2 className="font-heading text-2xl text-maroon-800">Choghadiya</h2>
           <p className="mt-1 text-sm text-foreground/55">
-            Eight divisions of the day from sunrise to sunset. Favour the green
-            slots and avoid the red ones for new undertakings.
+            Eight divisions each of the day (sunrise→sunset) and night
+            (sunset→sunrise). Favour the green slots and avoid the red ones for
+            new undertakings.
           </p>
-          <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
-            {pan.choghadiya.day.map((c, i) => (
-              <div
-                key={i}
-                className={`rounded-xl border p-3 ${CHOGH_STYLE[c.quality]}`}
-              >
-                <div className="font-heading text-base">{c.name}</div>
-                <div className="text-xs opacity-80">
-                  {to12h(c.start)} – {to12h(c.end)}
-                </div>
-              </div>
-            ))}
-          </div>
+          <ChoghGrid title="Daytime" slots={pan.choghadiya.day} />
+          {pan.choghadiya.night.length > 0 && (
+            <ChoghGrid title="Night" slots={pan.choghadiya.night} />
+          )}
+          <p className="mt-3 text-xs text-foreground/45">
+            <Link href="/choghadiya" className="text-saffron-700 hover:underline">
+              Open the full choghadiya lookup →
+            </Link>
+          </p>
         </div>
       )}
 
