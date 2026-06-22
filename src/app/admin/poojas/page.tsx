@@ -13,6 +13,7 @@ export default async function AdminPoojasPage() {
     .order("name", { ascending: true });
 
   const categories = Constants.public.Enums.pooja_category;
+  const ritualTypeOpts = Constants.public.Enums.ritual_type;
 
   return (
     <div>
@@ -27,7 +28,7 @@ export default async function AdminPoojasPage() {
           <form
             key={p.id}
             action={savePooja}
-            className="grid items-center gap-2 rounded-xl border border-saffron-100 bg-white p-3 shadow-sm sm:grid-cols-[1.4fr_1fr_0.9fr_0.9fr_0.6fr_auto]"
+            className="grid items-center gap-2 rounded-xl border border-saffron-100 bg-white p-3 shadow-sm sm:grid-cols-[1.4fr_1fr_0.9fr_0.9fr_0.9fr_0.6fr_auto]"
           >
             <input type="hidden" name="id" value={p.id} />
             <input type="hidden" name="duration_hours" value={p.duration_hours} />
@@ -40,6 +41,17 @@ export default async function AdminPoojasPage() {
               {categories.map((c) => (
                 <option key={c} value={c}>
                   {c}
+                </option>
+              ))}
+            </select>
+            <select
+              name="ritual_type"
+              defaultValue={p.ritual_type}
+              className={inputClass}
+            >
+              {ritualTypeOpts.map((t) => (
+                <option key={t} value={t}>
+                  {t}
                 </option>
               ))}
             </select>

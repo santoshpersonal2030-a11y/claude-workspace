@@ -15,6 +15,16 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async redirects() {
+    return [
+      // The Vahan Puja pooja was renamed from its mislabeled slug.
+      {
+        source: "/poojas/satyanarayan-vrat",
+        destination: "/poojas/vahan-puja",
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

@@ -33,6 +33,7 @@ function rowToPooja(row: PoojaRow): Pooja {
     sanskritName: row.sanskrit_name ?? undefined,
     emoji: row.emoji ?? "🪔",
     category: row.category,
+    ritualType: row.ritual_type,
     shortDescription: row.short_description ?? "",
     durationHours: Number(row.duration_hours),
     startingPrice: row.starting_price,

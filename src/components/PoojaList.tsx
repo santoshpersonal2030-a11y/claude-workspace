@@ -2,23 +2,32 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { type Pooja, poojaCategories, formatINR } from "@/lib/poojas";
+import {
+  type Pooja,
+  poojaCategories,
+  ritualTypes,
+  formatINR,
+} from "@/lib/poojas";
 
 export default function PoojaList({ poojas }: { poojas: Pooja[] }) {
   const [active, setActive] = useState<string>("All");
+  const [activeType, setActiveType] = useState<string>("All");
   const [query, setQuery] = useState("");
 
   const filters = ["All", ...poojaCategories];
+  const typeFilters = ["All", ...ritualTypes];
   const term = query.trim().toLowerCase();
   const visible = poojas.filter((p) => {
     const matchesCategory = active === "All" || p.category === active;
+    const matchesType = activeType === "All" || p.ritualType === activeType;
     const matchesQuery =
       term === "" ||
       p.name.toLowerCase().includes(term) ||
       p.sanskritName?.toLowerCase().includes(term) ||
       p.shortDescription.toLowerCase().includes(term) ||
-      p.category.toLowerCase().includes(term);
-    return matchesCategory && matchesQuery;
+      p.category.toLowerCase().includes(term) ||
+      p.ritualType.toLowerCase().includes(term);
+    return matchesCategory && matchesType && matchesQuery;
   });
 
   return (
@@ -58,6 +67,28 @@ export default function PoojaList({ poojas }: { poojas: Pooja[] }) {
         })}
       </div>
 
+      {/* Ritual-type filter chips */}
+      <div className="mt-2 flex flex-wrap items-center gap-2">
+        <span className="text-xs text-foreground/50">Type:</span>
+        {typeFilters.map((t) => {
+          const isActive = activeType === t;
+          return (
+            <button
+              key={t}
+              onClick={() => setActiveType(t)}
+              className={
+                "rounded-full px-3 py-1 text-xs font-medium transition-colors " +
+                (isActive
+                  ? "bg-maroon-700 text-white shadow-sm"
+                  : "border border-stone-200 bg-white text-foreground/60 hover:bg-stone-50")
+              }
+            >
+              {t}
+            </button>
+          );
+        })}
+      </div>
+
       {/* Grid */}
       <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {visible.map((pooja) => (
@@ -68,9 +99,14 @@ export default function PoojaList({ poojas }: { poojas: Pooja[] }) {
           >
             <div className="flex items-start justify-between">
               <div className="text-4xl">{pooja.emoji}</div>
-              <span className="rounded-full bg-saffron-50 px-3 py-1 text-xs font-medium text-saffron-700">
-                {pooja.category}
-              </span>
+              <div className="flex flex-col items-end gap-1">
+                <span className="rounded-full bg-saffron-50 px-3 py-1 text-xs font-medium text-saffron-700">
+                  {pooja.category}
+                </span>
+                <span className="rounded-full bg-maroon-50 px-2.5 py-0.5 text-[11px] font-medium text-maroon-700">
+                  {pooja.ritualType}
+                </span>
+              </div>
             </div>
             <h3 className="mt-4 font-heading text-lg text-maroon-700">
               {pooja.name}

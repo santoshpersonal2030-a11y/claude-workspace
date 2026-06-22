@@ -30,6 +30,7 @@ import { Constants } from "@/lib/database.types";
 type BookingStatus = Database["public"]["Enums"]["booking_status"];
 type OrderStatus = Database["public"]["Enums"]["order_status"];
 type PoojaCategory = Database["public"]["Enums"]["pooja_category"];
+type RitualType = Database["public"]["Enums"]["ritual_type"];
 type PriestResponse = Database["public"]["Enums"]["priest_response"];
 
 // Fields that reset a booking's priest accept/decline state — applied whenever
@@ -180,6 +181,7 @@ export async function savePooja(formData: FormData): Promise<void> {
   const payload = {
     name: str(formData.get("name")),
     category: str(formData.get("category")) as PoojaCategory,
+    ritual_type: str(formData.get("ritual_type")) as RitualType,
     starting_price: num(formData.get("starting_price")),
     samagri_kit_price: optNum(formData.get("samagri_kit_price")),
     duration_hours: Number(formData.get("duration_hours")) || 1,

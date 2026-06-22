@@ -876,6 +876,7 @@ export type Database = {
           name: string
           popular: boolean
           requires_muhurat: boolean
+          ritual_type: Database["public"]["Enums"]["ritual_type"]
           samagri_kit_price: number | null
           sanskrit_name: string | null
           short_description: string | null
@@ -895,6 +896,7 @@ export type Database = {
           name: string
           popular?: boolean
           requires_muhurat?: boolean
+          ritual_type?: Database["public"]["Enums"]["ritual_type"]
           samagri_kit_price?: number | null
           sanskrit_name?: string | null
           short_description?: string | null
@@ -914,6 +916,7 @@ export type Database = {
           name?: string
           popular?: boolean
           requires_muhurat?: boolean
+          ritual_type?: Database["public"]["Enums"]["ritual_type"]
           samagri_kit_price?: number | null
           sanskrit_name?: string | null
           short_description?: string | null
@@ -1267,6 +1270,14 @@ export type Database = {
         | "Remedial"
         | "Ancestral"
       priest_response: "pending" | "accepted" | "declined"
+      ritual_type:
+        | "Sanskar"
+        | "Pooja"
+        | "Havan"
+        | "Shanti"
+        | "Katha"
+        | "Abhishek"
+        | "Shraddh"
       signin_method: "otp" | "google"
     }
     CompositeTypes: {
@@ -1434,6 +1445,15 @@ export const Constants = {
         "Ancestral",
       ],
       priest_response: ["pending", "accepted", "declined"],
+      ritual_type: [
+        "Sanskar",
+        "Pooja",
+        "Havan",
+        "Shanti",
+        "Katha",
+        "Abhishek",
+        "Shraddh",
+      ],
       signin_method: ["otp", "google"],
     },
   },
