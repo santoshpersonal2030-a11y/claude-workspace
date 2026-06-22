@@ -14,6 +14,10 @@ import {
   getProducts,
 } from "@/lib/queries";
 import { panditTier } from "@/lib/pandit-tier";
+import { poojaFaqs } from "@/lib/pooja-faq";
+
+const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://bookmypoojari.com";
 
 // Re-fetch from the database at most once every 5 minutes.
 export const revalidate = 300;
@@ -77,8 +81,47 @@ export default async function PoojaDetailPage({
       `family through every ritual. The ceremony typically takes around ` +
       `${pooja.durationHours} hour${pooja.durationHours > 1 ? "s" : ""}.`;
 
+  const faqs = poojaFaqs(pooja);
+  const url = `${SITE_URL}/poojas/${pooja.slug}`;
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Service",
+        name: pooja.name,
+        serviceType: `${pooja.ritualType} · ${pooja.category}`,
+        description: longDescription,
+        url,
+        areaServed: "IN",
+        provider: {
+          "@type": "Organization",
+          name: "BookMyPoojari",
+          url: SITE_URL,
+        },
+        offers: {
+          "@type": "Offer",
+          price: pooja.startingPrice,
+          priceCurrency: "INR",
+          url,
+        },
+      },
+      {
+        "@type": "FAQPage",
+        mainEntity: faqs.map((f) => ({
+          "@type": "Question",
+          name: f.question,
+          acceptedAnswer: { "@type": "Answer", text: f.answer },
+        })),
+      },
+    ],
+  };
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <Header />
       <main className="flex-1">
         {/* Hero */}
@@ -181,6 +224,24 @@ export default async function PoojaDetailPage({
                   </li>
                 ))}
               </ul>
+
+              <h2 className="mt-8 font-heading text-2xl text-maroon-800">
+                Frequently asked questions
+              </h2>
+              <div className="mt-3 divide-y divide-saffron-100 rounded-2xl border border-saffron-100 bg-white">
+                {faqs.map((f) => (
+                  <details key={f.question} className="group p-4">
+                    <summary className="cursor-pointer list-none font-medium text-maroon-700 marker:content-none">
+                      <span className="text-saffron-600 group-open:hidden">+ </span>
+                      <span className="hidden text-saffron-600 group-open:inline">– </span>
+                      {f.question}
+                    </summary>
+                    <p className="mt-2 text-sm leading-relaxed text-foreground/70">
+                      {f.answer}
+                    </p>
+                  </details>
+                ))}
+              </div>
 
               <div className="mt-8 rounded-2xl border border-saffron-100 bg-cream-100/60 p-5">
                 <h3 className="font-heading text-lg text-maroon-700">
