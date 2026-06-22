@@ -180,3 +180,30 @@ test("generateChoghadiyaCandidates: good slots only, scored, optional Char", () 
   assert.ok(withChar.length > good.length);
   assert.ok(withChar.some((c) => c.label === "Char Choghadiya"));
 });
+
+test("rulesFor: new ceremonies have bespoke rule-sets", () => {
+  assert.equal(rulesFor("upanayana").name, "Upanayana");
+  assert.equal(rulesFor("jatakarma").name, "Jatakarma");
+  assert.equal(rulesFor("vastu-shanti").name, "Vastu Shanti");
+  assert.equal(rulesFor("vidyarambha").name, "Vidyarambha");
+  // Upanayana + Vastu are month-restricted (Kharmas/Chaturmas); child rites aren't.
+  assert.equal(rulesFor("upanayana").chaturmas, true);
+  assert.equal(rulesFor("upanayana").asta, true);
+  assert.equal(rulesFor("vastu-shanti").kharmas, true);
+  assert.equal(rulesFor("jatakarma").kharmas, false);
+  assert.equal(rulesFor("nishkramana").chaturmas, false);
+});
+
+test("Upanayana strict candidates avoid Chaturmas; child rite (jatakarma) doesn't", () => {
+  const args = ["2026-01-01", "2026-12-31", DELHI.lat, DELHI.lng, true] as const;
+  const upanayana = generateCeremonyCandidates("upanayana", ...args);
+  const jatakarma = generateCeremonyCandidates("jatakarma", ...args);
+  // No Upanayana in the monsoon Chaturmas window (Aug–Oct).
+  const monsoon = upanayana.filter((c) => {
+    const m = Number(c.date.slice(5, 7));
+    return m >= 8 && m <= 10;
+  });
+  assert.equal(monsoon.length, 0, "no Upanayana in Chaturmas");
+  // The unrestricted child rite yields more dates overall.
+  assert.ok(jatakarma.length > upanayana.length);
+});

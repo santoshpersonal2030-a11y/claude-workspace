@@ -824,6 +824,55 @@ export const CEREMONY_RULES: Record<string, MuhuratRuleSet> = {
     forbiddenTithis: RIKTA_AND_AMAVASYA,
     kharmas: false, chaturmas: false, asta: false, vishti: true, shukraBala: false,
   },
+  jatakarma: {
+    name: "Jatakarma",
+    // Birth rite — performed close to the birth, so timing is gentle: avoid only
+    // bad nakshatra/tithi and Vishti, no masa/planetary restriction.
+    nakshatras: new Set([1, 4, 5, 7, 8, 12, 13, 14, 15, 17, 21, 22, 23, 24, 26, 27]),
+    forbiddenTithis: RIKTA_AND_AMAVASYA,
+    kharmas: false, chaturmas: false, asta: false, vishti: true, shukraBala: false,
+  },
+  "godh-bharai": {
+    name: "Godh Bharai",
+    // Simantonnayana — soft (mridu/laghu) nakshatras for the mother-to-be.
+    nakshatras: new Set([4, 5, 7, 8, 12, 13, 17, 21, 22, 23, 24, 27]),
+    forbiddenTithis: RIKTA_AND_AMAVASYA,
+    kharmas: false, chaturmas: false, asta: false, vishti: true, shukraBala: false,
+  },
+  nishkramana: {
+    name: "Nishkramana",
+    nakshatras: new Set([1, 4, 5, 7, 8, 12, 13, 14, 15, 17, 22, 23, 24, 26, 27]),
+    forbiddenTithis: RIKTA_AND_AMAVASYA,
+    kharmas: false, chaturmas: false, asta: false, vishti: true, shukraBala: false,
+  },
+  karnavedha: {
+    name: "Karnavedha",
+    nakshatras: new Set([1, 5, 7, 8, 13, 14, 15, 17, 22, 23, 24, 27]),
+    forbiddenTithis: RIKTA_AND_AMAVASYA,
+    kharmas: false, chaturmas: false, asta: false, vishti: true, shukraBala: false,
+  },
+  vidyarambha: {
+    name: "Vidyarambha",
+    // Start of learning — favour Hasta/Chitra/Swati + Mridu nakshatras.
+    nakshatras: new Set([4, 5, 7, 8, 13, 14, 15, 17, 21, 22, 24, 27]),
+    forbiddenTithis: RIKTA_AND_AMAVASYA,
+    kharmas: false, chaturmas: false, asta: false, vishti: true, shukraBala: false,
+  },
+  upanayana: {
+    name: "Upanayana",
+    // Sacred thread — a major sanskar: traditionally in Uttarayana, avoiding
+    // Kharmas, Chaturmas and Guru/Shukra asta (Guru-bala matters).
+    nakshatras: new Set([1, 4, 5, 7, 8, 13, 14, 15, 17, 21, 22, 23, 26, 27]),
+    forbiddenTithis: FORBIDDEN_TITHIS,
+    kharmas: true, chaturmas: true, asta: true, vishti: true, shukraBala: false,
+  },
+  "vastu-shanti": {
+    name: "Vastu Shanti",
+    // Property rite, like Griha Pravesh / Bhoomi Puja.
+    nakshatras: new Set([4, 5, 8, 12, 13, 14, 17, 21, 22, 24, 26, 27]),
+    forbiddenTithis: FORBIDDEN_TITHIS,
+    kharmas: true, chaturmas: true, asta: false, vishti: true, shukraBala: false,
+  },
 };
 
 export function rulesFor(slug: string): MuhuratRuleSet {
