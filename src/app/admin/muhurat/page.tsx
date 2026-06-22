@@ -126,13 +126,20 @@ export default async function AdminMuhuratPage() {
           Generate (computed engine)
         </h2>
         <p className="mt-1 text-xs text-foreground/60">
-          Computes the daily <strong>Abhijit Muhurat</strong> (auspicious midday
-          window) from sunrise/sunset for the chosen city — no external API. Each
-          window&apos;s note lists the Rahu Kalam / Yamaganda / Gulika periods to
-          avoid. All rows land <strong>pending</strong> for astrologer approval.
-          Tithi/nakshatra-specific muhurats still need a panchang source.
+          Computes muhurats from astronomy — no external API. <strong>Abhijit</strong>
+          {" "}gives the daily auspicious midday window (with Rahu/Yamaganda/Gulika
+          to avoid). <strong>Wedding</strong> filters to dates whose
+          nakshatra/tithi favour Vivah (computed lunar engine). All rows land{" "}
+          <strong>pending</strong> for astrologer approval.
         </p>
-        <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+        <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-6">
+          <label className="text-xs text-foreground/60">
+            Mode
+            <select name="mode" className={inputClass} defaultValue="abhijit">
+              <option value="abhijit">Abhijit (daily)</option>
+              <option value="vivah">Wedding (tithi/nakshatra)</option>
+            </select>
+          </label>
           <label className="text-xs text-foreground/60">
             From
             <input

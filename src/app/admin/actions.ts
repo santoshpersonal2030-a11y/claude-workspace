@@ -9,7 +9,11 @@ import { generateEInvoice, cancelEInvoice } from "@/lib/einvoice";
 import { generateEwayBill, updateEwayBillPartB } from "@/lib/ewaybill";
 import { saveCompany } from "@/lib/company-settings";
 import { buildRunItems } from "@/lib/payroll-data";
-import { generateAbhijitCandidates, CITY_COORDS } from "@/lib/muhurat-engine";
+import {
+  generateAbhijitCandidates,
+  generateVivahCandidates,
+  CITY_COORDS,
+} from "@/lib/muhurat-engine";
 import {
   sendReviewRequest,
   sendBackInStockEmails,
@@ -376,10 +380,16 @@ export async function generateMuhuratWindows(
   if (!from || !to) return;
 
   const coords = CITY_COORDS[city] ?? CITY_COORDS["New Delhi"];
-  const candidates = generateAbhijitCandidates(from, to, coords.lat, coords.lng);
+  const mode = str(formData.get("mode")) === "vivah" ? "vivah" : "abhijit";
+  const candidates =
+    mode === "vivah"
+      ? generateVivahCandidates(from, to, coords.lat, coords.lng)
+      : generateAbhijitCandidates(from, to, coords.lat, coords.lng);
   if (candidates.length === 0) return;
 
-  const scope = str(formData.get("scope"));
+  // Vivah candidates default to the wedding pooja when no scope is chosen.
+  let scope = str(formData.get("scope"));
+  if (!scope && mode === "vivah") scope = "vivah-sanskar";
   const scopeLower = scope.toLowerCase();
   const isCategory = Constants.public.Enums.pooja_category.some(
     (c) => c.toLowerCase() === scopeLower,
