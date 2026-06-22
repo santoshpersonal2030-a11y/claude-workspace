@@ -3,8 +3,8 @@ import Link from "next/link";
 
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { getApprovedMuhuratWindows, type AuspiciousDate } from "@/lib/muhurat-data";
-import { tierFromScore } from "@/lib/muhurat-engine";
+import MuhuratCalendar from "@/components/MuhuratCalendar";
+import { getApprovedMuhuratWindows } from "@/lib/muhurat-data";
 
 export const metadata: Metadata = {
   title: "Shubh Muhurat — Auspicious Dates",
@@ -15,47 +15,45 @@ export const metadata: Metadata = {
 // Approved windows change as the astrologer curates them; refresh hourly.
 export const revalidate = 3600;
 
-const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-const MONTHS = [
-  "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December",
-];
-
-function parts(date: string) {
-  const [y, m, d] = date.split("-").map(Number);
-  const wd = new Date(`${date}T00:00:00Z`).getUTCDay();
-  return { y, m, d, weekday: WEEKDAYS[wd], monthName: MONTHS[m - 1] };
-}
-
-// Customer-friendly phrasing for the computed tier (we show the word, not the raw score).
-const TIER_LABEL: Record<string, string> = {
-  Excellent: "Most auspicious",
-  Good: "Auspicious",
-  Fair: "Favourable",
-};
-const TIER_BADGE: Record<string, string> = {
-  Excellent: "bg-emerald-100 text-emerald-800",
-  Good: "bg-amber-100 text-amber-800",
-  Fair: "bg-stone-100 text-stone-600",
-};
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://bookmypoojari.com";
 
 export default async function MuhuratPage() {
   const windows = await getApprovedMuhuratWindows();
 
-  // Group by "Month Year" preserving date order.
-  const groups: { key: string; items: AuspiciousDate[] }[] = [];
-  for (const w of windows) {
-    const { monthName, y } = parts(w.date);
-    const key = `${monthName} ${y}`;
-    const last = groups[groups.length - 1];
-    if (last && last.key === key) last.items.push(w);
-    else groups.push({ key, items: [w] });
-  }
+  // schema.org Event markup for the upcoming auspicious dates (capped).
+  const eventsLd = {
+    "@context": "https://schema.org",
+    "@graph": windows.slice(0, 50).map((w) => ({
+      "@type": "Event",
+      name: `${w.label ?? "Auspicious Muhurat"} — ${w.ceremony}`,
+      startDate: `${w.date}T${w.startTime}:00+05:30`,
+      endDate: `${w.date}T${w.endTime}:00+05:30`,
+      eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
+      eventStatus: "https://schema.org/EventScheduled",
+      location: {
+        "@type": "Place",
+        name: "At your venue",
+        address: { "@type": "PostalAddress", addressCountry: "IN" },
+      },
+      organizer: {
+        "@type": "Organization",
+        name: "BookMyPoojari",
+        url: SITE_URL,
+      },
+      url: w.poojaSlug ? `${SITE_URL}/poojas/${w.poojaSlug}` : `${SITE_URL}/muhurat`,
+    })),
+  };
 
   return (
     <>
       <Header />
       <main className="flex-1">
+        {windows.length > 0 && (
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(eventsLd) }}
+          />
+        )}
         <section className="bg-temple-gradient">
           <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
             <nav className="text-sm text-foreground/60">
@@ -77,7 +75,7 @@ export default async function MuhuratPage() {
         </section>
 
         <section className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
-          {groups.length === 0 ? (
+          {windows.length === 0 ? (
             <div className="rounded-2xl border border-saffron-100 bg-white p-8 text-center shadow-sm">
               <div className="text-4xl">🗓️</div>
               <h2 className="mt-3 font-heading text-xl text-maroon-800">
@@ -96,62 +94,7 @@ export default async function MuhuratPage() {
               </Link>
             </div>
           ) : (
-            <div className="space-y-10">
-              {groups.map((group) => (
-                <div key={group.key}>
-                  <h2 className="font-heading text-2xl text-maroon-800">
-                    {group.key}
-                  </h2>
-                  <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                    {group.items.map((w) => {
-                      const p = parts(w.date);
-                      const tier =
-                        w.qualityScore != null
-                          ? tierFromScore(w.qualityScore)
-                          : null;
-                      return (
-                        <div
-                          key={w.id}
-                          className="flex flex-col rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm"
-                        >
-                          <div className="flex items-start justify-between">
-                            <div>
-                              <div className="font-heading text-2xl text-maroon-800">
-                                {p.weekday}, {p.d}
-                              </div>
-                              <div className="text-xs text-foreground/55">
-                                {p.monthName} {p.y}
-                              </div>
-                            </div>
-                            {tier && (
-                              <span
-                                className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${TIER_BADGE[tier]}`}
-                              >
-                                {TIER_LABEL[tier]}
-                              </span>
-                            )}
-                          </div>
-
-                          <div className="mt-3 text-sm font-medium text-saffron-700">
-                            🕉️ {w.label ?? "Auspicious muhurat"}
-                          </div>
-                          <div className="mt-1 text-sm text-foreground/70">
-                            {w.ceremony} · {w.startTime}–{w.endTime}
-                          </div>
-
-                          <Link
-                            href={w.poojaSlug ? `/poojas/${w.poojaSlug}` : "/ceremonies"}
-                            className="mt-4 w-full rounded-full bg-saffron-600 py-2 text-center text-sm font-semibold text-white transition-colors hover:bg-saffron-700"
-                          >
-                            Book this muhurat
-                          </Link>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              ))}
-            </div>
+            <MuhuratCalendar windows={windows} />
           )}
         </section>
       </main>

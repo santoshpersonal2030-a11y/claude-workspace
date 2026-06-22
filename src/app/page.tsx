@@ -6,6 +6,19 @@ import RatingStars from "@/components/RatingStars";
 import ProductThumb from "@/components/ProductThumb";
 import { formatINR } from "@/lib/poojas";
 import { getPopularPoojas, getPandits, getProducts } from "@/lib/queries";
+import { getApprovedMuhuratWindows } from "@/lib/muhurat-data";
+
+const MUHURAT_WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const MUHURAT_MONTHS = [
+  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+];
+
+function muhuratDateLabel(date: string) {
+  const [, m, d] = date.split("-").map(Number);
+  const wd = new Date(`${date}T00:00:00Z`).getUTCDay();
+  return `${MUHURAT_WEEKDAYS[wd]}, ${d} ${MUHURAT_MONTHS[m - 1]}`;
+}
 
 // Re-fetch popular poojas from the database at most once every 5 minutes.
 export const revalidate = 300;
@@ -134,6 +147,7 @@ const reasons = [
 export default async function Home() {
   const popularPoojas = await getPopularPoojas();
   const featuredPandits = (await getPandits()).slice(0, 3);
+  const muhuratDates = (await getApprovedMuhuratWindows(8)).slice(0, 4);
   const featuredProducts = (await getProducts())
     .slice()
     .sort((a, b) => b.reviewCount - a.reviewCount)
@@ -256,6 +270,49 @@ export default async function Home() {
             ))}
           </div>
         </section>
+
+        {/* Upcoming auspicious dates teaser */}
+        {muhuratDates.length > 0 && (
+          <section className="bg-cream-100/60 py-12">
+            <div className="mx-auto max-w-6xl px-4 sm:px-6">
+              <div className="flex items-end justify-between gap-4">
+                <div>
+                  <h2 className="font-heading text-3xl text-maroon-800">
+                    Upcoming Shubh Muhurat
+                  </h2>
+                  <p className="mt-2 text-foreground/70">
+                    Astrologer-verified auspicious dates for your ceremony.
+                  </p>
+                </div>
+                <Link
+                  href="/muhurat"
+                  className="hidden whitespace-nowrap text-sm font-semibold text-saffron-700 hover:text-saffron-800 sm:block"
+                >
+                  View all dates →
+                </Link>
+              </div>
+              <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                {muhuratDates.map((w) => (
+                  <Link
+                    key={w.id}
+                    href={w.poojaSlug ? `/poojas/${w.poojaSlug}` : "/muhurat"}
+                    className="flex flex-col rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md"
+                  >
+                    <div className="font-heading text-xl text-maroon-800">
+                      {muhuratDateLabel(w.date)}
+                    </div>
+                    <div className="mt-1 text-sm font-medium text-saffron-700">
+                      🕉️ {w.label ?? "Auspicious muhurat"}
+                    </div>
+                    <div className="mt-1 text-sm text-foreground/65">
+                      {w.ceremony} · {w.startTime}–{w.endTime}
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
 
         {/* Shop bestsellers */}
         {featuredProducts.length > 0 && (
