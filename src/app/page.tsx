@@ -7,6 +7,7 @@ import ProductThumb from "@/components/ProductThumb";
 import { formatINR } from "@/lib/poojas";
 import { getPopularPoojas, getPandits, getProducts } from "@/lib/queries";
 import { getApprovedMuhuratWindows } from "@/lib/muhurat-data";
+import TodayPanchang from "@/components/TodayPanchang";
 
 const MUHURAT_WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const MUHURAT_MONTHS = [
@@ -216,6 +217,9 @@ export default async function Home() {
             </div>
           </div>
         </section>
+
+        {/* Today's panchang */}
+        <TodayPanchang />
 
         {/* Popular poojas */}
         <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
