@@ -5,6 +5,7 @@ import Providers from "./providers";
 import AnnouncementBar from "@/components/AnnouncementBar";
 import ReferralTracker from "@/components/ReferralTracker";
 import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
+import SkipLink from "@/components/SkipLink";
 
 const heading = Marcellus({
   weight: "400",
@@ -80,6 +81,7 @@ export default function RootLayout({
       className={`${heading.variable} ${body.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
+        <SkipLink />
         <AnnouncementBar />
         <ReferralTracker />
         <ServiceWorkerRegister />
