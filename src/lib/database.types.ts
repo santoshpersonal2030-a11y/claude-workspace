@@ -14,6 +14,47 @@ export type Database = {
   }
   public: {
     Tables: {
+      addresses: {
+        Row: {
+          address: string
+          city: string
+          created_at: string
+          id: string
+          is_default: boolean
+          label: string | null
+          pincode: string | null
+          user_id: string
+        }
+        Insert: {
+          address: string
+          city: string
+          created_at?: string
+          id?: string
+          is_default?: boolean
+          label?: string | null
+          pincode?: string | null
+          user_id: string
+        }
+        Update: {
+          address?: string
+          city?: string
+          created_at?: string
+          id?: string
+          is_default?: boolean
+          label?: string | null
+          pincode?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "addresses_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       booking_priest_events: {
         Row: {
           action: string

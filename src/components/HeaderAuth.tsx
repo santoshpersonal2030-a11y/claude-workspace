@@ -99,6 +99,14 @@ export default function HeaderAuth() {
             {label}
           </div>
           <Link
+            href="/account/profile"
+            onClick={() => setOpen(false)}
+            className="block px-4 py-2 text-sm text-foreground/80 hover:bg-saffron-50"
+            role="menuitem"
+          >
+            My account
+          </Link>
+          <Link
             href="/account/bookings"
             onClick={() => setOpen(false)}
             className="block px-4 py-2 text-sm text-foreground/80 hover:bg-saffron-50"
