@@ -3,6 +3,7 @@ import { getCompanySettings } from "@/lib/company-settings";
 import { COMPANY } from "@/lib/company";
 import { INDIAN_STATES } from "@/lib/india";
 import { saveCompanySettings } from "@/app/admin/actions";
+import { requireCapability } from "@/lib/admin";
 
 export const metadata = { title: "Settings" };
 
@@ -10,6 +11,7 @@ const fieldClass =
   "mt-1 w-full rounded-lg border border-saffron-200 bg-cream px-3 py-2 text-sm outline-none focus:border-saffron-400";
 
 export default async function AdminSettingsPage() {
+  await requireCapability("settings");
   const settings = await getCompanySettings();
 
   return (

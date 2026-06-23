@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 
-import { assertAdmin } from "@/lib/admin";
+import { assertAdmin, assertCapability } from "@/lib/admin";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createRefund, razorpayConfigured } from "@/lib/razorpay";
 import { generateEInvoice, cancelEInvoice } from "@/lib/einvoice";
@@ -899,7 +899,7 @@ export async function acceptProposal(formData: FormData): Promise<void> {
 // Saves the seller/business details shown on invoices (DB-backed, editable
 // without a redeploy). Revalidates the receipt pages so they pick up changes.
 export async function saveCompanySettings(formData: FormData): Promise<void> {
-  await assertAdmin();
+  await assertCapability("settings");
   await saveCompany({
     name: str(formData.get("name")),
     gstin: str(formData.get("gstin")),
@@ -996,7 +996,7 @@ export async function createPayrollRun(formData: FormData): Promise<void> {
 // Rebuilds the unpaid payslip lines of an existing run (e.g. after editing a
 // compensation profile or marking more bookings completed).
 export async function regeneratePayrollRun(formData: FormData): Promise<void> {
-  await assertAdmin();
+  await assertCapability("payroll");
   const admin = createAdminClient();
 
   const runId = str(formData.get("run_id"));
@@ -1014,7 +1014,7 @@ export async function regeneratePayrollRun(formData: FormData): Promise<void> {
 
 // Marks a single payslip line paid/unpaid, recording an optional payment ref.
 export async function setPayrollItemPaid(formData: FormData): Promise<void> {
-  await assertAdmin();
+  await assertCapability("payroll");
   const admin = createAdminClient();
 
   const id = str(formData.get("id"));
@@ -1037,7 +1037,7 @@ export async function setPayrollItemPaid(formData: FormData): Promise<void> {
 // Saves a priest's private bank details for RazorpayX payouts. Clearing the
 // account/IFSC also drops the cached RazorpayX ids so they're rebuilt.
 export async function savePayoutAccount(formData: FormData): Promise<void> {
-  await assertAdmin();
+  await assertCapability("payouts");
   const admin = createAdminClient();
   const panditId = str(formData.get("pandit_id"));
   if (!panditId) return;
@@ -1061,7 +1061,7 @@ export async function savePayoutAccount(formData: FormData): Promise<void> {
 
 // Triggers a real bank payout for one payslip line via RazorpayX.
 export async function payoutPayrollItem(formData: FormData): Promise<void> {
-  await assertAdmin();
+  await assertCapability("payouts");
   const id = str(formData.get("id"));
   const runId = str(formData.get("run_id"));
   if (!id) return;
@@ -1072,7 +1072,7 @@ export async function payoutPayrollItem(formData: FormData): Promise<void> {
 
 // Advances a run's lifecycle: draft → finalized → paid (or back to draft).
 export async function setPayrollRunStatus(formData: FormData): Promise<void> {
-  await assertAdmin();
+  await assertCapability("payroll");
   const admin = createAdminClient();
 
   const runId = str(formData.get("run_id"));
@@ -1178,7 +1178,7 @@ export async function deleteCoupon(formData: FormData): Promise<void> {
 // ── Rewards (wallet / referral / loyalty) ────────────────────────────────────
 
 export async function saveRewardSettings(formData: FormData): Promise<void> {
-  await assertAdmin();
+  await assertCapability("rewards");
   const admin = createAdminClient();
   await admin.from("reward_settings").upsert(
     {
@@ -1193,6 +1193,39 @@ export async function saveRewardSettings(formData: FormData): Promise<void> {
     { onConflict: "id" },
   );
   revalidatePath("/admin/rewards");
+}
+
+// ── Admin team (roles & permissions) ─────────────────────────────────────────
+
+// Grants/changes/revokes an admin role for a user (owner only). The user must
+// already have an account (signed in at least once) so a profile exists.
+export async function saveAdminMember(formData: FormData): Promise<void> {
+  await assertCapability("team");
+  const admin = createAdminClient();
+  const email = str(formData.get("email")).toLowerCase();
+  const role = str(formData.get("role"));
+  if (!email) return;
+
+  const { data: profile } = await admin
+    .from("profiles")
+    .select("id")
+    .eq("email", email)
+    .maybeSingle();
+  if (!profile) return;
+
+  if (["owner", "manager", "support"].includes(role)) {
+    await admin
+      .from("profiles")
+      .update({ is_admin: true, admin_role: role })
+      .eq("id", profile.id);
+  } else {
+    // Anything else (incl. "revoke") removes admin access entirely.
+    await admin
+      .from("profiles")
+      .update({ is_admin: false, admin_role: null })
+      .eq("id", profile.id);
+  }
+  revalidatePath("/admin/team");
 }
 
 // ── Priest applications (self-onboarding / KYC) ──────────────────────────────

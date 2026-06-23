@@ -8,6 +8,7 @@ import {
   setPayrollRunStatus,
   payoutPayrollItem,
 } from "@/app/admin/actions";
+import { requireCapability } from "@/lib/admin";
 import { compModelLabel, periodLabel, type CompModel } from "@/lib/payroll";
 import { razorpayxConfigured } from "@/lib/razorpayx";
 import { formatINR } from "@/lib/poojas";
@@ -17,6 +18,7 @@ export default async function PayrollRunDetailPage({
 }: {
   params: Promise<{ runId: string }>;
 }) {
+  await requireCapability("payroll");
   const { runId } = await params;
   const admin = createAdminClient();
 

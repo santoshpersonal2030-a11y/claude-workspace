@@ -1,26 +1,28 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 
-import { getAdminUser } from "@/lib/admin";
+import { getAdminContext } from "@/lib/admin";
+import { can, ROLE_LABEL, type Capability } from "@/lib/roles";
 
-const tabs = [
+const tabs: { href: string; label: string; cap?: Capability }[] = [
   { href: "/admin", label: "Overview" },
-  { href: "/admin/analytics", label: "Analytics" },
-  { href: "/admin/bookings", label: "Bookings & orders" },
-  { href: "/admin/products", label: "Products" },
-  { href: "/admin/poojas", label: "Poojas" },
-  { href: "/admin/pandits", label: "Pandits" },
-  { href: "/admin/pandit-applications", label: "Applications" },
-  { href: "/admin/priest-analytics", label: "Insights" },
-  { href: "/admin/payroll", label: "Payroll" },
-  { href: "/admin/payouts", label: "Payouts" },
-  { href: "/admin/muhurat", label: "Muhurat" },
-  { href: "/admin/peak-days", label: "Peak days" },
-  { href: "/admin/coupons", label: "Coupons" },
-  { href: "/admin/rewards", label: "Rewards" },
-  { href: "/admin/coverage", label: "Coverage" },
-  { href: "/admin/messages", label: "Messages" },
-  { href: "/admin/settings", label: "Settings" },
+  { href: "/admin/analytics", label: "Analytics", cap: "analytics" },
+  { href: "/admin/bookings", label: "Bookings & orders", cap: "bookings" },
+  { href: "/admin/products", label: "Products", cap: "products" },
+  { href: "/admin/poojas", label: "Poojas", cap: "catalog" },
+  { href: "/admin/pandits", label: "Pandits", cap: "pandits" },
+  { href: "/admin/pandit-applications", label: "Applications", cap: "applications" },
+  { href: "/admin/priest-analytics", label: "Insights", cap: "insights" },
+  { href: "/admin/payroll", label: "Payroll", cap: "payroll" },
+  { href: "/admin/payouts", label: "Payouts", cap: "payouts" },
+  { href: "/admin/muhurat", label: "Muhurat", cap: "catalog" },
+  { href: "/admin/peak-days", label: "Peak days", cap: "catalog" },
+  { href: "/admin/coupons", label: "Coupons", cap: "coupons" },
+  { href: "/admin/rewards", label: "Rewards", cap: "rewards" },
+  { href: "/admin/coverage", label: "Coverage", cap: "coverage" },
+  { href: "/admin/messages", label: "Messages", cap: "messages" },
+  { href: "/admin/team", label: "Team", cap: "team" },
+  { href: "/admin/settings", label: "Settings", cap: "settings" },
 ];
 
 export const metadata = { title: "Admin — BookMyPoojari" };
@@ -30,8 +32,9 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const admin = await getAdminUser();
-  if (!admin) redirect("/login?next=/admin");
+  const ctx = await getAdminContext();
+  if (!ctx) redirect("/login?next=/admin");
+  const visibleTabs = tabs.filter((t) => !t.cap || can(ctx.role, t.cap));
 
   return (
     <div className="flex min-h-full flex-col">
@@ -43,16 +46,23 @@ export default async function AdminLayout({
               Admin Console
             </span>
           </div>
-          <Link
-            href="/"
-            className="text-sm text-foreground/60 hover:text-saffron-700"
-          >
-            ← Back to site
-          </Link>
+          <div className="flex items-center gap-3">
+            {ctx.role && (
+              <span className="rounded-full bg-saffron-50 px-3 py-1 text-xs font-semibold text-saffron-700">
+                {ROLE_LABEL[ctx.role]}
+              </span>
+            )}
+            <Link
+              href="/"
+              className="text-sm text-foreground/60 hover:text-saffron-700"
+            >
+              ← Back to site
+            </Link>
+          </div>
         </div>
         <nav className="mx-auto max-w-6xl px-4 sm:px-6">
           <ul className="flex gap-1 overflow-x-auto">
-            {tabs.map((tab) => (
+            {visibleTabs.map((tab) => (
               <li key={tab.href}>
                 <Link
                   href={tab.href}

@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { createAdminClient } from "@/lib/supabase/admin";
+import { requireCapability } from "@/lib/admin";
 import { createPayrollRun, deletePayrollRun } from "@/app/admin/actions";
 import { periodLabel } from "@/lib/payroll";
 import { formatINR } from "@/lib/poojas";
@@ -20,6 +21,7 @@ const MONTHS = [
 ];
 
 export default async function AdminPayrollPage() {
+  await requireCapability("payroll");
   const admin = createAdminClient();
   const now = new Date();
 

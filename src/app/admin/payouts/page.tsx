@@ -1,4 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import { requireCapability } from "@/lib/admin";
 import { razorpayxConfigured } from "@/lib/razorpayx";
 import { savePayoutAccount } from "@/app/admin/actions";
 import { formatINR } from "@/lib/poojas";
@@ -19,6 +20,7 @@ const PAYOUT_STYLE: Record<string, string> = {
 };
 
 export default async function AdminPayoutsPage() {
+  await requireCapability("payouts");
   const admin = createAdminClient();
   const configured = razorpayxConfigured();
 

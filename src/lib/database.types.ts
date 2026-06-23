@@ -1507,6 +1507,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          admin_role: string | null
           created_at: string
           email: string | null
           full_name: string | null
@@ -1521,6 +1522,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          admin_role?: string | null
           created_at?: string
           email?: string | null
           full_name?: string | null
@@ -1535,6 +1537,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          admin_role?: string | null
           created_at?: string
           email?: string | null
           full_name?: string | null

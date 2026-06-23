@@ -1,4 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import { requireCapability } from "@/lib/admin";
 import { saveRewardSettings } from "@/app/admin/actions";
 import { REWARD_DEFAULTS } from "@/lib/rewards";
 import { formatINR } from "@/lib/poojas";
@@ -7,6 +8,7 @@ const inputClass =
   "w-full rounded-lg border border-saffron-200 bg-cream px-3 py-2 text-sm outline-none focus:border-saffron-400";
 
 export default async function AdminRewardsPage() {
+  await requireCapability("rewards");
   const admin = createAdminClient();
   const { data } = await admin
     .from("reward_settings")
