@@ -18,7 +18,13 @@ test("t interpolates {vars}", () => {
 
 test("every Hindi key is also present in English (no orphan keys)", () => {
   // Pull the dictionaries indirectly: any hi key must resolve in en too.
-  for (const key of ["nav.bookPooja", "brand.tagline", "footer.explore"]) {
+  for (const key of [
+    "nav.bookPooja",
+    "brand.tagline",
+    "footer.explore",
+    "home.heroTitle",
+    "common.shopSamagri",
+  ]) {
     assert.notEqual(t("en", key), key, `missing en for ${key}`);
     assert.notEqual(t("hi", key), key, `missing hi for ${key}`);
   }

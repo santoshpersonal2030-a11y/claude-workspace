@@ -1,4 +1,6 @@
 import Link from "next/link";
+
+import HomeHero from "@/components/HomeHero";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import AddToCartButton from "@/components/AddToCartButton";
@@ -162,36 +164,7 @@ export default async function Home() {
         {/* Hero */}
         <section className="bg-temple-gradient">
           <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 py-16 sm:px-6 lg:grid-cols-2 lg:py-24">
-            <div>
-              <span className="inline-flex items-center gap-2 rounded-full border border-saffron-200 bg-saffron-50 px-4 py-1.5 text-sm font-medium text-saffron-700">
-                🪔 Verified Pandits • Authentic Samagri
-              </span>
-              <h1 className="mt-5 text-balance font-heading text-4xl leading-tight text-maroon-800 sm:text-5xl">
-                Book a trusted Pandit for every sacred occasion
-              </h1>
-              <p className="mt-5 max-w-lg text-lg text-foreground/75">
-                From Griha Pravesh to Satyanarayan Katha — experienced, verified
-                Poojaris at your home, with authentic samagri kits delivered to
-                your door.
-              </p>
-              <div className="mt-8 flex flex-wrap gap-3">
-                <Link
-                  href="/poojas"
-                  className="rounded-full bg-saffron-600 px-7 py-3 text-base font-semibold text-white shadow-sm transition-colors hover:bg-saffron-700"
-                >
-                  Book a Pooja
-                </Link>
-                <Link
-                  href="/store"
-                  className="rounded-full border border-saffron-300 bg-white px-7 py-3 text-base font-semibold text-saffron-700 transition-colors hover:bg-saffron-50"
-                >
-                  Shop Samagri
-                </Link>
-              </div>
-              <p className="mt-4 text-sm text-foreground/60">
-                ⭐ Rated 4.9/5 by thousands of families across India
-              </p>
-            </div>
+            <HomeHero />
 
             <div className="relative">
               <div className="rounded-3xl border border-saffron-100 bg-white/70 p-8 shadow-xl backdrop-blur">

@@ -33,6 +33,12 @@ const en: Dict = {
   "common.wishlist": "Wishlist",
   "common.menu": "Menu",
   "common.language": "Language",
+  "common.shopSamagri": "Shop Samagri",
+  "home.heroBadge": "🪔 Verified Pandits • Authentic Samagri",
+  "home.heroTitle": "Book a trusted Pandit for every sacred occasion",
+  "home.heroSubtitle":
+    "From Griha Pravesh to Satyanarayan Katha — experienced, verified Poojaris at your home, with authentic samagri kits delivered to your door.",
+  "home.heroRating": "⭐ Rated 4.9/5 by thousands of families across India",
   "footer.tagline":
     "Book verified, experienced Pandits for any ceremony and order authentic pooja samagri — delivered to your door.",
   "footer.explore": "Explore",
@@ -56,6 +62,12 @@ const hi: Dict = {
   "common.wishlist": "पसंदीदा",
   "common.menu": "मेन्यू",
   "common.language": "भाषा",
+  "common.shopSamagri": "सामग्री खरीदें",
+  "home.heroBadge": "🪔 सत्यापित पंडित • प्रामाणिक सामग्री",
+  "home.heroTitle": "हर शुभ अवसर के लिए एक विश्वसनीय पंडित बुक करें",
+  "home.heroSubtitle":
+    "गृह प्रवेश से सत्यनारायण कथा तक — अनुभवी, सत्यापित पुजारी आपके घर पर, और प्रामाणिक सामग्री किट आपके द्वार तक।",
+  "home.heroRating": "⭐ पूरे भारत में हज़ारों परिवारों द्वारा 4.9/5 रेटेड",
   "footer.tagline":
     "किसी भी समारोह के लिए सत्यापित, अनुभवी पंडित बुक करें और प्रामाणिक पूजा सामग्री मंगाएँ — आपके द्वार तक।",
   "footer.explore": "खोजें",
