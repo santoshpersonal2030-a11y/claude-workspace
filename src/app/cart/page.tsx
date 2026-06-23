@@ -17,6 +17,14 @@ import { payWithRazorpay } from "@/lib/razorpay-client";
 const FREE_SHIPPING_THRESHOLD = 999;
 const SHIPPING_FEE = 49;
 
+type SavedAddress = {
+  id: string;
+  label: string | null;
+  address: string;
+  city: string | null;
+  pincode: string | null;
+};
+
 export default function CartPage() {
   const { items, subtotal, setQuantity, remove, clear } = useCart();
   const supabase = useMemo(() => createClient(), []);
@@ -33,6 +41,7 @@ export default function CartPage() {
     pincode: "",
     gstin: "",
   });
+  const [savedAddresses, setSavedAddresses] = useState<SavedAddress[]>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [couponInput, setCouponInput] = useState("");
@@ -45,6 +54,52 @@ export default function CartPage() {
       setAuthLoaded(true);
     });
   }, [supabase]);
+
+  // Prefill delivery from the profile (name/phone) and the default saved
+  // address (RLS-scoped), so returning customers don't retype everything.
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    Promise.all([
+      supabase
+        .from("addresses")
+        .select("id, label, address, city, pincode")
+        .order("is_default", { ascending: false })
+        .order("created_at", { ascending: false }),
+      supabase
+        .from("profiles")
+        .select("full_name, phone")
+        .eq("id", user.id)
+        .maybeSingle(),
+    ]).then(([addr, prof]) => {
+      if (cancelled) return;
+      const list = addr.data ?? [];
+      setSavedAddresses(list);
+      const def = list[0];
+      setDelivery((d) => ({
+        ...d,
+        name: d.name || prof.data?.full_name || "",
+        phone: d.phone || prof.data?.phone || "",
+        address: d.address || def?.address || "",
+        city: d.city || def?.city || "",
+        pincode: d.pincode || def?.pincode || "",
+      }));
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [user, supabase]);
+
+  function applySavedAddress(id: string) {
+    const a = savedAddresses.find((x) => x.id === id);
+    if (!a) return;
+    setDelivery((d) => ({
+      ...d,
+      address: a.address,
+      city: a.city ?? "",
+      pincode: a.pincode ?? "",
+    }));
+  }
 
   const shipping = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_FEE;
   const discount = coupon ? Math.min(coupon.discount, subtotal) : 0;
@@ -282,6 +337,20 @@ export default function CartPage() {
                     </div>
                   ) : (
                     <div className="mt-5 space-y-3">
+                      {savedAddresses.length > 0 && (
+                        <select
+                          defaultValue={savedAddresses[0]?.id ?? ""}
+                          onChange={(e) => applySavedAddress(e.target.value)}
+                          className="w-full rounded-xl border border-saffron-200 bg-cream px-3 py-2.5 text-sm outline-none focus:border-saffron-400 focus:ring-2 focus:ring-saffron-100"
+                        >
+                          {savedAddresses.map((a) => (
+                            <option key={a.id} value={a.id}>
+                              {a.label || a.address}
+                              {a.city ? ` — ${a.city}` : ""}
+                            </option>
+                          ))}
+                        </select>
+                      )}
                       <input
                         type="text"
                         placeholder="Full name"

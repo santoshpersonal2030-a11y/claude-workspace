@@ -15,6 +15,14 @@ import { payWithRazorpay } from "@/lib/razorpay-client";
 import type { PanditTier } from "@/lib/pandit-tier";
 import { resolveTravelBand, isValidPincode } from "@/lib/travel";
 
+type SavedAddress = {
+  id: string;
+  label: string | null;
+  address: string;
+  city: string | null;
+  pincode: string | null;
+};
+
 type PanditOption = {
   slug: string;
   fullName: string;
@@ -37,6 +45,7 @@ export default function BookingForm({
   const router = useRouter();
 
   const [user, setUser] = useState<User | null>(null);
+  const [savedAddresses, setSavedAddresses] = useState<SavedAddress[]>([]);
   const [date, setDate] = useState("");
   const [slot, setSlot] = useState("");
   const [language, setLanguage] = useState("Hindi");
@@ -66,6 +75,39 @@ export default function BookingForm({
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setUser(data.user));
   }, [supabase]);
+
+  // Load the signed-in user's saved addresses (RLS-scoped) and prefill the
+  // default one, so the venue isn't retyped for every booking.
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    supabase
+      .from("addresses")
+      .select("id, label, address, city, pincode")
+      .order("is_default", { ascending: false })
+      .order("created_at", { ascending: false })
+      .then(({ data }) => {
+        if (cancelled || !data) return;
+        setSavedAddresses(data);
+        const def = data[0];
+        if (def) {
+          setAddress((a) => a || def.address);
+          setCity((c) => c || def.city || "");
+          setPincode((p) => p || def.pincode || "");
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [user, supabase]);
+
+  function applySavedAddress(id: string) {
+    const a = savedAddresses.find((x) => x.id === id);
+    if (!a) return;
+    setAddress(a.address);
+    setCity(a.city ?? "");
+    setPincode(a.pincode ?? "");
+  }
 
   // Load upcoming peak days once to preview the premium (server is authoritative).
   useEffect(() => {
@@ -452,6 +494,33 @@ export default function BookingForm({
               {availablePandits.length > 0
                 ? `Showing Pandits who speak ${language}. We'll honour your choice subject to availability.`
                 : `No listed Pandits for ${language} yet — we'll assign a suitable priest.`}
+            </p>
+          </div>
+        )}
+
+        {savedAddresses.length > 0 && (
+          <div>
+            <label className="mb-1 block text-sm font-medium text-foreground/80">
+              Use a saved address
+            </label>
+            <select
+              defaultValue={savedAddresses[0]?.id ?? ""}
+              onChange={(e) => applySavedAddress(e.target.value)}
+              className="w-full rounded-xl border border-saffron-200 bg-cream px-3 py-2.5 text-sm outline-none focus:border-saffron-400 focus:ring-2 focus:ring-saffron-100"
+            >
+              {savedAddresses.map((a) => (
+                <option key={a.id} value={a.id}>
+                  {a.label || a.address}
+                  {a.city ? ` — ${a.city}` : ""}
+                </option>
+              ))}
+            </select>
+            <p className="mt-1 text-xs text-foreground/50">
+              Pick a saved address or edit the fields below. Manage them in{" "}
+              <a href="/account/addresses" className="text-saffron-700 hover:underline">
+                your address book
+              </a>
+              .
             </p>
           </div>
         )}

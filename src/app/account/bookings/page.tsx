@@ -26,7 +26,7 @@ export default async function BookingsPage() {
   const { data: bookings } = await supabase
     .from("bookings")
     .select(
-      "id, booking_date, time_slot, status, total_amount, city, poojas(name, emoji), preferred:pandits!bookings_preferred_pandit_id_fkey(full_name), assigned:pandits!bookings_pandit_id_fkey(full_name)",
+      "id, booking_date, time_slot, status, total_amount, city, poojas(name, emoji, slug), preferred:pandits!bookings_preferred_pandit_id_fkey(full_name), assigned:pandits!bookings_pandit_id_fkey(full_name)",
     )
     .order("created_at", { ascending: false });
 
@@ -83,12 +83,22 @@ export default async function BookingsPage() {
                         Preferred Pandit: {booking.preferred.full_name}
                       </p>
                     ) : null}
-                    <Link
-                      href={`/account/bookings/${booking.id}`}
-                      className="mt-2 inline-block text-sm font-semibold text-saffron-700 hover:text-saffron-800"
-                    >
-                      View details →
-                    </Link>
+                    <div className="mt-2 flex flex-wrap items-center gap-4">
+                      <Link
+                        href={`/account/bookings/${booking.id}`}
+                        className="text-sm font-semibold text-saffron-700 hover:text-saffron-800"
+                      >
+                        View details →
+                      </Link>
+                      {booking.poojas?.slug && (
+                        <Link
+                          href={`/poojas/${booking.poojas.slug}`}
+                          className="text-sm font-semibold text-saffron-700 hover:text-saffron-800"
+                        >
+                          🔁 Book again
+                        </Link>
+                      )}
+                    </div>
                   </div>
                   <div className="font-semibold text-saffron-700">
                     {formatINR(booking.total_amount)}
