@@ -414,6 +414,30 @@ const en: Dict = {
   "cart.payAmount": "Pay {amount}",
   "cart.placeOrder": "Place order",
   "cart.securePay": "Secure payment via Razorpay.",
+
+  // SEO metadata (per-page title + description)
+  "meta.poojas.title": "Book a Pooja — All Ceremonies",
+  "meta.poojas.desc": "Browse and book verified Pandits for Satyanarayan Katha, Griha Pravesh, Lakshmi Puja, Navagraha Shanti and more. Transparent pricing, your language, on time.",
+  "meta.pandits.title": "Our Pandits — Verified Hindu Priests",
+  "meta.pandits.desc": "Meet our hand-verified Pandits and Poojaris — experienced, multilingual priests who perform ceremonies with devotion and authenticity.",
+  "meta.store.title": "Samagri Store — Pooja Items & Kits",
+  "meta.store.desc": "Order authentic pooja samagri — ready-made kits, diyas, agarbatti, havan samagri and more — delivered to your door.",
+  "meta.howItWorks.title": "How It Works",
+  "meta.howItWorks.desc": "Booking a verified Pandit on BookMyPoojari takes four simple steps — choose your pooja, pick a date, pay securely, and we handle the rest.",
+  "meta.about.title": "About Us",
+  "meta.about.desc": "BookMyPoojari connects families with verified Hindu priests and authentic pooja samagri, making it easy to perform ceremonies the right way.",
+  "meta.ceremonies.title": "Ceremonies — Birth, Marriage & Antim Sanskar",
+  "meta.ceremonies.desc": "Book verified Pandits for life-event ceremonies — child sanskars (Namkaran, Annaprashan, Mundan), the complete wedding package (Haldi, engagement, Vivah) and last rites performed with dignity.",
+  "meta.festivals.title": "Hindu Festival & Vrat Calendar — Ekadashi, Purnima, Amavasya",
+  "meta.festivals.desc": "Upcoming Hindu vrat and festival days — Ekadashi, Purnima, Amavasya, Sankashti & Vinayaka Chaturthi, Pradosh — computed from the panchang, with the pooja for each occasion.",
+  "meta.muhurat.title": "Shubh Muhurat — Auspicious Dates",
+  "meta.muhurat.desc": "Astrologer-verified auspicious muhurat dates and timings for weddings, Griha Pravesh and other ceremonies. Pick a shubh muhurat and book a verified Pandit.",
+  "meta.panchang.title": "Panchang — Tithi, Nakshatra, Muhurat & Rahu Kalam",
+  "meta.panchang.desc": "Daily Hindu panchang for any date and city: tithi, nakshatra, yoga, karana, sunrise/sunset, the auspicious Abhijit Muhurat, and Rahu Kalam / Yamaganda / Gulika to avoid.",
+  "meta.choghadiya.title": "Choghadiya — Auspicious Day & Night Muhurat Slots",
+  "meta.choghadiya.desc": "Today's choghadiya for any date and city: the eight day and eight night divisions (Amrit, Shubh, Labh, Char, and the inauspicious Udveg, Kaal, Rog) with their exact timings.",
+  "meta.gunMilan.title": "Kundli Matching — Gun Milan (Ashtakoot) Compatibility",
+  "meta.gunMilan.desc": "Free Vedic Kundli matching by Gun Milan (Ashtakoot): the eight kootas out of 36 gunas — Varna, Vashya, Tara, Yoni, Graha Maitri, Gana, Bhakoot and Nadi — from each partner's birth details.",
 };
 
 const hi: Dict = {
@@ -812,6 +836,30 @@ const hi: Dict = {
   "cart.payAmount": "{amount} का भुगतान करें",
   "cart.placeOrder": "ऑर्डर दें",
   "cart.securePay": "Razorpay के माध्यम से सुरक्षित भुगतान।",
+
+  // SEO metadata (per-page title + description)
+  "meta.poojas.title": "पूजा बुक करें — सभी समारोह",
+  "meta.poojas.desc": "सत्यनारायण कथा, गृह प्रवेश, लक्ष्मी पूजा, नवग्रह शांति और अधिक के लिए सत्यापित पंडित खोजें और बुक करें। पारदर्शी मूल्य, आपकी भाषा, समय पर।",
+  "meta.pandits.title": "हमारे पंडित — सत्यापित हिंदू पुजारी",
+  "meta.pandits.desc": "हमारे हाथ से सत्यापित पंडितों और पुजारियों से मिलें — अनुभवी, बहुभाषी पुजारी जो भक्ति और प्रामाणिकता के साथ समारोह संपन्न करते हैं।",
+  "meta.store.title": "सामग्री स्टोर — पूजा सामान और किट",
+  "meta.store.desc": "प्रामाणिक पूजा सामग्री मँगाएँ — तैयार किट, दीये, अगरबत्ती, हवन सामग्री और अधिक — आपके द्वार तक पहुँचाई गई।",
+  "meta.howItWorks.title": "यह कैसे काम करता है",
+  "meta.howItWorks.desc": "बुकमायपुजारी पर एक सत्यापित पंडित बुक करना चार सरल चरणों में होता है — अपनी पूजा चुनें, तिथि चुनें, सुरक्षित भुगतान करें, और बाक़ी हम सँभालते हैं।",
+  "meta.about.title": "हमारे बारे में",
+  "meta.about.desc": "बुकमायपुजारी परिवारों को सत्यापित हिंदू पुजारियों और प्रामाणिक पूजा सामग्री से जोड़ता है, जिससे समारोह सही तरीके से करना आसान हो जाता है।",
+  "meta.ceremonies.title": "संस्कार — जन्म, विवाह और अंतिम संस्कार",
+  "meta.ceremonies.desc": "जीवन के समारोहों के लिए सत्यापित पंडित बुक करें — शिशु संस्कार (नामकरण, अन्नप्राशन, मुंडन), संपूर्ण विवाह पैकेज (हल्दी, सगाई, विवाह) और सम्मान के साथ अंतिम संस्कार।",
+  "meta.festivals.title": "हिंदू त्योहार और व्रत कैलेंडर — एकादशी, पूर्णिमा, अमावस्या",
+  "meta.festivals.desc": "आगामी हिंदू व्रत और त्योहार के दिन — एकादशी, पूर्णिमा, अमावस्या, संकष्टी और विनायक चतुर्थी, प्रदोष — पंचांग से गणना किए गए, हर अवसर की पूजा के साथ।",
+  "meta.muhurat.title": "शुभ मुहूर्त — शुभ तिथियाँ",
+  "meta.muhurat.desc": "विवाह, गृह प्रवेश और अन्य समारोहों के लिए ज्योतिषी-सत्यापित शुभ मुहूर्त तिथियाँ और समय। एक शुभ मुहूर्त चुनें और एक सत्यापित पंडित बुक करें।",
+  "meta.panchang.title": "पंचांग — तिथि, नक्षत्र, मुहूर्त और राहु काल",
+  "meta.panchang.desc": "किसी भी तिथि और शहर के लिए दैनिक हिंदू पंचांग: तिथि, नक्षत्र, योग, करण, सूर्योदय/सूर्यास्त, शुभ अभिजित मुहूर्त, और टालने योग्य राहु काल / यमगण्ड / गुलिक।",
+  "meta.choghadiya.title": "चौघड़िया — दिन और रात के शुभ मुहूर्त",
+  "meta.choghadiya.desc": "किसी भी तिथि और शहर के लिए आज का चौघड़िया: दिन और रात के आठ-आठ भाग (अमृत, शुभ, लाभ, चर, और अशुभ उद्वेग, काल, रोग) उनके सटीक समय के साथ।",
+  "meta.gunMilan.title": "कुंडली मिलान — गुण मिलान (अष्टकूट) अनुकूलता",
+  "meta.gunMilan.desc": "गुण मिलान (अष्टकूट) द्वारा मुफ़्त वैदिक कुंडली मिलान: 36 गुणों में से आठ कूट — वर्ण, वश्य, तारा, योनि, ग्रह मैत्री, गण, भकूट और नाड़ी — प्रत्येक साथी की जन्म जानकारी से।",
 };
 
 const DICTS: Record<Locale, Dict> = { en, hi };

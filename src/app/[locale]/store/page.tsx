@@ -5,11 +5,15 @@ import StoreBrowser from "@/components/StoreBrowser";
 import { getProducts } from "@/lib/queries";
 import { getDictionary, isLocale, DEFAULT_LOCALE } from "@/lib/i18n";
 
-export const metadata: Metadata = {
-  title: "Samagri Store — Pooja Items & Kits",
-  description:
-    "Order authentic pooja samagri — ready-made kits, diyas, agarbatti, havan samagri and more — delivered to your door.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const { t } = getDictionary(isLocale(locale) ? locale : DEFAULT_LOCALE);
+  return { title: t("meta.store.title"), description: t("meta.store.desc") };
+}
 
 // Re-fetch products from the database at most once every 5 minutes.
 export const revalidate = 300;

@@ -7,11 +7,15 @@ import MuhuratCalendar from "@/components/MuhuratCalendar";
 import { getApprovedMuhuratWindows } from "@/lib/muhurat-data";
 import { getDictionary, isLocale, DEFAULT_LOCALE } from "@/lib/i18n";
 
-export const metadata: Metadata = {
-  title: "Shubh Muhurat — Auspicious Dates",
-  description:
-    "Astrologer-verified auspicious muhurat dates and timings for weddings, Griha Pravesh and other ceremonies. Pick a shubh muhurat and book a verified Pandit.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const { t } = getDictionary(isLocale(locale) ? locale : DEFAULT_LOCALE);
+  return { title: t("meta.muhurat.title"), description: t("meta.muhurat.desc") };
+}
 
 // Approved windows change as the astrologer curates them; refresh hourly.
 export const revalidate = 3600;

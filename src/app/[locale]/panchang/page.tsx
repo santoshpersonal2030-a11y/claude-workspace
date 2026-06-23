@@ -7,11 +7,15 @@ import PanchangView from "@/components/PanchangView";
 import { CITY_COORDS, fullPanchanga } from "@/lib/muhurat-engine";
 import { getDictionary, isLocale, DEFAULT_LOCALE } from "@/lib/i18n";
 
-export const metadata: Metadata = {
-  title: "Panchang — Tithi, Nakshatra, Muhurat & Rahu Kalam",
-  description:
-    "Daily Hindu panchang for any date and city: tithi, nakshatra, yoga, karana, sunrise/sunset, the auspicious Abhijit Muhurat, and Rahu Kalam / Yamaganda / Gulika to avoid.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const { t } = getDictionary(isLocale(locale) ? locale : DEFAULT_LOCALE);
+  return { title: t("meta.panchang.title"), description: t("meta.panchang.desc") };
+}
 
 const MONTHS = [
   "January", "February", "March", "April", "May", "June",

@@ -5,11 +5,15 @@ import PoojaList from "@/components/PoojaList";
 import { getPoojas } from "@/lib/queries";
 import { getDictionary, isLocale, DEFAULT_LOCALE } from "@/lib/i18n";
 
-export const metadata: Metadata = {
-  title: "Book a Pooja — All Ceremonies",
-  description:
-    "Browse and book verified Pandits for Satyanarayan Katha, Griha Pravesh, Lakshmi Puja, Navagraha Shanti and more. Transparent pricing, your language, on time.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const { t } = getDictionary(isLocale(locale) ? locale : DEFAULT_LOCALE);
+  return { title: t("meta.poojas.title"), description: t("meta.poojas.desc") };
+}
 
 // Re-fetch the catalog from the database at most once every 5 minutes.
 export const revalidate = 300;

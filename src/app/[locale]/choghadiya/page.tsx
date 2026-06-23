@@ -10,11 +10,15 @@ import {
 } from "@/lib/muhurat-engine";
 import { getDictionary, isLocale, DEFAULT_LOCALE } from "@/lib/i18n";
 
-export const metadata: Metadata = {
-  title: "Choghadiya — Auspicious Day & Night Muhurat Slots",
-  description:
-    "Today's choghadiya for any date and city: the eight day and eight night divisions (Amrit, Shubh, Labh, Char, and the inauspicious Udveg, Kaal, Rog) with their exact timings.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const { t } = getDictionary(isLocale(locale) ? locale : DEFAULT_LOCALE);
+  return { title: t("meta.choghadiya.title"), description: t("meta.choghadiya.desc") };
+}
 
 const MONTHS = [
   "January", "February", "March", "April", "May", "June",

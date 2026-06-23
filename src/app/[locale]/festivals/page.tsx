@@ -6,11 +6,15 @@ import Footer from "@/components/Footer";
 import { upcomingVrats } from "@/lib/muhurat-engine";
 import { getDictionary, isLocale, DEFAULT_LOCALE } from "@/lib/i18n";
 
-export const metadata: Metadata = {
-  title: "Hindu Festival & Vrat Calendar — Ekadashi, Purnima, Amavasya",
-  description:
-    "Upcoming Hindu vrat and festival days — Ekadashi, Purnima, Amavasya, Sankashti & Vinayaka Chaturthi, Pradosh — computed from the panchang, with the pooja for each occasion.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const { t } = getDictionary(isLocale(locale) ? locale : DEFAULT_LOCALE);
+  return { title: t("meta.festivals.title"), description: t("meta.festivals.desc") };
+}
 
 // Re-compute daily.
 export const revalidate = 86400;

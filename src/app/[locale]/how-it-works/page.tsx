@@ -3,11 +3,15 @@ import Link from "next/link";
 import ContentPage from "@/components/ContentPage";
 import { getDictionary, isLocale, DEFAULT_LOCALE } from "@/lib/i18n";
 
-export const metadata: Metadata = {
-  title: "How It Works",
-  description:
-    "Booking a verified Pandit on BookMyPoojari takes four simple steps — choose your pooja, pick a date, pay securely, and we handle the rest.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const { t } = getDictionary(isLocale(locale) ? locale : DEFAULT_LOCALE);
+  return { title: t("meta.howItWorks.title"), description: t("meta.howItWorks.desc") };
+}
 
 export default async function HowItWorksPage({
   params,

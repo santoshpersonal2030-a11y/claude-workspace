@@ -7,11 +7,15 @@ import { moonSign, NAKSHATRAS } from "@/lib/muhurat-engine";
 import { ashtakootMilan, type Person } from "@/lib/gun-milan";
 import { getDictionary, isLocale, DEFAULT_LOCALE } from "@/lib/i18n";
 
-export const metadata: Metadata = {
-  title: "Kundli Matching — Gun Milan (Ashtakoot) Compatibility",
-  description:
-    "Free Vedic Kundli matching by Gun Milan (Ashtakoot): the eight kootas out of 36 gunas — Varna, Vashya, Tara, Yoni, Graha Maitri, Gana, Bhakoot and Nadi — from each partner's birth details.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const { t } = getDictionary(isLocale(locale) ? locale : DEFAULT_LOCALE);
+  return { title: t("meta.gunMilan.title"), description: t("meta.gunMilan.desc") };
+}
 
 const RASHIS = [
   "Mesha", "Vrishabha", "Mithuna", "Karka", "Simha", "Kanya",

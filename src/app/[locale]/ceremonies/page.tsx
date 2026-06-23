@@ -8,11 +8,15 @@ import { getPoojas } from "@/lib/queries";
 import { formatINR } from "@/lib/poojas";
 import { getDictionary, isLocale, DEFAULT_LOCALE } from "@/lib/i18n";
 
-export const metadata: Metadata = {
-  title: "Ceremonies — Birth, Marriage & Antim Sanskar",
-  description:
-    "Book verified Pandits for life-event ceremonies — child sanskars (Namkaran, Annaprashan, Mundan), the complete wedding package (Haldi, engagement, Vivah) and last rites performed with dignity.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const { t } = getDictionary(isLocale(locale) ? locale : DEFAULT_LOCALE);
+  return { title: t("meta.ceremonies.title"), description: t("meta.ceremonies.desc") };
+}
 
 export const revalidate = 300;
 

@@ -7,11 +7,15 @@ import { getPandits } from "@/lib/queries";
 import { CITY_COORDS } from "@/lib/muhurat-engine";
 import { getDictionary, isLocale, DEFAULT_LOCALE } from "@/lib/i18n";
 
-export const metadata: Metadata = {
-  title: "Our Pandits — Verified Hindu Priests",
-  description:
-    "Meet our hand-verified Pandits and Poojaris — experienced, multilingual priests who perform ceremonies with devotion and authenticity.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const { t } = getDictionary(isLocale(locale) ? locale : DEFAULT_LOCALE);
+  return { title: t("meta.pandits.title"), description: t("meta.pandits.desc") };
+}
 
 export const revalidate = 300;
 
