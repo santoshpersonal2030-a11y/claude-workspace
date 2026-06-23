@@ -10,6 +10,7 @@ import {
   createFundAccount,
   createPayout,
 } from "@/lib/razorpayx";
+import { captureException } from "@/lib/observability";
 
 export type PayoutOutcome = { ok: boolean; status?: string; error?: string };
 
@@ -121,6 +122,10 @@ export async function runPayout(
     return { ok: true, status: result.status };
   } catch (err) {
     const reason = err instanceof Error ? err.message : "Payout failed";
+    await captureException(err, {
+      tags: { area: "payouts" },
+      extra: { payrollRunItemId, panditId: item.pandit_id },
+    });
     await admin.from("payouts").upsert(
       {
         payroll_run_item_id: payrollRunItemId,
