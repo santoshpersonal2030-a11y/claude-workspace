@@ -5,8 +5,12 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import BookingStatusTracker from "@/components/BookingStatusTracker";
 import PayPendingBooking from "@/components/PayPendingBooking";
-import { formatINR } from "@/lib/poojas";
+import { formatINR, timeSlots } from "@/lib/poojas";
 import { createClient } from "@/lib/supabase/server";
+import { cancelBooking, rescheduleBooking } from "@/app/account/bookings/actions";
+import { SELF_SERVE_HOURS } from "@/lib/booking-policy";
+
+const CANCELLABLE = ["pending", "confirmed", "assigned"];
 
 export const metadata = { title: "Booking details" };
 
@@ -20,10 +24,13 @@ function formatDate(value: string) {
 
 export default async function BookingDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ late?: string }>;
 }) {
   const { id } = await params;
+  const { late } = await searchParams;
   const supabase = await createClient();
   const {
     data: { user },
@@ -147,6 +154,89 @@ export default async function BookingDetailPage({
               )}
             </div>
           </div>
+
+          {CANCELLABLE.includes(booking.status) && (
+            <div className="mt-6 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm">
+              <h2 className="font-heading text-lg text-maroon-700">
+                Manage booking
+              </h2>
+              <p className="mt-1 text-xs text-foreground/55">
+                Free reschedule or full refund up to {SELF_SERVE_HOURS} hours
+                before the ceremony. Closer to the date, please contact support.
+              </p>
+              {late && (
+                <p className="mt-2 rounded-lg border border-amber-200 bg-amber-50 p-2 text-xs text-amber-800">
+                  That&apos;s within {SELF_SERVE_HOURS} hours of the ceremony —
+                  please contact us to reschedule.
+                </p>
+              )}
+
+              <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                {/* Reschedule */}
+                <form
+                  action={rescheduleBooking}
+                  className="rounded-xl border border-saffron-100 bg-cream/40 p-4"
+                >
+                  <input type="hidden" name="id" value={booking.id} />
+                  <h3 className="text-sm font-semibold text-maroon-700">
+                    Reschedule
+                  </h3>
+                  <label className="mt-2 block text-xs text-foreground/60">
+                    New date
+                    <input
+                      type="date"
+                      name="booking_date"
+                      required
+                      defaultValue={booking.booking_date}
+                      className="mt-1 w-full rounded-lg border border-saffron-200 bg-white px-2 py-1.5 text-sm outline-none focus:border-saffron-400"
+                    />
+                  </label>
+                  <label className="mt-2 block text-xs text-foreground/60">
+                    New time
+                    <select
+                      name="time_slot"
+                      required
+                      defaultValue={booking.time_slot}
+                      className="mt-1 w-full rounded-lg border border-saffron-200 bg-white px-2 py-1.5 text-sm outline-none focus:border-saffron-400"
+                    >
+                      {timeSlots.map((t) => (
+                        <option key={t} value={t}>
+                          {t}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <button
+                    type="submit"
+                    className="mt-3 w-full rounded-full border border-saffron-300 py-2 text-sm font-semibold text-saffron-700 hover:bg-saffron-50"
+                  >
+                    Reschedule
+                  </button>
+                </form>
+
+                {/* Cancel */}
+                <form
+                  action={cancelBooking}
+                  className="flex flex-col rounded-xl border border-red-100 bg-red-50/40 p-4"
+                >
+                  <input type="hidden" name="id" value={booking.id} />
+                  <h3 className="text-sm font-semibold text-red-700">
+                    Cancel booking
+                  </h3>
+                  <p className="mt-1 flex-1 text-xs text-foreground/60">
+                    Cancelling a paid booking refunds it in full when done at
+                    least {SELF_SERVE_HOURS} hours ahead.
+                  </p>
+                  <button
+                    type="submit"
+                    className="mt-3 w-full rounded-full border border-red-300 py-2 text-sm font-semibold text-red-600 hover:bg-red-50"
+                  >
+                    Cancel this booking
+                  </button>
+                </form>
+              </div>
+            </div>
+          )}
         </section>
       </main>
       <Footer />

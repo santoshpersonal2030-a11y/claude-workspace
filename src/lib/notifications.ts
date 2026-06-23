@@ -360,6 +360,71 @@ export async function sendRecurringScheduled(bookingId: string): Promise<void> {
   }
 }
 
+// Confirms a booking cancellation (with refund amount, if any) to the customer.
+export async function notifyBookingCancelled(
+  bookingId: string,
+  refundInr: number,
+): Promise<void> {
+  try {
+    const admin = createAdminClient();
+    const { data: booking } = await admin
+      .from("bookings")
+      .select("id, user_id, booking_date, poojas(name)")
+      .eq("id", bookingId)
+      .maybeSingle();
+    if (!booking) return;
+    const recipient = await emailForUser(admin, booking.user_id);
+    if (!recipient) return;
+
+    const poojaName = booking.poojas?.name ?? "your pooja";
+    const refundLine =
+      refundInr > 0
+        ? `<p>A refund of <strong>${formatINR(refundInr)}</strong> has been initiated to your original payment method (typically 5–7 working days).</p>`
+        : `<p>No payment was captured for this booking, so there's nothing to refund. For late-cancellation refunds, please contact us.</p>`;
+
+    await sendEmail({
+      to: recipient.email,
+      subject: "Your booking has been cancelled",
+      html: emailLayout(
+        "Booking cancelled",
+        `<p>Hi ${recipient.name}, your <strong>${poojaName}</strong> booking for ${booking.booking_date} has been cancelled.</p>${refundLine}`,
+      ),
+    });
+  } catch (err) {
+    console.error("notifyBookingCancelled failed:", err);
+  }
+}
+
+// Confirms a self-serve reschedule to the customer.
+export async function notifyBookingRescheduled(
+  bookingId: string,
+): Promise<void> {
+  try {
+    const admin = createAdminClient();
+    const { data: booking } = await admin
+      .from("bookings")
+      .select("id, user_id, booking_date, time_slot, poojas(name)")
+      .eq("id", bookingId)
+      .maybeSingle();
+    if (!booking) return;
+    const recipient = await emailForUser(admin, booking.user_id);
+    if (!recipient) return;
+
+    const poojaName = booking.poojas?.name ?? "your pooja";
+    await sendEmail({
+      to: recipient.email,
+      subject: "Your booking has been rescheduled",
+      html: emailLayout(
+        "Booking rescheduled",
+        `<p>Hi ${recipient.name}, your <strong>${poojaName}</strong> is now scheduled for <strong>${booking.booking_date}</strong> (${(booking.time_slot ?? "").slice(0, 5)}). If a Pandit was assigned, we'll re-confirm their availability for the new time.</p>
+         <a href="${siteUrl}/account/bookings" style="display:inline-block;background:#d97706;color:#fff;text-decoration:none;padding:10px 20px;border-radius:999px">View your booking</a>`,
+      ),
+    });
+  } catch (err) {
+    console.error("notifyBookingRescheduled failed:", err);
+  }
+}
+
 export async function sendBackInStockEmails(productId: string): Promise<void> {
   try {
     const admin = createAdminClient();
