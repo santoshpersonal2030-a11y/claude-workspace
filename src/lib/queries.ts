@@ -260,6 +260,7 @@ export async function getPanditReviews(slug: string): Promise<PanditReview[]> {
         "id, rating, title, body, reviewer_name, created_at, pandits!inner(slug)",
       )
       .eq("pandits.slug", slug)
+      .eq("hidden", false)
       .order("created_at", { ascending: false })
       .limit(20);
     if (error) throw error;
@@ -430,6 +431,7 @@ export async function getProductReviews(
       .from("product_reviews")
       .select("id, reviewer_name, rating, title, body, created_at")
       .eq("product_id", product.id)
+      .eq("hidden", false)
       .order("created_at", { ascending: false });
 
     if (error) throw error;

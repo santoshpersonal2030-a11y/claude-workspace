@@ -745,6 +745,7 @@ export type Database = {
           body: string | null
           booking_id: string | null
           created_at: string
+          hidden: boolean
           id: string
           pandit_id: string
           rating: number
@@ -757,6 +758,7 @@ export type Database = {
           body?: string | null
           booking_id?: string | null
           created_at?: string
+          hidden?: boolean
           id?: string
           pandit_id: string
           rating: number
@@ -769,6 +771,7 @@ export type Database = {
           body?: string | null
           booking_id?: string | null
           created_at?: string
+          hidden?: boolean
           id?: string
           pandit_id?: string
           rating?: number
@@ -1405,6 +1408,7 @@ export type Database = {
         Row: {
           body: string | null
           created_at: string
+          hidden: boolean
           id: string
           product_id: string
           rating: number
@@ -1416,6 +1420,7 @@ export type Database = {
         Insert: {
           body?: string | null
           created_at?: string
+          hidden?: boolean
           id?: string
           product_id: string
           rating: number
@@ -1427,6 +1432,7 @@ export type Database = {
         Update: {
           body?: string | null
           created_at?: string
+          hidden?: boolean
           id?: string
           product_id?: string
           rating?: number

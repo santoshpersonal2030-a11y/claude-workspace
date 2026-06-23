@@ -14,6 +14,7 @@ export type Capability =
   | "catalog"
   | "pandits"
   | "applications"
+  | "reviews"
   | "insights"
   | "payroll"
   | "payouts"
@@ -31,6 +32,7 @@ const OWNER_CAPS: Capability[] = [
   "catalog",
   "pandits",
   "applications",
+  "reviews",
   "insights",
   "payroll",
   "payouts",
@@ -51,6 +53,7 @@ const MANAGER_CAPS: Capability[] = [
   "catalog",
   "pandits",
   "applications",
+  "reviews",
   "insights",
   "payroll",
   "coupons",
@@ -64,6 +67,7 @@ const SUPPORT_CAPS: Capability[] = [
   "analytics",
   "bookings",
   "applications",
+  "reviews",
   "insights",
   "messages",
 ];

@@ -1195,6 +1195,23 @@ export async function saveRewardSettings(formData: FormData): Promise<void> {
   revalidatePath("/admin/rewards");
 }
 
+// ── Review moderation ────────────────────────────────────────────────────────
+
+// Hides or restores a review. Hiding removes it from public listings; for
+// pandit reviews the rating trigger recomputes the average automatically.
+export async function setReviewHidden(formData: FormData): Promise<void> {
+  await assertCapability("reviews");
+  const admin = createAdminClient();
+  const id = str(formData.get("id"));
+  const kind = str(formData.get("kind"));
+  const hidden = formData.get("hidden") === "true";
+  if (!id) return;
+
+  const table = kind === "product" ? "product_reviews" : "pandit_reviews";
+  await admin.from(table).update({ hidden }).eq("id", id);
+  revalidatePath("/admin/reviews");
+}
+
 // ── Admin team (roles & permissions) ─────────────────────────────────────────
 
 // Grants/changes/revokes an admin role for a user (owner only). The user must
