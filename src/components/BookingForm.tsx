@@ -417,10 +417,11 @@ export default function BookingForm({
 
       <div className="mt-5 space-y-4">
         <div>
-          <label className="mb-1 block text-sm font-medium text-foreground/80">
+          <label htmlFor="bf-date" className="mb-1 block text-sm font-medium text-foreground/80">
             {pooja.requiresMuhurat ? t("bf.preferredDate") : t("bf.date")}
           </label>
           <input
+            id="bf-date"
             type="date"
             required
             min={today}
@@ -431,7 +432,7 @@ export default function BookingForm({
         </div>
 
         <div>
-          <label className="mb-1 block text-sm font-medium text-foreground/80">
+          <label htmlFor="bf-slot" className="mb-1 block text-sm font-medium text-foreground/80">
             {slotMode === "muhurat"
               ? t("bf.auspiciousTime")
               : scheduled
@@ -439,6 +440,7 @@ export default function BookingForm({
                 : t("bf.preferredTime")}
           </label>
           <select
+            id="bf-slot"
             required
             value={effectiveSlot}
             onChange={(e) => setSlot(e.target.value)}
@@ -476,10 +478,11 @@ export default function BookingForm({
         </div>
 
         <div>
-          <label className="mb-1 block text-sm font-medium text-foreground/80">
+          <label htmlFor="bf-language" className="mb-1 block text-sm font-medium text-foreground/80">
             {t("bf.panditLanguage")}
           </label>
           <select
+            id="bf-language"
             value={language}
             onChange={(e) => handleLanguageChange(e.target.value)}
             className="w-full rounded-xl border border-saffron-200 bg-cream px-3 py-2.5 text-sm outline-none focus:border-saffron-400 focus:ring-2 focus:ring-saffron-100"
@@ -494,10 +497,11 @@ export default function BookingForm({
 
         {pandits.length > 0 && (
           <div>
-            <label className="mb-1 block text-sm font-medium text-foreground/80">
+            <label htmlFor="bf-pandit" className="mb-1 block text-sm font-medium text-foreground/80">
               {t("bf.preferredPanditOpt")}
             </label>
             <select
+              id="bf-pandit"
               value={panditSlug}
               onChange={(e) => setPanditSlug(e.target.value)}
               className="w-full rounded-xl border border-saffron-200 bg-cream px-3 py-2.5 text-sm outline-none focus:border-saffron-400 focus:ring-2 focus:ring-saffron-100"
@@ -521,10 +525,11 @@ export default function BookingForm({
 
         {savedAddresses.length > 0 && (
           <div>
-            <label className="mb-1 block text-sm font-medium text-foreground/80">
+            <label htmlFor="bf-saved-address" className="mb-1 block text-sm font-medium text-foreground/80">
               {t("bf.useSavedAddress")}
             </label>
             <select
+              id="bf-saved-address"
               defaultValue={savedAddresses[0]?.id ?? ""}
               onChange={(e) => applySavedAddress(e.target.value)}
               className="w-full rounded-xl border border-saffron-200 bg-cream px-3 py-2.5 text-sm outline-none focus:border-saffron-400 focus:ring-2 focus:ring-saffron-100"
@@ -548,10 +553,11 @@ export default function BookingForm({
 
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="mb-1 block text-sm font-medium text-foreground/80">
+            <label htmlFor="bf-city" className="mb-1 block text-sm font-medium text-foreground/80">
               {t("bf.city")}
             </label>
             <input
+              id="bf-city"
               type="text"
               required
               value={city}
@@ -561,10 +567,11 @@ export default function BookingForm({
             />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-foreground/80">
+            <label htmlFor="bf-pincode" className="mb-1 block text-sm font-medium text-foreground/80">
               {t("bf.pincode")}
             </label>
             <input
+              id="bf-pincode"
               type="text"
               inputMode="numeric"
               required
@@ -586,10 +593,11 @@ export default function BookingForm({
         </div>
 
         <div>
-          <label className="mb-1 block text-sm font-medium text-foreground/80">
+          <label htmlFor="bf-address" className="mb-1 block text-sm font-medium text-foreground/80">
             {t("bf.fullAddress")}
           </label>
           <textarea
+            id="bf-address"
             required
             value={address}
             onChange={(e) => setAddress(e.target.value)}
@@ -615,10 +623,11 @@ export default function BookingForm({
         </label>
 
         <div>
-          <label className="mb-1 block text-sm font-medium text-foreground/80">
+          <label htmlFor="bf-notes" className="mb-1 block text-sm font-medium text-foreground/80">
             {t("bf.specialRequests")}
           </label>
           <textarea
+            id="bf-notes"
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             rows={2}
