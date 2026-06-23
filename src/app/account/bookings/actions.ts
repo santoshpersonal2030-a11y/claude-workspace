@@ -189,3 +189,38 @@ export async function submitPanditReview(formData: FormData): Promise<void> {
   revalidatePath("/pandits");
   redirect(`/account/bookings/${bookingId}`);
 }
+
+// Raises a dispute on the customer's own booking. Inserts via the user session
+// (RLS verifies ownership); the partial unique index prevents a second open
+// dispute on the same booking.
+export async function raiseBookingDispute(formData: FormData): Promise<void> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  const bookingId = str(formData.get("booking_id"));
+  const category = str(formData.get("category"));
+  const details = str(formData.get("details"));
+  const allowed = ["no_show", "quality", "payment", "reschedule", "other"];
+  if (!bookingId || !allowed.includes(category)) return;
+
+  // Confirm the booking is the caller's before inserting.
+  const { data: booking } = await supabase
+    .from("bookings")
+    .select("id")
+    .eq("id", bookingId)
+    .eq("user_id", user.id)
+    .maybeSingle();
+  if (!booking) return;
+
+  await supabase.from("booking_disputes").insert({
+    booking_id: bookingId,
+    user_id: user.id,
+    category,
+    details: details.slice(0, 2000),
+  });
+
+  revalidatePath(`/account/bookings/${bookingId}`);
+}

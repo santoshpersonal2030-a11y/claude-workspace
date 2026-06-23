@@ -13,6 +13,7 @@ const tabs: { href: string; label: string; cap?: Capability }[] = [
   { href: "/admin/pandits", label: "Pandits", cap: "pandits" },
   { href: "/admin/pandit-applications", label: "Applications", cap: "applications" },
   { href: "/admin/reviews", label: "Reviews", cap: "reviews" },
+  { href: "/admin/disputes", label: "Disputes", cap: "disputes" },
   { href: "/admin/blog", label: "Blog", cap: "content" },
   { href: "/admin/priest-analytics", label: "Insights", cap: "insights" },
   { href: "/admin/payroll", label: "Payroll", cap: "payroll" },

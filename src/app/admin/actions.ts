@@ -1285,6 +1285,25 @@ export async function setReviewHidden(formData: FormData): Promise<void> {
   revalidatePath("/admin/reviews");
 }
 
+// ── Booking disputes ─────────────────────────────────────────────────────────
+
+export async function resolveBookingDispute(formData: FormData): Promise<void> {
+  await assertCapability("disputes");
+  const admin = createAdminClient();
+  const id = str(formData.get("id"));
+  const status = str(formData.get("status"));
+  if (!id || !["resolved", "rejected"].includes(status)) return;
+  await admin
+    .from("booking_disputes")
+    .update({
+      status,
+      resolution_notes: str(formData.get("resolution_notes")) || null,
+      resolved_at: new Date().toISOString(),
+    })
+    .eq("id", id);
+  revalidatePath("/admin/disputes");
+}
+
 // ── Admin team (roles & permissions) ─────────────────────────────────────────
 
 // Grants/changes/revokes an admin role for a user (owner only). The user must

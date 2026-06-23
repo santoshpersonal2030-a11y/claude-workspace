@@ -12,6 +12,7 @@ import {
   cancelBooking,
   rescheduleBooking,
   submitPanditReview,
+  raiseBookingDispute,
 } from "@/app/account/bookings/actions";
 import { SELF_SERVE_HOURS } from "@/lib/booking-policy";
 
@@ -51,6 +52,15 @@ export default async function BookingDetailPage({
     .maybeSingle();
 
   if (!booking) notFound();
+
+  // Any dispute the customer raised on this booking (latest first).
+  const { data: dispute } = await supabase
+    .from("booking_disputes")
+    .select("category, status, details, resolution_notes, created_at")
+    .eq("booking_id", id)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
 
   // Existing Pandit review for this booking, to prefill/edit the form.
   const myReview =
@@ -313,6 +323,70 @@ export default async function BookingDetailPage({
           <div className="mt-8">
             <BookingChat bookingId={booking.id} />
           </div>
+
+          {/* Dispute / report an issue */}
+          {booking.status !== "cancelled" && (
+            <div className="mt-8 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm">
+              <h3 className="font-heading text-lg text-maroon-700">
+                Report an issue
+              </h3>
+              {dispute ? (
+                <div className="mt-2 text-sm">
+                  <p className="text-foreground/70">
+                    You raised a{" "}
+                    <span className="font-medium">{dispute.category.replace("_", " ")}</span>{" "}
+                    issue —{" "}
+                    <span
+                      className={
+                        dispute.status === "resolved"
+                          ? "text-emerald-700"
+                          : dispute.status === "rejected"
+                            ? "text-foreground/50"
+                            : "text-amber-600"
+                      }
+                    >
+                      {dispute.status}
+                    </span>
+                    .
+                  </p>
+                  {dispute.resolution_notes && (
+                    <p className="mt-1 text-xs text-foreground/55">
+                      Our response: {dispute.resolution_notes}
+                    </p>
+                  )}
+                </div>
+              ) : (
+                <form action={raiseBookingDispute} className="mt-3 space-y-3">
+                  <input type="hidden" name="booking_id" value={booking.id} />
+                  <select
+                    name="category"
+                    required
+                    className="w-full rounded-xl border border-saffron-200 bg-cream px-3 py-2.5 text-sm outline-none focus:border-saffron-400"
+                  >
+                    <option value="">What went wrong?</option>
+                    <option value="no_show">Pandit didn&apos;t show up</option>
+                    <option value="quality">Service quality</option>
+                    <option value="payment">Payment / billing</option>
+                    <option value="reschedule">Reschedule problem</option>
+                    <option value="other">Something else</option>
+                  </select>
+                  <textarea
+                    name="details"
+                    rows={3}
+                    required
+                    placeholder="Tell us what happened…"
+                    className="w-full rounded-xl border border-saffron-200 bg-cream px-3 py-2.5 text-sm outline-none focus:border-saffron-400"
+                  />
+                  <button
+                    type="submit"
+                    className="rounded-full border border-maroon-300 px-5 py-2 text-sm font-semibold text-maroon-700 hover:bg-maroon-50"
+                  >
+                    Submit issue
+                  </button>
+                </form>
+              )}
+            </div>
+          )}
         </section>
       </main>
       <Footer />

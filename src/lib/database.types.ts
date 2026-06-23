@@ -56,6 +56,53 @@ export type Database = {
         }
         Relationships: []
       }
+      booking_disputes: {
+        Row: {
+          booking_id: string
+          category: string
+          created_at: string
+          details: string
+          id: string
+          resolution_notes: string | null
+          resolved_at: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          booking_id: string
+          category: string
+          created_at?: string
+          details?: string
+          id?: string
+          resolution_notes?: string | null
+          resolved_at?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          booking_id?: string
+          category?: string
+          created_at?: string
+          details?: string
+          id?: string
+          resolution_notes?: string | null
+          resolved_at?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "booking_disputes_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       booking_messages: {
         Row: {
           body: string
