@@ -337,6 +337,45 @@ export type Database = {
         }
         Relationships: []
       }
+      coupons: {
+        Row: {
+          active: boolean
+          code: string
+          created_at: string
+          expires_at: string | null
+          max_discount: number | null
+          min_order: number
+          type: Database["public"]["Enums"]["coupon_type"]
+          usage_limit: number | null
+          used_count: number
+          value: number
+        }
+        Insert: {
+          active?: boolean
+          code: string
+          created_at?: string
+          expires_at?: string | null
+          max_discount?: number | null
+          min_order?: number
+          type: Database["public"]["Enums"]["coupon_type"]
+          usage_limit?: number | null
+          used_count?: number
+          value: number
+        }
+        Update: {
+          active?: boolean
+          code?: string
+          created_at?: string
+          expires_at?: string | null
+          max_discount?: number | null
+          min_order?: number
+          type?: Database["public"]["Enums"]["coupon_type"]
+          usage_limit?: number | null
+          used_count?: number
+          value?: number
+        }
+        Relationships: []
+      }
       credit_notes: {
         Row: {
           amount: number
@@ -510,10 +549,12 @@ export type Database = {
           address: string | null
           carrier: string | null
           city: string | null
+          coupon_code: string | null
           created_at: string
           customer_gstin: string | null
           delivery_name: string | null
           delivery_phone: string | null
+          discount: number
           estimated_delivery: string | null
           ewb_date: string | null
           ewb_expiry_alerted_at: string | null
@@ -541,10 +582,12 @@ export type Database = {
           address?: string | null
           carrier?: string | null
           city?: string | null
+          coupon_code?: string | null
           created_at?: string
           customer_gstin?: string | null
           delivery_name?: string | null
           delivery_phone?: string | null
+          discount?: number
           estimated_delivery?: string | null
           ewb_date?: string | null
           ewb_expiry_alerted_at?: string | null
@@ -572,10 +615,12 @@ export type Database = {
           address?: string | null
           carrier?: string | null
           city?: string | null
+          coupon_code?: string | null
           created_at?: string
           customer_gstin?: string | null
           delivery_name?: string | null
           delivery_phone?: string | null
+          discount?: number
           estimated_delivery?: string | null
           ewb_date?: string | null
           ewb_expiry_alerted_at?: string | null
@@ -1435,6 +1480,7 @@ export type Database = {
         | "assigned"
         | "completed"
         | "cancelled"
+      coupon_type: "percent" | "flat"
       comp_model:
         | "fixed"
         | "dakshina"
@@ -1606,6 +1652,7 @@ export const Constants = {
         "completed",
         "cancelled",
       ],
+      coupon_type: ["percent", "flat"],
       comp_model: [
         "fixed",
         "dakshina",

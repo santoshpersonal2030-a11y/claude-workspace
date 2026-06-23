@@ -35,6 +35,9 @@ export default function CartPage() {
   });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [couponInput, setCouponInput] = useState("");
+  const [coupon, setCoupon] = useState<{ code: string; discount: number } | null>(null);
+  const [couponMsg, setCouponMsg] = useState<string | null>(null);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
@@ -44,7 +47,31 @@ export default function CartPage() {
   }, [supabase]);
 
   const shipping = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_FEE;
-  const total = subtotal > 0 ? subtotal + shipping : 0;
+  const discount = coupon ? Math.min(coupon.discount, subtotal) : 0;
+  const total = subtotal > 0 ? Math.max(0, subtotal + shipping - discount) : 0;
+
+  async function applyCoupon() {
+    setCouponMsg(null);
+    const code = couponInput.trim();
+    if (!code) return;
+    try {
+      const res = await fetch("/api/coupon/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code, subtotal }),
+      });
+      const data = await res.json();
+      if (data.ok) {
+        setCoupon({ code: data.code, discount: data.discount });
+        setCouponMsg(`Applied ${data.code} — you save ${formatINR(data.discount)}.`);
+      } else {
+        setCoupon(null);
+        setCouponMsg(data.reason ?? "Invalid code.");
+      }
+    } catch {
+      setCouponMsg("Could not check the code.");
+    }
+  }
 
   async function checkout() {
     setError(null);
@@ -59,6 +86,7 @@ export default function CartPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           items: items.map((i) => ({ slug: i.slug, quantity: i.quantity })),
+          couponCode: coupon?.code,
           delivery,
         }),
       });
@@ -200,11 +228,45 @@ export default function CartPage() {
                       <dt className="text-foreground/60">Shipping</dt>
                       <dd>{shipping === 0 ? "Free" : formatINR(shipping)}</dd>
                     </div>
+                    {discount > 0 && (
+                      <div className="flex justify-between text-emerald-700">
+                        <dt>Discount ({coupon?.code})</dt>
+                        <dd>− {formatINR(discount)}</dd>
+                      </div>
+                    )}
                     <div className="flex justify-between border-t border-saffron-50 pt-2 text-base font-semibold">
                       <dt>Total</dt>
                       <dd className="text-saffron-700">{formatINR(total)}</dd>
                     </div>
                   </dl>
+
+                  {/* Coupon */}
+                  <div className="mt-4 border-t border-saffron-50 pt-4">
+                    <div className="flex gap-2">
+                      <input
+                        value={couponInput}
+                        onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
+                        placeholder="Coupon code"
+                        className="w-full rounded-lg border border-saffron-200 bg-cream px-3 py-2 text-sm uppercase outline-none focus:border-saffron-400"
+                      />
+                      <button
+                        type="button"
+                        onClick={applyCoupon}
+                        className="whitespace-nowrap rounded-lg border border-saffron-300 px-4 py-2 text-sm font-semibold text-saffron-700 hover:bg-saffron-50"
+                      >
+                        Apply
+                      </button>
+                    </div>
+                    {couponMsg && (
+                      <p
+                        className={`mt-2 text-xs ${
+                          discount > 0 ? "text-emerald-700" : "text-red-600"
+                        }`}
+                      >
+                        {couponMsg}
+                      </p>
+                    )}
+                  </div>
 
                   {!authLoaded ? null : !user ? (
                     <div className="mt-5">

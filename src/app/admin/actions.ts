@@ -33,6 +33,7 @@ type BookingStatus = Database["public"]["Enums"]["booking_status"];
 type OrderStatus = Database["public"]["Enums"]["order_status"];
 type PoojaCategory = Database["public"]["Enums"]["pooja_category"];
 type RitualType = Database["public"]["Enums"]["ritual_type"];
+type CouponType = Database["public"]["Enums"]["coupon_type"];
 type PriestResponse = Database["public"]["Enums"]["priest_response"];
 
 // Fields that reset a booking's priest accept/decline state — applied whenever
@@ -1091,4 +1092,37 @@ export async function setMessageHandled(formData: FormData): Promise<void> {
   await admin.from("contact_messages").update({ handled }).eq("id", id);
 
   revalidatePath("/admin/messages");
+}
+
+// ── Coupons ──────────────────────────────────────────────────────────────────
+
+export async function saveCoupon(formData: FormData): Promise<void> {
+  await assertAdmin();
+  const admin = createAdminClient();
+  const code = str(formData.get("code")).toUpperCase();
+  const value = num(formData.get("value"));
+  if (!code || value <= 0) return;
+
+  await admin.from("coupons").upsert(
+    {
+      code,
+      type: (str(formData.get("type")) === "flat" ? "flat" : "percent") as CouponType,
+      value,
+      min_order: num(formData.get("min_order")),
+      max_discount: optNum(formData.get("max_discount")),
+      usage_limit: optNum(formData.get("usage_limit")),
+      expires_at: str(formData.get("expires_at")) || null,
+      active: formData.get("active") === "on",
+    },
+    { onConflict: "code" },
+  );
+  revalidatePath("/admin/coupons");
+}
+
+export async function deleteCoupon(formData: FormData): Promise<void> {
+  await assertAdmin();
+  const admin = createAdminClient();
+  const code = str(formData.get("code"));
+  if (code) await admin.from("coupons").delete().eq("code", code);
+  revalidatePath("/admin/coupons");
 }

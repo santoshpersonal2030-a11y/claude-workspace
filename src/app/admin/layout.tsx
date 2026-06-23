@@ -12,6 +12,7 @@ const tabs = [
   { href: "/admin/payroll", label: "Payroll" },
   { href: "/admin/muhurat", label: "Muhurat" },
   { href: "/admin/peak-days", label: "Peak days" },
+  { href: "/admin/coupons", label: "Coupons" },
   { href: "/admin/coverage", label: "Coverage" },
   { href: "/admin/messages", label: "Messages" },
   { href: "/admin/settings", label: "Settings" },

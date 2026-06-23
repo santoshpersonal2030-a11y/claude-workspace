@@ -5,12 +5,14 @@ import {
   createRazorpayOrder,
   razorpayConfigured,
 } from "@/lib/razorpay";
+import { validateCoupon, incrementCouponUse } from "@/lib/coupons";
 
 const FREE_SHIPPING_THRESHOLD = 999;
 const SHIPPING_FEE = 49;
 
 type CheckoutBody = {
   items: { slug: string; quantity: number }[];
+  couponCode?: string;
   delivery: {
     name?: string;
     phone?: string;
@@ -79,8 +81,19 @@ export async function POST(request: Request) {
     };
   });
 
+  // Server-authoritative coupon: never trust a client-supplied discount.
+  let discount = 0;
+  let couponCode: string | null = null;
+  if (body.couponCode) {
+    const v = await validateCoupon(body.couponCode, subtotal);
+    if (v.ok) {
+      discount = v.discount;
+      couponCode = v.code ?? null;
+    }
+  }
+
   const shipping = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_FEE;
-  const total = subtotal + shipping;
+  const total = Math.max(0, subtotal + shipping - discount);
 
   const { data: order, error: orderError } = await supabase
     .from("orders")
@@ -89,6 +102,8 @@ export async function POST(request: Request) {
       status: "pending",
       subtotal,
       shipping,
+      discount,
+      coupon_code: couponCode,
       total_amount: total,
       delivery_name: body.delivery?.name ?? null,
       delivery_phone: body.delivery?.phone ?? null,
@@ -118,6 +133,8 @@ export async function POST(request: Request) {
       { status: 500 },
     );
   }
+
+  if (couponCode) await incrementCouponUse(couponCode);
 
   if (!razorpayConfigured()) {
     return NextResponse.json({ orderId: order.id, razorpay: null });
