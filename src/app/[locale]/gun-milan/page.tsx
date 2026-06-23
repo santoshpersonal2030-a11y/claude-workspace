@@ -5,6 +5,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { moonSign, NAKSHATRAS } from "@/lib/muhurat-engine";
 import { ashtakootMilan, type Person } from "@/lib/gun-milan";
+import { getDictionary, isLocale, DEFAULT_LOCALE } from "@/lib/i18n";
 
 export const metadata: Metadata = {
   title: "Kundli Matching — Gun Milan (Ashtakoot) Compatibility",
@@ -31,10 +32,14 @@ const inputClass =
   "block w-full rounded-lg border border-saffron-200 bg-white px-3 py-2 text-sm outline-none focus:border-saffron-400";
 
 export default async function GunMilanPage({
+  params,
   searchParams,
 }: {
+  params: Promise<{ locale: string }>;
   searchParams: Promise<{ bd?: string; bt?: string; gd?: string; gt?: string }>;
 }) {
+  const { locale } = await params;
+  const { t } = getDictionary(isLocale(locale) ? locale : DEFAULT_LOCALE);
   const sp = await searchParams;
   const boy = toPerson(sp.bd, sp.bt);
   const girl = toPerson(sp.gd, sp.gt);
@@ -49,39 +54,38 @@ export default async function GunMilanPage({
           <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
             <nav className="text-sm text-foreground/60">
               <Link href="/" className="hover:text-saffron-700">
-                Home
+                {t("common.home")}
               </Link>
               <span className="mx-2">/</span>
-              <span className="text-saffron-700">Kundli Matching</span>
+              <span className="text-saffron-700">{t("gm.crumb")}</span>
             </nav>
             <h1 className="mt-3 font-heading text-4xl text-maroon-800">
-              Kundli Matching — Gun Milan
+              {t("gm.h1")}
             </h1>
             <p className="mt-2 max-w-2xl text-lg text-foreground/70">
-              The Ashtakoot compatibility of two charts — eight kootas out of 36
-              gunas — computed from each partner&apos;s birth date and time.
+              {t("gm.subtitle")}
             </p>
 
             <form method="get" className="mt-6 grid gap-4 sm:grid-cols-2">
               <div className="rounded-2xl border border-saffron-100 bg-white/70 p-4">
-                <h2 className="font-heading text-maroon-700">Bride</h2>
+                <h2 className="font-heading text-maroon-700">{t("gm.bride")}</h2>
                 <label className="mt-2 block text-xs text-foreground/60">
-                  Date of birth
+                  {t("gm.dob")}
                   <input type="date" name="gd" defaultValue={sp.gd} required className={inputClass} />
                 </label>
                 <label className="mt-2 block text-xs text-foreground/60">
-                  Time of birth
+                  {t("gm.tob")}
                   <input type="time" name="gt" defaultValue={sp.gt ?? "12:00"} className={inputClass} />
                 </label>
               </div>
               <div className="rounded-2xl border border-saffron-100 bg-white/70 p-4">
-                <h2 className="font-heading text-maroon-700">Groom</h2>
+                <h2 className="font-heading text-maroon-700">{t("gm.groom")}</h2>
                 <label className="mt-2 block text-xs text-foreground/60">
-                  Date of birth
+                  {t("gm.dob")}
                   <input type="date" name="bd" defaultValue={sp.bd} required className={inputClass} />
                 </label>
                 <label className="mt-2 block text-xs text-foreground/60">
-                  Time of birth
+                  {t("gm.tob")}
                   <input type="time" name="bt" defaultValue={sp.bt ?? "12:00"} className={inputClass} />
                 </label>
               </div>
@@ -90,7 +94,7 @@ export default async function GunMilanPage({
                   type="submit"
                   className="rounded-full bg-saffron-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-saffron-700"
                 >
-                  Match horoscopes
+                  {t("gm.match")}
                 </button>
               </div>
             </form>
@@ -99,15 +103,12 @@ export default async function GunMilanPage({
 
         <section className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
           {!result ? (
-            <p className="text-foreground/60">
-              Enter both partners&apos; birth details above to see the Gun-Milan
-              score.
-            </p>
+            <p className="text-foreground/60">{t("gm.enterDetails")}</p>
           ) : (
             <>
               <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-saffron-100 bg-white p-6 shadow-sm">
                 <div>
-                  <div className="text-sm text-foreground/55">Total compatibility</div>
+                  <div className="text-sm text-foreground/55">{t("gm.total")}</div>
                   <div className="font-heading text-4xl text-maroon-800">
                     {result.total} / {result.max}
                   </div>
@@ -117,10 +118,10 @@ export default async function GunMilanPage({
                 </div>
                 <div className="text-right text-sm text-foreground/60">
                   <div>
-                    Bride: {NAKSHATRAS[girl!.nakshatra - 1]} · {RASHIS[girl!.rashi]}
+                    {t("gm.bride")}: {NAKSHATRAS[girl!.nakshatra - 1]} · {RASHIS[girl!.rashi]}
                   </div>
                   <div>
-                    Groom: {NAKSHATRAS[boy!.nakshatra - 1]} · {RASHIS[boy!.rashi]}
+                    {t("gm.groom")}: {NAKSHATRAS[boy!.nakshatra - 1]} · {RASHIS[boy!.rashi]}
                   </div>
                   <div className="mt-1 font-heading text-2xl text-maroon-700">
                     {pct}%
@@ -130,10 +131,9 @@ export default async function GunMilanPage({
 
               {(result.nadiDosha || result.bhakootDosha) && (
                 <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
-                  {result.nadiDosha && "Nadi dosha is present. "}
-                  {result.bhakootDosha && "Bhakoot dosha is present. "}
-                  These can often be mitigated — our astrologers can review the
-                  full charts and remedies.
+                  {result.nadiDosha && t("gm.nadiDosha")}
+                  {result.bhakootDosha && t("gm.bhakootDosha")}
+                  {t("gm.doshaNote")}
                 </div>
               )}
 
@@ -141,9 +141,9 @@ export default async function GunMilanPage({
                 <table className="w-full min-w-[480px] border-collapse text-sm">
                   <thead>
                     <tr className="border-b border-saffron-200 text-left text-xs text-foreground/60">
-                      <th className="py-2 pr-3">Koota</th>
-                      <th className="py-2 pr-3">Meaning</th>
-                      <th className="py-2 pr-3 text-right">Score</th>
+                      <th className="py-2 pr-3">{t("gm.koota")}</th>
+                      <th className="py-2 pr-3">{t("gm.meaning")}</th>
+                      <th className="py-2 pr-3 text-right">{t("gm.score")}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -163,16 +163,14 @@ export default async function GunMilanPage({
               </div>
 
               <p className="mt-6 text-xs text-foreground/45">
-                Computed from the Moon&apos;s sidereal position; indicative only.
-                For a complete kundli milan including dosha cancellation, dashas
-                and remedies, book a consultation with our astrologers.
+                {t("gm.computedNote")}
               </p>
               <div className="mt-4">
                 <Link
                   href="/poojas/mangal-dosh-shanti"
                   className="rounded-full border border-saffron-300 px-5 py-2 text-sm font-semibold text-saffron-700 hover:bg-saffron-50"
                 >
-                  Manglik / dosha shanti pooja →
+                  {t("gm.doshaPooja")}
                 </Link>
               </div>
             </>

@@ -5,6 +5,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import MuhuratCalendar from "@/components/MuhuratCalendar";
 import { getApprovedMuhuratWindows } from "@/lib/muhurat-data";
+import { getDictionary, isLocale, DEFAULT_LOCALE } from "@/lib/i18n";
 
 export const metadata: Metadata = {
   title: "Shubh Muhurat — Auspicious Dates",
@@ -17,7 +18,13 @@ export const revalidate = 3600;
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://bookmypoojari.com";
 
-export default async function MuhuratPage() {
+export default async function MuhuratPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const { t } = getDictionary(isLocale(locale) ? locale : DEFAULT_LOCALE);
   const windows = await getApprovedMuhuratWindows();
 
   // schema.org Event markup for the upcoming auspicious dates (capped).
@@ -58,24 +65,22 @@ export default async function MuhuratPage() {
           <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
             <nav className="text-sm text-foreground/60">
               <Link href="/" className="hover:text-saffron-700">
-                Home
+                {t("common.home")}
               </Link>
               <span className="mx-2">/</span>
-              <span className="text-saffron-700">Shubh Muhurat</span>
+              <span className="text-saffron-700">{t("nav.muhurat")}</span>
             </nav>
             <h1 className="mt-3 font-heading text-4xl text-maroon-800">
-              Shubh Muhurat — Auspicious Dates
+              {t("muh.h1")}
             </h1>
             <p className="mt-3 max-w-2xl text-lg text-foreground/70">
-              Hand-verified auspicious dates and timings for your ceremony, set
-              by our astrologers as per the panchang. Choose a muhurat and we&apos;ll
-              arrange a verified Pandit.
+              {t("muh.subtitle")}
             </p>
             <Link
               href="/panchang"
               className="mt-4 inline-block text-sm font-semibold text-saffron-700 hover:text-saffron-800"
             >
-              Check the panchang for any date →
+              {t("muh.checkPanchang")}
             </Link>
           </div>
         </section>
@@ -85,18 +90,16 @@ export default async function MuhuratPage() {
             <div className="rounded-2xl border border-saffron-100 bg-white p-8 text-center shadow-sm">
               <div className="text-4xl">🗓️</div>
               <h2 className="mt-3 font-heading text-xl text-maroon-800">
-                Auspicious dates are being curated
+                {t("muh.emptyTitle")}
               </h2>
               <p className="mx-auto mt-2 max-w-md text-sm text-foreground/65">
-                Our astrologers are finalising the muhurat calendar. Meanwhile,
-                tell us your ceremony and we&apos;ll suggest the next shubh muhurat
-                for your family.
+                {t("muh.emptyText")}
               </p>
               <Link
                 href="/contact"
                 className="mt-5 inline-block rounded-full bg-saffron-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-saffron-700"
               >
-                Ask for a muhurat
+                {t("muh.askMuhurat")}
               </Link>
             </div>
           ) : (

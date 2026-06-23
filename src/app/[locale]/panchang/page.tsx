@@ -5,6 +5,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import PanchangView from "@/components/PanchangView";
 import { CITY_COORDS, fullPanchanga } from "@/lib/muhurat-engine";
+import { getDictionary, isLocale, DEFAULT_LOCALE } from "@/lib/i18n";
 
 export const metadata: Metadata = {
   title: "Panchang — Tithi, Nakshatra, Muhurat & Rahu Kalam",
@@ -24,10 +25,14 @@ function todayIST(): string {
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
 export default async function PanchangPage({
+  params,
   searchParams,
 }: {
+  params: Promise<{ locale: string }>;
   searchParams: Promise<{ date?: string; city?: string }>;
 }) {
+  const { locale } = await params;
+  const { t } = getDictionary(isLocale(locale) ? locale : DEFAULT_LOCALE);
   const sp = await searchParams;
   const date = sp.date && DATE_RE.test(sp.date) ? sp.date : todayIST();
   const cities = Object.keys(CITY_COORDS);
@@ -49,13 +54,13 @@ export default async function PanchangPage({
           <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
             <nav className="text-sm text-foreground/60">
               <Link href="/" className="hover:text-saffron-700">
-                Home
+                {t("common.home")}
               </Link>
               <span className="mx-2">/</span>
-              <span className="text-saffron-700">Panchang</span>
+              <span className="text-saffron-700">{t("nav.panchang")}</span>
             </nav>
             <h1 className="mt-3 font-heading text-4xl text-maroon-800">
-              Panchang
+              {t("nav.panchang")}
             </h1>
             <p className="mt-2 text-lg text-foreground/70">
               {pan ? `${pan.weekday}, ${prettyDate} · ${city}` : prettyDate}
@@ -64,7 +69,7 @@ export default async function PanchangPage({
             {/* Date + city picker (no JS needed) */}
             <form method="get" className="mt-5 flex flex-wrap items-end gap-3">
               <label className="text-xs text-foreground/60">
-                Date
+                {t("astro.date")}
                 <input
                   type="date"
                   name="date"
@@ -73,7 +78,7 @@ export default async function PanchangPage({
                 />
               </label>
               <label className="text-xs text-foreground/60">
-                City
+                {t("astro.city")}
                 <select name="city" defaultValue={city} className={`block ${inputClass}`}>
                   {cities.map((c) => (
                     <option key={c} value={c}>
@@ -86,7 +91,7 @@ export default async function PanchangPage({
                 type="submit"
                 className="rounded-full bg-saffron-600 px-5 py-2 text-sm font-semibold text-white hover:bg-saffron-700"
               >
-                Show panchang
+                {t("pan.show")}
               </button>
             </form>
           </div>
@@ -94,11 +99,9 @@ export default async function PanchangPage({
 
         <section className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
           {!pan ? (
-            <p className="text-foreground/60">
-              Couldn&apos;t compute the panchang for that date. Please try another.
-            </p>
+            <p className="text-foreground/60">{t("pan.fail")}</p>
           ) : (
-            <PanchangView pan={pan} city={city} />
+            <PanchangView pan={pan} city={city} t={t} />
           )}
         </section>
       </main>

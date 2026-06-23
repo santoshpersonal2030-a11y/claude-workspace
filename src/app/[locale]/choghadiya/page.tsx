@@ -8,6 +8,7 @@ import {
   computeChoghadiya,
   type Choghadiya,
 } from "@/lib/muhurat-engine";
+import { getDictionary, isLocale, DEFAULT_LOCALE } from "@/lib/i18n";
 
 export const metadata: Metadata = {
   title: "Choghadiya — Auspicious Day & Night Muhurat Slots",
@@ -47,10 +48,14 @@ const STYLE: Record<string, string> = {
 };
 
 export default async function ChoghadiyaPage({
+  params,
   searchParams,
 }: {
+  params: Promise<{ locale: string }>;
   searchParams: Promise<{ date?: string; city?: string }>;
 }) {
+  const { locale } = await params;
+  const { t } = getDictionary(isLocale(locale) ? locale : DEFAULT_LOCALE);
   const sp = await searchParams;
   const date = sp.date && DATE_RE.test(sp.date) ? sp.date : todayIST();
   const cities = Object.keys(CITY_COORDS);
@@ -87,7 +92,7 @@ export default async function ChoghadiyaPage({
               <span className="font-heading text-base">{c.name}</span>
               {isNow(c) && (
                 <span className="text-[10px] font-semibold text-saffron-700">
-                  NOW
+                  {t("cho.now")}
                 </span>
               )}
             </div>
@@ -108,13 +113,13 @@ export default async function ChoghadiyaPage({
           <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
             <nav className="text-sm text-foreground/60">
               <Link href="/" className="hover:text-saffron-700">
-                Home
+                {t("common.home")}
               </Link>
               <span className="mx-2">/</span>
-              <span className="text-saffron-700">Choghadiya</span>
+              <span className="text-saffron-700">{t("cho.crumb")}</span>
             </nav>
             <h1 className="mt-3 font-heading text-4xl text-maroon-800">
-              Choghadiya
+              {t("cho.h1")}
             </h1>
             <p className="mt-2 text-lg text-foreground/70">
               {prettyDate} · {city}
@@ -122,7 +127,7 @@ export default async function ChoghadiyaPage({
 
             <form method="get" className="mt-5 flex flex-wrap items-end gap-3">
               <label className="text-xs text-foreground/60">
-                Date
+                {t("astro.date")}
                 <input
                   type="date"
                   name="date"
@@ -131,7 +136,7 @@ export default async function ChoghadiyaPage({
                 />
               </label>
               <label className="text-xs text-foreground/60">
-                City
+                {t("astro.city")}
                 <select
                   name="city"
                   defaultValue={city}
@@ -148,7 +153,7 @@ export default async function ChoghadiyaPage({
                 type="submit"
                 className="rounded-full bg-saffron-600 px-5 py-2 text-sm font-semibold text-white hover:bg-saffron-700"
               >
-                Show choghadiya
+                {t("cho.show")}
               </button>
             </form>
           </div>
@@ -156,32 +161,22 @@ export default async function ChoghadiyaPage({
 
         <section className="mx-auto max-w-5xl space-y-8 px-4 py-12 sm:px-6">
           {!ch ? (
-            <p className="text-foreground/60">
-              Couldn&apos;t compute the choghadiya for that date. Please try
-              another.
-            </p>
+            <p className="text-foreground/60">{t("cho.fail")}</p>
           ) : (
             <>
-              <p className="text-sm text-foreground/60">
-                <strong>Amrit</strong>, <strong>Shubh</strong> and{" "}
-                <strong>Labh</strong> are auspicious; <strong>Char</strong> is
-                movable (good for travel); <strong>Udveg</strong>,{" "}
-                <strong>Kaal</strong> and <strong>Rog</strong> are best avoided
-                for new work.
-              </p>
-              {renderGrid("Daytime (sunrise → sunset)", ch.day)}
-              {renderGrid("Night (sunset → sunrise)", ch.night)}
+              <p className="text-sm text-foreground/60">{t("cho.legend")}</p>
+              {renderGrid(t("cho.dayGrid"), ch.day)}
+              {renderGrid(t("cho.nightGrid"), ch.night)}
               <p className="text-xs text-foreground/45">
-                Computed for {city} (IST) from astronomical formulae — indicative
-                timings. See the full{" "}
+                {t("cho.computed1", { city })}{" "}
                 <Link href="/panchang" className="text-saffron-700 hover:underline">
-                  daily panchang
+                  {t("fes.noteLink")}
                 </Link>{" "}
-                or{" "}
+                {t("cho.or")}{" "}
                 <Link href="/muhurat" className="text-saffron-700 hover:underline">
-                  ceremony muhurats
-                </Link>
-                .
+                  {t("cho.muhuratsLink")}
+                </Link>{" "}
+                {t("cho.computed2")}
               </p>
             </>
           )}

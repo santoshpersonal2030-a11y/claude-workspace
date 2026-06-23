@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import type { Choghadiya, FullPanchanga } from "@/lib/muhurat-engine";
+import type { Translator } from "@/lib/i18n";
 
 // A titled 8-slot choghadiya grid (day or night).
 function ChoghGrid({ title, slots }: { title: string; slots: Choghadiya[] }) {
@@ -46,29 +47,31 @@ function to12h(mins: number): string {
 export default function PanchangView({
   pan,
   city,
+  t,
 }: {
   pan: FullPanchanga;
   city: string;
+  t: Translator;
 }) {
   const limbs = [
-    { label: "Tithi", value: pan.tithi.name },
-    { label: "Nakshatra", value: pan.nakshatra.name },
-    { label: "Yoga", value: pan.yoga.name },
-    { label: "Karana", value: pan.karana.name },
-    { label: "Vaara", value: pan.weekday },
-    { label: "Sun sign", value: pan.sunRashi },
+    { label: t("pv.limbTithi"), value: pan.tithi.name },
+    { label: t("pv.limbNakshatra"), value: pan.nakshatra.name },
+    { label: t("pv.limbYoga"), value: pan.yoga.name },
+    { label: t("pv.limbKarana"), value: pan.karana.name },
+    { label: t("pv.limbVaara"), value: pan.weekday },
+    { label: t("pv.limbSunSign"), value: pan.sunRashi },
   ];
   const avoid = [
-    { label: "Rahu Kalam", p: pan.rahu },
-    { label: "Yamaganda", p: pan.yamaganda },
-    { label: "Gulika Kalam", p: pan.gulika },
+    { label: t("pv.rahu"), p: pan.rahu },
+    { label: t("pv.yamaganda"), p: pan.yamaganda },
+    { label: t("pv.gulika"), p: pan.gulika },
   ];
 
   return (
     <div className="space-y-8">
       <div>
         <h2 className="font-heading text-2xl text-maroon-800">
-          The five limbs (Panchang)
+          {t("pv.fiveLimbs")}
         </h2>
         <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3">
           {limbs.map((l) => (
@@ -87,24 +90,26 @@ export default function PanchangView({
 
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm">
-          <h3 className="font-heading text-lg text-maroon-700">Sun</h3>
+          <h3 className="font-heading text-lg text-maroon-700">{t("pv.sun")}</h3>
           <dl className="mt-3 space-y-2 text-sm">
             <div className="flex justify-between">
-              <dt className="text-foreground/60">Sunrise</dt>
+              <dt className="text-foreground/60">{t("pv.sunrise")}</dt>
               <dd className="font-medium">{to12h(pan.sunrise)}</dd>
             </div>
             <div className="flex justify-between">
-              <dt className="text-foreground/60">Sunset</dt>
+              <dt className="text-foreground/60">{t("pv.sunset")}</dt>
               <dd className="font-medium">{to12h(pan.sunset)}</dd>
             </div>
           </dl>
         </div>
 
         <div className="rounded-2xl border border-emerald-100 bg-emerald-50/40 p-5 shadow-sm">
-          <h3 className="font-heading text-lg text-emerald-800">Auspicious</h3>
+          <h3 className="font-heading text-lg text-emerald-800">
+            {t("pv.auspicious")}
+          </h3>
           <dl className="mt-3 space-y-2 text-sm">
             <div className="flex justify-between">
-              <dt className="text-foreground/60">Abhijit Muhurat</dt>
+              <dt className="text-foreground/60">{t("pv.abhijit")}</dt>
               <dd className="font-medium text-emerald-800">
                 {to12h(pan.abhijit.start)} – {to12h(pan.abhijit.end)}
               </dd>
@@ -114,7 +119,7 @@ export default function PanchangView({
 
         <div className="rounded-2xl border border-red-100 bg-red-50/40 p-5 shadow-sm">
           <h3 className="font-heading text-lg text-red-800">
-            Inauspicious (avoid)
+            {t("pv.inauspicious")}
           </h3>
           <dl className="mt-3 space-y-2 text-sm">
             {avoid.map((a) => (
@@ -126,13 +131,11 @@ export default function PanchangView({
               </div>
             ))}
             {pan.karana.isVishti && (
-              <p className="pt-1 text-xs text-red-700">
-                Vishti (Bhadra) karana today — avoid auspicious work.
-              </p>
+              <p className="pt-1 text-xs text-red-700">{t("pv.vishti")}</p>
             )}
             {pan.retrogrades.length > 0 && (
               <p className="pt-1 text-xs text-red-700">
-                Retrograde (vakri): {pan.retrogrades.join(", ")}.
+                {t("pv.retro", { list: pan.retrogrades.join(", ") })}
               </p>
             )}
           </dl>
@@ -141,28 +144,24 @@ export default function PanchangView({
 
       {pan.choghadiya.day.length > 0 && (
         <div>
-          <h2 className="font-heading text-2xl text-maroon-800">Choghadiya</h2>
-          <p className="mt-1 text-sm text-foreground/55">
-            Eight divisions each of the day (sunrise→sunset) and night
-            (sunset→sunrise). Favour the green slots and avoid the red ones for
-            new undertakings.
-          </p>
-          <ChoghGrid title="Daytime" slots={pan.choghadiya.day} />
+          <h2 className="font-heading text-2xl text-maroon-800">
+            {t("pv.chogh")}
+          </h2>
+          <p className="mt-1 text-sm text-foreground/55">{t("pv.choghNote")}</p>
+          <ChoghGrid title={t("pv.day")} slots={pan.choghadiya.day} />
           {pan.choghadiya.night.length > 0 && (
-            <ChoghGrid title="Night" slots={pan.choghadiya.night} />
+            <ChoghGrid title={t("pv.night")} slots={pan.choghadiya.night} />
           )}
           <p className="mt-3 text-xs text-foreground/45">
             <Link href="/choghadiya" className="text-saffron-700 hover:underline">
-              Open the full choghadiya lookup →
+              {t("pv.openChogh")}
             </Link>
           </p>
         </div>
       )}
 
       <p className="text-xs text-foreground/45">
-        Times are computed for {city} (IST) from astronomical formulae and are
-        indicative; for a ceremony muhurat our astrologers confirm the exact
-        timing.
+        {t("pv.computedNote", { city })}
       </p>
 
       <div className="flex flex-wrap gap-3 rounded-2xl border border-saffron-100 bg-white p-6 shadow-sm">
@@ -170,13 +169,13 @@ export default function PanchangView({
           href="/muhurat"
           className="rounded-full bg-saffron-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-saffron-700"
         >
-          See auspicious ceremony dates
+          {t("pv.seeDates")}
         </Link>
         <Link
           href="/poojas"
           className="rounded-full border border-saffron-300 px-6 py-2.5 text-sm font-semibold text-saffron-700 hover:bg-saffron-50"
         >
-          Book a Pandit
+          {t("pv.bookPandit")}
         </Link>
       </div>
     </div>

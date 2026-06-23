@@ -5,14 +5,17 @@ import Link from "next/link";
 
 import { tierFromScore } from "@/lib/muhurat-engine";
 import type { AuspiciousDate, WindowAvailability } from "@/lib/muhurat-data";
+import { useT } from "@/components/LanguageProvider";
 
-const AVAIL_BADGE: Record<
-  WindowAvailability["status"],
-  { className: string; label: string }
-> = {
-  available: { className: "bg-emerald-100 text-emerald-800", label: "✓ Pandits available" },
-  limited: { className: "bg-amber-100 text-amber-800", label: "Limited availability" },
-  none: { className: "bg-stone-100 text-stone-600", label: "No priest yet — we’ll arrange" },
+const AVAIL_CLASS: Record<WindowAvailability["status"], string> = {
+  available: "bg-emerald-100 text-emerald-800",
+  limited: "bg-amber-100 text-amber-800",
+  none: "bg-stone-100 text-stone-600",
+};
+const AVAIL_LABEL_KEY: Record<WindowAvailability["status"], string> = {
+  available: "mc.avail",
+  limited: "mc.limited",
+  none: "mc.none",
 };
 
 const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -27,10 +30,10 @@ function parts(date: string) {
   return { y, m, d, weekday: WEEKDAYS[wd], monthName: MONTHS[m - 1] };
 }
 
-const TIER_LABEL: Record<string, string> = {
-  Excellent: "Most auspicious",
-  Good: "Auspicious",
-  Fair: "Favourable",
+const TIER_LABEL_KEY: Record<string, string> = {
+  Excellent: "mc.tierExcellent",
+  Good: "mc.tierGood",
+  Fair: "mc.tierFair",
 };
 const TIER_BADGE: Record<string, string> = {
   Excellent: "bg-emerald-100 text-emerald-800",
@@ -43,6 +46,7 @@ export default function MuhuratCalendar({
 }: {
   windows: AuspiciousDate[];
 }) {
+  const t = useT();
   const ceremonies = useMemo(
     () => Array.from(new Set(windows.map((w) => w.ceremony))).sort(),
     [windows],
@@ -115,7 +119,7 @@ export default function MuhuratCalendar({
         className="mb-6 flex flex-wrap items-center gap-3 rounded-2xl border border-saffron-100 bg-white p-4 shadow-sm"
       >
         <label className="text-sm font-medium text-foreground/70">
-          Your pincode
+          {t("dir.pincode")}
           <input
             value={pincode}
             onChange={(e) =>
@@ -131,7 +135,7 @@ export default function MuhuratCalendar({
           disabled={checking}
           className="rounded-full bg-saffron-600 px-5 py-2 text-sm font-semibold text-white hover:bg-saffron-700 disabled:opacity-60"
         >
-          {checking ? "Checking…" : "Check priest availability"}
+          {checking ? t("mc.checking") : t("mc.checkAvail")}
         </button>
         {availability && (
           <label className="flex items-center gap-2 text-sm text-foreground/70">
@@ -140,14 +144,14 @@ export default function MuhuratCalendar({
               checked={availableOnly}
               onChange={(e) => setAvailableOnly(e.target.checked)}
             />
-            Only dates with a priest near me
+            {t("mc.onlyAvail")}
           </label>
         )}
       </form>
 
       {ceremonies.length > 1 && (
         <div className="mb-8 flex flex-wrap gap-2">
-          {chip("All", "All ceremonies")}
+          {chip("All", t("mc.allCeremonies"))}
           {ceremonies.map((c) => chip(c, c))}
         </div>
       )}
@@ -181,13 +185,13 @@ export default function MuhuratCalendar({
                         <span
                           className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${TIER_BADGE[tier]}`}
                         >
-                          {TIER_LABEL[tier]}
+                          {t(TIER_LABEL_KEY[tier])}
                         </span>
                       )}
                     </div>
 
                     <div className="mt-3 text-sm font-medium text-saffron-700">
-                      🕉️ {w.label ?? "Auspicious muhurat"}
+                      🕉️ {w.label ?? t("home.muhurat.auspicious")}
                     </div>
                     <div className="mt-1 text-sm text-foreground/70">
                       {w.ceremony} · {w.startTime}–{w.endTime}
@@ -196,11 +200,11 @@ export default function MuhuratCalendar({
                     {availability && availability[w.id] && (
                       <div
                         className={`mt-3 inline-block rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${
-                          AVAIL_BADGE[availability[w.id].status].className
+                          AVAIL_CLASS[availability[w.id].status]
                         }`}
                         title={`${availability[w.id].count} priest(s) near ${pincode}`}
                       >
-                        {AVAIL_BADGE[availability[w.id].status].label}
+                        {t(AVAIL_LABEL_KEY[availability[w.id].status])}
                       </div>
                     )}
 
@@ -208,7 +212,7 @@ export default function MuhuratCalendar({
                       href={w.poojaSlug ? `/poojas/${w.poojaSlug}` : "/ceremonies"}
                       className="mt-4 w-full rounded-full bg-saffron-600 py-2 text-center text-sm font-semibold text-white transition-colors hover:bg-saffron-700"
                     >
-                      Book this muhurat
+                      {t("mc.book")}
                     </Link>
                   </div>
                 );

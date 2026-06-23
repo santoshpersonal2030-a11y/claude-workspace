@@ -6,6 +6,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import PanchangView from "@/components/PanchangView";
 import { CITY_COORDS, fullPanchanga } from "@/lib/muhurat-engine";
+import { getDictionary, isLocale, DEFAULT_LOCALE } from "@/lib/i18n";
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const DEFAULT_CITY = "New Delhi";
@@ -59,10 +60,11 @@ export async function generateMetadata({
 export default async function PanchangDatePage({
   params,
 }: {
-  params: Promise<{ date: string }>;
+  params: Promise<{ locale: string; date: string }>;
 }) {
-  const { date } = await params;
+  const { locale, date } = await params;
   if (!DATE_RE.test(date)) notFound();
+  const { t } = getDictionary(isLocale(locale) ? locale : DEFAULT_LOCALE);
 
   const coords = CITY_COORDS[DEFAULT_CITY];
   const pan = fullPanchanga(date, coords.lat, coords.lng);
@@ -79,17 +81,17 @@ export default async function PanchangDatePage({
           <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
             <nav className="text-sm text-foreground/60">
               <Link href="/" className="hover:text-saffron-700">
-                Home
+                {t("common.home")}
               </Link>
               <span className="mx-2">/</span>
               <Link href="/panchang" className="hover:text-saffron-700">
-                Panchang
+                {t("nav.panchang")}
               </Link>
               <span className="mx-2">/</span>
               <span className="text-saffron-700">{pretty(date)}</span>
             </nav>
             <h1 className="mt-3 font-heading text-4xl text-maroon-800">
-              Panchang for {pretty(date)}
+              {t("pan.forDate", { date: pretty(date) })}
             </h1>
             <p className="mt-2 text-lg text-foreground/70">
               {pan.weekday} · {DEFAULT_CITY}
@@ -112,14 +114,14 @@ export default async function PanchangDatePage({
                 href={`/panchang?date=${date}`}
                 className="font-semibold text-saffron-700 hover:text-saffron-800"
               >
-                Change city →
+                {t("pan.changeCity")}
               </Link>
             </div>
           </div>
         </section>
 
         <section className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
-          <PanchangView pan={pan} city={DEFAULT_CITY} />
+          <PanchangView pan={pan} city={DEFAULT_CITY} t={t} />
         </section>
       </main>
       <Footer />
