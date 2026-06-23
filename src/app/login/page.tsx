@@ -26,30 +26,84 @@ function LoginCard() {
   const supabase = useMemo(() => createClient(), []);
   const router = useRouter();
 
+  const [method, setMethod] = useState<"phone" | "email">("phone");
   const [phase, setPhase] = useState<"enter-phone" | "enter-otp">(
     "enter-phone",
   );
+  const [emailMode, setEmailMode] = useState<"signin" | "signup">("signin");
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [info, setInfo] = useState<string | null>(null);
 
-  async function signInWithGoogle() {
+  function callbackUrl(): string {
+    return `${window.location.origin}/auth/callback?next=${encodeURIComponent(
+      nextTarget(),
+    )}`;
+  }
+
+  async function signInWithOAuth(provider: "google" | "apple") {
     setBusy(true);
     setError(null);
     const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(
-          nextTarget(),
-        )}`,
-      },
+      provider,
+      options: { redirectTo: callbackUrl() },
     });
     if (error) {
       setError(error.message);
       setBusy(false);
     }
-    // On success the browser is redirected to Google, so no further work here.
+    // On success the browser is redirected to the provider.
+  }
+
+  async function submitEmail(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    setInfo(null);
+    setBusy(true);
+    if (emailMode === "signup") {
+      const { data, error } = await supabase.auth.signUp({
+        email: email.trim(),
+        password,
+        options: { emailRedirectTo: callbackUrl() },
+      });
+      setBusy(false);
+      if (error) return setError(error.message);
+      // If confirmation is required there's no session yet.
+      if (!data.session) {
+        setInfo("Check your email to confirm your account, then sign in.");
+        setEmailMode("signin");
+        return;
+      }
+    } else {
+      const { error } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password,
+      });
+      setBusy(false);
+      if (error) return setError(error.message);
+    }
+    router.push(nextTarget());
+    router.refresh();
+  }
+
+  async function forgotPassword() {
+    setError(null);
+    setInfo(null);
+    if (!email.trim()) {
+      setError("Enter your email first, then tap “Forgot password”.");
+      return;
+    }
+    setBusy(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+      redirectTo: `${window.location.origin}/auth/reset`,
+    });
+    setBusy(false);
+    if (error) return setError(error.message);
+    setInfo("Password reset link sent — check your email.");
   }
 
   async function sendOtp(e: React.FormEvent) {
@@ -106,10 +160,15 @@ function LoginCard() {
           {error}
         </p>
       )}
+      {info && (
+        <p className="mt-5 rounded-xl bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
+          {info}
+        </p>
+      )}
 
       <button
         type="button"
-        onClick={signInWithGoogle}
+        onClick={() => signInWithOAuth("google")}
         disabled={busy}
         className="mt-6 flex w-full items-center justify-center gap-3 rounded-full border border-saffron-200 bg-white py-3 text-sm font-semibold text-foreground shadow-sm transition-colors hover:bg-saffron-50 disabled:opacity-60"
       >
@@ -134,13 +193,110 @@ function LoginCard() {
         Continue with Google
       </button>
 
+      <button
+        type="button"
+        onClick={() => signInWithOAuth("apple")}
+        disabled={busy}
+        className="mt-3 flex w-full items-center justify-center gap-3 rounded-full bg-black py-3 text-sm font-semibold text-white shadow-sm transition-opacity hover:opacity-90 disabled:opacity-60"
+      >
+        <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor" aria-hidden="true">
+          <path d="M16.37 1.43c.08 1-.32 1.97-.93 2.67-.66.74-1.74 1.32-2.79 1.24-.1-.97.36-1.98.95-2.62.66-.72 1.82-1.27 2.77-1.29ZM19.6 17.2c-.53 1.23-.79 1.78-1.47 2.87-.96 1.52-2.31 3.41-3.99 3.42-1.49.02-1.88-.97-3.9-.96-2.02.01-2.44.98-3.94.95-1.68-.03-2.96-1.73-3.92-3.25C-.31 16.4-.6 11.46 1.13 8.86c1.16-1.76 2.99-2.79 4.71-2.79 1.75 0 2.85 1 4.3 1 1.4 0 2.26-1 4.29-1 1.53 0 3.16.84 4.32 2.28-3.79 2.08-3.17 7.49.85 8.85Z" />
+        </svg>
+        Continue with Apple
+      </button>
+
       <div className="my-6 flex items-center gap-3 text-xs text-foreground/40">
         <span className="h-px flex-1 bg-saffron-100" />
         OR
         <span className="h-px flex-1 bg-saffron-100" />
       </div>
 
-      {phase === "enter-phone" ? (
+      {/* Phone / email method toggle */}
+      <div className="mb-4 grid grid-cols-2 gap-1 rounded-full bg-cream p-1 text-sm">
+        {(["phone", "email"] as const).map((m) => (
+          <button
+            key={m}
+            type="button"
+            onClick={() => {
+              setMethod(m);
+              setError(null);
+              setInfo(null);
+            }}
+            className={`rounded-full py-1.5 font-semibold capitalize transition-colors ${
+              method === m
+                ? "bg-white text-saffron-700 shadow-sm"
+                : "text-foreground/55 hover:text-saffron-700"
+            }`}
+          >
+            {m}
+          </button>
+        ))}
+      </div>
+
+      {method === "email" ? (
+        <form onSubmit={submitEmail}>
+          <label className="mb-1 block text-sm font-medium text-foreground/80">
+            Email
+          </label>
+          <input
+            type="email"
+            autoComplete="email"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="you@example.com"
+            className="w-full rounded-xl border border-saffron-200 bg-cream px-3 py-2.5 text-sm outline-none focus:border-saffron-400 focus:ring-2 focus:ring-saffron-100"
+          />
+          <label className="mb-1 mt-3 block text-sm font-medium text-foreground/80">
+            Password
+          </label>
+          <input
+            type="password"
+            autoComplete={emailMode === "signup" ? "new-password" : "current-password"}
+            required
+            minLength={8}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder={emailMode === "signup" ? "Create a password (min 8)" : "Your password"}
+            className="w-full rounded-xl border border-saffron-200 bg-cream px-3 py-2.5 text-sm outline-none focus:border-saffron-400 focus:ring-2 focus:ring-saffron-100"
+          />
+          <button
+            type="submit"
+            disabled={busy}
+            className="mt-4 w-full rounded-full bg-saffron-600 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-saffron-700 disabled:opacity-60"
+          >
+            {busy
+              ? "Please wait…"
+              : emailMode === "signup"
+                ? "Create account"
+                : "Sign in"}
+          </button>
+          <div className="mt-3 flex items-center justify-between text-sm">
+            <button
+              type="button"
+              onClick={() => {
+                setEmailMode(emailMode === "signin" ? "signup" : "signin");
+                setError(null);
+                setInfo(null);
+              }}
+              className="text-saffron-700 hover:text-saffron-800"
+            >
+              {emailMode === "signin"
+                ? "New here? Create account"
+                : "Have an account? Sign in"}
+            </button>
+            {emailMode === "signin" && (
+              <button
+                type="button"
+                onClick={forgotPassword}
+                className="text-foreground/50 hover:text-saffron-700"
+              >
+                Forgot password?
+              </button>
+            )}
+          </div>
+        </form>
+      ) : phase === "enter-phone" ? (
         <form onSubmit={sendOtp}>
           <label className="mb-1 block text-sm font-medium text-foreground/80">
             Mobile number
