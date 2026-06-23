@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { payWithRazorpay } from "@/lib/razorpay-client";
 import { timeSlots, languages, formatINR } from "@/lib/poojas";
+import { redeemableAmount } from "@/lib/rewards";
 
 type Ceremony = { slug: string; name: string; emoji: string; price: number };
 
@@ -29,6 +30,33 @@ export default function PackageBookingForm({
   });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [wallet, setWallet] = useState({ available: 0, maxRedeemPct: 0 });
+  const [useCredit, setUseCredit] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/wallet/summary")
+      .then((r) => r.json())
+      .then((d: { available?: number; maxRedeemPct?: number }) => {
+        if (!cancelled)
+          setWallet({
+            available: d.available ?? 0,
+            maxRedeemPct: d.maxRedeemPct ?? 0,
+          });
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const creditApplied = useCredit
+    ? Math.min(
+        redeemableAmount(wallet.available, total, wallet.maxRedeemPct),
+        Math.max(0, total - 1),
+      )
+    : 0;
+  const payable = total - creditApplied;
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -47,7 +75,7 @@ export default function PackageBookingForm({
       const res = await fetch("/api/bookings/package", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ items, ...shared }),
+        body: JSON.stringify({ items, ...shared, redeemWallet: useCredit }),
       });
       if (res.status === 401) {
         router.push(
@@ -175,12 +203,32 @@ export default function PackageBookingForm({
         </label>
       </div>
 
+      {wallet.available > 0 && (
+        <label className="mt-4 flex items-center gap-2 text-sm text-foreground/75">
+          <input
+            type="checkbox"
+            checked={useCredit}
+            onChange={(e) => setUseCredit(e.target.checked)}
+            className="h-4 w-4 accent-saffron-600"
+          />
+          Use store credit —{" "}
+          <span className="font-medium text-emerald-700">
+            {formatINR(wallet.available)} available
+          </span>
+        </label>
+      )}
+
       <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-saffron-50 pt-4">
         <span className="text-sm text-foreground/60">
-          Package total{" "}
+          {creditApplied > 0 ? "To pay " : "Package total "}
           <span className="font-heading text-xl text-maroon-700">
-            {formatINR(total)}
+            {formatINR(payable)}
           </span>
+          {creditApplied > 0 && (
+            <span className="ml-2 text-xs text-emerald-700">
+              (−{formatINR(creditApplied)} credit)
+            </span>
+          )}
         </span>
         <button
           type="submit"

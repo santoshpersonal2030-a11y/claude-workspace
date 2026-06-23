@@ -5,6 +5,7 @@ import {
   updateBookingDetails,
   nudgePriest,
   acceptProposal,
+  refundBookingToCredit,
 } from "@/app/admin/actions";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { Constants } from "@/lib/database.types";
@@ -235,6 +236,35 @@ export default async function AdminBookingDetailPage({
             </div>
           </dl>
         </div>
+      </form>
+
+      {/* Refund as store credit (separate form — not nested in the details form) */}
+      <form
+        action={refundBookingToCredit}
+        className="mt-6 flex flex-wrap items-end gap-2 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm"
+      >
+        <input type="hidden" name="id" value={booking.id} />
+        <div className="text-sm font-medium text-maroon-700">
+          Refund as store credit
+        </div>
+        <input
+          name="amount"
+          type="number"
+          min={1}
+          placeholder={`₹ (blank = full ${formatINR(booking.total_amount)})`}
+          className="rounded-lg border border-saffron-200 bg-cream px-2 py-1.5 text-sm outline-none focus:border-saffron-400"
+        />
+        <input
+          name="reason"
+          placeholder="Reason (optional)"
+          className="min-w-48 flex-1 rounded-lg border border-saffron-200 bg-cream px-2 py-1.5 text-sm outline-none focus:border-saffron-400"
+        />
+        <button
+          type="submit"
+          className="rounded-full border border-emerald-300 px-4 py-2 text-sm font-semibold text-emerald-700 hover:bg-emerald-50"
+        >
+          Refund to wallet
+        </button>
       </form>
 
       {/* Priest response & history */}

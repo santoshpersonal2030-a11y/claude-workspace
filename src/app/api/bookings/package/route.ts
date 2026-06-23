@@ -3,6 +3,8 @@ import { randomUUID } from "node:crypto";
 
 import { createClient } from "@/lib/supabase/server";
 import { createRazorpayOrder, razorpayConfigured } from "@/lib/razorpay";
+import { getAvailableBalance, getRewardSettings } from "@/lib/wallet";
+import { redeemableAmount } from "@/lib/rewards";
 
 const DEFAULT_KIT_PRICE = 751;
 
@@ -14,6 +16,7 @@ type PackageBody = {
   pincode?: string;
   language?: string;
   samagriKit?: boolean;
+  redeemWallet?: boolean;
 };
 
 // Creates all the bookings of a multi-ceremony package together, grouped by a
@@ -93,8 +96,30 @@ export async function POST(request: Request) {
     return NextResponse.json({ packageId, razorpay: null });
   }
 
+  // Store-credit redemption for the whole package, recorded on the first
+  // booking (capture settles each sibling's wallet_used). Capped to leave >= ₹1
+  // payable so a Razorpay payment still occurs.
+  let walletUsed = 0;
+  if (body.redeemWallet) {
+    const settings = await getRewardSettings();
+    if (settings.rewardsEnabled) {
+      const available = await getAvailableBalance(user.id);
+      walletUsed = Math.min(
+        redeemableAmount(available, total, settings.maxRedeemPct),
+        Math.max(0, total - 1),
+      );
+    }
+  }
+  if (walletUsed > 0) {
+    await supabase
+      .from("bookings")
+      .update({ wallet_used: walletUsed })
+      .eq("id", firstBookingId);
+  }
+  const payable = Math.max(1, total - walletUsed);
+
   const order = await createRazorpayOrder({
-    amountInPaise: total * 100,
+    amountInPaise: payable * 100,
     receipt: `package_${packageId.slice(0, 18)}`,
     notes: { type: "package", package_id: packageId },
   });
@@ -103,7 +128,7 @@ export async function POST(request: Request) {
     user_id: user.id,
     payment_for: "booking",
     booking_id: firstBookingId,
-    amount: total,
+    amount: payable,
     currency: "INR",
     razorpay_order_id: order.id,
     status: "created",

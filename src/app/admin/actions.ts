@@ -826,6 +826,41 @@ export async function refundOrderToCredit(formData: FormData): Promise<void> {
   revalidatePath(`/admin/orders/${orderId}`);
 }
 
+// Refunds a booking as store credit (e.g. a no-show/quality dispute outcome).
+// Credits the wallet (idempotent per booking) and cancels the booking when
+// fully covered. No Razorpay money movement.
+export async function refundBookingToCredit(formData: FormData): Promise<void> {
+  await assertAdmin();
+  const admin = createAdminClient();
+  const bookingId = str(formData.get("id"));
+  if (!bookingId) return;
+
+  const { data: booking } = await admin
+    .from("bookings")
+    .select("user_id, total_amount")
+    .eq("id", bookingId)
+    .maybeSingle();
+  if (!booking) return;
+
+  const amount = num(formData.get("amount")) || booking.total_amount;
+  if (amount <= 0) return;
+
+  const granted = await adjustWallet(
+    booking.user_id,
+    amount,
+    "refund",
+    str(formData.get("reason")) || "Booking refund issued as store credit",
+    { bookingId },
+  );
+  if (granted && amount >= booking.total_amount) {
+    await admin
+      .from("bookings")
+      .update({ status: "cancelled" })
+      .eq("id", bookingId);
+  }
+  revalidatePath(`/admin/bookings/${bookingId}`);
+}
+
 // Assigns (or clears) the actual pandit on a booking. Assigning also advances a
 // still-open booking to "assigned"; clearing leaves the status untouched.
 export async function assignPandit(formData: FormData): Promise<void> {
