@@ -832,7 +832,8 @@ export type Database = {
           home_pincode: string | null
           id: string
           id_doc_path: string | null
-          id_number: string | null
+          id_number_enc: string | null
+          id_number_masked: string | null
           id_type: string | null
           languages: string[]
           phone: string
@@ -855,7 +856,8 @@ export type Database = {
           home_pincode?: string | null
           id?: string
           id_doc_path?: string | null
-          id_number?: string | null
+          id_number_enc?: string | null
+          id_number_masked?: string | null
           id_type?: string | null
           languages?: string[]
           phone: string
@@ -878,7 +880,8 @@ export type Database = {
           home_pincode?: string | null
           id?: string
           id_doc_path?: string | null
-          id_number?: string | null
+          id_number_enc?: string | null
+          id_number_masked?: string | null
           id_type?: string | null
           languages?: string[]
           phone?: string

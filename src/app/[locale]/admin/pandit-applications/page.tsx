@@ -136,7 +136,7 @@ export default async function PanditApplicationsPage({
                 </Row>
                 <Row label="Home pincode">{a.home_pincode || "—"}</Row>
                 <Row label="ID">
-                  {a.id_type ? `${a.id_type} · ${a.id_number}` : "—"}
+                  {a.id_type ? `${a.id_type} · ${a.id_number_masked ?? "—"}` : "—"}
                   {docUrls.has(a.id) && (
                     <a
                       href={docUrls.get(a.id)}

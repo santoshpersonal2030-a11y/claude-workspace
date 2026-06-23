@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import { createAdminClient } from "@/lib/supabase/admin";
 import { rateLimit } from "@/lib/rate-limit";
+import { encryptKyc, maskId, getKycKey } from "@/lib/kyc-crypto";
 
 const csv = (v: FormDataEntryValue | null): string[] =>
   ((v as string) ?? "")
@@ -79,6 +80,18 @@ export async function POST(request: Request) {
     id_doc_path = await uploadFile(admin, "kyc-documents", "kyc", doc);
   }
 
+  // Never persist the raw identifier: store an AES-256-GCM ciphertext (only when
+  // a key is configured) plus a masked form for display. Without a key the full
+  // number is dropped rather than written in plaintext (dormant until keyed).
+  const kycKey = getKycKey();
+  const id_number_enc = kycKey ? encryptKyc(id_number, kycKey) : null;
+  const id_number_masked = maskId(id_number);
+  if (!kycKey) {
+    console.warn(
+      "KYC_ENCRYPTION_KEY not set — storing only the masked KYC identifier.",
+    );
+  }
+
   const { error } = await admin.from("pandit_applications").insert({
     full_name,
     phone,
@@ -91,7 +104,8 @@ export async function POST(request: Request) {
     bio: str(form.get("bio")) || null,
     qualifications: str(form.get("qualifications")) || null,
     id_type,
-    id_number,
+    id_number_enc,
+    id_number_masked,
     id_doc_path,
     photo_url,
     status: "pending",
