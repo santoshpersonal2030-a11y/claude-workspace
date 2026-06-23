@@ -17,6 +17,14 @@ test("manager runs operations but not money-out / settings / team", () => {
   assert.equal(can("manager", "team"), false);
 });
 
+test("revealing full KYC IDs is owner/manager only, never support", () => {
+  assert.equal(can("owner", "kyc"), true);
+  assert.equal(can("manager", "kyc"), true);
+  // Support can review applications (masked) but not unmask government IDs.
+  assert.equal(can("support", "applications"), true);
+  assert.equal(can("support", "kyc"), false);
+});
+
 test("support is limited to customer-facing reads", () => {
   assert.equal(can("support", "bookings"), true);
   assert.equal(can("support", "messages"), true);

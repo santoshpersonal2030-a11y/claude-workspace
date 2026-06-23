@@ -1,10 +1,13 @@
 import Link from "next/link";
 
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getAdminContext } from "@/lib/admin";
+import { can } from "@/lib/roles";
 import {
   approvePanditApplication,
   rejectPanditApplication,
 } from "@/app/[locale]/admin/actions";
+import { RevealKycId } from "./reveal-kyc-id";
 
 export const metadata = { title: "Priest applications — Admin" };
 
@@ -22,6 +25,11 @@ export default async function PanditApplicationsPage({
   const { status } = await searchParams;
   const filter = status ?? "pending";
   const admin = createAdminClient();
+
+  // Whether this admin may reveal full KYC ID numbers (owner/manager, not
+  // support). Drives the per-row "Reveal" control; the action re-checks too.
+  const ctx = await getAdminContext();
+  const canRevealKyc = can(ctx?.role ?? null, "kyc");
 
   let query = admin
     .from("pandit_applications")
@@ -137,6 +145,9 @@ export default async function PanditApplicationsPage({
                 <Row label="Home pincode">{a.home_pincode || "—"}</Row>
                 <Row label="ID">
                   {a.id_type ? `${a.id_type} · ${a.id_number_masked ?? "—"}` : "—"}
+                  {canRevealKyc && a.id_number_enc && (
+                    <RevealKycId applicationId={a.id} />
+                  )}
                   {docUrls.has(a.id) && (
                     <a
                       href={docUrls.get(a.id)}

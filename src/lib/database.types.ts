@@ -575,6 +575,35 @@ export type Database = {
         }
         Relationships: []
       }
+      kyc_access_log: {
+        Row: {
+          accessed_at: string
+          accessed_by: string | null
+          application_id: string
+          id: string
+        }
+        Insert: {
+          accessed_at?: string
+          accessed_by?: string | null
+          application_id: string
+          id?: string
+        }
+        Update: {
+          accessed_at?: string
+          accessed_by?: string | null
+          application_id?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kyc_access_log_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "pandit_applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       muhurat_windows: {
         Row: {
           approved: boolean

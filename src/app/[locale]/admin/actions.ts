@@ -2,7 +2,9 @@
 
 import { revalidatePath } from "next/cache";
 
-import { assertAdmin, assertCapability } from "@/lib/admin";
+import { assertAdmin, assertCapability, getAdminContext } from "@/lib/admin";
+import { can } from "@/lib/roles";
+import { decryptKyc, getKycKey } from "@/lib/kyc-crypto";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createRefund, razorpayConfigured } from "@/lib/razorpay";
 import { generateEInvoice, cancelEInvoice } from "@/lib/einvoice";
@@ -1441,6 +1443,53 @@ export async function approvePanditApplication(
   revalidatePath("/admin/pandits");
   revalidatePath("/pandits");
   if (pandit?.slug) revalidatePath(`/pandits/${pandit.slug}`);
+}
+
+// Decrypts and returns an applicant's full KYC ID number for a single reveal.
+// Gated by the "kyc" capability (owner/manager only — not support), and every
+// successful reveal is written to kyc_access_log (who/which/when) so PII access
+// is auditable. Returns a discriminated result rather than throwing so the UI
+// can show a friendly message; only an unauthorized caller throws.
+export async function revealKycId(
+  applicationId: string,
+): Promise<{ ok: true; idNumber: string } | { ok: false; error: string }> {
+  const ctx = await getAdminContext();
+  if (!ctx || !can(ctx.role, "kyc")) throw new Error("Forbidden");
+
+  const id = applicationId.trim();
+  if (!id) return { ok: false, error: "Missing application." };
+
+  const admin = createAdminClient();
+  const { data: app } = await admin
+    .from("pandit_applications")
+    .select("id_number_enc")
+    .eq("id", id)
+    .maybeSingle();
+  if (!app) return { ok: false, error: "Application not found." };
+  if (!app.id_number_enc) return { ok: false, error: "No ID number on file." };
+
+  const key = getKycKey();
+  if (!key) {
+    return { ok: false, error: "KYC encryption key is not configured." };
+  }
+
+  let idNumber: string;
+  try {
+    idNumber = decryptKyc(app.id_number_enc, key);
+  } catch {
+    // Wrong key, tampered ciphertext, or unrecognised format.
+    return { ok: false, error: "Could not decrypt the stored ID." };
+  }
+
+  // Audit the access (best-effort — never block the reveal on logging).
+  const { error: logError } = await admin
+    .from("kyc_access_log")
+    .insert({ application_id: id, accessed_by: ctx.user.id });
+  if (logError) {
+    console.error("kyc_access_log insert failed:", logError.message);
+  }
+
+  return { ok: true, idNumber };
 }
 
 export async function rejectPanditApplication(
