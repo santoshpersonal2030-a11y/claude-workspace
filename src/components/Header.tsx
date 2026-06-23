@@ -5,6 +5,7 @@ import HeaderAuth from "@/components/HeaderAuth";
 import CartButton from "@/components/CartButton";
 import WishlistNavButton from "@/components/WishlistNavButton";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
+import NotificationBell from "@/components/NotificationBell";
 import { useT } from "@/components/LanguageProvider";
 
 const navLinks = [
@@ -50,6 +51,7 @@ export default function Header() {
 
         <div className="flex items-center gap-3">
           <LanguageSwitcher className="hidden sm:flex" />
+          <NotificationBell />
           <WishlistNavButton />
           <CartButton />
           <HeaderAuth />

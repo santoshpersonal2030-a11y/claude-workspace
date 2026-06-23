@@ -7,6 +7,7 @@ const tabs = [
   { href: "/priest", label: "Dashboard" },
   { href: "/priest/calendar", label: "Calendar" },
   { href: "/priest/availability", label: "Availability" },
+  { href: "/priest/messages", label: "Messages" },
   { href: "/priest/payslips", label: "Payslips" },
 ];
 

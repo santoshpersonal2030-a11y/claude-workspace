@@ -4,6 +4,7 @@ import { notFound, redirect } from "next/navigation";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import BookingStatusTracker from "@/components/BookingStatusTracker";
+import BookingChat from "@/components/BookingChat";
 import PayPendingBooking from "@/components/PayPendingBooking";
 import { formatINR, timeSlots } from "@/lib/poojas";
 import { createClient } from "@/lib/supabase/server";
@@ -308,6 +309,10 @@ export default async function BookingDetailPage({
               </form>
             </div>
           )}
+
+          <div className="mt-8">
+            <BookingChat bookingId={booking.id} />
+          </div>
         </section>
       </main>
       <Footer />

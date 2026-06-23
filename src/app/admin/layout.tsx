@@ -23,6 +23,7 @@ const tabs: { href: string; label: string; cap?: Capability }[] = [
   { href: "/admin/rewards", label: "Rewards", cap: "rewards" },
   { href: "/admin/coverage", label: "Coverage", cap: "coverage" },
   { href: "/admin/messages", label: "Messages", cap: "messages" },
+  { href: "/admin/support", label: "Support inbox", cap: "messages" },
   { href: "/admin/team", label: "Team", cap: "team" },
   { href: "/admin/settings", label: "Settings", cap: "settings" },
 ];
