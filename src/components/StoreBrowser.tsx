@@ -108,6 +108,7 @@ export default function StoreBrowser({
           <input
             type="search"
             value={query}
+            aria-label={t("shop.searchProducts")}
             onChange={(e) => setQuery(e.target.value)}
             placeholder={t("shop.searchProducts")}
             className="w-full rounded-full border border-saffron-200 bg-white py-2.5 pl-10 pr-4 text-sm outline-none focus:border-saffron-400 focus:ring-2 focus:ring-saffron-100"

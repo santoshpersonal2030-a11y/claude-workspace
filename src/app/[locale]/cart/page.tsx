@@ -356,6 +356,7 @@ export default function CartPage() {
                     <div className="flex gap-2">
                       <input
                         value={couponInput}
+                        aria-label={t("cart.couponPlaceholder")}
                         onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
                         placeholder={t("cart.couponPlaceholder")}
                         className="w-full rounded-lg border border-saffron-200 bg-cream px-3 py-2 text-sm uppercase outline-none focus:border-saffron-400"
@@ -409,6 +410,7 @@ export default function CartPage() {
                       )}
                       <input
                         type="text"
+                        aria-label={t("cart.fullName")}
                         placeholder={t("cart.fullName")}
                         value={delivery.name}
                         onChange={(e) =>
@@ -418,6 +420,7 @@ export default function CartPage() {
                       />
                       <input
                         type="tel"
+                        aria-label={t("cart.phone")}
                         placeholder={t("cart.phone")}
                         value={delivery.phone}
                         onChange={(e) =>
@@ -426,6 +429,7 @@ export default function CartPage() {
                         className="w-full rounded-xl border border-saffron-200 bg-cream px-3 py-2.5 text-sm outline-none focus:border-saffron-400 focus:ring-2 focus:ring-saffron-100"
                       />
                       <textarea
+                        aria-label={t("cart.deliveryAddress")}
                         placeholder={t("cart.deliveryAddress")}
                         rows={2}
                         value={delivery.address}
@@ -437,6 +441,7 @@ export default function CartPage() {
                       <div className="flex gap-3">
                         <input
                           type="text"
+                          aria-label={t("cart.cityPlaceholder")}
                           placeholder={t("cart.cityPlaceholder")}
                           value={delivery.city}
                           onChange={(e) =>
@@ -446,6 +451,7 @@ export default function CartPage() {
                         />
                         <input
                           type="text"
+                          aria-label={t("cart.pinPlaceholder")}
                           placeholder={t("cart.pinPlaceholder")}
                           value={delivery.pincode}
                           onChange={(e) =>
@@ -459,6 +465,7 @@ export default function CartPage() {
                       </div>
                       <select
                         value={delivery.state}
+                        aria-label={t("cart.selectState")}
                         onChange={(e) =>
                           setDelivery({ ...delivery, state: e.target.value })
                         }
@@ -473,6 +480,7 @@ export default function CartPage() {
                       </select>
                       <input
                         type="text"
+                        aria-label={t("cart.gstin")}
                         placeholder={t("cart.gstin")}
                         value={delivery.gstin}
                         onChange={(e) =>
