@@ -1,9 +1,10 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Marcellus, Mukta } from "next/font/google";
 import "./globals.css";
 import Providers from "./providers";
 import AnnouncementBar from "@/components/AnnouncementBar";
 import ReferralTracker from "@/components/ReferralTracker";
+import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
 
 const heading = Marcellus({
   weight: "400",
@@ -53,6 +54,19 @@ export const metadata: Metadata = {
     description:
       "Book verified Pandits for any ceremony and order authentic pooja samagri, delivered to your door.",
   },
+  appleWebApp: {
+    capable: true,
+    title: "BookMyPoojari",
+    statusBarStyle: "default",
+  },
+  icons: {
+    icon: "/icon.svg",
+    apple: "/icon.svg",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#d4540a",
 };
 
 export default function RootLayout({
@@ -68,6 +82,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         <AnnouncementBar />
         <ReferralTracker />
+        <ServiceWorkerRegister />
         <Providers>{children}</Providers>
       </body>
     </html>
