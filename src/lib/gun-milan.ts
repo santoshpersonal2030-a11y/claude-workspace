@@ -21,16 +21,36 @@ const ni = (n: number) => Math.min(26, Math.max(0, n - 1)); // nakshatra → 0-b
 // Yoni animal (14 yonis): 0 Horse,1 Elephant,2 Sheep,3 Serpent,4 Dog,5 Cat,
 // 6 Rat,7 Cow,8 Buffalo,9 Tiger,10 Deer,11 Monkey,12 Mongoose,13 Lion.
 const NAK_YONI = [0,1,2,3,3,4,5,2,5,6,6,7,8,9,8,9,10,10,4,11,12,11,13,0,13,7,1];
-// Enemy yoni pairs (mutual 0 score).
-const YONI_ENEMY: Record<number, number> = {
-  7: 9, 9: 7, // Cow–Tiger
-  1: 13, 13: 1, // Elephant–Lion
-  0: 8, 8: 0, // Horse–Buffalo
-  2: 11, 11: 2, // Sheep–Monkey
-  3: 12, 12: 3, // Serpent–Mongoose
-  4: 10, 10: 4, // Dog–Deer
-  5: 6, 6: 5, // Cat–Rat
-};
+// Full (symmetric) Yoni-koota points table, 0–4. Diagonal (same yoni) = 4; the
+// seven classical "great enemy" pairs = 0; the rest follow the standard table.
+// (Regional texts vary by a point in a few intermediate cells.)
+export const YONI_MATRIX: number[][] = [
+  // H  E  Sh Se D  C  R  Co Bu T  De Mo Mn L
+  [4, 3, 2, 3, 2, 2, 2, 1, 0, 1, 3, 2, 2, 1], // Horse
+  [3, 4, 3, 3, 2, 2, 2, 2, 2, 1, 2, 3, 2, 0], // Elephant
+  [2, 3, 4, 3, 2, 3, 2, 3, 3, 1, 2, 0, 3, 2], // Sheep
+  [3, 3, 3, 4, 2, 2, 1, 2, 2, 2, 2, 2, 0, 2], // Serpent
+  [2, 2, 2, 2, 4, 2, 1, 2, 2, 1, 0, 2, 2, 1], // Dog
+  [2, 2, 3, 2, 2, 4, 0, 2, 2, 2, 3, 3, 2, 2], // Cat
+  [2, 2, 2, 1, 1, 0, 4, 2, 2, 2, 2, 2, 3, 2], // Rat
+  [1, 2, 3, 2, 2, 2, 2, 4, 3, 0, 3, 2, 2, 2], // Cow
+  [0, 2, 3, 2, 2, 2, 2, 3, 4, 2, 2, 2, 2, 2], // Buffalo
+  [1, 1, 1, 2, 1, 2, 2, 0, 2, 4, 2, 1, 2, 3], // Tiger
+  [3, 2, 2, 2, 0, 3, 2, 3, 2, 2, 4, 2, 2, 1], // Deer
+  [2, 3, 0, 2, 2, 3, 2, 2, 2, 1, 2, 4, 3, 2], // Monkey
+  [2, 2, 3, 0, 2, 2, 3, 2, 2, 2, 2, 3, 4, 2], // Mongoose
+  [1, 0, 2, 2, 1, 2, 2, 2, 2, 3, 1, 2, 2, 4], // Lion
+];
+// Vashya groups: 0 Chatushpada (quadruped), 1 Manava (human), 2 Jalachara
+// (aquatic), 3 Vanachara (wild), 4 Keeta (insect). Standard group matrix, max 2.
+export const VASHYA_MATRIX: number[][] = [
+  // Chat Man  Jal  Van  Kee
+  [2, 1, 1, 0, 1], // Chatushpada
+  [1, 2, 1, 1, 1], // Manava
+  [1, 1, 2, 0, 1], // Jalachara
+  [1, 1, 1, 2, 0], // Vanachara
+  [1, 1, 1, 0, 2], // Keeta
+];
 // Gana: 0 Deva, 1 Manushya, 2 Rakshasa.
 const NAK_GANA = [0,1,2,1,0,1,0,0,2,2,1,1,0,2,0,2,0,2,2,1,1,0,2,2,1,1,0];
 // Nadi: 0 Aadi, 1 Madhya, 2 Antya.
@@ -64,9 +84,7 @@ function varnaKoot(boy: Person, girl: Person): Koot {
 function vashyaKoot(boy: Person, girl: Person): Koot {
   const a = RASHI_VASHYA[boy.rashi];
   const b = RASHI_VASHYA[girl.rashi];
-  // Indicative: full points for the same group, partial otherwise (Vanchara is
-  // the least controllable).
-  const score = a === b ? 2 : a === 3 || b === 3 ? 0.5 : 1;
+  const score = VASHYA_MATRIX[a][b];
   return { name: "Vashya", max: 2, score, note: "Mutual control & magnetism" };
 }
 
@@ -85,7 +103,7 @@ function taraKoot(boy: Person, girl: Person): Koot {
 function yoniKoot(boy: Person, girl: Person): Koot {
   const a = NAK_YONI[ni(boy.nakshatra)];
   const b = NAK_YONI[ni(girl.nakshatra)];
-  const score = a === b ? 4 : YONI_ENEMY[a] === b ? 0 : 2;
+  const score = YONI_MATRIX[a][b];
   return { name: "Yoni", max: 4, score, note: "Intimacy & temperament" };
 }
 
