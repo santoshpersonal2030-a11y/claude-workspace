@@ -1,7 +1,11 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { updateBookingDetails, nudgePriest } from "@/app/admin/actions";
+import {
+  updateBookingDetails,
+  nudgePriest,
+  acceptProposal,
+} from "@/app/admin/actions";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { Constants } from "@/lib/database.types";
 import { PRIEST_EVENT_LABEL, type PriestEventAction } from "@/lib/booking-events";
@@ -22,6 +26,7 @@ const EVENT_DOT: Record<PriestEventAction, string> = {
   assigned: "bg-amber-400",
   accepted: "bg-emerald-500",
   declined: "bg-red-500",
+  proposed: "bg-sky-400",
 };
 
 const inputClass =
@@ -40,7 +45,7 @@ export default async function AdminBookingDetailPage({
       admin
         .from("bookings")
         .select(
-          "id, status, booking_date, time_slot, language, address, city, pincode, notes, pandit_id, priest_response, priest_responded_at, last_nudged_at, samagri_kit, service_price, samagri_price, total_amount, created_at, poojas(name, emoji), preferred:pandits!bookings_preferred_pandit_id_fkey(full_name), assigned:pandits!bookings_pandit_id_fkey(full_name)",
+          "id, status, booking_date, time_slot, language, address, city, pincode, notes, pandit_id, priest_response, priest_responded_at, proposed_date, proposed_time, last_nudged_at, samagri_kit, service_price, samagri_price, total_amount, created_at, poojas(name, emoji), preferred:pandits!bookings_preferred_pandit_id_fkey(full_name), assigned:pandits!bookings_pandit_id_fkey(full_name)",
         )
         .eq("id", id)
         .maybeSingle(),
@@ -271,6 +276,10 @@ export default async function AdminBookingDetailPage({
                 ? ` · ${formatStamp(booking.priest_responded_at)}`
                 : ""}
             </span>
+          ) : booking.priest_response === "proposed" ? (
+            <span className="text-sky-700">
+              💬 {booking.assigned?.full_name ?? "priest"} proposed a new time
+            </span>
           ) : (
             <span className="text-amber-700">
               ⏳ Awaiting {booking.assigned?.full_name ?? "priest"}&apos;s
@@ -278,6 +287,29 @@ export default async function AdminBookingDetailPage({
             </span>
           )}
         </p>
+
+        {booking.priest_response === "proposed" && booking.proposed_date && (
+          <div className="mt-3 flex flex-wrap items-center gap-3 rounded-xl border border-sky-200 bg-sky-50 p-3">
+            <span className="text-sm text-sky-900">
+              Proposed:{" "}
+              <strong>
+                {booking.proposed_date} · {(booking.proposed_time ?? "").slice(0, 5)}
+              </strong>
+            </span>
+            <form action={acceptProposal}>
+              <input type="hidden" name="id" value={booking.id} />
+              <button
+                type="submit"
+                className="rounded-full bg-emerald-600 px-4 py-1.5 text-xs font-semibold text-white hover:bg-emerald-700"
+              >
+                ✓ Accept proposed time
+              </button>
+            </form>
+            <span className="text-xs text-foreground/50">
+              …or reassign the Pandit above.
+            </span>
+          </div>
+        )}
 
         {history.length > 0 && (
           <ol className="mt-4 space-y-3 border-l border-saffron-100 pl-4">

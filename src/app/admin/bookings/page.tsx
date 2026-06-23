@@ -71,7 +71,7 @@ export default async function AdminBookingsPage({
 
   // Priest-response triage: awaiting the assigned priest, accepted, or declined
   // and now unassigned (needs reassignment).
-  type Resp = "awaiting" | "accepted" | "reassign" | "other";
+  type Resp = "awaiting" | "accepted" | "proposed" | "reassign" | "other";
   const respState = (b: {
     pandit_id: string | null;
     priest_response: string;
@@ -79,16 +79,17 @@ export default async function AdminBookingsPage({
   }): Resp => {
     if (b.pandit_id && b.priest_response === "pending") return "awaiting";
     if (b.pandit_id && b.priest_response === "accepted") return "accepted";
+    if (b.pandit_id && b.priest_response === "proposed") return "proposed";
     if (!b.pandit_id && b.declined_by?.full_name) return "reassign";
     return "other";
   };
   const allBookings = bookings.data ?? [];
-  const counts = { awaiting: 0, accepted: 0, reassign: 0 };
+  const counts = { awaiting: 0, accepted: 0, proposed: 0, reassign: 0 };
   for (const b of allBookings) {
     const s = respState(b);
     if (s !== "other") counts[s] += 1;
   }
-  const RESP_FILTERS = ["awaiting", "accepted", "reassign"] as const;
+  const RESP_FILTERS = ["awaiting", "accepted", "proposed", "reassign"] as const;
   const activeResp = (RESP_FILTERS as readonly string[]).includes(presp ?? "")
     ? (presp as Resp)
     : null;
@@ -100,6 +101,7 @@ export default async function AdminBookingsPage({
     { key: null, label: `All (${allBookings.length})` },
     { key: "awaiting", label: `⏳ Awaiting (${counts.awaiting})` },
     { key: "accepted", label: `✓ Accepted (${counts.accepted})` },
+    { key: "proposed", label: `💬 Proposed (${counts.proposed})` },
     { key: "reassign", label: `✕ Needs reassign (${counts.reassign})` },
   ];
 
@@ -159,6 +161,12 @@ export default async function AdminBookingsPage({
                         ? ` · ⏰ confirmed ${formatConfirmedTime(b.starts_at)}`
                         : ""}
                     </div>
+                    {b.pandit_id && b.priest_response === "proposed" && (
+                      <div className="text-xs font-medium text-sky-700">
+                        💬 {b.assigned?.full_name ?? "Priest"} proposed a new
+                        time — review
+                      </div>
+                    )}
                     {b.pandit_id && b.priest_response === "accepted" && (
                       <div className="text-xs font-medium text-emerald-700">
                         ✓ Accepted by {b.assigned?.full_name ?? "priest"}

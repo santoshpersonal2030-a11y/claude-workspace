@@ -229,6 +229,42 @@ export async function notifyAdminBookingDeclined(
   }
 }
 
+// Notifies the ops inbox that a priest proposed an alternate time, for the admin
+// to accept (or reassign). Best-effort.
+export async function notifyAdminProposal(
+  bookingId: string,
+  panditName: string,
+  date: string,
+  time: string,
+): Promise<void> {
+  try {
+    const admin = createAdminClient();
+    const { data: booking } = await admin
+      .from("bookings")
+      .select("id, booking_date, time_slot, poojas(name)")
+      .eq("id", bookingId)
+      .maybeSingle();
+    if (!booking) return;
+
+    const company = await getCompany();
+    const to = company.email || process.env.EMAIL_FROM;
+    if (!to) return;
+
+    await sendEmail({
+      to,
+      subject: "A priest proposed a new time — review",
+      html: emailLayout(
+        "Priest proposed a new time",
+        `<p><strong>${panditName}</strong> can't do the assigned slot for <strong>${booking.poojas?.name ?? "a booking"}</strong> (${booking.booking_date} ${(booking.time_slot ?? "").slice(0, 5)}) and proposes:</p>
+         <p style="font-size:18px;color:#7a1f1f"><strong>${date} · ${time}</strong></p>
+         <a href="${siteUrl}/admin/bookings/${bookingId}" style="display:inline-block;background:#7a1f1f;color:#fff;text-decoration:none;padding:10px 20px;border-radius:999px">Review in admin →</a>`,
+      ),
+    });
+  } catch (err) {
+    console.error("notifyAdminProposal failed:", err);
+  }
+}
+
 // Notifies the customer that their assigned priest has accepted, so the booking
 // is now confirmed with a named Pandit. Email + (best-effort) SMS. Triggered
 // when a priest accepts in their portal. Never throws into the caller.

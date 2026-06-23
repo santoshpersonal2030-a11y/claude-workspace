@@ -1,8 +1,13 @@
 import Link from "next/link";
 
 import { getPriestPandit } from "@/lib/priest";
-import { acceptMyBooking, declineMyBooking } from "@/app/priest/actions";
+import {
+  acceptMyBooking,
+  declineMyBooking,
+  proposeAltTime,
+} from "@/app/priest/actions";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { timeSlots } from "@/lib/poojas";
 import { PRIEST_EVENT_LABEL, type PriestEventAction } from "@/lib/booking-events";
 
 function formatStamp(value: string): string {
@@ -19,6 +24,7 @@ const EVENT_DOT: Record<PriestEventAction, string> = {
   assigned: "bg-amber-400",
   accepted: "bg-emerald-500",
   declined: "bg-red-500",
+  proposed: "bg-sky-400",
 };
 
 const MONTH_NAMES = [
@@ -207,6 +213,43 @@ export default async function PriestCalendarPage({
                     </button>
                   </form>
                 </div>
+
+                <details className="mt-2">
+                  <summary className="cursor-pointer text-xs font-medium text-saffron-700">
+                    Propose another time
+                  </summary>
+                  <form
+                    action={proposeAltTime}
+                    className="mt-2 flex flex-wrap items-end gap-2"
+                  >
+                    <input type="hidden" name="booking_id" value={b.id} />
+                    <input
+                      type="date"
+                      name="proposed_date"
+                      required
+                      defaultValue={b.booking_date}
+                      className="rounded-lg border border-saffron-200 bg-cream px-2 py-1.5 text-xs outline-none focus:border-saffron-400"
+                    />
+                    <select
+                      name="proposed_time"
+                      required
+                      defaultValue={b.time_slot}
+                      className="rounded-lg border border-saffron-200 bg-cream px-2 py-1.5 text-xs outline-none focus:border-saffron-400"
+                    >
+                      {timeSlots.map((t) => (
+                        <option key={t} value={t}>
+                          {t}
+                        </option>
+                      ))}
+                    </select>
+                    <button
+                      type="submit"
+                      className="rounded-full border border-saffron-300 px-4 py-1.5 text-xs font-semibold text-saffron-700 hover:bg-saffron-50"
+                    >
+                      Propose
+                    </button>
+                  </form>
+                </details>
               </div>
             ))}
           </div>

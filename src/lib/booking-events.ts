@@ -5,12 +5,17 @@
 
 import { createAdminClient } from "@/lib/supabase/admin";
 
-export type PriestEventAction = "assigned" | "accepted" | "declined";
+export type PriestEventAction =
+  | "assigned"
+  | "accepted"
+  | "declined"
+  | "proposed";
 
 export const PRIEST_EVENT_LABEL: Record<PriestEventAction, string> = {
   assigned: "Assigned",
   accepted: "Accepted",
   declined: "Declined",
+  proposed: "Proposed a new time",
 };
 
 export async function logPriestEvent(args: {

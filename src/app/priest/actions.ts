@@ -9,6 +9,7 @@ import {
   notifyAdminBookingDeclined,
   notifyCustomerPriestAccepted,
   notifyCustomerReassigning,
+  notifyAdminProposal,
 } from "@/lib/notifications";
 import { logPriestEvent } from "@/lib/booking-events";
 
@@ -161,6 +162,44 @@ export async function declineMyBooking(formData: FormData): Promise<void> {
     });
     await notifyAdminBookingDeclined(id, pandit.full_name, reason);
     await notifyCustomerReassigning(id);
+  }
+
+  revalidatePath("/priest/calendar");
+  revalidatePath("/priest");
+}
+
+// A priest who can't make the assigned slot proposes an alternate date/time
+// (a counter-offer) for the admin to accept or reassign. Filtered to their own
+// pending assignment.
+export async function proposeAltTime(formData: FormData): Promise<void> {
+  const pandit = await assertPriest();
+  const admin = createAdminClient();
+  const id = str(formData.get("booking_id"));
+  const date = str(formData.get("proposed_date"));
+  const time = str(formData.get("proposed_time"));
+  if (!id || !date || !time) return;
+
+  const { data: updated } = await admin
+    .from("bookings")
+    .update({
+      priest_response: "proposed",
+      proposed_date: date,
+      proposed_time: time,
+      priest_responded_at: new Date().toISOString(),
+    })
+    .eq("id", id)
+    .eq("pandit_id", pandit.id)
+    .eq("priest_response", "pending")
+    .select("id");
+
+  if (updated && updated.length > 0) {
+    await logPriestEvent({
+      bookingId: id,
+      panditId: pandit.id,
+      action: "proposed",
+      reason: `${date} ${time}`,
+    });
+    await notifyAdminProposal(id, pandit.full_name, date, time);
   }
 
   revalidatePath("/priest/calendar");

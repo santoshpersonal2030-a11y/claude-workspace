@@ -79,6 +79,8 @@ export type Database = {
           preferred_pandit_id: string | null
           priest_responded_at: string | null
           priest_response: Database["public"]["Enums"]["priest_response"]
+          proposed_date: string | null
+          proposed_time: string | null
           samagri_kit: boolean
           samagri_price: number
           service_price: number
@@ -113,6 +115,8 @@ export type Database = {
           preferred_pandit_id?: string | null
           priest_responded_at?: string | null
           priest_response?: Database["public"]["Enums"]["priest_response"]
+          proposed_date?: string | null
+          proposed_time?: string | null
           samagri_kit?: boolean
           samagri_price?: number
           service_price: number
@@ -147,6 +151,8 @@ export type Database = {
           preferred_pandit_id?: string | null
           priest_responded_at?: string | null
           priest_response?: Database["public"]["Enums"]["priest_response"]
+          proposed_date?: string | null
+          proposed_time?: string | null
           samagri_kit?: boolean
           samagri_price?: number
           service_price?: number
@@ -1412,7 +1418,7 @@ export type Database = {
         | "Life Event"
         | "Remedial"
         | "Ancestral"
-      priest_response: "pending" | "accepted" | "declined"
+      priest_response: "pending" | "accepted" | "declined" | "proposed"
       ritual_type:
         | "Sanskar"
         | "Pooja"
@@ -1587,7 +1593,7 @@ export const Constants = {
         "Remedial",
         "Ancestral",
       ],
-      priest_response: ["pending", "accepted", "declined"],
+      priest_response: ["pending", "accepted", "declined", "proposed"],
       ritual_type: [
         "Sanskar",
         "Pooja",

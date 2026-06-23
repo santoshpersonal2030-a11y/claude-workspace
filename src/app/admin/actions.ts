@@ -22,6 +22,7 @@ import {
   sendRefundConfirmation,
   sendCreditNoteEmail,
   notifyPriestAssignment,
+  notifyCustomerPriestAccepted,
 } from "@/lib/notifications";
 import { logPriestEvent } from "@/lib/booking-events";
 import { NUDGE_COOLDOWN_MIN } from "@/lib/nudge";
@@ -41,6 +42,8 @@ const RESET_PRIEST_RESPONSE = {
   priest_responded_at: null,
   decline_reason: null,
   declined_by_pandit_id: null,
+  proposed_date: null,
+  proposed_time: null,
 };
 
 function num(value: FormDataEntryValue | null): number {
@@ -837,6 +840,43 @@ export async function nudgePriest(formData: FormData): Promise<void> {
     .from("bookings")
     .update({ last_nudged_at: new Date().toISOString() })
     .eq("id", id);
+  revalidatePath("/admin/bookings");
+  revalidatePath(`/admin/bookings/${id}`);
+}
+
+// Admin accepts a priest's counter-offer: apply the proposed date/time, mark the
+// priest accepted, clear the proposal, and tell the customer their Pandit is
+// confirmed for the new time.
+export async function acceptProposal(formData: FormData): Promise<void> {
+  await assertAdmin();
+  const admin = createAdminClient();
+  const id = str(formData.get("id"));
+  if (!id) return;
+
+  const { data: b } = await admin
+    .from("bookings")
+    .select("id, pandit_id, priest_response, proposed_date, proposed_time, time_slot")
+    .eq("id", id)
+    .maybeSingle();
+  if (!b || b.priest_response !== "proposed" || !b.proposed_date) return;
+
+  await admin
+    .from("bookings")
+    .update({
+      booking_date: b.proposed_date,
+      time_slot: b.proposed_time ?? b.time_slot,
+      priest_response: "accepted",
+      proposed_date: null,
+      proposed_time: null,
+      starts_at: null,
+      ends_at: null,
+      priest_responded_at: new Date().toISOString(),
+    })
+    .eq("id", id);
+
+  await logPriestEvent({ bookingId: id, panditId: b.pandit_id, action: "accepted" });
+  await notifyCustomerPriestAccepted(id);
+
   revalidatePath("/admin/bookings");
   revalidatePath(`/admin/bookings/${id}`);
 }
