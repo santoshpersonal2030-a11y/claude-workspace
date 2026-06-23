@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import ContentPage from "@/components/ContentPage";
+import { getDictionary, isLocale, DEFAULT_LOCALE } from "@/lib/i18n";
 
 export const metadata: Metadata = {
   title: "How It Works",
@@ -8,35 +9,23 @@ export const metadata: Metadata = {
     "Booking a verified Pandit on BookMyPoojari takes four simple steps — choose your pooja, pick a date, pay securely, and we handle the rest.",
 };
 
-const steps = [
-  {
-    emoji: "📿",
-    title: "Choose your pooja",
-    body: "Browse our catalog of ceremonies — from Satyanarayan Katha to Griha Pravesh — and pick the one you need. Each listing explains what's included.",
-  },
-  {
-    emoji: "📅",
-    title: "Pick a date & add samagri",
-    body: "Select an auspicious date and time slot, your preferred language, and optionally add a ready-made samagri kit so you don't have to shop for items.",
-  },
-  {
-    emoji: "💳",
-    title: "Pay securely",
-    body: "Sign in and pay online via Razorpay — UPI, cards, or net banking. Your booking is confirmed instantly with a receipt.",
-  },
-  {
-    emoji: "🙏",
-    title: "We assign a verified Pandit",
-    body: "We match you with an experienced, verified priest for your ceremony and location. They arrive prepared, on time, and perform the rituals with devotion.",
-  },
-];
+export default async function HowItWorksPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const { t } = getDictionary(isLocale(locale) ? locale : DEFAULT_LOCALE);
 
-export default function HowItWorksPage() {
+  const steps = [
+    { emoji: "📿", title: t("hiw.step1.title"), body: t("hiw.step1.body") },
+    { emoji: "📅", title: t("hiw.step2.title"), body: t("hiw.step2.body") },
+    { emoji: "💳", title: t("hiw.step3.title"), body: t("hiw.step3.body") },
+    { emoji: "🙏", title: t("hiw.step4.title"), body: t("hiw.step4.body") },
+  ];
+
   return (
-    <ContentPage
-      title="How It Works"
-      intro="Booking an authentic ceremony is simple — here's what to expect."
-    >
+    <ContentPage title={t("nav.howItWorks")} intro={t("hiw.intro")}>
       <ol className="space-y-6">
         {steps.map((step, i) => (
           <li
@@ -56,16 +45,14 @@ export default function HowItWorksPage() {
 
       <div className="mt-10 rounded-2xl bg-saffron-50 p-6 text-center">
         <h3 className="font-heading text-xl text-maroon-700">
-          Ready to begin?
+          {t("hiw.ready")}
         </h3>
-        <p className="mt-1 text-sm text-foreground/65">
-          Find the right ceremony for your occasion.
-        </p>
+        <p className="mt-1 text-sm text-foreground/65">{t("hiw.readyText")}</p>
         <Link
           href="/poojas"
           className="mt-4 inline-block rounded-full bg-saffron-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-saffron-700"
         >
-          Browse poojas
+          {t("hiw.browse")}
         </Link>
       </div>
     </ContentPage>

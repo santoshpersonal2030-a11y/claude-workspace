@@ -4,6 +4,7 @@ import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { upcomingVrats } from "@/lib/muhurat-engine";
+import { getDictionary, isLocale, DEFAULT_LOCALE } from "@/lib/i18n";
 
 export const metadata: Metadata = {
   title: "Hindu Festival & Vrat Calendar — Ekadashi, Purnima, Amavasya",
@@ -23,14 +24,15 @@ const MONTHS = [
   "July", "August", "September", "October", "November", "December",
 ];
 
-// What to do on each observance — the pooja we'd suggest booking.
-const VRAT_POOJA: Record<string, { emoji: string; blurb: string; slug: string; cta: string }> = {
-  Ekadashi: { emoji: "🪔", blurb: "A Vishnu vrat day — fasting and worship of Lord Vishnu.", slug: "satyanarayan-katha", cta: "Satyanarayan Katha" },
-  Purnima: { emoji: "🌕", blurb: "The full moon — auspicious for Satyanarayan Katha and charity.", slug: "satyanarayan-katha", cta: "Satyanarayan Katha" },
-  Amavasya: { emoji: "🌑", blurb: "The new moon — for ancestral tarpan and shraddh.", slug: "tarpan", cta: "Tarpan" },
-  "Sankashti Chaturthi": { emoji: "🐘", blurb: "Krishna-paksha Chaturthi — a Ganesha vrat for removing obstacles.", slug: "ganesh-puja", cta: "Ganesh Puja" },
-  "Vinayaka Chaturthi": { emoji: "🐘", blurb: "Shukla-paksha Chaturthi — worship of Lord Ganesha.", slug: "ganesh-puja", cta: "Ganesh Puja" },
-  "Pradosh Vrat": { emoji: "🕉️", blurb: "Trayodashi twilight — a Shiva vrat, ideal for Rudrabhishek.", slug: "rudrabhishek", cta: "Rudrabhishek" },
+// What to do on each observance — the pooja we'd suggest booking. The blurb is
+// a dictionary key, translated at render time.
+const VRAT_POOJA: Record<string, { emoji: string; blurbKey: string; slug: string; cta: string }> = {
+  Ekadashi: { emoji: "🪔", blurbKey: "fes.blurb.ekadashi", slug: "satyanarayan-katha", cta: "Satyanarayan Katha" },
+  Purnima: { emoji: "🌕", blurbKey: "fes.blurb.purnima", slug: "satyanarayan-katha", cta: "Satyanarayan Katha" },
+  Amavasya: { emoji: "🌑", blurbKey: "fes.blurb.amavasya", slug: "tarpan", cta: "Tarpan" },
+  "Sankashti Chaturthi": { emoji: "🐘", blurbKey: "fes.blurb.sankashti", slug: "ganesh-puja", cta: "Ganesh Puja" },
+  "Vinayaka Chaturthi": { emoji: "🐘", blurbKey: "fes.blurb.vinayaka", slug: "ganesh-puja", cta: "Ganesh Puja" },
+  "Pradosh Vrat": { emoji: "🕉️", blurbKey: "fes.blurb.pradosh", slug: "rudrabhishek", cta: "Rudrabhishek" },
 };
 
 function fmt(date: string): string {
@@ -40,7 +42,13 @@ function fmt(date: string): string {
   return `${W}, ${d} ${MONTHS[m - 1]} ${y}`;
 }
 
-export default function FestivalsPage() {
+export default async function FestivalsPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const { t } = getDictionary(isLocale(locale) ? locale : DEFAULT_LOCALE);
   const vrats = upcomingVrats(todayIST(), 120);
 
   return (
@@ -51,17 +59,16 @@ export default function FestivalsPage() {
           <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
             <nav className="text-sm text-foreground/60">
               <Link href="/" className="hover:text-saffron-700">
-                Home
+                {t("common.home")}
               </Link>
               <span className="mx-2">/</span>
-              <span className="text-saffron-700">Festivals &amp; Vrats</span>
+              <span className="text-saffron-700">{t("fes.crumb")}</span>
             </nav>
             <h1 className="mt-3 font-heading text-4xl text-maroon-800">
-              Festival &amp; Vrat Calendar
+              {t("fes.h1")}
             </h1>
             <p className="mt-2 max-w-2xl text-lg text-foreground/70">
-              Upcoming vrat and festival days, computed from the panchang — and
-              the pooja our verified Pandits can perform for each.
+              {t("fes.subtitle")}
             </p>
           </div>
         </section>
@@ -83,7 +90,7 @@ export default function FestivalsPage() {
                     <div className="text-sm text-foreground/55">{fmt(v.date)}</div>
                     {info && (
                       <p className="mt-1 text-sm text-foreground/65">
-                        {info.blurb}
+                        {t(info.blurbKey)}
                       </p>
                     )}
                   </div>
@@ -92,7 +99,7 @@ export default function FestivalsPage() {
                       href={`/poojas/${info.slug}`}
                       className="whitespace-nowrap rounded-full bg-saffron-600 px-4 py-2 text-sm font-semibold text-white hover:bg-saffron-700"
                     >
-                      Book {info.cta} →
+                      {t("fes.book", { cta: info.cta })}
                     </Link>
                   )}
                 </div>
@@ -101,12 +108,11 @@ export default function FestivalsPage() {
           </div>
 
           <p className="mt-8 text-xs text-foreground/45">
-            Dates are computed from astronomical formulae for New Delhi and are
-            indicative; regional panchangs may differ by a day. See the{" "}
+            {t("fes.note1")}{" "}
             <Link href="/panchang" className="text-saffron-700 hover:underline">
-              daily panchang
+              {t("fes.noteLink")}
             </Link>{" "}
-            for exact tithi timings.
+            {t("fes.note2")}
           </p>
         </section>
       </main>

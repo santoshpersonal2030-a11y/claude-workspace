@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import { lifeEvents } from "@/lib/ceremonies";
 import { getPoojas } from "@/lib/queries";
 import { formatINR } from "@/lib/poojas";
+import { getDictionary, isLocale, DEFAULT_LOCALE } from "@/lib/i18n";
 
 export const metadata: Metadata = {
   title: "Ceremonies — Birth, Marriage & Antim Sanskar",
@@ -15,7 +16,13 @@ export const metadata: Metadata = {
 
 export const revalidate = 300;
 
-export default async function CeremoniesPage() {
+export default async function CeremoniesPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const { t } = getDictionary(isLocale(locale) ? locale : DEFAULT_LOCALE);
   const poojas = await getPoojas();
   const priceOf = (slug: string) =>
     poojas.find((p) => p.slug === slug)?.startingPrice ?? 0;
@@ -28,18 +35,16 @@ export default async function CeremoniesPage() {
           <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
             <nav className="text-sm text-foreground/60">
               <Link href="/" className="hover:text-saffron-700">
-                Home
+                {t("common.home")}
               </Link>
               <span className="mx-2">/</span>
-              <span className="text-saffron-700">Ceremonies</span>
+              <span className="text-saffron-700">{t("cer.crumb")}</span>
             </nav>
             <h1 className="mt-3 font-heading text-4xl text-maroon-800">
-              Ceremonies for every milestone
+              {t("cer.h1")}
             </h1>
             <p className="mt-3 max-w-2xl text-lg text-foreground/70">
-              From a newborn&apos;s naming to a wedding to the final rites — book
-              verified, experienced Pandits who guide your family through every
-              sanskar with authenticity and care.
+              {t("cer.subtitle")}
             </p>
           </div>
         </section>
@@ -67,11 +72,11 @@ export default async function CeremoniesPage() {
                   </p>
                   <div className="mt-5 flex items-center justify-between border-t border-saffron-50 pt-4">
                     <span className="text-sm text-foreground/60">
-                      {event.poojaSlugs.length} ceremonies
+                      {t("cer.count", { n: event.poojaSlugs.length })}
                       {Number.isFinite(from) && (
                         <>
                           {" "}
-                          · from{" "}
+                          · {t("cer.from")}{" "}
                           <span className="font-semibold text-foreground">
                             {formatINR(from)}
                           </span>
@@ -79,7 +84,7 @@ export default async function CeremoniesPage() {
                       )}
                     </span>
                     <span className="text-sm font-semibold text-saffron-700">
-                      Explore →
+                      {t("cer.explore")}
                     </span>
                   </div>
                 </Link>

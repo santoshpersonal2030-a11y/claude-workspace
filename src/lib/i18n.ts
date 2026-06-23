@@ -175,6 +175,58 @@ const en: Dict = {
   "shop.product": "{n} product",
   "shop.products": "{n} products",
   "shop.noMatch": "No products match your search. 🙏",
+
+  // How it works
+  "hiw.intro": "Booking an authentic ceremony is simple — here's what to expect.",
+  "hiw.step1.title": "Choose your pooja",
+  "hiw.step1.body": "Browse our catalog of ceremonies — from Satyanarayan Katha to Griha Pravesh — and pick the one you need. Each listing explains what's included.",
+  "hiw.step2.title": "Pick a date & add samagri",
+  "hiw.step2.body": "Select an auspicious date and time slot, your preferred language, and optionally add a ready-made samagri kit so you don't have to shop for items.",
+  "hiw.step3.title": "Pay securely",
+  "hiw.step3.body": "Sign in and pay online via Razorpay — UPI, cards, or net banking. Your booking is confirmed instantly with a receipt.",
+  "hiw.step4.title": "We assign a verified Pandit",
+  "hiw.step4.body": "We match you with an experienced, verified priest for your ceremony and location. They arrive prepared, on time, and perform the rituals with devotion.",
+  "hiw.ready": "Ready to begin?",
+  "hiw.readyText": "Find the right ceremony for your occasion.",
+  "hiw.browse": "Browse poojas",
+
+  // About
+  "about.h1": "About BookMyPoojari",
+  "about.intro": "Devotion, delivered — making authentic Hindu ceremonies accessible to every family.",
+  "about.p1": "BookMyPoojari was founded on a simple idea: finding a trustworthy, knowledgeable priest for an important ceremony should not be stressful. Families often spend days asking around for a Pandit, negotiating dakshina, and then separately running around to gather samagri.",
+  "about.p2": "We bring it all together in one place. Choose from a curated catalog of poojas, book a verified Pandit for your date and language, and add a ready-made samagri kit — all online, with secure payment and a clear receipt.",
+  "about.p3": "Our mission is to preserve the authenticity of tradition while making it effortless to honour it, wherever you are.",
+  "about.value1.title": "Authenticity",
+  "about.value1.body": "Every Pandit is verified for scriptural knowledge and experience, and rituals are performed as per Vedic tradition.",
+  "about.value2.title": "Convenience",
+  "about.value2.body": "Book a ceremony and order samagri in minutes — we handle the coordination so you can focus on the occasion.",
+  "about.value3.title": "Trust",
+  "about.value3.body": "Transparent pricing, secure payments, and a quality promise on every booking and order.",
+  "about.meetPandits": "Meet our Pandits",
+  "about.getInTouch": "Get in touch",
+
+  // Ceremonies
+  "cer.crumb": "Ceremonies",
+  "cer.h1": "Ceremonies for every milestone",
+  "cer.subtitle": "From a newborn's naming to a wedding to the final rites — book verified, experienced Pandits who guide your family through every sanskar with authenticity and care.",
+  "cer.count": "{n} ceremonies",
+  "cer.from": "from",
+  "cer.explore": "Explore →",
+
+  // Festivals & Vrats
+  "fes.crumb": "Festivals & Vrats",
+  "fes.h1": "Festival & Vrat Calendar",
+  "fes.subtitle": "Upcoming vrat and festival days, computed from the panchang — and the pooja our verified Pandits can perform for each.",
+  "fes.book": "Book {cta} →",
+  "fes.note1": "Dates are computed from astronomical formulae for New Delhi and are indicative; regional panchangs may differ by a day. See the",
+  "fes.noteLink": "daily panchang",
+  "fes.note2": "for exact tithi timings.",
+  "fes.blurb.ekadashi": "A Vishnu vrat day — fasting and worship of Lord Vishnu.",
+  "fes.blurb.purnima": "The full moon — auspicious for Satyanarayan Katha and charity.",
+  "fes.blurb.amavasya": "The new moon — for ancestral tarpan and shraddh.",
+  "fes.blurb.sankashti": "Krishna-paksha Chaturthi — a Ganesha vrat for removing obstacles.",
+  "fes.blurb.vinayaka": "Shukla-paksha Chaturthi — worship of Lord Ganesha.",
+  "fes.blurb.pradosh": "Trayodashi twilight — a Shiva vrat, ideal for Rudrabhishek.",
 };
 
 const hi: Dict = {
@@ -334,6 +386,58 @@ const hi: Dict = {
   "shop.product": "{n} उत्पाद",
   "shop.products": "{n} उत्पाद",
   "shop.noMatch": "आपकी खोज से मेल खाता कोई उत्पाद नहीं मिला। 🙏",
+
+  // How it works
+  "hiw.intro": "एक प्रामाणिक समारोह बुक करना आसान है — यहाँ बताया गया है कि क्या अपेक्षा करें।",
+  "hiw.step1.title": "अपनी पूजा चुनें",
+  "hiw.step1.body": "हमारी समारोहों की सूची देखें — सत्यनारायण कथा से गृह प्रवेश तक — और जो आपको चाहिए उसे चुनें। हर सूची बताती है कि उसमें क्या शामिल है।",
+  "hiw.step2.title": "तिथि चुनें और सामग्री जोड़ें",
+  "hiw.step2.body": "एक शुभ तिथि और समय, अपनी पसंदीदा भाषा चुनें, और चाहें तो एक तैयार सामग्री किट जोड़ें ताकि आपको सामान खरीदने न जाना पड़े।",
+  "hiw.step3.title": "सुरक्षित भुगतान करें",
+  "hiw.step3.body": "साइन इन करें और Razorpay के माध्यम से ऑनलाइन भुगतान करें — UPI, कार्ड या नेट बैंकिंग। आपकी बुकिंग रसीद के साथ तुरंत पुष्ट हो जाती है।",
+  "hiw.step4.title": "हम एक सत्यापित पंडित नियुक्त करते हैं",
+  "hiw.step4.body": "हम आपके समारोह और स्थान के लिए एक अनुभवी, सत्यापित पंडित से आपका मिलान करते हैं। वे तैयार होकर, समय पर पहुँचते हैं और भक्ति के साथ अनुष्ठान संपन्न करते हैं।",
+  "hiw.ready": "शुरू करने के लिए तैयार हैं?",
+  "hiw.readyText": "अपने अवसर के लिए सही समारोह खोजें।",
+  "hiw.browse": "पूजाएँ देखें",
+
+  // About
+  "about.h1": "बुकमायपुजारी के बारे में",
+  "about.intro": "भक्ति, आपके द्वार — हर परिवार के लिए प्रामाणिक हिंदू समारोहों को सुलभ बनाना।",
+  "about.p1": "बुकमायपुजारी एक सरल विचार पर स्थापित हुई: किसी महत्वपूर्ण समारोह के लिए एक विश्वसनीय, जानकार पंडित ढूँढना तनावपूर्ण नहीं होना चाहिए। परिवार अक्सर पंडित के लिए इधर-उधर पूछताछ करने, दक्षिणा पर मोलभाव करने, और फिर अलग से सामग्री जुटाने में कई दिन लगा देते हैं।",
+  "about.p2": "हम यह सब एक ही जगह पर लाते हैं। पूजाओं की चुनिंदा सूची में से चुनें, अपनी तिथि और भाषा के लिए एक सत्यापित पंडित बुक करें, और एक तैयार सामग्री किट जोड़ें — सब ऑनलाइन, सुरक्षित भुगतान और स्पष्ट रसीद के साथ।",
+  "about.p3": "हमारा ध्येय परंपरा की प्रामाणिकता को बनाए रखना है, साथ ही उसका सम्मान करना सहज बनाना — आप जहाँ भी हों।",
+  "about.value1.title": "प्रामाणिकता",
+  "about.value1.body": "हर पंडित शास्त्रीय ज्ञान और अनुभव के लिए सत्यापित है, और अनुष्ठान वैदिक परंपरा के अनुसार संपन्न किए जाते हैं।",
+  "about.value2.title": "सुविधा",
+  "about.value2.body": "मिनटों में एक समारोह बुक करें और सामग्री मँगाएँ — समन्वय हम सँभालते हैं ताकि आप अवसर पर ध्यान दे सकें।",
+  "about.value3.title": "विश्वास",
+  "about.value3.body": "पारदर्शी मूल्य, सुरक्षित भुगतान, और हर बुकिंग व ऑर्डर पर गुणवत्ता का वादा।",
+  "about.meetPandits": "हमारे पंडितों से मिलें",
+  "about.getInTouch": "संपर्क करें",
+
+  // Ceremonies
+  "cer.crumb": "संस्कार",
+  "cer.h1": "हर पड़ाव के लिए संस्कार",
+  "cer.subtitle": "नवजात के नामकरण से लेकर विवाह और अंतिम संस्कार तक — सत्यापित, अनुभवी पंडित बुक करें जो हर संस्कार में आपके परिवार का प्रामाणिकता और देखभाल के साथ मार्गदर्शन करते हैं।",
+  "cer.count": "{n} समारोह",
+  "cer.from": "शुरू",
+  "cer.explore": "देखें →",
+
+  // Festivals & Vrats
+  "fes.crumb": "त्योहार और व्रत",
+  "fes.h1": "त्योहार और व्रत कैलेंडर",
+  "fes.subtitle": "आगामी व्रत और त्योहार के दिन, पंचांग से गणना किए गए — और वह पूजा जो हमारे सत्यापित पंडित हर अवसर के लिए संपन्न कर सकते हैं।",
+  "fes.book": "{cta} बुक करें →",
+  "fes.note1": "तिथियाँ नई दिल्ली के लिए खगोलीय सूत्रों से गणना की गई हैं और सांकेतिक हैं; क्षेत्रीय पंचांग एक दिन भिन्न हो सकते हैं। सटीक तिथि समय के लिए",
+  "fes.noteLink": "दैनिक पंचांग",
+  "fes.note2": "देखें।",
+  "fes.blurb.ekadashi": "विष्णु व्रत का दिन — उपवास और भगवान विष्णु की आराधना।",
+  "fes.blurb.purnima": "पूर्णिमा — सत्यनारायण कथा और दान के लिए शुभ।",
+  "fes.blurb.amavasya": "अमावस्या — पितृ तर्पण और श्राद्ध के लिए।",
+  "fes.blurb.sankashti": "कृष्ण-पक्ष चतुर्थी — बाधाओं को दूर करने के लिए गणेश व्रत।",
+  "fes.blurb.vinayaka": "शुक्ल-पक्ष चतुर्थी — भगवान गणेश की आराधना।",
+  "fes.blurb.pradosh": "त्रयोदशी संध्या — एक शिव व्रत, रुद्राभिषेक के लिए आदर्श।",
 };
 
 const DICTS: Record<Locale, Dict> = { en, hi };

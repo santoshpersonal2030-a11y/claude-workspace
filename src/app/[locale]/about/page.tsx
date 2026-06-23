@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import ContentPage from "@/components/ContentPage";
+import { getDictionary, isLocale, DEFAULT_LOCALE } from "@/lib/i18n";
 
 export const metadata: Metadata = {
   title: "About Us",
@@ -8,44 +9,26 @@ export const metadata: Metadata = {
     "BookMyPoojari connects families with verified Hindu priests and authentic pooja samagri, making it easy to perform ceremonies the right way.",
 };
 
-const values = [
-  {
-    title: "Authenticity",
-    body: "Every Pandit is verified for scriptural knowledge and experience, and rituals are performed as per Vedic tradition.",
-  },
-  {
-    title: "Convenience",
-    body: "Book a ceremony and order samagri in minutes — we handle the coordination so you can focus on the occasion.",
-  },
-  {
-    title: "Trust",
-    body: "Transparent pricing, secure payments, and a quality promise on every booking and order.",
-  },
-];
+export default async function AboutPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const { t } = getDictionary(isLocale(locale) ? locale : DEFAULT_LOCALE);
 
-export default function AboutPage() {
+  const values = [
+    { title: t("about.value1.title"), body: t("about.value1.body") },
+    { title: t("about.value2.title"), body: t("about.value2.body") },
+    { title: t("about.value3.title"), body: t("about.value3.body") },
+  ];
+
   return (
-    <ContentPage
-      title="About BookMyPoojari"
-      intro="Devotion, delivered — making authentic Hindu ceremonies accessible to every family."
-    >
+    <ContentPage title={t("about.h1")} intro={t("about.intro")}>
       <div className="space-y-4 text-foreground/75 leading-relaxed">
-        <p>
-          BookMyPoojari was founded on a simple idea: finding a trustworthy,
-          knowledgeable priest for an important ceremony should not be stressful.
-          Families often spend days asking around for a Pandit, negotiating
-          dakshina, and then separately running around to gather samagri.
-        </p>
-        <p>
-          We bring it all together in one place. Choose from a curated catalog
-          of poojas, book a verified Pandit for your date and language, and add a
-          ready-made samagri kit — all online, with secure payment and a clear
-          receipt.
-        </p>
-        <p>
-          Our mission is to preserve the authenticity of tradition while making
-          it effortless to honour it, wherever you are.
-        </p>
+        <p>{t("about.p1")}</p>
+        <p>{t("about.p2")}</p>
+        <p>{t("about.p3")}</p>
       </div>
 
       <div className="mt-10 grid gap-4 sm:grid-cols-3">
@@ -65,13 +48,13 @@ export default function AboutPage() {
           href="/pandits"
           className="rounded-full bg-saffron-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-saffron-700"
         >
-          Meet our Pandits
+          {t("about.meetPandits")}
         </Link>
         <Link
           href="/contact"
           className="rounded-full border border-saffron-300 px-6 py-2.5 text-sm font-semibold text-saffron-700 hover:bg-saffron-50"
         >
-          Get in touch
+          {t("about.getInTouch")}
         </Link>
       </div>
     </ContentPage>
