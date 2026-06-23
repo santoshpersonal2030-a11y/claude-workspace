@@ -4,6 +4,7 @@ import { notFound, redirect } from "next/navigation";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import BookingStatusTracker from "@/components/BookingStatusTracker";
+import PayPendingBooking from "@/components/PayPendingBooking";
 import { formatINR } from "@/lib/poojas";
 import { createClient } from "@/lib/supabase/server";
 
@@ -138,6 +139,12 @@ export default async function BookingDetailPage({
                   </dd>
                 </div>
               </dl>
+              {booking.status === "pending" && (
+                <PayPendingBooking
+                  bookingId={booking.id}
+                  amount={booking.total_amount}
+                />
+              )}
             </div>
           </div>
         </section>
