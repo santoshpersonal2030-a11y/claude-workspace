@@ -375,6 +375,23 @@ export function isAuspiciousForVivah(p: Panchanga): boolean {
   return VIVAH_NAKSHATRAS.has(p.nakshatra) && !FORBIDDEN_TITHIS.has(p.tithi);
 }
 
+// Sidereal Moon nakshatra (1–27) and rashi (0–11) at an IST instant — the basis
+// for Gun-Milan (Ashtakoot) compatibility. Position is geocentric, so the birth
+// place is immaterial at nakshatra resolution; date + time is enough.
+export function moonSign(
+  dateStr: string,
+  istHour = 12,
+): { nakshatra: number; rashi: number } | null {
+  const [y, m, d] = dateStr.split("-").map(Number);
+  if (!y || !m || !d) return null;
+  const dn = dayNumber(y, m, d, istHour - IST_OFFSET_HOURS);
+  const sid = rev(moonLongitude(dn) - lahiriAyanamsa(y));
+  return {
+    nakshatra: Math.floor(sid / (360 / 27)) + 1,
+    rashi: Math.floor(sid / 30),
+  };
+}
+
 // ── Vrat / festival calendar (computed tithi-based observances) ──────────────
 // Recurring lunar observances keyed by tithi (1–15 Shukla, 16–30 Krishna;
 // 15 = Purnima, 30 = Amavasya). A small, reliable computed calendar.

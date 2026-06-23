@@ -20,6 +20,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/muhurat",
     "/panchang",
     "/choghadiya",
+    "/gun-milan",
     "/festivals",
     "/blog",
     "/how-it-works",
