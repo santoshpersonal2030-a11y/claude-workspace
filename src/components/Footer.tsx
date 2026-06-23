@@ -32,6 +32,7 @@ const columns = [
     links: [
       { href: "/about", label: "About Us" },
       { href: "/pandits", label: "Our Pandits" },
+      { href: "/blog", label: "Blog" },
       { href: "/contact", label: "Contact" },
     ],
   },
