@@ -2,7 +2,29 @@
 // REST API directly with Basic auth — no SDK. Entirely dormant until the
 // RAZORPAYX_* env vars are set, so the payroll UI degrades to manual mark-paid.
 
+import crypto from "node:crypto";
+
 const RAZORPAY_API = "https://api.razorpay.com/v1";
+
+export function razorpayxWebhookConfigured(): boolean {
+  return Boolean(process.env.RAZORPAYX_WEBHOOK_SECRET);
+}
+
+// Verifies a RazorpayX webhook signature (HMAC-SHA256 over the raw body).
+export function verifyRazorpayxWebhook(
+  rawBody: string,
+  signature: string,
+): boolean {
+  const secret = process.env.RAZORPAYX_WEBHOOK_SECRET;
+  if (!secret || !signature) return false;
+  const expected = crypto
+    .createHmac("sha256", secret)
+    .update(rawBody)
+    .digest("hex");
+  const a = Buffer.from(expected);
+  const b = Buffer.from(signature);
+  return a.length === b.length && crypto.timingSafeEqual(a, b);
+}
 
 export function razorpayxConfigured(): boolean {
   return Boolean(
