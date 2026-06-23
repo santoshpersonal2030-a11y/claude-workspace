@@ -360,6 +360,55 @@ export async function sendRecurringScheduled(bookingId: string): Promise<void> {
   }
 }
 
+// Day-before reminder to the customer and (if assigned) the priest. Best-effort.
+export async function sendBookingReminder(bookingId: string): Promise<void> {
+  try {
+    const admin = createAdminClient();
+    const { data: booking } = await admin
+      .from("bookings")
+      .select(
+        "id, user_id, booking_date, time_slot, city, pincode, poojas(name), assigned:pandits!bookings_pandit_id_fkey(full_name, login_email)",
+      )
+      .eq("id", bookingId)
+      .maybeSingle();
+    if (!booking) return;
+
+    const poojaName = booking.poojas?.name ?? "your pooja";
+    const time = (booking.time_slot ?? "").slice(0, 5);
+    const priest = booking.assigned;
+
+    const recipient = await emailForUser(admin, booking.user_id);
+    if (recipient) {
+      const panditLine = priest?.full_name
+        ? `<p>Your Pandit, <strong>${priest.full_name}</strong>, is confirmed.</p>`
+        : `<p>We'll confirm your Pandit shortly.</p>`;
+      await sendEmail({
+        to: recipient.email,
+        subject: `Reminder: your ${poojaName} is tomorrow 🙏`,
+        html: emailLayout(
+          "Your ceremony is tomorrow",
+          `<p>Hi ${recipient.name}, this is a reminder that your <strong>${poojaName}</strong> is tomorrow (${booking.booking_date}) at ${time}.</p>${panditLine}
+           <p style="font-size:12px;color:#9a8c7a">Please keep the space ready. Reach out if anything changes.</p>`,
+        ),
+      });
+    }
+
+    if (priest?.login_email) {
+      await sendEmail({
+        to: priest.login_email,
+        subject: `Reminder: ${poojaName} tomorrow`,
+        html: emailLayout(
+          "You have a ceremony tomorrow",
+          `<p>Namaste ${priest.full_name?.trim() || "Panditji"}, a reminder that you have <strong>${poojaName}</strong> tomorrow (${booking.booking_date}) at ${time}${booking.city ? ` in ${booking.city}` : ""}.</p>
+           <a href="${siteUrl}/priest/calendar" style="display:inline-block;background:#d97706;color:#fff;text-decoration:none;padding:10px 20px;border-radius:999px">Open your calendar</a>`,
+        ),
+      });
+    }
+  } catch (err) {
+    console.error("sendBookingReminder failed:", err);
+  }
+}
+
 // Confirms a booking cancellation (with refund amount, if any) to the customer.
 export async function notifyBookingCancelled(
   bookingId: string,
