@@ -10,15 +10,17 @@ import ProductThumb from "@/components/ProductThumb";
 import WishlistButton from "@/components/WishlistButton";
 import { formatINR } from "@/lib/poojas";
 import type { StoreProduct } from "@/lib/queries";
+import { useT } from "@/components/LanguageProvider";
 
 type Sort = "featured" | "price-asc" | "price-desc" | "rating" | "discount";
 
-const sortLabels: Record<Sort, string> = {
-  featured: "Featured",
-  "price-asc": "Price: Low to High",
-  "price-desc": "Price: High to Low",
-  rating: "Top rated",
-  discount: "Biggest discount",
+// Maps each sort option to its dictionary key (translated at render time).
+const sortLabelKey: Record<Sort, string> = {
+  featured: "shop.sortFeatured",
+  "price-asc": "shop.sortPriceAsc",
+  "price-desc": "shop.sortPriceDesc",
+  rating: "shop.sortRating",
+  discount: "shop.sortDiscount",
 };
 
 function discountPct(p: StoreProduct) {
@@ -44,6 +46,7 @@ export default function StoreBrowser({
   initialCategory?: string;
   initialSort?: string;
 }) {
+  const t = useT();
   const categories = useMemo(
     () =>
       Array.from(
@@ -106,20 +109,20 @@ export default function StoreBrowser({
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search products…"
+            placeholder={t("shop.searchProducts")}
             className="w-full rounded-full border border-saffron-200 bg-white py-2.5 pl-10 pr-4 text-sm outline-none focus:border-saffron-400 focus:ring-2 focus:ring-saffron-100"
           />
         </div>
         <label className="flex items-center gap-2 text-sm text-foreground/60">
-          Sort
+          {t("shop.sort")}
           <select
             value={sort}
             onChange={(e) => setSort(e.target.value as Sort)}
             className="rounded-full border border-saffron-200 bg-white px-3 py-2 text-sm outline-none focus:border-saffron-400"
           >
-            {(Object.keys(sortLabels) as Sort[]).map((s) => (
+            {(Object.keys(sortLabelKey) as Sort[]).map((s) => (
               <option key={s} value={s}>
-                {sortLabels[s]}
+                {t(sortLabelKey[s])}
               </option>
             ))}
           </select>
@@ -138,7 +141,7 @@ export default function StoreBrowser({
                 : "border border-saffron-200 bg-white text-saffron-700 hover:bg-saffron-50"
             }`}
           >
-            All
+            {t("browse.all")}
           </button>
           {categories.map((c) => (
             <button
@@ -158,13 +161,15 @@ export default function StoreBrowser({
       )}
 
       <p className="mt-6 text-sm text-foreground/50">
-        {visible.length} product{visible.length === 1 ? "" : "s"}
+        {t(visible.length === 1 ? "shop.product" : "shop.products", {
+          n: visible.length,
+        })}
       </p>
 
       {/* Grid */}
       {visible.length === 0 ? (
         <p className="mt-10 text-center text-foreground/60">
-          No products match your search. 🙏
+          {t("shop.noMatch")}
         </p>
       ) : (
         <div className="mt-4 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -185,7 +190,7 @@ export default function StoreBrowser({
                   </Link>
                   {discount > 0 && (
                     <span className="absolute right-2 top-2 rounded-full bg-green-50 px-2 py-0.5 text-xs font-semibold text-green-700">
-                      {discount}% off
+                      {t("home.store.off", { pct: discount })}
                     </span>
                   )}
                   <WishlistButton

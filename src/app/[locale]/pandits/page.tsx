@@ -5,6 +5,7 @@ import Footer from "@/components/Footer";
 import PanditDirectory from "@/components/PanditDirectory";
 import { getPandits } from "@/lib/queries";
 import { CITY_COORDS } from "@/lib/muhurat-engine";
+import { getDictionary, isLocale, DEFAULT_LOCALE } from "@/lib/i18n";
 
 export const metadata: Metadata = {
   title: "Our Pandits — Verified Hindu Priests",
@@ -14,7 +15,13 @@ export const metadata: Metadata = {
 
 export const revalidate = 300;
 
-export default async function PanditsPage() {
+export default async function PanditsPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const { t } = getDictionary(isLocale(locale) ? locale : DEFAULT_LOCALE);
   const pandits = await getPandits();
 
   return (
@@ -25,18 +32,16 @@ export default async function PanditsPage() {
           <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
             <nav className="text-sm text-foreground/60">
               <Link href="/" className="hover:text-saffron-700">
-                Home
+                {t("common.home")}
               </Link>
               <span className="mx-2">/</span>
-              <span className="text-saffron-700">Our Pandits</span>
+              <span className="text-saffron-700">{t("nav.pandits")}</span>
             </nav>
             <h1 className="mt-3 font-heading text-4xl text-maroon-800">
-              Our Verified Pandits
+              {t("pandits.h1")}
             </h1>
             <p className="mt-3 max-w-2xl text-lg text-foreground/70">
-              Every priest on BookMyPoojari is personally verified for
-              authenticity, scriptural knowledge and experience — so you can book
-              with complete peace of mind.
+              {t("pandits.subtitle")}
             </p>
           </div>
         </section>
@@ -46,7 +51,7 @@ export default async function PanditsPage() {
 
           <div className="mt-12 border-t border-saffron-100 pt-8">
             <h2 className="font-heading text-xl text-maroon-800">
-              Pandits across India
+              {t("pandits.acrossIndia")}
             </h2>
             <div className="mt-3 flex flex-wrap gap-2">
               {Object.keys(CITY_COORDS).map((c) => (
@@ -55,7 +60,7 @@ export default async function PanditsPage() {
                   href={`/pandits/in/${c.toLowerCase().replace(/\s+/g, "-")}`}
                   className="rounded-full border border-saffron-200 bg-white px-4 py-1.5 text-sm text-saffron-700 hover:bg-saffron-50"
                 >
-                  Pandit in {c}
+                  {t("pandits.inCity", { city: c })}
                 </Link>
               ))}
             </div>

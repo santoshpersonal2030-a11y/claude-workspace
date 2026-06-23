@@ -126,6 +126,55 @@ const en: Dict = {
   "home.cta.title": "Ready to book your pooja?",
   "home.cta.text": "Tell us the occasion and we'll take care of the rest — the Pandit, the rituals and the samagri.",
   "home.cta.button": "Book a Pooja Now",
+
+  // Shared
+  "common.home": "Home",
+
+  // Poojas list
+  "poojas.subtitle": "Choose a ceremony and we'll arrange a verified, experienced Pandit — in your language, at your home, with authentic samagri.",
+  "browse.searchPoojas": "Search poojas (e.g. Lakshmi, Griha Pravesh)…",
+  "browse.type": "Type:",
+  "browse.all": "All",
+  "browse.startsAt": "Starts at",
+  "browse.book": "Book →",
+  "browse.noMatch": "No poojas match “{q}”.",
+  "browse.noneInCategory": "No poojas in this category yet.",
+
+  // Pandits list
+  "pandits.h1": "Our Verified Pandits",
+  "pandits.subtitle": "Every priest on BookMyPoojari is personally verified for authenticity, scriptural knowledge and experience — so you can book with complete peace of mind.",
+  "pandits.acrossIndia": "Pandits across India",
+  "pandits.inCity": "Pandit in {city}",
+  "dir.pincode": "Your pincode",
+  "dir.tier": "Tier",
+  "dir.allTiers": "All tiers",
+  "dir.performs": "Performs",
+  "dir.allPoojas": "All poojas",
+  "dir.pandit": "{n} pandit",
+  "dir.pandits": "{n} pandits",
+  "dir.invalidPin": "Enter a valid 6-digit pincode to see who serves your area.",
+  "dir.nearbyNote": "Showing priests who serve {pin} directly, plus {n} who cover nearby areas — their travel fee is confirmed when you book.",
+  "dir.serveNoFee": "✓ Serves {pin} — no travel fee",
+  "dir.serveFee": "✓ Serves {pin} — +{fee} travel ({label})",
+  "dir.nearby": "📍 Serves areas near {pin} — travel fee confirmed at booking",
+  "dir.experience": "Experience",
+  "dir.languages": "Languages",
+  "dir.serves": "Serves",
+  "dir.noMatch": "No pandits match these filters yet. Try widening your selection.",
+
+  // Store list
+  "store.subtitle": "Authentic pooja items and ready-made kits — sourced fresh and delivered to your door. Free delivery on orders over ₹999.",
+  "store.empty": "Our store is being stocked — please check back shortly. 🙏",
+  "shop.searchProducts": "Search products…",
+  "shop.sort": "Sort",
+  "shop.sortFeatured": "Featured",
+  "shop.sortPriceAsc": "Price: Low to High",
+  "shop.sortPriceDesc": "Price: High to Low",
+  "shop.sortRating": "Top rated",
+  "shop.sortDiscount": "Biggest discount",
+  "shop.product": "{n} product",
+  "shop.products": "{n} products",
+  "shop.noMatch": "No products match your search. 🙏",
 };
 
 const hi: Dict = {
@@ -236,6 +285,55 @@ const hi: Dict = {
   "home.cta.title": "अपनी पूजा बुक करने के लिए तैयार हैं?",
   "home.cta.text": "हमें अवसर बताएँ और बाक़ी सब हम सँभाल लेंगे — पंडित, अनुष्ठान और सामग्री।",
   "home.cta.button": "अभी पूजा बुक करें",
+
+  // Shared
+  "common.home": "होम",
+
+  // Poojas list
+  "poojas.subtitle": "एक समारोह चुनें और हम एक सत्यापित, अनुभवी पंडित की व्यवस्था करेंगे — आपकी भाषा में, आपके घर पर, प्रामाणिक सामग्री के साथ।",
+  "browse.searchPoojas": "पूजाएँ खोजें (जैसे लक्ष्मी, गृह प्रवेश)…",
+  "browse.type": "प्रकार:",
+  "browse.all": "सभी",
+  "browse.startsAt": "शुरू",
+  "browse.book": "बुक करें →",
+  "browse.noMatch": "“{q}” से मेल खाती कोई पूजा नहीं मिली।",
+  "browse.noneInCategory": "इस श्रेणी में अभी कोई पूजा नहीं है।",
+
+  // Pandits list
+  "pandits.h1": "हमारे सत्यापित पंडित",
+  "pandits.subtitle": "बुकमायपुजारी पर हर पंडित प्रामाणिकता, शास्त्रीय ज्ञान और अनुभव के लिए व्यक्तिगत रूप से सत्यापित है — ताकि आप पूरी निश्चिंतता के साथ बुक कर सकें।",
+  "pandits.acrossIndia": "पूरे भारत में पंडित",
+  "pandits.inCity": "{city} में पंडित",
+  "dir.pincode": "आपका पिनकोड",
+  "dir.tier": "श्रेणी",
+  "dir.allTiers": "सभी श्रेणियाँ",
+  "dir.performs": "करते हैं",
+  "dir.allPoojas": "सभी पूजाएँ",
+  "dir.pandit": "{n} पंडित",
+  "dir.pandits": "{n} पंडित",
+  "dir.invalidPin": "अपने क्षेत्र में सेवा देने वालों को देखने के लिए एक मान्य 6-अंकीय पिनकोड दर्ज करें।",
+  "dir.nearbyNote": "वे पंडित दिखाए जा रहे हैं जो {pin} में सीधे सेवा देते हैं, और {n} जो आस-पास के क्षेत्रों में सेवा देते हैं — उनका यात्रा शुल्क बुकिंग के समय पुष्ट होता है।",
+  "dir.serveNoFee": "✓ {pin} में सेवा — कोई यात्रा शुल्क नहीं",
+  "dir.serveFee": "✓ {pin} में सेवा — +{fee} यात्रा ({label})",
+  "dir.nearby": "📍 {pin} के पास के क्षेत्रों में सेवा — यात्रा शुल्क बुकिंग पर पुष्ट",
+  "dir.experience": "अनुभव",
+  "dir.languages": "भाषाएँ",
+  "dir.serves": "सेवा क्षेत्र",
+  "dir.noMatch": "इन फ़िल्टरों से मेल खाते अभी कोई पंडित नहीं हैं। अपना चयन व्यापक करके देखें।",
+
+  // Store list
+  "store.subtitle": "प्रामाणिक पूजा सामान और तैयार किट — ताज़ा स्रोत से और आपके द्वार तक पहुँचाए गए। ₹999 से अधिक के ऑर्डर पर मुफ़्त डिलीवरी।",
+  "store.empty": "हमारा स्टोर तैयार किया जा रहा है — कृपया जल्द ही फिर देखें। 🙏",
+  "shop.searchProducts": "उत्पाद खोजें…",
+  "shop.sort": "क्रमबद्ध करें",
+  "shop.sortFeatured": "विशेष",
+  "shop.sortPriceAsc": "मूल्य: कम से अधिक",
+  "shop.sortPriceDesc": "मूल्य: अधिक से कम",
+  "shop.sortRating": "सर्वोच्च रेटेड",
+  "shop.sortDiscount": "सबसे बड़ी छूट",
+  "shop.product": "{n} उत्पाद",
+  "shop.products": "{n} उत्पाद",
+  "shop.noMatch": "आपकी खोज से मेल खाता कोई उत्पाद नहीं मिला। 🙏",
 };
 
 const DICTS: Record<Locale, Dict> = { en, hi };

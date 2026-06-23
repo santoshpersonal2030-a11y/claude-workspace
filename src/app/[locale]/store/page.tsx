@@ -3,6 +3,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import StoreBrowser from "@/components/StoreBrowser";
 import { getProducts } from "@/lib/queries";
+import { getDictionary, isLocale, DEFAULT_LOCALE } from "@/lib/i18n";
 
 export const metadata: Metadata = {
   title: "Samagri Store — Pooja Items & Kits",
@@ -14,10 +15,14 @@ export const metadata: Metadata = {
 export const revalidate = 300;
 
 export default async function StorePage({
+  params,
   searchParams,
 }: {
+  params: Promise<{ locale: string }>;
   searchParams: Promise<{ category?: string; sort?: string }>;
 }) {
+  const { locale } = await params;
+  const { t } = getDictionary(isLocale(locale) ? locale : DEFAULT_LOCALE);
   const { category, sort } = await searchParams;
   const products = await getProducts();
 
@@ -28,16 +33,15 @@ export default async function StorePage({
         <section className="bg-temple-gradient">
           <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
             <nav className="text-sm text-foreground/60">
-              <span>Home</span>
+              <span>{t("common.home")}</span>
               <span className="mx-2">/</span>
-              <span className="text-saffron-700">Samagri Store</span>
+              <span className="text-saffron-700">{t("nav.store")}</span>
             </nav>
             <h1 className="mt-3 font-heading text-4xl text-maroon-800">
-              Samagri Store
+              {t("nav.store")}
             </h1>
             <p className="mt-3 max-w-2xl text-lg text-foreground/70">
-              Authentic pooja items and ready-made kits — sourced fresh and
-              delivered to your door. Free delivery on orders over ₹999.
+              {t("store.subtitle")}
             </p>
           </div>
         </section>
@@ -45,7 +49,7 @@ export default async function StorePage({
         <section className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
           {products.length === 0 ? (
             <p className="text-center text-foreground/60">
-              Our store is being stocked — please check back shortly. 🙏
+              {t("store.empty")}
             </p>
           ) : (
             <StoreBrowser

@@ -8,8 +8,10 @@ import {
   ritualTypes,
   formatINR,
 } from "@/lib/poojas";
+import { useT } from "@/components/LanguageProvider";
 
 export default function PoojaList({ poojas }: { poojas: Pooja[] }) {
+  const t = useT();
   const [active, setActive] = useState<string>("All");
   const [activeType, setActiveType] = useState<string>("All");
   const [query, setQuery] = useState("");
@@ -41,7 +43,7 @@ export default function PoojaList({ poojas }: { poojas: Pooja[] }) {
           type="search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search poojas (e.g. Lakshmi, Griha Pravesh)…"
+          placeholder={t("browse.searchPoojas")}
           className="w-full rounded-full border border-saffron-200 bg-white py-2.5 pl-10 pr-4 text-sm outline-none focus:border-saffron-400 focus:ring-2 focus:ring-saffron-100"
         />
       </div>
@@ -61,7 +63,7 @@ export default function PoojaList({ poojas }: { poojas: Pooja[] }) {
                   : "border border-saffron-200 bg-white text-saffron-700 hover:bg-saffron-50")
               }
             >
-              {cat}
+              {cat === "All" ? t("browse.all") : cat}
             </button>
           );
         })}
@@ -69,13 +71,13 @@ export default function PoojaList({ poojas }: { poojas: Pooja[] }) {
 
       {/* Ritual-type filter chips */}
       <div className="mt-2 flex flex-wrap items-center gap-2">
-        <span className="text-xs text-foreground/50">Type:</span>
-        {typeFilters.map((t) => {
-          const isActive = activeType === t;
+        <span className="text-xs text-foreground/50">{t("browse.type")}</span>
+        {typeFilters.map((rt) => {
+          const isActive = activeType === rt;
           return (
             <button
-              key={t}
-              onClick={() => setActiveType(t)}
+              key={rt}
+              onClick={() => setActiveType(rt)}
               className={
                 "rounded-full px-3 py-1 text-xs font-medium transition-colors " +
                 (isActive
@@ -83,7 +85,7 @@ export default function PoojaList({ poojas }: { poojas: Pooja[] }) {
                   : "border border-stone-200 bg-white text-foreground/60 hover:bg-stone-50")
               }
             >
-              {t}
+              {rt === "All" ? t("browse.all") : rt}
             </button>
           );
         })}
@@ -119,13 +121,13 @@ export default function PoojaList({ poojas }: { poojas: Pooja[] }) {
             </p>
             <div className="mt-4 flex items-center justify-between border-t border-saffron-50 pt-4">
               <span className="text-sm text-foreground/60">
-                Starts at{" "}
+                {t("browse.startsAt")}{" "}
                 <span className="font-semibold text-foreground">
                   {formatINR(pooja.startingPrice)}
                 </span>
               </span>
               <span className="text-sm font-semibold text-saffron-700">
-                Book →
+                {t("browse.book")}
               </span>
             </div>
           </Link>
@@ -135,8 +137,8 @@ export default function PoojaList({ poojas }: { poojas: Pooja[] }) {
       {visible.length === 0 && (
         <p className="mt-10 text-center text-foreground/60">
           {term
-            ? `No poojas match “${query.trim()}”.`
-            : "No poojas in this category yet."}
+            ? t("browse.noMatch", { q: query.trim() })
+            : t("browse.noneInCategory")}
         </p>
       )}
     </div>

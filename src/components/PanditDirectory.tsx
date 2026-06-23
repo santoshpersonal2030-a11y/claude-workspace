@@ -17,8 +17,10 @@ import {
   nearbyProximity,
 } from "@/lib/travel";
 import PanditAvatar from "@/components/PanditAvatar";
+import { useT } from "@/components/LanguageProvider";
 
 export default function PanditDirectory({ pandits }: { pandits: Pandit[] }) {
+  const t = useT();
   const [tier, setTier] = useState<PanditTier | "All">("All");
   const [category, setCategory] = useState<PoojaCategory | "All">("All");
   const [pincode, setPincode] = useState("");
@@ -68,7 +70,7 @@ export default function PanditDirectory({ pandits }: { pandits: Pandit[] }) {
       {/* Filters */}
       <div className="flex flex-wrap items-center gap-3">
         <label className="text-sm font-medium text-foreground/60">
-          Your pincode
+          {t("dir.pincode")}
           <input
             value={pincode}
             onChange={(e) =>
@@ -80,22 +82,22 @@ export default function PanditDirectory({ pandits }: { pandits: Pandit[] }) {
           />
         </label>
         <label className="text-sm font-medium text-foreground/60">
-          Tier
+          {t("dir.tier")}
           <select
             value={tier}
             onChange={(e) => setTier(e.target.value as PanditTier | "All")}
             className={`ml-2 ${selectClass}`}
           >
-            <option value="All">All tiers</option>
-            {PANDIT_TIERS.map((t) => (
-              <option key={t.tier} value={t.tier}>
-                {t.tier}
+            <option value="All">{t("dir.allTiers")}</option>
+            {PANDIT_TIERS.map((tr) => (
+              <option key={tr.tier} value={tr.tier}>
+                {tr.tier}
               </option>
             ))}
           </select>
         </label>
         <label className="text-sm font-medium text-foreground/60">
-          Performs
+          {t("dir.performs")}
           <select
             value={category}
             onChange={(e) =>
@@ -103,7 +105,7 @@ export default function PanditDirectory({ pandits }: { pandits: Pandit[] }) {
             }
             className={`ml-2 ${selectClass}`}
           >
-            <option value="All">All poojas</option>
+            <option value="All">{t("dir.allPoojas")}</option>
             {poojaCategories.map((c) => (
               <option key={c} value={c}>
                 {c}
@@ -112,20 +114,19 @@ export default function PanditDirectory({ pandits }: { pandits: Pandit[] }) {
           </select>
         </label>
         <span className="ml-auto text-sm text-foreground/50">
-          {filtered.length} pandit{filtered.length === 1 ? "" : "s"}
+          {t(filtered.length === 1 ? "dir.pandit" : "dir.pandits", {
+            n: filtered.length,
+          })}
         </span>
       </div>
 
       {pincode && !pinActive && (
-        <p className="mt-2 text-xs text-maroon-600">
-          Enter a valid 6-digit pincode to see who serves your area.
-        </p>
+        <p className="mt-2 text-xs text-maroon-600">{t("dir.invalidPin")}</p>
       )}
 
       {pinActive && nearbyCount > 0 && (
         <p className="mt-2 text-xs text-foreground/55">
-          Showing priests who serve {pincode} directly, plus {nearbyCount} who
-          cover nearby areas — their travel fee is confirmed when you book.
+          {t("dir.nearbyNote", { pin: pincode, n: nearbyCount })}
         </p>
       )}
 
@@ -168,7 +169,7 @@ export default function PanditDirectory({ pandits }: { pandits: Pandit[] }) {
                     </span>
                     {pandit.verified && (
                       <span className="rounded-full bg-green-50 px-2 py-0.5 text-[11px] font-medium text-green-700">
-                        ✓ Verified
+                        {t("home.pandits.verified")}
                       </span>
                     )}
                   </div>
@@ -195,28 +196,37 @@ export default function PanditDirectory({ pandits }: { pandits: Pandit[] }) {
               {band && (
                 <p className="mt-3 text-xs font-medium text-green-700">
                   {band.fee === 0
-                    ? `✓ Serves ${pincode} — no travel fee`
-                    : `✓ Serves ${pincode} — +${formatINR(band.fee)} travel (${band.label})`}
+                    ? t("dir.serveNoFee", { pin: pincode })
+                    : t("dir.serveFee", {
+                        pin: pincode,
+                        fee: formatINR(band.fee),
+                        label: band.label,
+                      })}
                 </p>
               )}
               {nearby && (
                 <p className="mt-3 text-xs font-medium text-saffron-700">
-                  📍 Serves areas near {pincode} — travel fee confirmed at
-                  booking
+                  {t("dir.nearby", { pin: pincode })}
                 </p>
               )}
 
               <dl className="mt-4 space-y-1 text-xs text-foreground/60">
                 <div className="flex gap-2">
-                  <dt className="font-medium text-foreground/50">Experience</dt>
-                  <dd>{pandit.experienceYears}+ years</dd>
+                  <dt className="font-medium text-foreground/50">
+                    {t("dir.experience")}
+                  </dt>
+                  <dd>{t("home.pandits.years", { years: pandit.experienceYears })}</dd>
                 </div>
                 <div className="flex gap-2">
-                  <dt className="font-medium text-foreground/50">Languages</dt>
+                  <dt className="font-medium text-foreground/50">
+                    {t("dir.languages")}
+                  </dt>
                   <dd>{pandit.languages.join(", ")}</dd>
                 </div>
                 <div className="flex gap-2">
-                  <dt className="font-medium text-foreground/50">Serves</dt>
+                  <dt className="font-medium text-foreground/50">
+                    {t("dir.serves")}
+                  </dt>
                   <dd>{pandit.regions.join(", ")}</dd>
                 </div>
               </dl>
@@ -225,7 +235,7 @@ export default function PanditDirectory({ pandits }: { pandits: Pandit[] }) {
                 href="/poojas"
                 className="mt-5 w-full rounded-full bg-saffron-600 py-2.5 text-center text-sm font-semibold text-white transition-colors hover:bg-saffron-700"
               >
-                Book a Pooja
+                {t("nav.bookPooja")}
               </Link>
             </div>
           );
@@ -234,7 +244,7 @@ export default function PanditDirectory({ pandits }: { pandits: Pandit[] }) {
 
       {filtered.length === 0 && (
         <p className="mt-10 text-center text-foreground/60">
-          No pandits match these filters yet. Try widening your selection.
+          {t("dir.noMatch")}
         </p>
       )}
     </>
