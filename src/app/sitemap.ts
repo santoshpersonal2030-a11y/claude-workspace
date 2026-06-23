@@ -6,7 +6,7 @@ import {
   getPanditSlugs,
 } from "@/lib/queries";
 import { CITY_COORDS } from "@/lib/muhurat-engine";
-import { blogPosts } from "@/lib/blog";
+import { getPublishedPosts } from "@/lib/blog-db";
 
 const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL ?? "https://bookmypoojari.com";
@@ -37,10 +37,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: path === "" ? 1 : 0.7,
   }));
 
-  const [poojaSlugs, productSlugs, panditSlugs] = await Promise.all([
+  const [poojaSlugs, productSlugs, panditSlugs, posts] = await Promise.all([
     getPoojaSlugs(),
     getProductSlugs(),
     getPanditSlugs(),
+    getPublishedPosts(),
   ]);
 
   const citySlugs = Object.keys(CITY_COORDS).map(
@@ -52,7 +53,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...productSlugs.map((slug) => `/store/${slug}`),
     ...panditSlugs.map((slug) => `/pandits/${slug}`),
     ...citySlugs,
-    ...blogPosts.map((p) => `/blog/${p.slug}`),
+    ...posts.map((p) => `/blog/${p.slug}`),
   ].map((path) => ({
     url: `${siteUrl}${path}`,
     lastModified: new Date(),

@@ -1195,6 +1195,45 @@ export async function saveRewardSettings(formData: FormData): Promise<void> {
   revalidatePath("/admin/rewards");
 }
 
+// ── Blog CMS ─────────────────────────────────────────────────────────────────
+
+export async function saveBlogPost(formData: FormData): Promise<void> {
+  await assertCapability("content");
+  const admin = createAdminClient();
+  const id = str(formData.get("id"));
+  const slug = slugify(str(formData.get("slug")) || str(formData.get("title")));
+  if (!slug) return;
+
+  const payload = {
+    slug,
+    title: str(formData.get("title")),
+    excerpt: str(formData.get("excerpt")),
+    category: str(formData.get("category")) || "General",
+    reading_minutes: num(formData.get("reading_minutes")) || 4,
+    content: str(formData.get("content")),
+    published: formData.get("published") === "on",
+    published_at: str(formData.get("published_at")) || undefined,
+  };
+
+  if (id) {
+    await admin.from("blog_posts").update(payload).eq("id", id);
+  } else {
+    await admin.from("blog_posts").insert(payload);
+  }
+  revalidatePath("/admin/blog");
+  revalidatePath("/blog");
+  revalidatePath(`/blog/${slug}`);
+}
+
+export async function deleteBlogPost(formData: FormData): Promise<void> {
+  await assertCapability("content");
+  const admin = createAdminClient();
+  const id = str(formData.get("id"));
+  if (id) await admin.from("blog_posts").delete().eq("id", id);
+  revalidatePath("/admin/blog");
+  revalidatePath("/blog");
+}
+
 // ── Review moderation ────────────────────────────────────────────────────────
 
 // Hides or restores a review. Hiding removes it from public listings; for

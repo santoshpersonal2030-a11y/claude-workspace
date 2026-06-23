@@ -3,7 +3,9 @@ import Link from "next/link";
 
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { blogPosts } from "@/lib/blog";
+import { getPublishedPosts } from "@/lib/blog-db";
+
+export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: "Blog — Poojas, Muhurat & Hindu Traditions",
@@ -20,10 +22,8 @@ function fmt(date: string): string {
   return `${d} ${MONTHS[m - 1]} ${y}`;
 }
 
-export default function BlogPage() {
-  const posts = blogPosts
-    .slice()
-    .sort((a, b) => (a.date < b.date ? 1 : -1));
+export default async function BlogPage() {
+  const posts = await getPublishedPosts();
 
   return (
     <>

@@ -111,3 +111,37 @@ export const blogPosts: BlogPost[] = [
 export function getBlogPost(slug: string): BlogPost | undefined {
   return blogPosts.find((p) => p.slug === slug);
 }
+
+// Parses markdown-lite post content (as stored by the CMS) into render
+// sections: lines starting with "## " open a new headed section; blank lines
+// separate paragraphs. Pure & testable.
+export function parseBlogContent(content: string): BlogSection[] {
+  const sections: BlogSection[] = [];
+  let current: BlogSection = { paragraphs: [] };
+  let buffer: string[] = [];
+
+  const flushParagraph = () => {
+    const text = buffer.join(" ").trim();
+    if (text) current.paragraphs.push(text);
+    buffer = [];
+  };
+  const flushSection = () => {
+    flushParagraph();
+    if (current.heading || current.paragraphs.length) sections.push(current);
+    current = { paragraphs: [] };
+  };
+
+  for (const raw of content.replace(/\r\n/g, "\n").split("\n")) {
+    const line = raw.trimEnd();
+    if (line.startsWith("## ")) {
+      flushSection();
+      current = { heading: line.slice(3).trim(), paragraphs: [] };
+    } else if (line.trim() === "") {
+      flushParagraph();
+    } else {
+      buffer.push(line.trim());
+    }
+  }
+  flushSection();
+  return sections;
+}

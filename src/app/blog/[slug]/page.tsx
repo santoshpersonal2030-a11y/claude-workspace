@@ -4,7 +4,9 @@ import { notFound } from "next/navigation";
 
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { blogPosts, getBlogPost } from "@/lib/blog";
+import { getPublishedPost } from "@/lib/blog-db";
+
+export const revalidate = 300;
 
 const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL ?? "https://bookmypoojari.com";
@@ -18,17 +20,13 @@ function fmt(date: string): string {
   return `${d} ${MONTHS[m - 1]} ${y}`;
 }
 
-export function generateStaticParams() {
-  return blogPosts.map((p) => ({ slug: p.slug }));
-}
-
 export async function generateMetadata({
   params,
 }: {
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const post = getBlogPost(slug);
+  const post = await getPublishedPost(slug);
   if (!post) return { title: "Post not found" };
   return { title: `${post.title} — BookMyPoojari`, description: post.excerpt };
 }
@@ -39,7 +37,7 @@ export default async function BlogPostPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const post = getBlogPost(slug);
+  const post = await getPublishedPost(slug);
   if (!post) notFound();
 
   const jsonLd = {
