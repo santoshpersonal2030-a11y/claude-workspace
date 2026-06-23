@@ -9,6 +9,8 @@ import {
 import { resolveTravelBand, isValidPincode } from "@/lib/travel";
 import { getPeakDay, peakSurchargeAmount } from "@/lib/peak-days";
 import { geoConfigured, resolveTravelBandGeo } from "@/lib/geo";
+import { getAvailableBalance, getRewardSettings } from "@/lib/wallet";
+import { redeemableAmount } from "@/lib/rewards";
 
 const DEFAULT_KIT_PRICE = 751;
 
@@ -24,6 +26,7 @@ type BookingBody = {
   pincode?: string;
   notes?: string;
   samagriKit?: boolean;
+  redeemWallet?: boolean;
 };
 
 // Maps a booking-RPC error to a friendly message; null if not a known case.
@@ -213,8 +216,30 @@ export async function POST(request: Request) {
     return NextResponse.json({ bookingId: booking.id, razorpay: null });
   }
 
+  // Server-authoritative store-credit redemption. Capped to leave at least ₹1
+  // payable so a Razorpay payment always occurs (capture settles the credit and
+  // grants loyalty/referral). Reserved against the booking until paid.
+  let walletUsed = 0;
+  if (body.redeemWallet) {
+    const settings = await getRewardSettings();
+    if (settings.rewardsEnabled) {
+      const available = await getAvailableBalance(user.id);
+      walletUsed = Math.min(
+        redeemableAmount(available, total, settings.maxRedeemPct),
+        Math.max(0, total - 1),
+      );
+    }
+  }
+  if (walletUsed > 0) {
+    await createAdminClient()
+      .from("bookings")
+      .update({ wallet_used: walletUsed })
+      .eq("id", booking.id);
+  }
+  const payable = Math.max(1, total - walletUsed);
+
   const order = await createRazorpayOrder({
-    amountInPaise: total * 100,
+    amountInPaise: payable * 100,
     receipt: `booking_${booking.id}`,
     notes: { type: "booking", booking_id: booking.id },
   });
@@ -223,7 +248,7 @@ export async function POST(request: Request) {
     user_id: user.id,
     payment_for: "booking",
     booking_id: booking.id,
-    amount: total,
+    amount: payable,
     currency: "INR",
     razorpay_order_id: order.id,
     status: "created",

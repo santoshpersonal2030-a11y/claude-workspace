@@ -6,6 +6,7 @@ import {
   updateOrderItem,
   removeOrderItem,
   refundOrder,
+  refundOrderToCredit,
   generateEInvoiceAction,
   cancelEInvoiceAction,
   generateEwayBillAction,
@@ -273,6 +274,35 @@ export default async function AdminOrderDetailPage({
                 </p>
               </form>
             )}
+
+            {/* Refund as store credit — always available, no money movement */}
+            <form
+              action={refundOrderToCredit}
+              className="mt-3 space-y-2 border-t border-saffron-50 pt-3"
+            >
+              <input type="hidden" name="id" value={order.id} />
+              <input
+                name="amount"
+                type="number"
+                min={1}
+                placeholder={`Amount ₹ (blank = full ${formatINR(order.total_amount)})`}
+                className={`${inputClass} w-full`}
+              />
+              <input
+                name="reason"
+                placeholder="Reason (optional)"
+                className={`${inputClass} w-full`}
+              />
+              <button
+                type="submit"
+                className="w-full rounded-full border border-emerald-300 py-2 text-sm font-semibold text-emerald-700 hover:bg-emerald-50"
+              >
+                Refund as store credit
+              </button>
+              <p className="text-[11px] text-foreground/50">
+                Credits the customer&apos;s wallet; a full amount cancels the order.
+              </p>
+            </form>
 
             {creditNotes && creditNotes.length > 0 && (
               <div className="mt-4 border-t border-saffron-50 pt-3">

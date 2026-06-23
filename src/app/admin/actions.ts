@@ -10,6 +10,7 @@ import { generateEwayBill, updateEwayBillPartB } from "@/lib/ewaybill";
 import { saveCompany } from "@/lib/company-settings";
 import { buildRunItems } from "@/lib/payroll-data";
 import { runPayout } from "@/lib/payouts";
+import { adjustWallet } from "@/lib/wallet";
 import {
   generateAbhijitCandidates,
   generateCeremonyCandidates,
@@ -789,6 +790,39 @@ export async function refundOrder(formData: FormData): Promise<void> {
     });
   }
 
+  revalidatePath(`/admin/orders/${orderId}`);
+}
+
+// Refunds an order as store credit instead of to the card. Credits the
+// customer's wallet (idempotent per order via the ledger's unique index) and
+// cancels the order when fully covered. No money movement / GST credit note —
+// use refundOrder for a cash refund to source.
+export async function refundOrderToCredit(formData: FormData): Promise<void> {
+  await assertAdmin();
+  const admin = createAdminClient();
+  const orderId = str(formData.get("id"));
+  if (!orderId) return;
+
+  const { data: order } = await admin
+    .from("orders")
+    .select("user_id, total_amount")
+    .eq("id", orderId)
+    .maybeSingle();
+  if (!order) return;
+
+  const amount = num(formData.get("amount")) || order.total_amount;
+  if (amount <= 0) return;
+
+  const granted = await adjustWallet(
+    order.user_id,
+    amount,
+    "refund",
+    str(formData.get("reason")) || "Refund issued as store credit",
+    { orderId },
+  );
+  if (granted && amount >= order.total_amount) {
+    await admin.from("orders").update({ status: "cancelled" }).eq("id", orderId);
+  }
   revalidatePath(`/admin/orders/${orderId}`);
 }
 

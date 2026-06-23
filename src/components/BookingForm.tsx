@@ -11,6 +11,7 @@ import {
   getSamagriKitPrice,
 } from "@/lib/poojas";
 import { createClient } from "@/lib/supabase/client";
+import { redeemableAmount } from "@/lib/rewards";
 import { payWithRazorpay } from "@/lib/razorpay-client";
 import type { PanditTier } from "@/lib/pandit-tier";
 import { resolveTravelBand, isValidPincode } from "@/lib/travel";
@@ -46,6 +47,8 @@ export default function BookingForm({
 
   const [user, setUser] = useState<User | null>(null);
   const [savedAddresses, setSavedAddresses] = useState<SavedAddress[]>([]);
+  const [wallet, setWallet] = useState({ available: 0, maxRedeemPct: 0 });
+  const [useCredit, setUseCredit] = useState(true);
   const [date, setDate] = useState("");
   const [slot, setSlot] = useState("");
   const [language, setLanguage] = useState("Hindi");
@@ -75,6 +78,25 @@ export default function BookingForm({
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setUser(data.user));
   }, [supabase]);
+
+  // Load spendable store credit once signed in.
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    fetch("/api/wallet/summary")
+      .then((r) => r.json())
+      .then((d: { available?: number; maxRedeemPct?: number }) => {
+        if (!cancelled)
+          setWallet({
+            available: d.available ?? 0,
+            maxRedeemPct: d.maxRedeemPct ?? 0,
+          });
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
 
   // Load the signed-in user's saved addresses (RLS-scoped) and prefill the
   // default one, so the venue isn't retyped for every booking.
@@ -221,6 +243,15 @@ export default function BookingForm({
   const total =
     pooja.startingPrice + (addKit ? kitPrice : 0) + travelFee + peakSurcharge;
 
+  // Store-credit redemption preview (server re-validates and caps at total-1).
+  const creditApplied = useCredit
+    ? Math.min(
+        redeemableAmount(wallet.available, total, wallet.maxRedeemPct),
+        Math.max(0, total - 1),
+      )
+    : 0;
+  const payable = total - creditApplied;
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
@@ -248,6 +279,7 @@ export default function BookingForm({
           pincode: pincode || undefined,
           notes,
           samagriKit: addKit,
+          redeemWallet: useCredit,
         }),
       });
 
@@ -624,10 +656,32 @@ export default function BookingForm({
         </div>
       )}
 
+      {user && wallet.available > 0 && (
+        <label className="mt-3 flex items-center gap-2 text-sm text-foreground/75">
+          <input
+            type="checkbox"
+            checked={useCredit}
+            onChange={(e) => setUseCredit(e.target.checked)}
+            className="h-4 w-4 accent-saffron-600"
+          />
+          Use store credit —{" "}
+          <span className="font-medium text-emerald-700">
+            {formatINR(wallet.available)} available
+          </span>
+        </label>
+      )}
+
+      {creditApplied > 0 && (
+        <div className="mt-2 flex items-center justify-between text-sm text-emerald-700">
+          <span>Store credit</span>
+          <span>− {formatINR(creditApplied)}</span>
+        </div>
+      )}
+
       <div className="mt-2 flex items-center justify-between border-t border-saffron-50 pt-4">
         <span className="text-sm text-foreground/60">Total payable</span>
         <span className="font-heading text-xl text-saffron-700">
-          {formatINR(total)}
+          {formatINR(payable)}
         </span>
       </div>
 
@@ -645,7 +699,7 @@ export default function BookingForm({
         {busy
           ? "Processing…"
           : user
-            ? `Pay ${formatINR(total)} & confirm`
+            ? `Pay ${formatINR(payable)} & confirm`
             : "Sign in to book"}
       </button>
       <p className="mt-3 text-center text-xs text-foreground/50">
