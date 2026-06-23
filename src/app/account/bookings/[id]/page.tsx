@@ -44,7 +44,7 @@ export default async function BookingDetailPage({
   const { data: booking } = await supabase
     .from("bookings")
     .select(
-      "id, status, booking_date, time_slot, language, address, city, pincode, pandit_id, samagri_kit, service_price, samagri_price, total_amount, created_at, notes, poojas(name, emoji, sanskrit_name), preferred:pandits!bookings_preferred_pandit_id_fkey(full_name), assigned:pandits!bookings_pandit_id_fkey(full_name)",
+      "id, status, booking_date, time_slot, language, address, city, pincode, pandit_id, package_id, samagri_kit, service_price, samagri_price, total_amount, created_at, notes, poojas(name, emoji, sanskrit_name), preferred:pandits!bookings_preferred_pandit_id_fkey(full_name), assigned:pandits!bookings_pandit_id_fkey(full_name)",
     )
     .eq("id", id)
     .maybeSingle();
@@ -162,11 +162,16 @@ export default async function BookingDetailPage({
                   </dd>
                 </div>
               </dl>
-              {booking.status === "pending" && (
+              {booking.status === "pending" && !booking.package_id && (
                 <PayPendingBooking
                   bookingId={booking.id}
                   amount={booking.total_amount}
                 />
+              )}
+              {booking.status === "pending" && booking.package_id && (
+                <p className="mt-3 border-t border-saffron-50 pt-3 text-xs text-foreground/55">
+                  Part of a package — paid together with the other ceremonies.
+                </p>
               )}
             </div>
           </div>

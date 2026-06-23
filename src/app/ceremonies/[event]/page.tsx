@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import PoojaCard from "@/components/PoojaCard";
+import PackageBookingForm from "@/components/PackageBookingForm";
 import { lifeEvents, getLifeEvent } from "@/lib/ceremonies";
 import { getPoojas } from "@/lib/queries";
 import { formatINR, type Pooja } from "@/lib/poojas";
@@ -115,6 +116,16 @@ export default async function LifeEventPage({
                   </div>
                 </div>
               </div>
+
+              <PackageBookingForm
+                ceremonies={ceremonies.map((p) => ({
+                  slug: p.slug,
+                  name: p.name,
+                  emoji: p.emoji,
+                  price: p.startingPrice,
+                }))}
+                total={packageTotal}
+              />
             </div>
           )}
 

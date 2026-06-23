@@ -71,6 +71,7 @@ export type Database = {
           language: string | null
           last_nudged_at: string | null
           notes: string | null
+          package_id: string | null
           pandit_id: string | null
           peak_label: string | null
           peak_surcharge: number
@@ -107,6 +108,7 @@ export type Database = {
           language?: string | null
           last_nudged_at?: string | null
           notes?: string | null
+          package_id?: string | null
           pandit_id?: string | null
           peak_label?: string | null
           peak_surcharge?: number
@@ -143,6 +145,7 @@ export type Database = {
           language?: string | null
           last_nudged_at?: string | null
           notes?: string | null
+          package_id?: string | null
           pandit_id?: string | null
           peak_label?: string | null
           peak_surcharge?: number

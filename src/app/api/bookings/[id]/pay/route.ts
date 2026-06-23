@@ -22,7 +22,7 @@ export async function POST(
   // RLS confines this select to the user's own bookings.
   const { data: booking } = await supabase
     .from("bookings")
-    .select("id, total_amount, status")
+    .select("id, total_amount, status, package_id")
     .eq("id", id)
     .maybeSingle();
   if (!booking) {
@@ -31,6 +31,13 @@ export async function POST(
   if (booking.status !== "pending") {
     return NextResponse.json(
       { error: "This booking isn't awaiting payment." },
+      { status: 409 },
+    );
+  }
+  // Package ceremonies are paid together via the package order, not one-by-one.
+  if (booking.package_id) {
+    return NextResponse.json(
+      { error: "This ceremony is paid as part of its package." },
       { status: 409 },
     );
   }

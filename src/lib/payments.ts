@@ -56,10 +56,20 @@ export async function capturePaymentByRazorpayOrder(params: {
   }
 
   if (payment.payment_for === "booking" && payment.booking_id) {
-    await admin
+    const { data: confirmed } = await admin
       .from("bookings")
       .update({ status: "confirmed" })
-      .eq("id", payment.booking_id);
+      .eq("id", payment.booking_id)
+      .select("package_id")
+      .maybeSingle();
+    // A package payment confirms all of its ceremonies together.
+    if (confirmed?.package_id) {
+      await admin
+        .from("bookings")
+        .update({ status: "confirmed" })
+        .eq("package_id", confirmed.package_id)
+        .eq("status", "pending");
+    }
     await sendBookingConfirmation(payment.booking_id);
   } else if (payment.payment_for === "order" && payment.order_id) {
     await admin
