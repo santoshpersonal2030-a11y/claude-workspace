@@ -1,6 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+
+import { createClient } from "@/lib/supabase/client";
 
 type Message = {
   id: string;
@@ -18,6 +20,7 @@ const ROLE_LABEL: Record<string, string> = {
 // Per-booking chat thread shared by the customer, pandit and admin views.
 // Polls for new messages while mounted.
 export default function BookingChat({ bookingId }: { bookingId: string }) {
+  const supabase = useMemo(() => createClient(), []);
   const [messages, setMessages] = useState<Message[]>([]);
   const [me, setMe] = useState<string>("");
   const [text, setText] = useState("");
@@ -39,9 +42,27 @@ export default function BookingChat({ bookingId }: { bookingId: string }) {
 
   useEffect(() => {
     load();
-    const timer = setInterval(load, 15000);
-    return () => clearInterval(timer);
-  }, [load]);
+    // Realtime: refetch (via the participant-checked API) on new messages, with
+    // a slow poll as a fallback if the socket drops.
+    const channel = supabase
+      .channel(`booking_messages:${bookingId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "booking_messages",
+          filter: `booking_id=eq.${bookingId}`,
+        },
+        () => void load(),
+      )
+      .subscribe();
+    const timer = setInterval(load, 60000);
+    return () => {
+      clearInterval(timer);
+      supabase.removeChannel(channel);
+    };
+  }, [load, supabase, bookingId]);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });

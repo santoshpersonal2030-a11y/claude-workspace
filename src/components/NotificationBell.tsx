@@ -44,12 +44,37 @@ export default function NotificationBell() {
   useEffect(() => {
     const run = () => void load();
     const first = setTimeout(run, 0);
-    const timer = setInterval(run, 30000);
+    // Slow poll as a fallback; realtime (below) handles the common case.
+    const timer = setInterval(run, 60000);
     return () => {
       clearTimeout(first);
       clearInterval(timer);
     };
   }, [load]);
+
+  // Realtime: refresh when a notification is inserted for this user.
+  useEffect(() => {
+    let channel: ReturnType<typeof supabase.channel> | null = null;
+    supabase.auth.getUser().then(({ data }) => {
+      if (!data.user) return;
+      channel = supabase
+        .channel(`notifications:${data.user.id}`)
+        .on(
+          "postgres_changes",
+          {
+            event: "INSERT",
+            schema: "public",
+            table: "notifications",
+            filter: `user_id=eq.${data.user.id}`,
+          },
+          () => void load(),
+        )
+        .subscribe();
+    });
+    return () => {
+      if (channel) supabase.removeChannel(channel);
+    };
+  }, [supabase, load]);
 
   async function toggle() {
     const next = !open;
