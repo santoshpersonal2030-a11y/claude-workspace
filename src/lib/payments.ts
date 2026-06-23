@@ -3,11 +3,61 @@ import {
   sendOrderConfirmation,
   sendBookingConfirmation,
 } from "@/lib/notifications";
+import {
+  grantLoyalty,
+  grantReferralReward,
+  settleRedemption,
+} from "@/lib/wallet";
 
 type CaptureResult = {
   ok: boolean;
   status: "captured" | "already" | "not_found";
 };
+
+// Side effects when an order becomes paid: stock, confirmation email, and
+// wallet rewards (settle any credit redeemed, earn loyalty, pay out referral).
+// Guarded on the order status so it runs exactly once whether triggered by a
+// Razorpay capture or by a fully-credit-covered checkout.
+export async function finalizeOrderPaid(orderId: string): Promise<void> {
+  const admin = createAdminClient();
+  const { data: order } = await admin
+    .from("orders")
+    .update({ status: "paid" })
+    .eq("id", orderId)
+    .neq("status", "paid")
+    .select("id, user_id, total_amount, wallet_used")
+    .maybeSingle();
+  if (!order) return; // already finalised, or not found
+
+  await admin.rpc("decrement_stock_for_order", { p_order_id: orderId });
+  await sendOrderConfirmation(orderId);
+
+  await settleRedemption(order.user_id, order.wallet_used ?? 0, {
+    orderId: order.id,
+  });
+  await grantLoyalty(
+    order.user_id,
+    order.total_amount - (order.wallet_used ?? 0),
+    { orderId: order.id },
+  );
+  await grantReferralReward(order.user_id, { orderId: order.id });
+}
+
+// Rewards for a freshly-confirmed booking (and any package siblings): settle
+// redeemed credit, earn loyalty on the cash paid, and pay out a pending
+// referral once.
+async function rewardConfirmedBookings(
+  rows: { id: string; user_id: string; total_amount: number; wallet_used: number }[],
+): Promise<void> {
+  for (const b of rows) {
+    await settleRedemption(b.user_id, b.wallet_used ?? 0, { bookingId: b.id });
+    await grantLoyalty(b.user_id, b.total_amount - (b.wallet_used ?? 0), {
+      bookingId: b.id,
+    });
+  }
+  const userId = rows[0]?.user_id;
+  if (userId) await grantReferralReward(userId, { bookingId: rows[0].id });
+}
 
 // Marks a payment (and its parent booking/order) as paid, exactly once.
 //
@@ -71,16 +121,17 @@ export async function capturePaymentByRazorpayOrder(params: {
         .eq("status", "pending");
     }
     await sendBookingConfirmation(payment.booking_id);
+
+    // Reward the booking (plus any package siblings) once it's confirmed.
+    const rewardQuery = admin
+      .from("bookings")
+      .select("id, user_id, total_amount, wallet_used");
+    const { data: rows } = confirmed?.package_id
+      ? await rewardQuery.eq("package_id", confirmed.package_id)
+      : await rewardQuery.eq("id", payment.booking_id);
+    if (rows) await rewardConfirmedBookings(rows);
   } else if (payment.payment_for === "order" && payment.order_id) {
-    await admin
-      .from("orders")
-      .update({ status: "paid" })
-      .eq("id", payment.order_id);
-    // Decrement inventory atomically in the database.
-    await admin.rpc("decrement_stock_for_order", {
-      p_order_id: payment.order_id,
-    });
-    await sendOrderConfirmation(payment.order_id);
+    await finalizeOrderPaid(payment.order_id);
   }
 
   return { ok: true, status: "captured" };

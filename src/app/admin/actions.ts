@@ -1126,3 +1126,23 @@ export async function deleteCoupon(formData: FormData): Promise<void> {
   if (code) await admin.from("coupons").delete().eq("code", code);
   revalidatePath("/admin/coupons");
 }
+
+// ── Rewards (wallet / referral / loyalty) ────────────────────────────────────
+
+export async function saveRewardSettings(formData: FormData): Promise<void> {
+  await assertAdmin();
+  const admin = createAdminClient();
+  await admin.from("reward_settings").upsert(
+    {
+      id: 1,
+      rewards_enabled: formData.get("rewards_enabled") === "on",
+      referrer_reward: num(formData.get("referrer_reward")),
+      referee_reward: num(formData.get("referee_reward")),
+      loyalty_earn_pct: clampFloat(formData.get("loyalty_earn_pct"), 100),
+      max_redeem_pct: Math.min(100, num(formData.get("max_redeem_pct"))),
+      updated_at: new Date().toISOString(),
+    },
+    { onConflict: "id" },
+  );
+  revalidatePath("/admin/rewards");
+}

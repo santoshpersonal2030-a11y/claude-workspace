@@ -134,6 +134,7 @@ export type Database = {
           travel_fee: number
           updated_at: string
           user_id: string
+          wallet_used: number
         }
         Insert: {
           address: string
@@ -171,6 +172,7 @@ export type Database = {
           travel_fee?: number
           updated_at?: string
           user_id: string
+          wallet_used?: number
         }
         Update: {
           address?: string
@@ -208,6 +210,7 @@ export type Database = {
           travel_fee?: number
           updated_at?: string
           user_id?: string
+          wallet_used?: number
         }
         Relationships: [
           {
@@ -577,6 +580,7 @@ export type Database = {
           tracking_number: string | null
           updated_at: string
           user_id: string
+          wallet_used: number
         }
         Insert: {
           address?: string | null
@@ -610,6 +614,7 @@ export type Database = {
           tracking_number?: string | null
           updated_at?: string
           user_id: string
+          wallet_used?: number
         }
         Update: {
           address?: string | null
@@ -643,6 +648,7 @@ export type Database = {
           tracking_number?: string | null
           updated_at?: string
           user_id?: string
+          wallet_used?: number
         }
         Relationships: [
           {
@@ -1351,6 +1357,9 @@ export type Database = {
           is_admin: boolean
           marketing_consent: boolean
           phone: string | null
+          referral_code: string | null
+          referral_rewarded: boolean
+          referred_by: string | null
           signin_method: Database["public"]["Enums"]["signin_method"] | null
           updated_at: string
         }
@@ -1362,6 +1371,9 @@ export type Database = {
           is_admin?: boolean
           marketing_consent?: boolean
           phone?: string | null
+          referral_code?: string | null
+          referral_rewarded?: boolean
+          referred_by?: string | null
           signin_method?: Database["public"]["Enums"]["signin_method"] | null
           updated_at?: string
         }
@@ -1373,10 +1385,21 @@ export type Database = {
           is_admin?: boolean
           marketing_consent?: boolean
           phone?: string | null
+          referral_code?: string | null
+          referral_rewarded?: boolean
+          referred_by?: string | null
           signin_method?: Database["public"]["Enums"]["signin_method"] | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_referred_by_fkey"
+            columns: ["referred_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       stock_subscriptions: {
         Row: {
@@ -1409,6 +1432,84 @@ export type Database = {
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reward_settings: {
+        Row: {
+          id: number
+          loyalty_earn_pct: number
+          max_redeem_pct: number
+          referee_reward: number
+          referrer_reward: number
+          rewards_enabled: boolean
+          updated_at: string
+        }
+        Insert: {
+          id?: number
+          loyalty_earn_pct?: number
+          max_redeem_pct?: number
+          referee_reward?: number
+          referrer_reward?: number
+          rewards_enabled?: boolean
+          updated_at?: string
+        }
+        Update: {
+          id?: number
+          loyalty_earn_pct?: number
+          max_redeem_pct?: number
+          referee_reward?: number
+          referrer_reward?: number
+          rewards_enabled?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      wallet_transactions: {
+        Row: {
+          amount: number
+          booking_id: string | null
+          created_at: string
+          id: string
+          note: string | null
+          order_id: string | null
+          reason: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          booking_id?: string | null
+          created_at?: string
+          id?: string
+          note?: string | null
+          order_id?: string | null
+          reason: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          booking_id?: string | null
+          created_at?: string
+          id?: string
+          note?: string | null
+          order_id?: string | null
+          reason?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wallet_transactions_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "wallet_transactions_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
             referencedColumns: ["id"]
           },
         ]

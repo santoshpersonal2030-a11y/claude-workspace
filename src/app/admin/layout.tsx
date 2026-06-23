@@ -13,6 +13,7 @@ const tabs = [
   { href: "/admin/muhurat", label: "Muhurat" },
   { href: "/admin/peak-days", label: "Peak days" },
   { href: "/admin/coupons", label: "Coupons" },
+  { href: "/admin/rewards", label: "Rewards" },
   { href: "/admin/coverage", label: "Coverage" },
   { href: "/admin/messages", label: "Messages" },
   { href: "/admin/settings", label: "Settings" },

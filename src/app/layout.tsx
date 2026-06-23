@@ -3,6 +3,7 @@ import { Marcellus, Mukta } from "next/font/google";
 import "./globals.css";
 import Providers from "./providers";
 import AnnouncementBar from "@/components/AnnouncementBar";
+import ReferralTracker from "@/components/ReferralTracker";
 
 const heading = Marcellus({
   weight: "400",
@@ -66,6 +67,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <AnnouncementBar />
+        <ReferralTracker />
         <Providers>{children}</Providers>
       </body>
     </html>

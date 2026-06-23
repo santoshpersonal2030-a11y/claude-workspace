@@ -11,6 +11,7 @@ import ProductThumb from "@/components/ProductThumb";
 import { useCart } from "@/lib/cart";
 import { INDIAN_STATES } from "@/lib/india";
 import { formatINR } from "@/lib/poojas";
+import { redeemableAmount } from "@/lib/rewards";
 import { createClient } from "@/lib/supabase/client";
 import { payWithRazorpay } from "@/lib/razorpay-client";
 
@@ -47,6 +48,8 @@ export default function CartPage() {
   const [couponInput, setCouponInput] = useState("");
   const [coupon, setCoupon] = useState<{ code: string; discount: number } | null>(null);
   const [couponMsg, setCouponMsg] = useState<string | null>(null);
+  const [wallet, setWallet] = useState({ available: 0, maxRedeemPct: 0 });
+  const [useCredit, setUseCredit] = useState(true);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
@@ -104,6 +107,29 @@ export default function CartPage() {
   const shipping = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_FEE;
   const discount = coupon ? Math.min(coupon.discount, subtotal) : 0;
   const total = subtotal > 0 ? Math.max(0, subtotal + shipping - discount) : 0;
+  const creditApplied = useCredit
+    ? redeemableAmount(wallet.available, total, wallet.maxRedeemPct)
+    : 0;
+  const payable = Math.max(0, total - creditApplied);
+
+  // Load the customer's spendable store credit once signed in.
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    fetch("/api/wallet/summary")
+      .then((r) => r.json())
+      .then((d: { available?: number; maxRedeemPct?: number }) => {
+        if (cancelled) return;
+        setWallet({
+          available: d.available ?? 0,
+          maxRedeemPct: d.maxRedeemPct ?? 0,
+        });
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
 
   async function applyCoupon() {
     setCouponMsg(null);
@@ -142,6 +168,7 @@ export default function CartPage() {
         body: JSON.stringify({
           items: items.map((i) => ({ slug: i.slug, quantity: i.quantity })),
           couponCode: coupon?.code,
+          redeemWallet: useCredit,
           delivery,
         }),
       });
@@ -289,11 +316,33 @@ export default function CartPage() {
                         <dd>− {formatINR(discount)}</dd>
                       </div>
                     )}
+                    {creditApplied > 0 && (
+                      <div className="flex justify-between text-emerald-700">
+                        <dt>Store credit</dt>
+                        <dd>− {formatINR(creditApplied)}</dd>
+                      </div>
+                    )}
                     <div className="flex justify-between border-t border-saffron-50 pt-2 text-base font-semibold">
-                      <dt>Total</dt>
-                      <dd className="text-saffron-700">{formatINR(total)}</dd>
+                      <dt>To pay</dt>
+                      <dd className="text-saffron-700">{formatINR(payable)}</dd>
                     </div>
                   </dl>
+
+                  {/* Store credit */}
+                  {wallet.available > 0 && (
+                    <label className="mt-4 flex items-center gap-2 border-t border-saffron-50 pt-4 text-sm text-foreground/75">
+                      <input
+                        type="checkbox"
+                        checked={useCredit}
+                        onChange={(e) => setUseCredit(e.target.checked)}
+                        className="h-4 w-4 accent-saffron-600"
+                      />
+                      Use store credit —{" "}
+                      <span className="font-medium text-emerald-700">
+                        {formatINR(wallet.available)} available
+                      </span>
+                    </label>
+                  )}
 
                   {/* Coupon */}
                   <div className="mt-4 border-t border-saffron-50 pt-4">
@@ -439,7 +488,9 @@ export default function CartPage() {
                       >
                         {busy
                           ? "Processing…"
-                          : `Pay ${formatINR(total)}`}
+                          : payable > 0
+                            ? `Pay ${formatINR(payable)}`
+                            : "Place order"}
                       </button>
                       <p className="text-center text-xs text-foreground/50">
                         Secure payment via Razorpay.

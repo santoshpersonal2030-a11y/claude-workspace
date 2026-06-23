@@ -15,6 +15,7 @@ const ACCOUNT_LINKS = [
   { href: "/account/bookings", label: "My bookings", emoji: "🪔" },
   { href: "/account/orders", label: "My orders", emoji: "📦" },
   { href: "/account/subscriptions", label: "Recurring poojas", emoji: "🔁" },
+  { href: "/account/wallet", label: "Store credit", emoji: "💰" },
   { href: "/account/addresses", label: "Saved addresses", emoji: "📍" },
   { href: "/account/wishlist", label: "Wishlist", emoji: "♡" },
 ];
