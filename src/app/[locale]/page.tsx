@@ -10,6 +10,7 @@ import { formatINR } from "@/lib/poojas";
 import { getPopularPoojas, getPandits, getProducts } from "@/lib/queries";
 import { getApprovedMuhuratWindows } from "@/lib/muhurat-data";
 import TodayPanchang from "@/components/TodayPanchang";
+import { getDictionary, isLocale, DEFAULT_LOCALE } from "@/lib/i18n";
 
 const MUHURAT_WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const MUHURAT_MONTHS = [
@@ -36,118 +37,54 @@ function panditInitials(name: string) {
     .toUpperCase();
 }
 
-const testimonials = [
-  {
-    quote:
-      "The Pandit ji arrived on time and performed our Griha Pravesh beautifully. He explained every step in Marathi — our elders were so happy.",
-    name: "Priya & Aniket",
-    detail: "Griha Pravesh · Pune",
-  },
-  {
-    quote:
-      "Booking the Satyanarayan Katha and the samagri kit together saved me so much running around. Everything was authentic and fresh.",
-    name: "Ramesh Gupta",
-    detail: "Satyanarayan Katha · Delhi",
-  },
-  {
-    quote:
-      "Very professional and devotional. The Navagraha Shanti was done exactly as per the shastras, and the pricing was completely transparent.",
-    name: "Lakshmi Iyer",
-    detail: "Navagraha Shanti · Bengaluru",
-  },
-];
+export default async function Home({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const { t } = getDictionary(isLocale(locale) ? locale : DEFAULT_LOCALE);
 
-const faqs = [
-  {
-    q: "How do I book a Pandit?",
-    a: "Choose your ceremony, pick a date, time and language, optionally add a samagri kit, then sign in and pay securely. We assign a verified Pandit for your location and confirm your booking instantly.",
-  },
-  {
-    q: "Are the Pandits verified?",
-    a: "Yes. Every Pandit on BookMyPoojari is background-checked for authenticity and experience, and is rated by real families who have booked them.",
-  },
-  {
-    q: "What is included in the price?",
-    a: "The price covers the dakshina/service for the ceremony. You can optionally add a samagri kit that includes all the items required for the pooja, delivered to your door.",
-  },
-  {
-    q: "Can I choose my language or a preferred Pandit?",
-    a: "Absolutely. You select your preferred language at booking and can choose a specific Pandit from those who speak it. We honour your choice subject to availability.",
-  },
-  {
-    q: "What is your cancellation policy?",
-    a: "You can cancel up to 24 hours before the scheduled time for a full refund. See our Refund & Cancellation policy for full details.",
-  },
-  {
-    q: "Do you deliver samagri across India?",
-    a: "Yes. Ready-made samagri kits and individual items are delivered to your door, with free delivery on orders over ₹999.",
-  },
-];
+  const trustStats = [
+    { value: "500+", label: t("home.trust.pandits") },
+    { value: "50,000+", label: t("home.trust.poojas") },
+    { value: "4.9★", label: t("home.trust.rating") },
+    { value: "20+", label: t("home.trust.languages") },
+  ];
 
-const faqJsonLd = {
-  "@context": "https://schema.org",
-  "@type": "FAQPage",
-  mainEntity: faqs.map((f) => ({
-    "@type": "Question",
-    name: f.q,
-    acceptedAnswer: { "@type": "Answer", text: f.a },
-  })),
-};
+  const steps = [1, 2, 3, 4].map((n) => ({
+    icon: ["📿", "🧑🏽‍🦱", "🛍️", "🙏"][n - 1],
+    title: t(`home.how.step${n}.title`),
+    text: t(`home.how.step${n}.text`),
+  }));
 
-const trustStats = [
-  { value: "500+", label: "Verified Pandits" },
-  { value: "50,000+", label: "Poojas Performed" },
-  { value: "4.9★", label: "Average Rating" },
-  { value: "20+", label: "Languages" },
-];
+  const reasons = [1, 2, 3, 4].map((n) => ({
+    icon: ["✅", "💰", "🗣️", "📦"][n - 1],
+    title: t(`home.why.${n}.title`),
+    text: t(`home.why.${n}.text`),
+  }));
 
-const steps = [
-  {
-    icon: "📿",
-    title: "Choose your pooja",
-    text: "Pick the ceremony you need and tell us your date, time and location.",
-  },
-  {
-    icon: "🧑🏽‍🦱",
-    title: "We match a Pandit",
-    text: "A verified, experienced Pandit who speaks your language is assigned to you.",
-  },
-  {
-    icon: "🛍️",
-    title: "Samagri delivered",
-    text: "Order an authentic samagri kit and we deliver everything needed to your door.",
-  },
-  {
-    icon: "🙏",
-    title: "Pooja, done right",
-    text: "Relax while the rituals are performed traditionally and on time.",
-  },
-];
+  const testimonials = [1, 2, 3].map((n) => ({
+    quote: t(`home.testimonials.${n}.quote`),
+    name: ["Priya & Aniket", "Ramesh Gupta", "Lakshmi Iyer"][n - 1],
+    detail: t(`home.testimonials.${n}.detail`),
+  }));
 
-const reasons = [
-  {
-    icon: "✅",
-    title: "Verified & experienced",
-    text: "Every Pandit is background-checked, knowledgeable and rated by real families.",
-  },
-  {
-    icon: "💰",
-    title: "Transparent pricing",
-    text: "Clear, upfront dakshina and samagri prices. No haggling, no surprises.",
-  },
-  {
-    icon: "🗣️",
-    title: "Your language, your tradition",
-    text: "Pandits across regions and languages who respect your family's customs.",
-  },
-  {
-    icon: "📦",
-    title: "Everything in one place",
-    text: "Book the priest and order the samagri kit together — fully arranged for you.",
-  },
-];
+  const faqs = [1, 2, 3, 4, 5, 6].map((n) => ({
+    q: t(`home.faq.${n}.q`),
+    a: t(`home.faq.${n}.a`),
+  }));
 
-export default async function Home() {
+  const faqJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqs.map((f) => ({
+      "@type": "Question",
+      name: f.q,
+      acceptedAnswer: { "@type": "Answer", text: f.a },
+    })),
+  };
+
   const popularPoojas = await getPopularPoojas();
   const featuredPandits = (await getPandits()).slice(0, 3);
   const muhuratDates = (await getApprovedMuhuratWindows(8)).slice(0, 4);
@@ -199,17 +136,17 @@ export default async function Home() {
           <div className="flex items-end justify-between gap-4">
             <div>
               <h2 className="font-heading text-3xl text-maroon-800">
-                Popular Poojas
+                {t("home.popular.title")}
               </h2>
               <p className="mt-2 text-foreground/70">
-                Our most-booked ceremonies, performed by verified Pandits.
+                {t("home.popular.subtitle")}
               </p>
             </div>
             <Link
               href="/poojas"
               className="hidden whitespace-nowrap text-sm font-semibold text-saffron-700 hover:text-saffron-800 sm:block"
             >
-              View all poojas →
+              {t("home.popular.viewAll")}
             </Link>
           </div>
 
@@ -234,13 +171,13 @@ export default async function Home() {
                 </p>
                 <div className="mt-4 flex items-center justify-between border-t border-saffron-50 pt-4">
                   <span className="text-sm text-foreground/60">
-                    Starts at{" "}
+                    {t("home.popular.startsAt")}{" "}
                     <span className="font-semibold text-foreground">
                       {formatINR(pooja.startingPrice)}
                     </span>
                   </span>
                   <span className="text-sm font-semibold text-saffron-700 group-hover:translate-x-0.5">
-                    Book →
+                    {t("home.popular.book")}
                   </span>
                 </div>
               </Link>
@@ -255,17 +192,17 @@ export default async function Home() {
               <div className="flex items-end justify-between gap-4">
                 <div>
                   <h2 className="font-heading text-3xl text-maroon-800">
-                    Upcoming Shubh Muhurat
+                    {t("home.muhurat.title")}
                   </h2>
                   <p className="mt-2 text-foreground/70">
-                    Astrologer-verified auspicious dates for your ceremony.
+                    {t("home.muhurat.subtitle")}
                   </p>
                 </div>
                 <Link
                   href="/muhurat"
                   className="hidden whitespace-nowrap text-sm font-semibold text-saffron-700 hover:text-saffron-800 sm:block"
                 >
-                  View all dates →
+                  {t("home.muhurat.viewAll")}
                 </Link>
               </div>
               <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -279,7 +216,7 @@ export default async function Home() {
                       {muhuratDateLabel(w.date)}
                     </div>
                     <div className="mt-1 text-sm font-medium text-saffron-700">
-                      🕉️ {w.label ?? "Auspicious muhurat"}
+                      🕉️ {w.label ?? t("home.muhurat.auspicious")}
                     </div>
                     <div className="mt-1 text-sm text-foreground/65">
                       {w.ceremony} · {w.startTime}–{w.endTime}
@@ -297,17 +234,17 @@ export default async function Home() {
             <div className="flex items-end justify-between gap-4">
               <div>
                 <h2 className="font-heading text-3xl text-maroon-800">
-                  Shop bestselling samagri
+                  {t("home.store.title")}
                 </h2>
                 <p className="mt-2 text-foreground/70">
-                  Top-rated kits and essentials, delivered to your door.
+                  {t("home.store.subtitle")}
                 </p>
               </div>
               <Link
                 href="/store"
                 className="hidden whitespace-nowrap text-sm font-semibold text-saffron-700 hover:text-saffron-800 sm:block"
               >
-                Visit the store →
+                {t("home.store.visit")}
               </Link>
             </div>
 
@@ -334,7 +271,7 @@ export default async function Home() {
                       </Link>
                       {discount > 0 && (
                         <span className="absolute right-2 top-2 rounded-full bg-green-50 px-2 py-0.5 text-xs font-semibold text-green-700">
-                          {discount}% off
+                          {t("home.store.off", { pct: discount })}
                         </span>
                       )}
                     </div>
@@ -377,18 +314,17 @@ export default async function Home() {
               <div className="flex items-end justify-between gap-4">
                 <div>
                   <h2 className="font-heading text-3xl text-maroon-800">
-                    Meet our verified Pandits
+                    {t("home.pandits.title")}
                   </h2>
                   <p className="mt-2 text-foreground/70">
-                    Experienced, background-checked priests trusted by thousands
-                    of families.
+                    {t("home.pandits.subtitle")}
                   </p>
                 </div>
                 <Link
                   href="/pandits"
                   className="hidden whitespace-nowrap text-sm font-semibold text-saffron-700 hover:text-saffron-800 sm:block"
                 >
-                  View all Pandits →
+                  {t("home.pandits.viewAll")}
                 </Link>
               </div>
 
@@ -416,7 +352,7 @@ export default async function Home() {
                           </span>
                           {pandit.verified && (
                             <span className="rounded-full bg-green-50 px-2 py-0.5 text-[11px] font-medium text-green-700">
-                              ✓ Verified
+                              {t("home.pandits.verified")}
                             </span>
                           )}
                         </div>
@@ -426,7 +362,7 @@ export default async function Home() {
                       {pandit.bio}
                     </p>
                     <div className="mt-4 border-t border-saffron-50 pt-3 text-xs text-foreground/55">
-                      {pandit.experienceYears}+ years ·{" "}
+                      {t("home.pandits.years", { years: pandit.experienceYears })} ·{" "}
                       {pandit.languages.slice(0, 3).join(", ")}
                     </div>
                   </Link>
@@ -440,10 +376,10 @@ export default async function Home() {
         <section className="py-16">
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
             <h2 className="text-center font-heading text-3xl text-maroon-800">
-              How it works
+              {t("home.how.title")}
             </h2>
             <p className="mx-auto mt-2 max-w-xl text-center text-foreground/70">
-              A peaceful, hassle-free experience from booking to blessings.
+              {t("home.how.subtitle")}
             </p>
             <div className="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
               {steps.map((step, i) => (
@@ -452,7 +388,7 @@ export default async function Home() {
                     {step.icon}
                   </div>
                   <div className="mt-3 font-heading text-sm text-saffron-700">
-                    Step {i + 1}
+                    {t("home.how.step", { n: i + 1 })}
                   </div>
                   <h3 className="mt-1 font-heading text-lg text-maroon-700">
                     {step.title}
@@ -467,7 +403,7 @@ export default async function Home() {
         {/* Why choose us */}
         <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
           <h2 className="text-center font-heading text-3xl text-maroon-800">
-            Why families trust BookMyPoojari
+            {t("home.why.title")}
           </h2>
           <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {reasons.map((r) => (
@@ -489,26 +425,26 @@ export default async function Home() {
         <section className="bg-cream-100/60 py-16">
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
             <h2 className="text-center font-heading text-3xl text-maroon-800">
-              Loved by families across India
+              {t("home.testimonials.title")}
             </h2>
             <p className="mx-auto mt-2 max-w-xl text-center text-foreground/70">
-              Real words from devotees who booked with BookMyPoojari.
+              {t("home.testimonials.subtitle")}
             </p>
             <div className="mt-10 grid gap-6 sm:grid-cols-3">
-              {testimonials.map((t) => (
+              {testimonials.map((tm) => (
                 <figure
-                  key={t.name}
+                  key={tm.name}
                   className="flex flex-col rounded-2xl border border-saffron-100 bg-white p-6 shadow-sm"
                 >
                   <div className="text-gold-500" aria-hidden="true">
                     ★★★★★
                   </div>
                   <blockquote className="mt-3 flex-1 text-sm leading-relaxed text-foreground/75">
-                    “{t.quote}”
+                    “{tm.quote}”
                   </blockquote>
                   <figcaption className="mt-4 border-t border-saffron-50 pt-3">
-                    <div className="font-medium text-maroon-700">{t.name}</div>
-                    <div className="text-xs text-foreground/55">{t.detail}</div>
+                    <div className="font-medium text-maroon-700">{tm.name}</div>
+                    <div className="text-xs text-foreground/55">{tm.detail}</div>
                   </figcaption>
                 </figure>
               ))}
@@ -521,18 +457,16 @@ export default async function Home() {
           <div className="overflow-hidden rounded-3xl bg-saffron-600 px-8 py-12 text-center shadow-lg sm:px-12">
             <div className="text-5xl">🛍️</div>
             <h2 className="mt-4 font-heading text-3xl text-white">
-              Authentic Pooja Samagri, delivered
+              {t("home.samagri.title")}
             </h2>
             <p className="mx-auto mt-3 max-w-xl text-saffron-50">
-              Ready-made kits with everything you need — diyas, agarbatti,
-              roli, kalava, idols and more — sourced fresh and delivered to your
-              home.
+              {t("home.samagri.text")}
             </p>
             <Link
               href="/store"
               className="mt-6 inline-block rounded-full bg-white px-7 py-3 text-base font-semibold text-saffron-700 transition-colors hover:bg-saffron-50"
             >
-              Visit the Samagri Store
+              {t("home.samagri.cta")}
             </Link>
           </div>
         </section>
@@ -544,7 +478,7 @@ export default async function Home() {
             dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
           />
           <h2 className="text-center font-heading text-3xl text-maroon-800">
-            Frequently asked questions
+            {t("home.faq.title")}
           </h2>
           <div className="mt-8 space-y-3">
             {faqs.map((faq) => (
@@ -570,17 +504,16 @@ export default async function Home() {
         <section className="bg-temple-gradient">
           <div className="mx-auto max-w-3xl px-4 py-16 text-center sm:px-6">
             <h2 className="font-heading text-3xl text-maroon-800">
-              Ready to book your pooja?
+              {t("home.cta.title")}
             </h2>
             <p className="mx-auto mt-3 max-w-lg text-foreground/70">
-              Tell us the occasion and we&apos;ll take care of the rest — the
-              Pandit, the rituals and the samagri.
+              {t("home.cta.text")}
             </p>
             <Link
               href="/poojas"
               className="mt-7 inline-block rounded-full bg-saffron-600 px-8 py-3.5 text-base font-semibold text-white shadow-sm transition-colors hover:bg-saffron-700"
             >
-              Book a Pooja Now
+              {t("home.cta.button")}
             </Link>
           </div>
         </section>
