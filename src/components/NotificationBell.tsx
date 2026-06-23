@@ -76,6 +76,16 @@ export default function NotificationBell() {
     };
   }, [supabase, load]);
 
+  // Escape closes the open panel.
+  useEffect(() => {
+    if (!open) return;
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") setOpen(false);
+    }
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [open]);
+
   async function toggle() {
     const next = !open;
     setOpen(next);
@@ -99,6 +109,9 @@ export default function NotificationBell() {
         type="button"
         onClick={toggle}
         aria-label={`Notifications${unread ? ` (${unread} unread)` : ""}`}
+        aria-haspopup="true"
+        aria-expanded={open}
+        aria-controls="notification-panel"
         className="relative flex h-9 w-9 items-center justify-center rounded-full text-foreground/70 hover:bg-saffron-50 hover:text-saffron-700"
       >
         <span aria-hidden="true">🔔</span>
@@ -118,7 +131,12 @@ export default function NotificationBell() {
             className="fixed inset-0 z-40 cursor-default"
             onClick={() => setOpen(false)}
           />
-          <div className="absolute right-0 z-50 mt-2 w-80 overflow-hidden rounded-2xl border border-saffron-100 bg-white shadow-lg">
+          <div
+            id="notification-panel"
+            role="region"
+            aria-label="Notifications"
+            className="absolute right-0 z-50 mt-2 w-80 overflow-hidden rounded-2xl border border-saffron-100 bg-white shadow-lg"
+          >
             <div className="border-b border-saffron-50 px-4 py-2 text-sm font-semibold text-maroon-700">
               Notifications
             </div>

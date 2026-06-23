@@ -54,6 +54,16 @@ export default function HeaderAuth() {
     return () => document.removeEventListener("mousedown", onClick);
   }, []);
 
+  // Escape closes the open menu.
+  useEffect(() => {
+    if (!open) return;
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") setOpen(false);
+    }
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [open]);
+
   async function signOut() {
     await supabase.auth.signOut();
     setOpen(false);
@@ -84,14 +94,17 @@ export default function HeaderAuth() {
         type="button"
         onClick={() => setOpen((v) => !v)}
         className="flex h-9 w-9 items-center justify-center rounded-full bg-saffron-100 text-sm font-semibold text-saffron-700 transition-colors hover:bg-saffron-200"
+        aria-label="Account menu"
         aria-haspopup="menu"
         aria-expanded={open}
+        aria-controls="account-menu"
       >
         {(user.email ?? user.phone ?? "U").charAt(0).toUpperCase()}
       </button>
 
       {open && (
         <div
+          id="account-menu"
           role="menu"
           className="absolute right-0 mt-2 w-56 overflow-hidden rounded-xl border border-saffron-100 bg-white py-1 shadow-lg"
         >

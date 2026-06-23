@@ -414,6 +414,10 @@ const en: Dict = {
   "cart.payAmount": "Pay {amount}",
   "cart.placeOrder": "Place order",
   "cart.securePay": "Secure payment via Razorpay.",
+  "cart.closeCart": "Close cart",
+  "cart.remove": "Remove",
+  "cart.shippingNote": "Shipping calculated at checkout. Free over ₹999.",
+  "cart.viewCheckout": "View cart & checkout",
 
   // SEO metadata (per-page title + description)
   "meta.poojas.title": "Book a Pooja — All Ceremonies",
@@ -836,6 +840,10 @@ const hi: Dict = {
   "cart.payAmount": "{amount} का भुगतान करें",
   "cart.placeOrder": "ऑर्डर दें",
   "cart.securePay": "Razorpay के माध्यम से सुरक्षित भुगतान।",
+  "cart.closeCart": "कार्ट बंद करें",
+  "cart.remove": "हटाएँ",
+  "cart.shippingNote": "शिपिंग चेकआउट पर गणना की जाएगी। ₹999 से अधिक पर मुफ़्त।",
+  "cart.viewCheckout": "कार्ट देखें और चेकआउट करें",
 
   // SEO metadata (per-page title + description)
   "meta.poojas.title": "पूजा बुक करें — सभी समारोह",
