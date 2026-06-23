@@ -9,6 +9,7 @@ const tabs = [
   { href: "/admin/products", label: "Products" },
   { href: "/admin/poojas", label: "Poojas" },
   { href: "/admin/pandits", label: "Pandits" },
+  { href: "/admin/priest-analytics", label: "Insights" },
   { href: "/admin/payroll", label: "Payroll" },
   { href: "/admin/muhurat", label: "Muhurat" },
   { href: "/admin/peak-days", label: "Peak days" },
