@@ -67,6 +67,17 @@ function clampFloat(value: FormDataEntryValue | null, max: number): number {
   return Math.min(max, Math.max(0, n));
 }
 
+function slugify(name: string): string {
+  return name
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[^a-z0-9\s-]/g, "")
+    .trim()
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .slice(0, 60);
+}
+
 // Splits "Hindi, Sanskrit, Marathi" into ["Hindi","Sanskrit","Marathi"].
 function csvToArray(value: FormDataEntryValue | null): string[] {
   return str(value)
@@ -1145,4 +1156,93 @@ export async function saveRewardSettings(formData: FormData): Promise<void> {
     { onConflict: "id" },
   );
   revalidatePath("/admin/rewards");
+}
+
+// ── Priest applications (self-onboarding / KYC) ──────────────────────────────
+
+// Approves an application: creates a verified pandit profile from it and links
+// the two. Idempotent — re-approving a linked application is a no-op.
+export async function approvePanditApplication(
+  formData: FormData,
+): Promise<void> {
+  await assertAdmin();
+  const admin = createAdminClient();
+  const id = str(formData.get("id"));
+  if (!id) return;
+
+  const { data: app } = await admin
+    .from("pandit_applications")
+    .select("*")
+    .eq("id", id)
+    .maybeSingle();
+  if (!app || app.created_pandit_id) return;
+
+  // Derive a unique slug from the applicant's name.
+  let slug = slugify(app.full_name) || "pandit";
+  const { data: clashes } = await admin
+    .from("pandits")
+    .select("slug")
+    .like("slug", `${slug}%`);
+  const taken = new Set((clashes ?? []).map((c) => c.slug));
+  if (taken.has(slug)) {
+    let n = 2;
+    while (taken.has(`${slug}-${n}`)) n++;
+    slug = `${slug}-${n}`;
+  }
+
+  const { data: pandit } = await admin
+    .from("pandits")
+    .insert({
+      slug,
+      full_name: app.full_name,
+      bio: app.bio,
+      experience_years: app.experience_years,
+      languages: app.languages ?? [],
+      specializations: app.specializations ?? [],
+      qualifications: app.qualifications
+        ? app.qualifications.split("\n").map((s) => s.trim()).filter(Boolean)
+        : [],
+      regions: app.city ? [app.city] : [],
+      login_email: app.email,
+      phone: app.phone,
+      photo_url: app.photo_url,
+      home_pincode: app.home_pincode,
+      verified: true,
+      active: true,
+    })
+    .select("id, slug")
+    .single();
+
+  await admin
+    .from("pandit_applications")
+    .update({
+      status: "approved",
+      reviewed_at: new Date().toISOString(),
+      review_notes: str(formData.get("review_notes")) || null,
+      created_pandit_id: pandit?.id ?? null,
+    })
+    .eq("id", id);
+
+  revalidatePath("/admin/pandit-applications");
+  revalidatePath("/admin/pandits");
+  revalidatePath("/pandits");
+  if (pandit?.slug) revalidatePath(`/pandits/${pandit.slug}`);
+}
+
+export async function rejectPanditApplication(
+  formData: FormData,
+): Promise<void> {
+  await assertAdmin();
+  const admin = createAdminClient();
+  const id = str(formData.get("id"));
+  if (!id) return;
+  await admin
+    .from("pandit_applications")
+    .update({
+      status: "rejected",
+      reviewed_at: new Date().toISOString(),
+      review_notes: str(formData.get("review_notes")) || null,
+    })
+    .eq("id", id);
+  revalidatePath("/admin/pandit-applications");
 }

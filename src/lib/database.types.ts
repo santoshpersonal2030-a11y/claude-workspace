@@ -660,6 +660,86 @@ export type Database = {
           },
         ]
       }
+      pandit_applications: {
+        Row: {
+          bio: string | null
+          city: string | null
+          created_at: string
+          created_pandit_id: string | null
+          email: string | null
+          experience_years: number | null
+          full_name: string
+          home_pincode: string | null
+          id: string
+          id_doc_path: string | null
+          id_number: string | null
+          id_type: string | null
+          languages: string[]
+          phone: string
+          photo_url: string | null
+          qualifications: string | null
+          review_notes: string | null
+          reviewed_at: string | null
+          specializations: string[]
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          bio?: string | null
+          city?: string | null
+          created_at?: string
+          created_pandit_id?: string | null
+          email?: string | null
+          experience_years?: number | null
+          full_name: string
+          home_pincode?: string | null
+          id?: string
+          id_doc_path?: string | null
+          id_number?: string | null
+          id_type?: string | null
+          languages?: string[]
+          phone: string
+          photo_url?: string | null
+          qualifications?: string | null
+          review_notes?: string | null
+          reviewed_at?: string | null
+          specializations?: string[]
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          bio?: string | null
+          city?: string | null
+          created_at?: string
+          created_pandit_id?: string | null
+          email?: string | null
+          experience_years?: number | null
+          full_name?: string
+          home_pincode?: string | null
+          id?: string
+          id_doc_path?: string | null
+          id_number?: string | null
+          id_type?: string | null
+          languages?: string[]
+          phone?: string
+          photo_url?: string | null
+          qualifications?: string | null
+          review_notes?: string | null
+          reviewed_at?: string | null
+          specializations?: string[]
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pandit_applications_created_pandit_id_fkey"
+            columns: ["created_pandit_id"]
+            isOneToOne: false
+            referencedRelation: "pandits"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pandit_reviews: {
         Row: {
           body: string | null

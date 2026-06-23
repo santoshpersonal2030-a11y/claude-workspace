@@ -25,6 +25,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/blog",
     "/how-it-works",
     "/about",
+    "/become-a-pandit",
     "/contact",
     "/terms",
     "/privacy",
