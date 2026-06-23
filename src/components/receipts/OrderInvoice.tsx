@@ -3,6 +3,7 @@ import { COMPANY, type Company } from "@/lib/company";
 import { invoiceNumber, isInterState } from "@/lib/invoice";
 import { placeOfSupply } from "@/lib/india";
 import { amountInWords } from "@/lib/amount-in-words";
+import { apportionDiscount, splitGst } from "@/lib/gst";
 import SignatureBlock from "@/components/receipts/SignatureBlock";
 import BrandMark from "@/components/receipts/BrandMark";
 
@@ -22,6 +23,8 @@ export type OrderInvoiceData = {
   pincode: string | null;
   subtotal: number;
   shipping: number;
+  discount?: number | null;
+  coupon_code?: string | null;
   total_amount: number;
   order_items: {
     id: string;
@@ -45,33 +48,38 @@ export default function OrderInvoice({
 }) {
   const interState = isInterState(order.state, company.state);
 
-  // HSN-wise tax summary.
+  // An order-level coupon discount reduces the taxable value, so apportion it
+  // across the GST-inclusive lines before backing GST out.
+  const discount = order.discount ?? 0;
+  const discounted = apportionDiscount(
+    order.order_items.map((i) => i.line_total),
+    discount,
+  );
+
+  // HSN-wise tax summary (on the discounted, net values).
   const byHsn = new Map<
     string,
     { taxable: number; tax: number; total: number; rate: number }
   >();
-  for (const i of order.order_items) {
-    const rate = Number(i.gst_rate) || 0;
-    const taxable = Math.round(i.line_total / (1 + rate / 100));
-    const key = i.hsn_code ?? "—";
-    const cur = byHsn.get(key) ?? { taxable: 0, tax: 0, total: 0, rate };
-    cur.taxable += taxable;
-    cur.tax += i.line_total - taxable;
-    cur.total += i.line_total;
-    byHsn.set(key, cur);
-  }
-  const hsnRows = [...byHsn.entries()];
-  // Back out GST per line (prices are GST-inclusive), grouped by rate.
+  // Back out GST per line, grouped by rate (also on net values).
   const byRate = new Map<number, { taxable: number; gst: number }>();
-  for (const i of order.order_items) {
+  order.order_items.forEach((i, idx) => {
     const rate = Number(i.gst_rate) || 0;
-    const taxable = Math.round(i.line_total / (1 + rate / 100));
-    const gst = i.line_total - taxable;
-    const cur = byRate.get(rate) ?? { taxable: 0, gst: 0 };
-    cur.taxable += taxable;
-    cur.gst += gst;
-    byRate.set(rate, cur);
-  }
+    const { taxable, tax } = splitGst(discounted[idx], rate);
+
+    const hKey = i.hsn_code ?? "—";
+    const hCur = byHsn.get(hKey) ?? { taxable: 0, tax: 0, total: 0, rate };
+    hCur.taxable += taxable;
+    hCur.tax += tax;
+    hCur.total += taxable + tax;
+    byHsn.set(hKey, hCur);
+
+    const rCur = byRate.get(rate) ?? { taxable: 0, gst: 0 };
+    rCur.taxable += taxable;
+    rCur.gst += tax;
+    byRate.set(rate, rCur);
+  });
+  const hsnRows = [...byHsn.entries()];
   const rateRows = [...byRate.entries()].sort((a, b) => a[0] - b[0]);
   const totalTaxable = rateRows.reduce((s, [, v]) => s + v.taxable, 0);
   const totalGst = rateRows.reduce((s, [, v]) => s + v.gst, 0);
@@ -169,6 +177,18 @@ export default function OrderInvoice({
 
       {/* Tax summary by rate */}
       <div className="mt-4 ml-auto w-72 space-y-1 text-sm">
+        {discount > 0 && (
+          <>
+            <div className="flex justify-between text-foreground/60">
+              <span>Items total</span>
+              <span>{formatINR(order.subtotal)}</span>
+            </div>
+            <div className="flex justify-between text-emerald-700">
+              <span>Discount{order.coupon_code ? ` (${order.coupon_code})` : ""}</span>
+              <span>−{formatINR(discount)}</span>
+            </div>
+          </>
+        )}
         <div className="flex justify-between text-foreground/60">
           <span>Taxable value</span>
           <span>{formatINR(totalTaxable)}</span>

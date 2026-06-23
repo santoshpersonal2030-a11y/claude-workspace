@@ -6,6 +6,7 @@ type Logo = { data: Buffer; w: number; h: number };
 import { invoiceNumber, isInterState } from "@/lib/invoice";
 import { placeOfSupply } from "@/lib/india";
 import { amountInWords } from "@/lib/amount-in-words";
+import { apportionDiscount, splitGst } from "@/lib/gst";
 import type { OrderInvoiceData } from "@/components/receipts/OrderInvoice";
 import type { BookingReceiptData } from "@/components/receipts/BookingReceipt";
 
@@ -136,15 +137,35 @@ export function buildOrderInvoicePdf(
     ty = 60;
   }
 
-  // Tax summary + totals
+  // Tax summary + totals. A coupon discount reduces the taxable value, so
+  // apportion it across the GST-inclusive lines before backing GST out.
   const interState = isInterState(order.state, company.state);
+  const discount = order.discount ?? 0;
+  const discounted = apportionDiscount(
+    order.order_items.map((i) => i.line_total),
+    discount,
+  );
   let totalTaxable = 0;
   const byRate = new Map<number, number>();
-  for (const i of order.order_items) {
+  order.order_items.forEach((i, idx) => {
     const rate = Number(i.gst_rate) || 0;
-    const taxable = Math.round(i.line_total / (1 + rate / 100));
+    const { taxable, tax } = splitGst(discounted[idx], rate);
     totalTaxable += taxable;
-    byRate.set(rate, (byRate.get(rate) ?? 0) + (i.line_total - taxable));
+    byRate.set(rate, (byRate.get(rate) ?? 0) + tax);
+  });
+
+  if (discount > 0) {
+    doc.text(380, yt(ty), "Items total", { size: 9 });
+    doc.text(R, yt(ty), rs(order.subtotal), { size: 9, align: "right" });
+    ty += 13;
+    doc.text(
+      380,
+      yt(ty),
+      order.coupon_code ? `Discount (${order.coupon_code})` : "Discount",
+      { size: 9 },
+    );
+    doc.text(R, yt(ty), `- ${rs(discount)}`, { size: 9, align: "right" });
+    ty += 13;
   }
 
   doc.text(380, yt(ty), "Taxable value", { size: 9 });

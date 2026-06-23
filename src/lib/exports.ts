@@ -4,6 +4,7 @@
 
 import { createAdminClient } from "@/lib/supabase/admin";
 import { toCsv } from "@/lib/csv";
+import { discountedInclusive, splitGst } from "@/lib/gst";
 import { invoiceNumber } from "@/lib/invoice";
 import { placeOfSupply, STATE_CODES } from "@/lib/india";
 import { getCompany } from "@/lib/company-settings";
@@ -128,7 +129,9 @@ export async function buildGstr1Csv(
   const b = dayBounds(from, to);
   let query = admin
     .from("order_items")
-    .select("line_total, gst_rate, orders!inner(state, status, created_at)")
+    .select(
+      "line_total, gst_rate, orders!inner(state, status, created_at, subtotal, discount)",
+    )
     .in("orders.status", PAID_ORDER_STATUSES);
   if (b.from) query = query.gte("orders.created_at", b.from);
   if (b.to) query = query.lte("orders.created_at", b.to);
@@ -141,8 +144,12 @@ export async function buildGstr1Csv(
   for (const i of data ?? []) {
     const state = i.orders?.state ?? "Unknown";
     const rate = Number(i.gst_rate) || 0;
-    const taxable = Math.round(i.line_total / (1 + rate / 100));
-    const tax = i.line_total - taxable;
+    const eff = discountedInclusive(
+      i.line_total,
+      i.orders?.subtotal ?? 0,
+      i.orders?.discount ?? 0,
+    );
+    const { taxable, tax } = splitGst(eff, rate);
     const key = `${state}|${rate}`;
     const e = agg.get(key) ?? { state, rate, taxable: 0, tax: 0 };
     e.taxable += taxable;
@@ -183,7 +190,7 @@ export async function buildGstr1Json(
   let query = admin
     .from("order_items")
     .select(
-      "line_total, gst_rate, quantity, hsn_code, orders!inner(state, status, created_at)",
+      "line_total, gst_rate, quantity, hsn_code, orders!inner(state, status, created_at, subtotal, discount)",
     )
     .in("orders.status", PAID_ORDER_STATUSES);
   if (b.from) query = query.gte("orders.created_at", b.from);
@@ -214,8 +221,12 @@ export async function buildGstr1Json(
   for (const i of data ?? []) {
     const state = i.orders?.state ?? "";
     const rate = Number(i.gst_rate) || 0;
-    const taxable = Math.round(i.line_total / (1 + rate / 100));
-    const tax = i.line_total - taxable;
+    const eff = discountedInclusive(
+      i.line_total,
+      i.orders?.subtotal ?? 0,
+      i.orders?.discount ?? 0,
+    );
+    const { taxable, tax } = splitGst(eff, rate);
     const pos = STATE_CODES[state] ?? "";
     const intra = pos !== "" && pos === companyCode;
     const cgst = intra ? Math.floor(tax / 2) : 0;
@@ -275,7 +286,7 @@ export async function buildGstr1Json(
   let b2bQuery = admin
     .from("orders")
     .select(
-      "invoice_no, invoice_fy, created_at, customer_gstin, state, total_amount, order_items(line_total, gst_rate)",
+      "invoice_no, invoice_fy, created_at, customer_gstin, state, total_amount, subtotal, discount, order_items(line_total, gst_rate)",
     )
     .not("customer_gstin", "is", null)
     .in("status", PAID_ORDER_STATUSES);
@@ -289,10 +300,15 @@ export async function buildGstr1Json(
     const rateMap = new Map<number, { txval: number; tax: number }>();
     for (const it of o.order_items) {
       const rate = Number(it.gst_rate) || 0;
-      const tv = Math.round(it.line_total / (1 + rate / 100));
+      const eff = discountedInclusive(
+        it.line_total,
+        o.subtotal ?? 0,
+        o.discount ?? 0,
+      );
+      const { taxable: tv, tax } = splitGst(eff, rate);
       const e = rateMap.get(rate) ?? { txval: 0, tax: 0 };
       e.txval += tv;
-      e.tax += it.line_total - tv;
+      e.tax += tax;
       rateMap.set(rate, e);
     }
     const pos = STATE_CODES[o.state ?? ""] ?? "";
@@ -384,7 +400,9 @@ export async function buildGstr3b(
 
   let itemsQ = admin
     .from("order_items")
-    .select("line_total, gst_rate, orders!inner(state, status, created_at)")
+    .select(
+      "line_total, gst_rate, orders!inner(state, status, created_at, subtotal, discount)",
+    )
     .in("orders.status", PAID_ORDER_STATUSES);
   if (b.from) itemsQ = itemsQ.gte("orders.created_at", b.from);
   if (b.to) itemsQ = itemsQ.lte("orders.created_at", b.to);
@@ -397,8 +415,12 @@ export async function buildGstr3b(
   let sgst = 0;
   for (const i of items ?? []) {
     const rate = Number(i.gst_rate) || 0;
-    const tv = Math.round(i.line_total / (1 + rate / 100));
-    const tax = i.line_total - tv;
+    const eff = discountedInclusive(
+      i.line_total,
+      i.orders?.subtotal ?? 0,
+      i.orders?.discount ?? 0,
+    );
+    const { taxable: tv, tax } = splitGst(eff, rate);
     taxable += tv;
     const pos = i.orders?.state ? (STATE_CODES[i.orders.state] ?? "") : "";
     if (pos && pos === companyCode) {

@@ -48,7 +48,7 @@ export async function sendOrderConfirmation(orderId: string): Promise<void> {
     const { data: order } = await admin
       .from("orders")
       .select(
-        "id, user_id, invoice_no, invoice_fy, status, irn, ewb_no, created_at, total_amount, subtotal, shipping, delivery_name, delivery_phone, address, city, state, pincode, order_items(id, product_name, quantity, unit_price, line_total, gst_rate, hsn_code)",
+        "id, user_id, invoice_no, invoice_fy, status, irn, ewb_no, created_at, total_amount, subtotal, shipping, discount, coupon_code, delivery_name, delivery_phone, address, city, state, pincode, order_items(id, product_name, quantity, unit_price, line_total, gst_rate, hsn_code)",
       )
       .eq("id", orderId)
       .maybeSingle();

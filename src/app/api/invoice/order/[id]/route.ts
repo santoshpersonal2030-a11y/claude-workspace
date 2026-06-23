@@ -7,7 +7,7 @@ import { getCompany } from "@/lib/company-settings";
 import { invoiceNumber } from "@/lib/invoice";
 
 const FIELDS =
-  "id, invoice_no, invoice_fy, status, created_at, total_amount, subtotal, shipping, delivery_name, delivery_phone, address, city, state, pincode, irn, ewb_no, order_items(id, product_name, quantity, unit_price, line_total, gst_rate, hsn_code)";
+  "id, invoice_no, invoice_fy, status, created_at, total_amount, subtotal, shipping, discount, coupon_code, delivery_name, delivery_phone, address, city, state, pincode, irn, ewb_no, order_items(id, product_name, quantity, unit_price, line_total, gst_rate, hsn_code)";
 
 export async function GET(
   _request: Request,

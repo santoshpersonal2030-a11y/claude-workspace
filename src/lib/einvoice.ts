@@ -7,6 +7,7 @@ import type { Company } from "@/lib/company";
 import { getCompany } from "@/lib/company-settings";
 import { STATE_CODES } from "@/lib/india";
 import { invoiceNumber, isInterState } from "@/lib/invoice";
+import { apportionDiscount, splitGst } from "@/lib/gst";
 
 export function einvoiceConfigured(): boolean {
   return Boolean(
@@ -26,6 +27,8 @@ type OrderRow = {
   state: string | null;
   pincode: string | null;
   total_amount: number;
+  subtotal: number;
+  discount: number | null;
   order_items: {
     product_name: string;
     quantity: number;
@@ -42,10 +45,16 @@ function buildPayload(order: OrderRow, company: Company) {
   const sellerStateCode = STATE_CODES[company.state] ?? "";
   const buyerStateCode = order.state ? (STATE_CODES[order.state] ?? "") : "";
 
+  // A coupon discount reduces the assessable value, so apportion it across the
+  // GST-inclusive lines and carry it in each item's Discount field.
+  const discounted = apportionDiscount(
+    order.order_items.map((i) => i.line_total),
+    order.discount ?? 0,
+  );
   const items = order.order_items.map((i, idx) => {
     const rate = Number(i.gst_rate) || 0;
-    const taxable = Math.round(i.line_total / (1 + rate / 100));
-    const gst = i.line_total - taxable;
+    const grossTaxable = splitGst(i.line_total, rate).taxable;
+    const { taxable, tax: gst } = splitGst(discounted[idx], rate);
     return {
       SlNo: String(idx + 1),
       PrdDesc: i.product_name,
@@ -53,13 +62,14 @@ function buildPayload(order: OrderRow, company: Company) {
       HsnCd: i.hsn_code ?? "",
       Qty: i.quantity,
       UnitPrice: Math.round(i.unit_price / (1 + rate / 100)),
-      TotAmt: taxable,
+      TotAmt: grossTaxable,
+      Discount: grossTaxable - taxable,
       AssAmt: taxable,
       GstRt: rate,
       IgstAmt: interState ? gst : 0,
       CgstAmt: interState ? 0 : Math.floor(gst / 2),
       SgstAmt: interState ? 0 : gst - Math.floor(gst / 2),
-      TotItemVal: i.line_total,
+      TotItemVal: taxable + gst,
     };
   });
 
@@ -156,7 +166,7 @@ export async function generateEInvoice(
   const { data: order } = await admin
     .from("orders")
     .select(
-      "id, invoice_no, invoice_fy, created_at, customer_gstin, delivery_name, address, city, state, pincode, total_amount, irn, order_items(product_name, quantity, unit_price, line_total, gst_rate, hsn_code)",
+      "id, invoice_no, invoice_fy, created_at, customer_gstin, delivery_name, address, city, state, pincode, total_amount, subtotal, discount, irn, order_items(product_name, quantity, unit_price, line_total, gst_rate, hsn_code)",
     )
     .eq("id", orderId)
     .maybeSingle();
