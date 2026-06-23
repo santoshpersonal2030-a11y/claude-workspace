@@ -5,6 +5,7 @@ import { getAdminUser } from "@/lib/admin";
 
 const tabs = [
   { href: "/admin", label: "Overview" },
+  { href: "/admin/analytics", label: "Analytics" },
   { href: "/admin/bookings", label: "Bookings & orders" },
   { href: "/admin/products", label: "Products" },
   { href: "/admin/poojas", label: "Poojas" },
