@@ -6,8 +6,10 @@ import {
   regeneratePayrollRun,
   setPayrollItemPaid,
   setPayrollRunStatus,
+  payoutPayrollItem,
 } from "@/app/admin/actions";
 import { compModelLabel, periodLabel, type CompModel } from "@/lib/payroll";
+import { razorpayxConfigured } from "@/lib/razorpayx";
 import { formatINR } from "@/lib/poojas";
 
 export default async function PayrollRunDetailPage({
@@ -25,16 +27,28 @@ export default async function PayrollRunDetailPage({
     .maybeSingle();
   if (!run) notFound();
 
-  const [{ data: items }, { data: pandits }] = await Promise.all([
-    admin
-      .from("payroll_run_items")
-      .select("*")
-      .eq("run_id", runId)
-      .order("net_pay", { ascending: false }),
-    admin.from("pandits").select("id, full_name"),
-  ]);
+  const [{ data: items }, { data: pandits }, { data: accounts }] =
+    await Promise.all([
+      admin
+        .from("payroll_run_items")
+        .select("*")
+        .eq("run_id", runId)
+        .order("net_pay", { ascending: false }),
+      admin.from("pandits").select("id, full_name"),
+      admin
+        .from("priest_payout_accounts")
+        .select("pandit_id, account_number"),
+    ]);
 
   const nameById = new Map((pandits ?? []).map((p) => [p.id, p.full_name]));
+  // Priests with bank details on file, so we only offer a bank payout when it
+  // can actually go through.
+  const hasAccount = new Set(
+    (accounts ?? [])
+      .filter((a) => a.account_number)
+      .map((a) => a.pandit_id),
+  );
+  const payoutsOn = razorpayxConfigured();
   const lines = items ?? [];
   const totalGross = lines.reduce((s, l) => s + l.gross, 0);
   const totalDed = lines.reduce((s, l) => s + l.deductions, 0);
@@ -164,6 +178,18 @@ export default async function PayrollRunDetailPage({
                     >
                       Payslip
                     </a>
+                    {!l.paid && payoutsOn && hasAccount.has(l.pandit_id) && (
+                      <form action={payoutPayrollItem}>
+                        <input type="hidden" name="id" value={l.id} />
+                        <input type="hidden" name="run_id" value={run.id} />
+                        <button
+                          type="submit"
+                          className="rounded-full bg-saffron-600 px-3 py-1 text-[11px] font-semibold text-white hover:bg-saffron-700"
+                        >
+                          Pay via bank
+                        </button>
+                      </form>
+                    )}
                     <form
                       action={setPayrollItemPaid}
                       className="flex items-center gap-1"

@@ -12,6 +12,7 @@ const tabs = [
   { href: "/admin/pandit-applications", label: "Applications" },
   { href: "/admin/priest-analytics", label: "Insights" },
   { href: "/admin/payroll", label: "Payroll" },
+  { href: "/admin/payouts", label: "Payouts" },
   { href: "/admin/muhurat", label: "Muhurat" },
   { href: "/admin/peak-days", label: "Peak days" },
   { href: "/admin/coupons", label: "Coupons" },

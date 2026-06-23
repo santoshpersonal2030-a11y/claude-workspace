@@ -9,6 +9,7 @@ import { generateEInvoice, cancelEInvoice } from "@/lib/einvoice";
 import { generateEwayBill, updateEwayBillPartB } from "@/lib/ewaybill";
 import { saveCompany } from "@/lib/company-settings";
 import { buildRunItems } from "@/lib/payroll-data";
+import { runPayout } from "@/lib/payouts";
 import {
   generateAbhijitCandidates,
   generateCeremonyCandidates,
@@ -1031,6 +1032,42 @@ export async function setPayrollItemPaid(formData: FormData): Promise<void> {
     .eq("id", id);
 
   revalidatePath(`/admin/payroll/${runId}`);
+}
+
+// Saves a priest's private bank details for RazorpayX payouts. Clearing the
+// account/IFSC also drops the cached RazorpayX ids so they're rebuilt.
+export async function savePayoutAccount(formData: FormData): Promise<void> {
+  await assertAdmin();
+  const admin = createAdminClient();
+  const panditId = str(formData.get("pandit_id"));
+  if (!panditId) return;
+
+  const accountNumber = str(formData.get("account_number")) || null;
+  const ifsc = str(formData.get("ifsc")).toUpperCase() || null;
+
+  await admin.from("priest_payout_accounts").upsert(
+    {
+      pandit_id: panditId,
+      account_name: str(formData.get("account_name")) || null,
+      account_number: accountNumber,
+      ifsc,
+      // Bank details changed → invalidate cached RazorpayX fund account.
+      razorpayx_fund_account_id: null,
+    },
+    { onConflict: "pandit_id" },
+  );
+  revalidatePath("/admin/payouts");
+}
+
+// Triggers a real bank payout for one payslip line via RazorpayX.
+export async function payoutPayrollItem(formData: FormData): Promise<void> {
+  await assertAdmin();
+  const id = str(formData.get("id"));
+  const runId = str(formData.get("run_id"));
+  if (!id) return;
+  await runPayout(id);
+  if (runId) revalidatePath(`/admin/payroll/${runId}`);
+  revalidatePath("/admin/payouts");
 }
 
 // Advances a run's lifecycle: draft → finalized → paid (or back to draft).

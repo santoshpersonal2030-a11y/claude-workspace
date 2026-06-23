@@ -1250,6 +1250,83 @@ export type Database = {
         }
         Relationships: []
       }
+      payouts: {
+        Row: {
+          amount: number
+          created_at: string
+          failure_reason: string | null
+          id: string
+          pandit_id: string | null
+          payroll_run_item_id: string
+          razorpayx_payout_id: string | null
+          status: string
+          updated_at: string
+          utr: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          failure_reason?: string | null
+          id?: string
+          pandit_id?: string | null
+          payroll_run_item_id: string
+          razorpayx_payout_id?: string | null
+          status?: string
+          updated_at?: string
+          utr?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          failure_reason?: string | null
+          id?: string
+          pandit_id?: string | null
+          payroll_run_item_id?: string
+          razorpayx_payout_id?: string | null
+          status?: string
+          updated_at?: string
+          utr?: string | null
+        }
+        Relationships: []
+      }
+      priest_payout_accounts: {
+        Row: {
+          account_name: string | null
+          account_number: string | null
+          ifsc: string | null
+          pandit_id: string
+          razorpayx_contact_id: string | null
+          razorpayx_fund_account_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          account_name?: string | null
+          account_number?: string | null
+          ifsc?: string | null
+          pandit_id: string
+          razorpayx_contact_id?: string | null
+          razorpayx_fund_account_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          account_name?: string | null
+          account_number?: string | null
+          ifsc?: string | null
+          pandit_id?: string
+          razorpayx_contact_id?: string | null
+          razorpayx_fund_account_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "priest_payout_accounts_pandit_id_fkey"
+            columns: ["pandit_id"]
+            isOneToOne: true
+            referencedRelation: "pandits"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       priest_compensation: {
         Row: {
           base_salary: number
