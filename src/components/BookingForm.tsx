@@ -16,6 +16,7 @@ import { redeemableAmount } from "@/lib/rewards";
 import { payWithRazorpay } from "@/lib/razorpay-client";
 import type { PanditTier } from "@/lib/pandit-tier";
 import { resolveTravelBand, isValidPincode } from "@/lib/travel";
+import { useT } from "@/components/LanguageProvider";
 
 type SavedAddress = {
   id: string;
@@ -42,6 +43,7 @@ export default function BookingForm({
   pooja: Pooja;
   pandits?: PanditOption[];
 }) {
+  const t = useT();
   const kitPrice = getSamagriKitPrice(pooja);
   const supabase = useMemo(() => createClient(), []);
   const router = useRouter();
@@ -286,7 +288,7 @@ export default function BookingForm({
 
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        throw new Error(data.error ?? "Could not create your booking.");
+        throw new Error(data.error ?? t("bf.errCreate"));
       }
 
       const data = (await res.json()) as {
@@ -312,14 +314,14 @@ export default function BookingForm({
       );
 
       if (!result.ok) {
-        setError(result.error ?? "Payment failed.");
+        setError(result.error ?? t("bf.errPayment"));
         return;
       }
 
       setPaid(true);
       setSubmitted(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong.");
+      setError(err instanceof Error ? err.message : t("bf.errGeneric"));
     } finally {
       setBusy(false);
     }
@@ -331,53 +333,44 @@ export default function BookingForm({
         <div className="text-center">
           <div className="text-4xl">🙏</div>
           <h3 className="mt-3 font-heading text-xl text-maroon-700">
-            {paid ? "Booking confirmed" : "Booking received"}
+            {paid ? t("bf.confirmedTitle") : t("bf.receivedTitle")}
           </h3>
           <p className="mt-2 text-sm text-foreground/65">
-            {paid ? (
-              <>
-                Your payment was successful and your <strong>{pooja.name}</strong>{" "}
-                on <strong>{date || "your chosen date"}</strong> is confirmed.
-                We&apos;ll assign your Pandit and reach out shortly.
-              </>
-            ) : (
-              <>
-                We&apos;ve recorded your request for <strong>{pooja.name}</strong>{" "}
-                on <strong>{date || "your chosen date"}</strong>. Our team will
-                confirm your Pandit and payment shortly.
-              </>
-            )}
+            {t(paid ? "bf.paidText" : "bf.receivedText", {
+              pooja: pooja.name,
+              date: date || t("bf.dateFallback"),
+            })}
           </p>
         </div>
         <dl className="mt-5 space-y-2 border-t border-saffron-50 pt-4 text-sm">
           <div className="flex justify-between">
-            <dt className="text-foreground/60">Date</dt>
+            <dt className="text-foreground/60">{t("bf.date")}</dt>
             <dd className="font-medium">{date || "—"}</dd>
           </div>
           <div className="flex justify-between">
-            <dt className="text-foreground/60">Time</dt>
+            <dt className="text-foreground/60">{t("bf.time")}</dt>
             <dd className="font-medium">{slot || "—"}</dd>
           </div>
           <div className="flex justify-between">
-            <dt className="text-foreground/60">Language</dt>
+            <dt className="text-foreground/60">{t("bf.language")}</dt>
             <dd className="font-medium">{language}</dd>
           </div>
           <div className="flex justify-between">
-            <dt className="text-foreground/60">Preferred Pandit</dt>
+            <dt className="text-foreground/60">{t("bf.preferredPandit")}</dt>
             <dd className="font-medium">
               {pandits.find((p) => p.slug === panditSlug)?.fullName ??
-                "Any available"}
+                t("bf.anyAvailable")}
             </dd>
           </div>
           <div className="flex justify-between">
-            <dt className="text-foreground/60">Samagri kit</dt>
-            <dd className="font-medium">{addKit ? "Yes" : "No"}</dd>
+            <dt className="text-foreground/60">{t("bf.samagriKit")}</dt>
+            <dd className="font-medium">{addKit ? t("bf.yes") : t("bf.no")}</dd>
           </div>
           {travelBand && (
             <div className="flex justify-between">
-              <dt className="text-foreground/60">Travel</dt>
+              <dt className="text-foreground/60">{t("bf.travel")}</dt>
               <dd className="font-medium">
-                {travelFee === 0 ? "Free (local)" : formatINR(travelFee)}
+                {travelFee === 0 ? t("bf.freeLocal") : formatINR(travelFee)}
               </dd>
             </div>
           )}
@@ -388,7 +381,7 @@ export default function BookingForm({
             </div>
           )}
           <div className="flex justify-between border-t border-saffron-50 pt-2 text-base">
-            <dt className="font-semibold">Estimated total</dt>
+            <dt className="font-semibold">{t("bf.estTotal")}</dt>
             <dd className="font-semibold text-saffron-700">
               {formatINR(total)}
             </dd>
@@ -398,7 +391,7 @@ export default function BookingForm({
           onClick={() => setSubmitted(false)}
           className="mt-5 w-full rounded-full border border-saffron-300 bg-white py-2.5 text-sm font-semibold text-saffron-700 transition-colors hover:bg-saffron-50"
         >
-          Edit details
+          {t("bf.editDetails")}
         </button>
       </div>
     );
@@ -409,27 +402,23 @@ export default function BookingForm({
       onSubmit={handleSubmit}
       className="rounded-2xl border border-saffron-100 bg-white p-6 shadow-sm"
     >
-      <h3 className="font-heading text-xl text-maroon-700">Book this pooja</h3>
-      <p className="mt-1 text-sm text-foreground/60">
-        Fill in your details and we&apos;ll arrange everything.
-      </p>
+      <h3 className="font-heading text-xl text-maroon-700">{t("bf.title")}</h3>
+      <p className="mt-1 text-sm text-foreground/60">{t("bf.subtitle")}</p>
 
       {pooja.requiresMuhurat ? (
         <p className="mt-3 rounded-xl bg-gold-400/20 px-3 py-2 text-xs text-maroon-800">
-          🕉️ This ceremony is performed at an auspicious muhurat. Pick your
-          preferred date — the Pandit will confirm the exact auspicious timing
-          with you.
+          {t("bf.muhuratNote")}
         </p>
       ) : (
         <p className="mt-3 rounded-xl bg-green-50 px-3 py-2 text-xs text-green-700">
-          ✓ Flexible timing — choose any date and slot that suits you.
+          {t("bf.flexNote")}
         </p>
       )}
 
       <div className="mt-5 space-y-4">
         <div>
           <label className="mb-1 block text-sm font-medium text-foreground/80">
-            {pooja.requiresMuhurat ? "Preferred date" : "Date"}
+            {pooja.requiresMuhurat ? t("bf.preferredDate") : t("bf.date")}
           </label>
           <input
             type="date"
@@ -444,10 +433,10 @@ export default function BookingForm({
         <div>
           <label className="mb-1 block text-sm font-medium text-foreground/80">
             {slotMode === "muhurat"
-              ? "Auspicious time"
+              ? t("bf.auspiciousTime")
               : scheduled
-                ? "Available time"
-                : "Preferred time"}
+                ? t("bf.availableTime")
+                : t("bf.preferredTime")}
           </label>
           <select
             required
@@ -458,38 +447,37 @@ export default function BookingForm({
           >
             <option value="" disabled>
               {wantsLive && (loadingSlots || !slotsReady)
-                ? "Loading times…"
-                : "Select a time slot"}
+                ? t("bf.loadingTimes")
+                : t("bf.selectSlot")}
             </option>
-            {slotOptions.map((t) => (
-              <option key={t} value={t}>
-                {t}
+            {slotOptions.map((s) => (
+              <option key={s} value={s}>
+                {s}
               </option>
             ))}
           </select>
           {scheduled && slotsReady && !loadingSlots && slotOptions.length === 0 && (
             <p className="mt-1 text-xs text-maroon-600">
-              {selectedPandit?.fullName?.split(" ")[0] ?? "This Pandit"} has no
-              free slots on this date — please pick another day.
+              {t("bf.noFreeSlots", {
+                name: selectedPandit?.fullName?.split(" ")[0] ?? t("bf.thisPandit"),
+              })}
             </p>
           )}
           {scheduled && slotOptions.length > 0 && (
             <p className="mt-1 text-xs text-foreground/50">
-              Live availability for {selectedPandit?.fullName}, spaced for travel
-              &amp; setup time.
+              {t("bf.liveAvail", { name: selectedPandit?.fullName ?? "" })}
             </p>
           )}
           {slotMode === "muhurat" && slotsReady && slotOptions.length > 0 && (
             <p className="mt-1 text-xs text-foreground/50">
-              Auspicious windows for this date — the Pandit confirms the final
-              muhurat.
+              {t("bf.muhuratWindows")}
             </p>
           )}
         </div>
 
         <div>
           <label className="mb-1 block text-sm font-medium text-foreground/80">
-            Pandit&apos;s language
+            {t("bf.panditLanguage")}
           </label>
           <select
             value={language}
@@ -507,14 +495,14 @@ export default function BookingForm({
         {pandits.length > 0 && (
           <div>
             <label className="mb-1 block text-sm font-medium text-foreground/80">
-              Preferred Pandit (optional)
+              {t("bf.preferredPanditOpt")}
             </label>
             <select
               value={panditSlug}
               onChange={(e) => setPanditSlug(e.target.value)}
               className="w-full rounded-xl border border-saffron-200 bg-cream px-3 py-2.5 text-sm outline-none focus:border-saffron-400 focus:ring-2 focus:ring-saffron-100"
             >
-              <option value="">Any available Pandit</option>
+              <option value="">{t("bf.anyAvailablePandit")}</option>
               {availablePandits.map((p) => (
                 <option key={p.slug} value={p.slug}>
                   {p.fullName}
@@ -525,8 +513,8 @@ export default function BookingForm({
             </select>
             <p className="mt-1 text-xs text-foreground/50">
               {availablePandits.length > 0
-                ? `Showing Pandits who speak ${language}. We'll honour your choice subject to availability.`
-                : `No listed Pandits for ${language} yet — we'll assign a suitable priest.`}
+                ? t("bf.showingPandits", { lang: language })
+                : t("bf.noPandits", { lang: language })}
             </p>
           </div>
         )}
@@ -534,7 +522,7 @@ export default function BookingForm({
         {savedAddresses.length > 0 && (
           <div>
             <label className="mb-1 block text-sm font-medium text-foreground/80">
-              Use a saved address
+              {t("bf.useSavedAddress")}
             </label>
             <select
               defaultValue={savedAddresses[0]?.id ?? ""}
@@ -549,9 +537,9 @@ export default function BookingForm({
               ))}
             </select>
             <p className="mt-1 text-xs text-foreground/50">
-              Pick a saved address or edit the fields below. Manage them in{" "}
+              {t("bf.savedAddrNote1")}{" "}
               <Link href="/account/addresses" className="text-saffron-700 hover:underline">
-                your address book
+                {t("bf.addressBook")}
               </Link>
               .
             </p>
@@ -561,20 +549,20 @@ export default function BookingForm({
         <div className="grid grid-cols-2 gap-3">
           <div>
             <label className="mb-1 block text-sm font-medium text-foreground/80">
-              City
+              {t("bf.city")}
             </label>
             <input
               type="text"
               required
               value={city}
               onChange={(e) => setCity(e.target.value)}
-              placeholder="e.g. Pune"
+              placeholder={t("bf.cityPlaceholder")}
               className="w-full rounded-xl border border-saffron-200 bg-cream px-3 py-2.5 text-sm outline-none focus:border-saffron-400 focus:ring-2 focus:ring-saffron-100"
             />
           </div>
           <div>
             <label className="mb-1 block text-sm font-medium text-foreground/80">
-              Pincode
+              {t("bf.pincode")}
             </label>
             <input
               type="text"
@@ -589,8 +577,9 @@ export default function BookingForm({
             />
             {selectedPandit && pinValid && !travelBand && (
               <p className="mt-1 text-xs text-maroon-600">
-                {selectedPandit.fullName?.split(" ")[0]} doesn&apos;t serve this
-                pincode.
+                {t("bf.notServePincode", {
+                  name: selectedPandit.fullName?.split(" ")[0] ?? "",
+                })}
               </p>
             )}
           </div>
@@ -598,14 +587,14 @@ export default function BookingForm({
 
         <div>
           <label className="mb-1 block text-sm font-medium text-foreground/80">
-            Full address
+            {t("bf.fullAddress")}
           </label>
           <textarea
             required
             value={address}
             onChange={(e) => setAddress(e.target.value)}
             rows={2}
-            placeholder="House / flat, street, area, pin code"
+            placeholder={t("bf.addressPlaceholder")}
             className="w-full rounded-xl border border-saffron-200 bg-cream px-3 py-2.5 text-sm outline-none focus:border-saffron-400 focus:ring-2 focus:ring-saffron-100"
           />
         </div>
@@ -619,23 +608,21 @@ export default function BookingForm({
           />
           <span className="text-sm">
             <span className="font-medium text-foreground">
-              Add samagri kit — {formatINR(kitPrice)}
+              {t("bf.addKit", { price: formatINR(kitPrice) })}
             </span>
-            <span className="block text-foreground/60">
-              All pooja items delivered to your door.
-            </span>
+            <span className="block text-foreground/60">{t("bf.kitNote")}</span>
           </span>
         </label>
 
         <div>
           <label className="mb-1 block text-sm font-medium text-foreground/80">
-            Special requests (optional)
+            {t("bf.specialRequests")}
           </label>
           <textarea
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             rows={2}
-            placeholder="Any specific rituals, gotra, or preferences"
+            placeholder={t("bf.notesPlaceholder")}
             className="w-full rounded-xl border border-saffron-200 bg-cream px-3 py-2.5 text-sm outline-none focus:border-saffron-400 focus:ring-2 focus:ring-saffron-100"
           />
         </div>
@@ -643,16 +630,14 @@ export default function BookingForm({
 
       {travelBand && (
         <div className="mt-4 flex items-center justify-between text-sm text-foreground/60">
-          <span>Travel ({travelBand.label})</span>
-          <span>{travelFee === 0 ? "Free" : `+ ${formatINR(travelFee)}`}</span>
+          <span>{t("bf.travelLabel", { label: travelBand.label })}</span>
+          <span>{travelFee === 0 ? t("bf.free") : `+ ${formatINR(travelFee)}`}</span>
         </div>
       )}
 
       {peakSurcharge > 0 && peak && (
         <div className="mt-2 flex items-center justify-between text-sm text-saffron-700">
-          <span>
-            🎉 {peak.label} premium (+{peak.pct}%)
-          </span>
+          <span>{t("bf.peakPremium", { label: peak.label, pct: peak.pct })}</span>
           <span>+ {formatINR(peakSurcharge)}</span>
         </div>
       )}
@@ -665,22 +650,22 @@ export default function BookingForm({
             onChange={(e) => setUseCredit(e.target.checked)}
             className="h-4 w-4 accent-saffron-600"
           />
-          Use store credit —{" "}
+          {t("bf.useCredit")}{" "}
           <span className="font-medium text-emerald-700">
-            {formatINR(wallet.available)} available
+            {t("bf.available", { amount: formatINR(wallet.available) })}
           </span>
         </label>
       )}
 
       {creditApplied > 0 && (
         <div className="mt-2 flex items-center justify-between text-sm text-emerald-700">
-          <span>Store credit</span>
+          <span>{t("bf.storeCredit")}</span>
           <span>− {formatINR(creditApplied)}</span>
         </div>
       )}
 
       <div className="mt-2 flex items-center justify-between border-t border-saffron-50 pt-4">
-        <span className="text-sm text-foreground/60">Total payable</span>
+        <span className="text-sm text-foreground/60">{t("bf.totalPayable")}</span>
         <span className="font-heading text-xl text-saffron-700">
           {formatINR(payable)}
         </span>
@@ -698,15 +683,13 @@ export default function BookingForm({
         className="mt-4 w-full rounded-full bg-saffron-600 py-3 text-base font-semibold text-white shadow-sm transition-colors hover:bg-saffron-700 disabled:opacity-60"
       >
         {busy
-          ? "Processing…"
+          ? t("bf.processing")
           : user
-            ? `Pay ${formatINR(payable)} & confirm`
-            : "Sign in to book"}
+            ? t("bf.payConfirm", { amount: formatINR(payable) })
+            : t("bf.signInToBook")}
       </button>
       <p className="mt-3 text-center text-xs text-foreground/50">
-        {user
-          ? "Secure payment via Razorpay. Cancel anytime before confirmation."
-          : "You'll be asked to sign in first. Secure payment via Razorpay."}
+        {user ? t("bf.securePay") : t("bf.signInFirst")}
       </p>
     </form>
   );

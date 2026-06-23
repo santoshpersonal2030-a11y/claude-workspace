@@ -14,6 +14,7 @@ import { formatINR } from "@/lib/poojas";
 import { redeemableAmount } from "@/lib/rewards";
 import { createClient } from "@/lib/supabase/client";
 import { payWithRazorpay } from "@/lib/razorpay-client";
+import { useT } from "@/components/LanguageProvider";
 
 const FREE_SHIPPING_THRESHOLD = 999;
 const SHIPPING_FEE = 49;
@@ -27,6 +28,7 @@ type SavedAddress = {
 };
 
 export default function CartPage() {
+  const t = useT();
   const { items, subtotal, setQuantity, remove, clear } = useCart();
   const supabase = useMemo(() => createClient(), []);
   const router = useRouter();
@@ -144,20 +146,25 @@ export default function CartPage() {
       const data = await res.json();
       if (data.ok) {
         setCoupon({ code: data.code, discount: data.discount });
-        setCouponMsg(`Applied ${data.code} — you save ${formatINR(data.discount)}.`);
+        setCouponMsg(
+          t("cart.applied", {
+            code: data.code,
+            amount: formatINR(data.discount),
+          }),
+        );
       } else {
         setCoupon(null);
-        setCouponMsg(data.reason ?? "Invalid code.");
+        setCouponMsg(data.reason ?? t("cart.invalidCode"));
       }
     } catch {
-      setCouponMsg("Could not check the code.");
+      setCouponMsg(t("cart.couponCheckFail"));
     }
   }
 
   async function checkout() {
     setError(null);
     if (!delivery.name || !delivery.phone || !delivery.address || !delivery.city) {
-      setError("Please fill in your delivery details.");
+      setError(t("cart.fillDelivery"));
       return;
     }
     setBusy(true);
@@ -175,7 +182,7 @@ export default function CartPage() {
 
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        throw new Error(data.error ?? "Checkout failed.");
+        throw new Error(data.error ?? t("cart.checkoutFail"));
       }
 
       const data = (await res.json()) as {
@@ -201,14 +208,14 @@ export default function CartPage() {
       );
 
       if (!result.ok) {
-        setError(result.error ?? "Payment failed.");
+        setError(result.error ?? t("bf.errPayment"));
         return;
       }
 
       clear();
       router.push("/account/orders?paid=1");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong.");
+      setError(err instanceof Error ? err.message : t("bf.errGeneric"));
     } finally {
       setBusy(false);
     }
@@ -219,17 +226,17 @@ export default function CartPage() {
       <Header />
       <main className="flex-1">
         <section className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
-          <h1 className="font-heading text-3xl text-maroon-800">Your cart</h1>
+          <h1 className="font-heading text-3xl text-maroon-800">{t("cart.title")}</h1>
 
           {items.length === 0 ? (
             <div className="mt-8 rounded-2xl border border-saffron-100 bg-white p-10 text-center shadow-sm">
               <div className="text-4xl">🛒</div>
-              <p className="mt-3 text-foreground/65">Your cart is empty.</p>
+              <p className="mt-3 text-foreground/65">{t("cart.empty")}</p>
               <Link
                 href="/store"
                 className="mt-5 inline-block rounded-full bg-saffron-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-saffron-700"
               >
-                Browse the store
+                {t("cart.browseStore")}
               </Link>
             </div>
           ) : (
@@ -262,7 +269,7 @@ export default function CartPage() {
                           setQuantity(item.slug, item.quantity - 1)
                         }
                         className="h-8 w-8 rounded-full border border-saffron-200 text-saffron-700 hover:bg-saffron-50"
-                        aria-label="Decrease quantity"
+                        aria-label={t("cart.decrease")}
                       >
                         −
                       </button>
@@ -275,7 +282,7 @@ export default function CartPage() {
                           setQuantity(item.slug, item.quantity + 1)
                         }
                         className="h-8 w-8 rounded-full border border-saffron-200 text-saffron-700 hover:bg-saffron-50"
-                        aria-label="Increase quantity"
+                        aria-label={t("cart.increase")}
                       >
                         +
                       </button>
@@ -287,7 +294,7 @@ export default function CartPage() {
                       type="button"
                       onClick={() => remove(item.slug)}
                       className="text-foreground/40 hover:text-maroon-600"
-                      aria-label={`Remove ${item.name}`}
+                      aria-label={t("cart.removeItem", { name: item.name })}
                     >
                       ✕
                     </button>
@@ -299,31 +306,31 @@ export default function CartPage() {
               <div className="lg:sticky lg:top-24 lg:self-start">
                 <div className="rounded-2xl border border-saffron-100 bg-white p-6 shadow-sm">
                   <h2 className="font-heading text-xl text-maroon-700">
-                    Order summary
+                    {t("cart.orderSummary")}
                   </h2>
                   <dl className="mt-4 space-y-2 text-sm">
                     <div className="flex justify-between">
-                      <dt className="text-foreground/60">Subtotal</dt>
+                      <dt className="text-foreground/60">{t("cart.subtotal")}</dt>
                       <dd>{formatINR(subtotal)}</dd>
                     </div>
                     <div className="flex justify-between">
-                      <dt className="text-foreground/60">Shipping</dt>
-                      <dd>{shipping === 0 ? "Free" : formatINR(shipping)}</dd>
+                      <dt className="text-foreground/60">{t("cart.shipping")}</dt>
+                      <dd>{shipping === 0 ? t("bf.free") : formatINR(shipping)}</dd>
                     </div>
                     {discount > 0 && (
                       <div className="flex justify-between text-emerald-700">
-                        <dt>Discount ({coupon?.code})</dt>
+                        <dt>{t("cart.discount", { code: coupon?.code ?? "" })}</dt>
                         <dd>− {formatINR(discount)}</dd>
                       </div>
                     )}
                     {creditApplied > 0 && (
                       <div className="flex justify-between text-emerald-700">
-                        <dt>Store credit</dt>
+                        <dt>{t("bf.storeCredit")}</dt>
                         <dd>− {formatINR(creditApplied)}</dd>
                       </div>
                     )}
                     <div className="flex justify-between border-t border-saffron-50 pt-2 text-base font-semibold">
-                      <dt>To pay</dt>
+                      <dt>{t("cart.toPay")}</dt>
                       <dd className="text-saffron-700">{formatINR(payable)}</dd>
                     </div>
                   </dl>
@@ -337,9 +344,9 @@ export default function CartPage() {
                         onChange={(e) => setUseCredit(e.target.checked)}
                         className="h-4 w-4 accent-saffron-600"
                       />
-                      Use store credit —{" "}
+                      {t("bf.useCredit")}{" "}
                       <span className="font-medium text-emerald-700">
-                        {formatINR(wallet.available)} available
+                        {t("bf.available", { amount: formatINR(wallet.available) })}
                       </span>
                     </label>
                   )}
@@ -350,7 +357,7 @@ export default function CartPage() {
                       <input
                         value={couponInput}
                         onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
-                        placeholder="Coupon code"
+                        placeholder={t("cart.couponPlaceholder")}
                         className="w-full rounded-lg border border-saffron-200 bg-cream px-3 py-2 text-sm uppercase outline-none focus:border-saffron-400"
                       />
                       <button
@@ -358,7 +365,7 @@ export default function CartPage() {
                         onClick={applyCoupon}
                         className="whitespace-nowrap rounded-lg border border-saffron-300 px-4 py-2 text-sm font-semibold text-saffron-700 hover:bg-saffron-50"
                       >
-                        Apply
+                        {t("cart.apply")}
                       </button>
                     </div>
                     {couponMsg && (
@@ -375,13 +382,13 @@ export default function CartPage() {
                   {!authLoaded ? null : !user ? (
                     <div className="mt-5">
                       <p className="text-sm text-foreground/65">
-                        Please sign in to checkout.
+                        {t("cart.signInToCheckout")}
                       </p>
                       <Link
                         href="/login?next=/cart"
                         className="mt-3 block w-full rounded-full bg-saffron-600 py-3 text-center text-sm font-semibold text-white hover:bg-saffron-700"
                       >
-                        Sign in to continue
+                        {t("cart.signInContinue")}
                       </Link>
                     </div>
                   ) : (
@@ -402,7 +409,7 @@ export default function CartPage() {
                       )}
                       <input
                         type="text"
-                        placeholder="Full name"
+                        placeholder={t("cart.fullName")}
                         value={delivery.name}
                         onChange={(e) =>
                           setDelivery({ ...delivery, name: e.target.value })
@@ -411,7 +418,7 @@ export default function CartPage() {
                       />
                       <input
                         type="tel"
-                        placeholder="Phone number"
+                        placeholder={t("cart.phone")}
                         value={delivery.phone}
                         onChange={(e) =>
                           setDelivery({ ...delivery, phone: e.target.value })
@@ -419,7 +426,7 @@ export default function CartPage() {
                         className="w-full rounded-xl border border-saffron-200 bg-cream px-3 py-2.5 text-sm outline-none focus:border-saffron-400 focus:ring-2 focus:ring-saffron-100"
                       />
                       <textarea
-                        placeholder="Delivery address"
+                        placeholder={t("cart.deliveryAddress")}
                         rows={2}
                         value={delivery.address}
                         onChange={(e) =>
@@ -430,7 +437,7 @@ export default function CartPage() {
                       <div className="flex gap-3">
                         <input
                           type="text"
-                          placeholder="City"
+                          placeholder={t("cart.cityPlaceholder")}
                           value={delivery.city}
                           onChange={(e) =>
                             setDelivery({ ...delivery, city: e.target.value })
@@ -439,7 +446,7 @@ export default function CartPage() {
                         />
                         <input
                           type="text"
-                          placeholder="PIN code"
+                          placeholder={t("cart.pinPlaceholder")}
                           value={delivery.pincode}
                           onChange={(e) =>
                             setDelivery({
@@ -457,7 +464,7 @@ export default function CartPage() {
                         }
                         className="w-full rounded-xl border border-saffron-200 bg-cream px-3 py-2.5 text-sm outline-none focus:border-saffron-400 focus:ring-2 focus:ring-saffron-100"
                       >
-                        <option value="">Select state…</option>
+                        <option value="">{t("cart.selectState")}</option>
                         {INDIAN_STATES.map((s) => (
                           <option key={s} value={s}>
                             {s}
@@ -466,7 +473,7 @@ export default function CartPage() {
                       </select>
                       <input
                         type="text"
-                        placeholder="GSTIN (optional, for business invoice)"
+                        placeholder={t("cart.gstin")}
                         value={delivery.gstin}
                         onChange={(e) =>
                           setDelivery({ ...delivery, gstin: e.target.value })
@@ -487,13 +494,13 @@ export default function CartPage() {
                         className="w-full rounded-full bg-saffron-600 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-saffron-700 disabled:opacity-60"
                       >
                         {busy
-                          ? "Processing…"
+                          ? t("bf.processing")
                           : payable > 0
-                            ? `Pay ${formatINR(payable)}`
-                            : "Place order"}
+                            ? t("cart.payAmount", { amount: formatINR(payable) })
+                            : t("cart.placeOrder")}
                       </button>
                       <p className="text-center text-xs text-foreground/50">
-                        Secure payment via Razorpay.
+                        {t("cart.securePay")}
                       </p>
                     </div>
                   )}
