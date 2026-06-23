@@ -7,7 +7,11 @@ import BookingStatusTracker from "@/components/BookingStatusTracker";
 import PayPendingBooking from "@/components/PayPendingBooking";
 import { formatINR, timeSlots } from "@/lib/poojas";
 import { createClient } from "@/lib/supabase/server";
-import { cancelBooking, rescheduleBooking } from "@/app/account/bookings/actions";
+import {
+  cancelBooking,
+  rescheduleBooking,
+  submitPanditReview,
+} from "@/app/account/bookings/actions";
 import { SELF_SERVE_HOURS } from "@/lib/booking-policy";
 
 const CANCELLABLE = ["pending", "confirmed", "assigned"];
@@ -40,12 +44,24 @@ export default async function BookingDetailPage({
   const { data: booking } = await supabase
     .from("bookings")
     .select(
-      "id, status, booking_date, time_slot, language, address, city, pincode, samagri_kit, service_price, samagri_price, total_amount, created_at, notes, poojas(name, emoji, sanskrit_name), preferred:pandits!bookings_preferred_pandit_id_fkey(full_name), assigned:pandits!bookings_pandit_id_fkey(full_name)",
+      "id, status, booking_date, time_slot, language, address, city, pincode, pandit_id, samagri_kit, service_price, samagri_price, total_amount, created_at, notes, poojas(name, emoji, sanskrit_name), preferred:pandits!bookings_preferred_pandit_id_fkey(full_name), assigned:pandits!bookings_pandit_id_fkey(full_name)",
     )
     .eq("id", id)
     .maybeSingle();
 
   if (!booking) notFound();
+
+  // Existing Pandit review for this booking, to prefill/edit the form.
+  const myReview =
+    booking.status === "completed" && booking.pandit_id
+      ? (
+          await supabase
+            .from("pandit_reviews")
+            .select("rating, title, body")
+            .eq("booking_id", id)
+            .maybeSingle()
+        ).data
+      : null;
 
   const rows: { label: string; value: string }[] = [
     { label: "Date", value: formatDate(booking.booking_date) },
@@ -235,6 +251,56 @@ export default async function BookingDetailPage({
                   </button>
                 </form>
               </div>
+            </div>
+          )}
+
+          {booking.status === "completed" && booking.pandit_id && (
+            <div className="mt-6 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm">
+              <h2 className="font-heading text-lg text-maroon-700">
+                {myReview ? "Your review" : "Rate your Pandit"}
+              </h2>
+              <p className="mt-1 text-xs text-foreground/55">
+                {booking.assigned?.full_name
+                  ? `How was your ceremony with ${booking.assigned.full_name}?`
+                  : "How was your ceremony?"}
+              </p>
+              <form action={submitPanditReview} className="mt-4 space-y-3">
+                <input type="hidden" name="booking_id" value={booking.id} />
+                <label className="block text-xs text-foreground/60">
+                  Rating
+                  <select
+                    name="rating"
+                    defaultValue={String(myReview?.rating ?? 5)}
+                    className="mt-1 w-full rounded-lg border border-saffron-200 bg-cream px-2 py-1.5 text-sm outline-none focus:border-saffron-400 sm:w-48"
+                  >
+                    {[5, 4, 3, 2, 1].map((n) => (
+                      <option key={n} value={n}>
+                        {"★".repeat(n)}
+                        {"☆".repeat(5 - n)} ({n})
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <input
+                  name="title"
+                  defaultValue={myReview?.title ?? ""}
+                  placeholder="Headline (optional)"
+                  className="w-full rounded-lg border border-saffron-200 bg-cream px-3 py-2 text-sm outline-none focus:border-saffron-400"
+                />
+                <textarea
+                  name="body"
+                  rows={3}
+                  defaultValue={myReview?.body ?? ""}
+                  placeholder="Share a few words about your experience (optional)"
+                  className="w-full rounded-lg border border-saffron-200 bg-cream px-3 py-2 text-sm outline-none focus:border-saffron-400"
+                />
+                <button
+                  type="submit"
+                  className="rounded-full bg-saffron-600 px-5 py-2 text-sm font-semibold text-white hover:bg-saffron-700"
+                >
+                  {myReview ? "Update review" : "Submit review"}
+                </button>
+              </form>
             </div>
           )}
         </section>

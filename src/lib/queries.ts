@@ -241,6 +241,41 @@ function rowToPandit(row: PanditPublicRow): Pandit {
 
 // Active, verified-first pandits, highest rated first. Falls back to the seed
 // roster if the database is unreachable.
+export type PanditReview = {
+  id: string;
+  rating: number;
+  title: string | null;
+  body: string | null;
+  reviewerName: string;
+  createdAt: string;
+};
+
+// Public reviews for a Pandit (by slug). Cookieless read so the page stays
+// cacheable; returns [] on any error (e.g. egress-blocked build).
+export async function getPanditReviews(slug: string): Promise<PanditReview[]> {
+  try {
+    const { data, error } = await db
+      .from("pandit_reviews")
+      .select(
+        "id, rating, title, body, reviewer_name, created_at, pandits!inner(slug)",
+      )
+      .eq("pandits.slug", slug)
+      .order("created_at", { ascending: false })
+      .limit(20);
+    if (error) throw error;
+    return (data ?? []).map((r) => ({
+      id: r.id,
+      rating: r.rating,
+      title: r.title,
+      body: r.body,
+      reviewerName: r.reviewer_name,
+      createdAt: r.created_at,
+    }));
+  } catch {
+    return [];
+  }
+}
+
 export async function getPandits(): Promise<Pandit[]> {
   try {
     const { data, error } = await db

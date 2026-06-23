@@ -559,6 +559,67 @@ export type Database = {
           },
         ]
       }
+      pandit_reviews: {
+        Row: {
+          body: string | null
+          booking_id: string | null
+          created_at: string
+          id: string
+          pandit_id: string
+          rating: number
+          reviewer_name: string
+          title: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          body?: string | null
+          booking_id?: string | null
+          created_at?: string
+          id?: string
+          pandit_id: string
+          rating: number
+          reviewer_name?: string
+          title?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          body?: string | null
+          booking_id?: string | null
+          created_at?: string
+          id?: string
+          pandit_id?: string
+          rating?: number
+          reviewer_name?: string
+          title?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pandit_reviews_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pandit_reviews_pandit_id_fkey"
+            columns: ["pandit_id"]
+            isOneToOne: false
+            referencedRelation: "pandits"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pandit_reviews_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pandits: {
         Row: {
           active: boolean

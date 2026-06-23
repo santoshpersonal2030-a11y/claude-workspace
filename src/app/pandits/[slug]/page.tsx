@@ -3,9 +3,21 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { getPanditBySlug, getPanditSlugs } from "@/lib/queries";
+import {
+  getPanditBySlug,
+  getPanditSlugs,
+  getPanditReviews,
+} from "@/lib/queries";
 import { panditTierInfo, TIER_BADGE_CLASS } from "@/lib/pandit-tier";
 import PanditAvatar from "@/components/PanditAvatar";
+
+function reviewDate(value: string): string {
+  return new Date(value).toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+}
 
 export const revalidate = 300;
 
@@ -36,6 +48,8 @@ export default async function PanditDetailPage({
   const { slug } = await params;
   const pandit = await getPanditBySlug(slug);
   if (!pandit) notFound();
+
+  const reviews = await getPanditReviews(slug);
 
   const tier = panditTierInfo(pandit.experienceYears);
   const facts = [
@@ -180,6 +194,45 @@ export default async function PanditDetailPage({
               </div>
             </div>
           </div>
+
+          {reviews.length > 0 && (
+            <div className="mt-12">
+              <h2 className="font-heading text-2xl text-maroon-800">
+                Reviews ({pandit.reviewCount})
+              </h2>
+              <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                {reviews.map((r) => (
+                  <div
+                    key={r.id}
+                    className="rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-saffron-600">
+                        {"★".repeat(r.rating)}
+                        <span className="text-saffron-200">
+                          {"★".repeat(5 - r.rating)}
+                        </span>
+                      </span>
+                      <span className="text-xs text-foreground/45">
+                        {reviewDate(r.createdAt)}
+                      </span>
+                    </div>
+                    {r.title && (
+                      <h3 className="mt-2 font-heading text-base text-maroon-700">
+                        {r.title}
+                      </h3>
+                    )}
+                    {r.body && (
+                      <p className="mt-1 text-sm text-foreground/70">{r.body}</p>
+                    )}
+                    <p className="mt-2 text-xs text-foreground/50">
+                      — {r.reviewerName || "A devotee"}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </section>
       </main>
       <Footer />

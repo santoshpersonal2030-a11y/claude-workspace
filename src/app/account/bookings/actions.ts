@@ -141,3 +141,51 @@ export async function rescheduleBooking(formData: FormData): Promise<void> {
   revalidatePath(`/account/bookings/${id}`);
   redirect(`/account/bookings/${id}`);
 }
+
+// Customer reviews the Pandit from a COMPLETED booking. Upsert (one per booking)
+// via the anon client so RLS confines it to their own user_id; a DB trigger
+// refreshes the Pandit's average rating + count.
+export async function submitPanditReview(formData: FormData): Promise<void> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/login?next=/account/bookings");
+
+  const bookingId = str(formData.get("booking_id"));
+  const rating = Math.min(5, Math.max(1, Number(formData.get("rating")) || 0));
+  if (!bookingId || rating < 1) return;
+
+  const admin = createAdminClient();
+  const { data: booking } = await admin
+    .from("bookings")
+    .select("id, pandit_id, status")
+    .eq("id", bookingId)
+    .eq("user_id", user.id)
+    .maybeSingle();
+  if (!booking?.pandit_id || booking.status !== "completed") return;
+
+  const { data: profile } = await admin
+    .from("profiles")
+    .select("full_name")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  await supabase.from("pandit_reviews").upsert(
+    {
+      user_id: user.id,
+      booking_id: bookingId,
+      pandit_id: booking.pandit_id,
+      rating,
+      title: str(formData.get("title")) || null,
+      body: str(formData.get("body")) || null,
+      reviewer_name: profile?.full_name?.trim() || "A devotee",
+      updated_at: new Date().toISOString(),
+    },
+    { onConflict: "user_id,booking_id" },
+  );
+
+  revalidatePath(`/account/bookings/${bookingId}`);
+  revalidatePath("/pandits");
+  redirect(`/account/bookings/${bookingId}`);
+}
