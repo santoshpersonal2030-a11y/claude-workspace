@@ -5,6 +5,7 @@ import {
   getProductSlugs,
   getPanditSlugs,
 } from "@/lib/queries";
+import { CITY_COORDS } from "@/lib/muhurat-engine";
 
 const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL ?? "https://bookmypoojari.com";
@@ -18,6 +19,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/muhurat",
     "/panchang",
     "/choghadiya",
+    "/festivals",
     "/how-it-works",
     "/about",
     "/contact",
@@ -37,10 +39,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     getPanditSlugs(),
   ]);
 
+  const citySlugs = Object.keys(CITY_COORDS).map(
+    (c) => `/pandits/in/${c.toLowerCase().replace(/\s+/g, "-")}`,
+  );
+
   const dynamicRoutes = [
     ...poojaSlugs.map((slug) => `/poojas/${slug}`),
     ...productSlugs.map((slug) => `/store/${slug}`),
     ...panditSlugs.map((slug) => `/pandits/${slug}`),
+    ...citySlugs,
   ].map((path) => ({
     url: `${siteUrl}${path}`,
     lastModified: new Date(),

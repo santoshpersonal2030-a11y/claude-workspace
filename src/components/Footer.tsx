@@ -19,6 +19,15 @@ const columns = [
     ],
   },
   {
+    title: "Almanac",
+    links: [
+      { href: "/muhurat", label: "Shubh Muhurat" },
+      { href: "/panchang", label: "Daily Panchang" },
+      { href: "/choghadiya", label: "Choghadiya" },
+      { href: "/festivals", label: "Festivals & Vrats" },
+    ],
+  },
+  {
     title: "Company",
     links: [
       { href: "/about", label: "About Us" },
@@ -40,7 +49,7 @@ export default function Footer() {
   return (
     <footer className="mt-auto border-t border-saffron-100 bg-maroon-700 text-cream-100">
       <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
-        <div className="grid gap-10 md:grid-cols-[1.4fr_repeat(4,1fr)]">
+        <div className="grid gap-10 md:grid-cols-[1.4fr_repeat(5,1fr)]">
           <div>
             <div className="flex items-center gap-2">
               <span className="flex h-10 w-10 items-center justify-center rounded-full bg-saffron-600 text-xl">

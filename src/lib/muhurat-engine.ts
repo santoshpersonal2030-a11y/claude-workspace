@@ -375,6 +375,45 @@ export function isAuspiciousForVivah(p: Panchanga): boolean {
   return VIVAH_NAKSHATRAS.has(p.nakshatra) && !FORBIDDEN_TITHIS.has(p.tithi);
 }
 
+// ── Vrat / festival calendar (computed tithi-based observances) ──────────────
+// Recurring lunar observances keyed by tithi (1–15 Shukla, 16–30 Krishna;
+// 15 = Purnima, 30 = Amavasya). A small, reliable computed calendar.
+const VRAT_TITHIS: Record<number, string> = {
+  4: "Vinayaka Chaturthi",
+  11: "Ekadashi",
+  13: "Pradosh Vrat",
+  15: "Purnima",
+  19: "Sankashti Chaturthi",
+  26: "Ekadashi",
+  28: "Pradosh Vrat",
+  30: "Amavasya",
+};
+
+export type VratDay = { date: string; tithi: number; name: string };
+
+// The tithi-based vrat/festival days in [from, from+days), evaluated at sunrise
+// (istHour 6). A tithi spanning two sunrises is reported once (the first day).
+export function upcomingVrats(from: string, days: number): VratDay[] {
+  const out: VratDay[] = [];
+  const start = new Date(`${from}T00:00:00Z`);
+  if (Number.isNaN(start.getTime())) return out;
+
+  let prevTithi = -1;
+  for (let n = 0; n < days; n++) {
+    const d = new Date(start);
+    d.setUTCDate(d.getUTCDate() + n);
+    const dateStr = d.toISOString().slice(0, 10);
+    const p = panchangaAt(dateStr, 6);
+    if (!p) continue;
+    const name = VRAT_TITHIS[p.tithi];
+    if (name && p.tithi !== prevTithi) {
+      out.push({ date: dateStr, tithi: p.tithi, name });
+    }
+    prevTithi = p.tithi;
+  }
+  return out;
+}
+
 // ── Masa & planetary exclusions (stricter Vivah filter) ─────────────────────
 
 const RASHIS = [

@@ -4,6 +4,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import PanditDirectory from "@/components/PanditDirectory";
 import { getPandits } from "@/lib/queries";
+import { CITY_COORDS } from "@/lib/muhurat-engine";
 
 export const metadata: Metadata = {
   title: "Our Pandits — Verified Hindu Priests",
@@ -42,6 +43,23 @@ export default async function PanditsPage() {
 
         <section className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
           <PanditDirectory pandits={pandits} />
+
+          <div className="mt-12 border-t border-saffron-100 pt-8">
+            <h2 className="font-heading text-xl text-maroon-800">
+              Pandits across India
+            </h2>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {Object.keys(CITY_COORDS).map((c) => (
+                <Link
+                  key={c}
+                  href={`/pandits/in/${c.toLowerCase().replace(/\s+/g, "-")}`}
+                  className="rounded-full border border-saffron-200 bg-white px-4 py-1.5 text-sm text-saffron-700 hover:bg-saffron-50"
+                >
+                  Pandit in {c}
+                </Link>
+              ))}
+            </div>
+          </div>
         </section>
       </main>
       <Footer />

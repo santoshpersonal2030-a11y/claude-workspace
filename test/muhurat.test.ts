@@ -16,6 +16,7 @@ import {
   retrogradePlanets,
   computeChoghadiya,
   generateChoghadiyaCandidates,
+  upcomingVrats,
 } from "../src/lib/muhurat-engine.ts";
 
 const DELHI = CITY_COORDS["New Delhi"];
@@ -206,4 +207,18 @@ test("Upanayana strict candidates avoid Chaturmas; child rite (jatakarma) doesn'
   assert.equal(monsoon.length, 0, "no Upanayana in Chaturmas");
   // The unrestricted child rite yields more dates overall.
   assert.ok(jatakarma.length > upanayana.length);
+});
+
+test("upcomingVrats: computed tithi observances over 60 days", () => {
+  const v = upcomingVrats("2026-01-01", 60);
+  assert.ok(v.length >= 10, `count ${v.length}`);
+  const names = new Set(["Vinayaka Chaturthi", "Ekadashi", "Pradosh Vrat", "Purnima", "Sankashti Chaturthi", "Amavasya"]);
+  for (const d of v) {
+    assert.ok(names.has(d.name), `unexpected ${d.name}`);
+    assert.match(d.date, /^\d{4}-\d{2}-\d{2}$/);
+  }
+  // Roughly two Ekadashis and one Purnima/Amavasya per lunar month → present.
+  assert.ok(v.some((d) => d.name === "Ekadashi"));
+  assert.ok(v.some((d) => d.name === "Purnima"));
+  assert.ok(v.some((d) => d.name === "Amavasya"));
 });
