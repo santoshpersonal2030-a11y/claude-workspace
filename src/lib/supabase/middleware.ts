@@ -5,8 +5,15 @@ import type { Database } from "@/lib/database.types";
 
 // Refreshes the Supabase auth session on every request and writes any rotated
 // auth cookies back onto the response. Called from the root middleware.
-export async function updateSession(request: NextRequest) {
-  let supabaseResponse = NextResponse.next({ request });
+// When `rewriteUrl` is supplied (e.g. locale routing), the response rewrites to
+// it instead of passing through, while still carrying the refreshed cookies.
+export async function updateSession(request: NextRequest, rewriteUrl?: URL) {
+  const build = () =>
+    rewriteUrl
+      ? NextResponse.rewrite(rewriteUrl, { request })
+      : NextResponse.next({ request });
+
+  let supabaseResponse = build();
 
   const supabase = createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -20,7 +27,7 @@ export async function updateSession(request: NextRequest) {
           cookiesToSet.forEach(({ name, value }) =>
             request.cookies.set(name, value),
           );
-          supabaseResponse = NextResponse.next({ request });
+          supabaseResponse = build();
           cookiesToSet.forEach(({ name, value, options }) =>
             supabaseResponse.cookies.set(name, value, options),
           );

@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import type { User } from "@supabase/supabase-js";
 import {
   type Pooja,
@@ -549,9 +550,9 @@ export default function BookingForm({
             </select>
             <p className="mt-1 text-xs text-foreground/50">
               Pick a saved address or edit the fields below. Manage them in{" "}
-              <a href="/account/addresses" className="text-saffron-700 hover:underline">
+              <Link href="/account/addresses" className="text-saffron-700 hover:underline">
                 your address book
-              </a>
+              </Link>
               .
             </p>
           </div>

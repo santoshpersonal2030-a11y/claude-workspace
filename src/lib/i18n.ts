@@ -91,3 +91,18 @@ export function t(
     name in vars ? String(vars[name]) : `{${name}}`,
   );
 }
+
+// Server-side translator: returns a `t` bound to a locale, for use in Server
+// Components and metadata where there is no React context. The dictionary lives
+// in-module (small, dependency-free) so this needs no async import.
+export type Translator = (
+  key: string,
+  vars?: Record<string, string | number>,
+) => string;
+
+export function getDictionary(locale: Locale): { locale: Locale; t: Translator } {
+  return {
+    locale,
+    t: (key, vars) => t(locale, key, vars),
+  };
+}

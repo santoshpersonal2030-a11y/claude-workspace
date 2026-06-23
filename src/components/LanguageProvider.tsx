@@ -1,54 +1,22 @@
 "use client";
 
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useSyncExternalStore,
-} from "react";
+import { createContext, useContext, useEffect } from "react";
 
 import {
   DEFAULT_LOCALE,
-  isLocale,
   t as translate,
   type Locale,
 } from "@/lib/i18n";
 
 const COOKIE = "bmp_locale";
 
-// Tiny external store for the locale, backed by a cookie. useSyncExternalStore
-// reads it without a setState-in-effect and resolves the SSR→client mismatch
-// (server renders the default; the client re-renders with the cookie value).
-let current: Locale | null = null;
-const listeners = new Set<() => void>();
-
-function readCookie(): Locale {
-  if (typeof document === "undefined") return DEFAULT_LOCALE;
-  const m = document.cookie.match(/(?:^|; )bmp_locale=([^;]*)/);
-  const v = m ? decodeURIComponent(m[1]) : "";
-  return isLocale(v) ? v : DEFAULT_LOCALE;
-}
-
-function getSnapshot(): Locale {
-  if (current === null) current = readCookie();
-  return current;
-}
-
-function getServerSnapshot(): Locale {
-  return DEFAULT_LOCALE;
-}
-
-function subscribe(cb: () => void): () => void {
-  listeners.add(cb);
-  return () => listeners.delete(cb);
-}
-
-function setLocaleExternal(l: Locale): void {
-  current = l;
+// Persist the chosen locale in a cookie so the proxy can keep unprefixed URLs
+// sticky to a returning visitor's language. The URL segment is the source of
+// truth for what actually renders; this is just a hint for the proxy.
+function persistLocale(l: Locale): void {
   if (typeof document !== "undefined") {
     document.cookie = `${COOKIE}=${l}; path=/; max-age=31536000; samesite=lax`;
   }
-  listeners.forEach((f) => f());
 }
 
 type Ctx = {
@@ -63,21 +31,25 @@ const LanguageContext = createContext<Ctx>({
   t: (key) => translate(DEFAULT_LOCALE, key),
 });
 
+// Locale is now driven by the URL segment ([locale]) and threaded in from the
+// server layout via `initialLocale`, so SSR and hydration always agree.
 export default function LanguageProvider({
   children,
+  initialLocale,
 }: {
   children: React.ReactNode;
+  initialLocale: Locale;
 }) {
-  const locale = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+  const locale = initialLocale;
 
-  // Keep <html lang> in sync for accessibility / SEO (not a setState).
+  // Keep the cookie in sync with whatever the URL resolved to.
   useEffect(() => {
-    document.documentElement.lang = locale;
+    persistLocale(locale);
   }, [locale]);
 
   const value: Ctx = {
     locale,
-    setLocale: setLocaleExternal,
+    setLocale: persistLocale,
     t: (key, vars) => translate(locale, key, vars),
   };
 
