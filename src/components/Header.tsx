@@ -1,19 +1,24 @@
+"use client";
+
 import Link from "next/link";
 import HeaderAuth from "@/components/HeaderAuth";
 import CartButton from "@/components/CartButton";
 import WishlistNavButton from "@/components/WishlistNavButton";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
+import { useT } from "@/components/LanguageProvider";
 
 const navLinks = [
-  { href: "/poojas", label: "Book a Pooja" },
-  { href: "/ceremonies", label: "Ceremonies" },
-  { href: "/muhurat", label: "Shubh Muhurat" },
-  { href: "/panchang", label: "Panchang" },
-  { href: "/store", label: "Samagri Store" },
-  { href: "/pandits", label: "Our Pandits" },
-  { href: "/how-it-works", label: "How It Works" },
+  { href: "/poojas", key: "nav.bookPooja" },
+  { href: "/ceremonies", key: "nav.ceremonies" },
+  { href: "/muhurat", key: "nav.muhurat" },
+  { href: "/panchang", key: "nav.panchang" },
+  { href: "/store", key: "nav.store" },
+  { href: "/pandits", key: "nav.pandits" },
+  { href: "/how-it-works", key: "nav.howItWorks" },
 ];
 
 export default function Header() {
+  const t = useT();
   return (
     <header className="sticky top-0 z-50 border-b border-saffron-100 bg-cream/90 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
@@ -26,7 +31,7 @@ export default function Header() {
               BookMyPoojari
             </span>
             <span className="block text-[11px] tracking-wide text-saffron-700">
-              Devotion, delivered.
+              {t("brand.tagline")}
             </span>
           </span>
         </Link>
@@ -38,12 +43,13 @@ export default function Header() {
               href={link.href}
               className="text-sm font-medium text-foreground/80 transition-colors hover:text-saffron-700"
             >
-              {link.label}
+              {t(link.key)}
             </Link>
           ))}
         </nav>
 
         <div className="flex items-center gap-3">
+          <LanguageSwitcher className="hidden sm:flex" />
           <WishlistNavButton />
           <CartButton />
           <HeaderAuth />
@@ -51,7 +57,7 @@ export default function Header() {
             href="/poojas"
             className="rounded-full bg-saffron-600 px-5 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-saffron-700"
           >
-            Book Now
+            {t("nav.bookPooja")}
           </Link>
         </div>
       </div>

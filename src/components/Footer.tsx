@@ -1,4 +1,9 @@
+"use client";
+
 import Link from "next/link";
+
+import LanguageSwitcher from "@/components/LanguageSwitcher";
+import { useT } from "@/components/LanguageProvider";
 
 const columns = [
   {
@@ -49,6 +54,7 @@ const columns = [
 ];
 
 export default function Footer() {
+  const t = useT();
   return (
     <footer className="mt-auto border-t border-saffron-100 bg-maroon-700 text-cream-100">
       <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
@@ -63,9 +69,9 @@ export default function Footer() {
               </span>
             </div>
             <p className="mt-4 max-w-xs text-sm text-cream-100/80">
-              Book verified, experienced Pandits for any ceremony and order
-              authentic pooja samagri — delivered to your door.
+              {t("footer.tagline")}
             </p>
+            <LanguageSwitcher className="mt-4 w-fit border-white/20 bg-white/10" />
           </div>
 
           {columns.map((col) => (
@@ -90,7 +96,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-10 flex flex-col items-center justify-between gap-3 border-t border-white/10 pt-6 text-xs text-cream-100/60 sm:flex-row">
-          <p>© {new Date().getFullYear()} BookMyPoojari. All rights reserved.</p>
+          <p>{t("footer.rights", { year: new Date().getFullYear() })}</p>
           <p>Made with devotion in India 🇮🇳</p>
         </div>
       </div>
