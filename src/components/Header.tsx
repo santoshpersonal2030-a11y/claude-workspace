@@ -12,6 +12,7 @@ const navLinks = [
   { href: "/poojas", key: "nav.bookPooja" },
   { href: "/ceremonies", key: "nav.ceremonies" },
   { href: "/muhurat", key: "nav.muhurat" },
+  { href: "/consultations", key: "nav.consultations" },
   { href: "/panchang", key: "nav.panchang" },
   { href: "/store", key: "nav.store" },
   { href: "/pandits", key: "nav.pandits" },

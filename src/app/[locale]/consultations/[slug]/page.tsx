@@ -7,6 +7,7 @@ import Footer from "@/components/Footer";
 import ConsultationBookingForm from "@/components/ConsultationBookingForm";
 import { consultations, getConsultation } from "@/lib/consultations";
 import { formatINR } from "@/lib/poojas";
+import { getDictionary, isLocale, DEFAULT_LOCALE } from "@/lib/i18n";
 
 export function generateStaticParams() {
   return consultations.map((c) => ({ slug: c.slug }));
@@ -20,18 +21,16 @@ export async function generateMetadata({
   const { slug } = await params;
   const service = getConsultation(slug);
   if (!service) return { title: "Consultation not found" };
-  return {
-    title: `${service.name} — Online Astrology Consultation`,
-    description: service.shortDescription,
-  };
+  return { title: service.name, description: service.shortDescription };
 }
 
 export default async function ConsultationDetailPage({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ locale: string; slug: string }>;
 }) {
-  const { slug } = await params;
+  const { locale, slug } = await params;
+  const { t } = getDictionary(isLocale(locale) ? locale : DEFAULT_LOCALE);
   const service = getConsultation(slug);
   if (!service) notFound();
 
@@ -43,7 +42,7 @@ export default async function ConsultationDetailPage({
           <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
             <nav className="text-sm text-foreground/65">
               <Link href="/consultations" className="hover:text-saffron-700">
-                Consultations
+                {t("consult.crumb")}
               </Link>
               <span className="mx-2">/</span>
               <span className="text-saffron-700">{service.name}</span>
@@ -70,10 +69,10 @@ export default async function ConsultationDetailPage({
 
               <div className="mt-4 flex flex-wrap gap-3 text-sm">
                 <span className="rounded-full bg-saffron-50 px-3 py-1 text-saffron-800">
-                  {service.durationMins} min
+                  {t("consult.minutes", { mins: service.durationMins })}
                 </span>
                 <span className="rounded-full bg-saffron-50 px-3 py-1 text-saffron-800">
-                  Phone or video
+                  {t("consult.phoneOrVideo")}
                 </span>
                 <span className="rounded-full bg-saffron-50 px-3 py-1 font-semibold text-saffron-800">
                   {formatINR(service.price)}
@@ -87,7 +86,7 @@ export default async function ConsultationDetailPage({
               {service.includes && service.includes.length > 0 && (
                 <div className="mt-6">
                   <h2 className="font-heading text-lg text-maroon-700">
-                    What&apos;s included
+                    {t("consult.included")}
                   </h2>
                   <ul className="mt-3 space-y-2">
                     {service.includes.map((item) => (

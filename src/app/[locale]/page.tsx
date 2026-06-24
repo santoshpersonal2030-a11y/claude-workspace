@@ -228,6 +228,25 @@ export default async function Home({
           </section>
         )}
 
+        {/* Consultation CTA */}
+        <section className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
+          <div className="flex flex-col items-center gap-4 rounded-3xl border border-saffron-100 bg-cream-100/70 px-6 py-10 text-center sm:px-12">
+            <span className="text-4xl">🔮</span>
+            <h2 className="font-heading text-3xl text-maroon-800">
+              {t("home.consult.title")}
+            </h2>
+            <p className="max-w-xl text-foreground/70">
+              {t("home.consult.text")}
+            </p>
+            <Link
+              href="/consultations"
+              className="rounded-full bg-saffron-700 px-7 py-3 text-sm font-semibold text-white transition-colors hover:bg-saffron-800"
+            >
+              {t("home.consult.cta")}
+            </Link>
+          </div>
+        </section>
+
         {/* Shop bestsellers */}
         {featuredProducts.length > 0 && (
           <section className="mx-auto max-w-6xl px-4 pb-16 sm:px-6">

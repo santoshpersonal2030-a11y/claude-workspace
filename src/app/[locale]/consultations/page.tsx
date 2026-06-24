@@ -5,14 +5,26 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { consultations } from "@/lib/consultations";
 import { formatINR } from "@/lib/poojas";
+import { getDictionary, isLocale, DEFAULT_LOCALE } from "@/lib/i18n";
 
-export const metadata: Metadata = {
-  title: "Astrology & Muhurat Consultations — Book a Jyotishi Online",
-  description:
-    "Book a 1:1 consultation with a verified astrologer — kundli reading, muhurat selection, gun milan, vastu and remedies. Over phone or video.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const { t } = getDictionary(isLocale(locale) ? locale : DEFAULT_LOCALE);
+  return { title: t("meta.consult.title"), description: t("meta.consult.desc") };
+}
 
-export default function ConsultationsPage() {
+export default async function ConsultationsPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const { t } = getDictionary(isLocale(locale) ? locale : DEFAULT_LOCALE);
+
   return (
     <>
       <Header />
@@ -20,23 +32,21 @@ export default function ConsultationsPage() {
         <section className="bg-temple-gradient">
           <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
             <nav className="text-sm text-foreground/65">
-              <span>Home</span>
+              <span>{t("common.home")}</span>
               <span className="mx-2">/</span>
-              <span className="text-saffron-700">Consultations</span>
+              <span className="text-saffron-700">{t("consult.crumb")}</span>
             </nav>
             <h1 className="mt-3 font-heading text-4xl text-maroon-800">
-              Astrology &amp; Muhurat Consultations
+              {t("consult.title")}
             </h1>
             <p className="mt-3 max-w-2xl text-lg text-foreground/70">
-              Speak 1:1 with a verified astrologer — over phone or video — for a
-              kundli reading, an auspicious muhurat, kundli matching, vastu or
-              targeted remedies.
+              {t("consult.subtitle")}
             </p>
           </div>
         </section>
 
         <section className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
-          <h2 className="sr-only">All consultations</h2>
+          <h2 className="sr-only">{t("consult.allHeading")}</h2>
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {consultations.map((c) => (
               <Link
@@ -48,7 +58,7 @@ export default function ConsultationsPage() {
                   <span className="text-3xl">{c.emoji}</span>
                   {c.popular && (
                     <span className="rounded-full bg-saffron-100 px-2.5 py-0.5 text-xs font-semibold text-saffron-800">
-                      Popular
+                      {t("consult.popular")}
                     </span>
                   )}
                 </div>
@@ -63,7 +73,7 @@ export default function ConsultationsPage() {
                 </p>
                 <div className="mt-4 flex items-center justify-between border-t border-saffron-50 pt-3">
                   <span className="text-xs text-foreground/65">
-                    {c.durationMins} min
+                    {t("consult.minutes", { mins: c.durationMins })}
                   </span>
                   <span className="font-heading text-lg text-saffron-700">
                     {formatINR(c.price)}

@@ -9,6 +9,7 @@ import { type Consultation } from "@/lib/consultations";
 import { formatINR, timeSlots } from "@/lib/poojas";
 import { createClient } from "@/lib/supabase/client";
 import { payWithRazorpay } from "@/lib/razorpay-client";
+import { useT } from "@/components/LanguageProvider";
 
 const inputClass =
   "w-full rounded-xl border border-saffron-200 bg-cream px-3 py-2.5 text-sm outline-none focus:border-saffron-400 focus:ring-2 focus:ring-saffron-100";
@@ -18,6 +19,7 @@ export default function ConsultationBookingForm({
 }: {
   service: Consultation;
 }) {
+  const t = useT();
   const supabase = useMemo(() => createClient(), []);
   const router = useRouter();
 
@@ -82,7 +84,7 @@ export default function ConsultationBookingForm({
 
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        throw new Error(data.error ?? "Could not book the consultation.");
+        throw new Error(data.error ?? t("consult.errBook"));
       }
 
       const data = (await res.json()) as {
@@ -104,14 +106,14 @@ export default function ConsultationBookingForm({
       );
 
       if (!result.ok) {
-        setError(result.error ?? "Payment was not completed.");
+        setError(result.error ?? t("consult.errPayment"));
         return;
       }
 
       setPaid(true);
       setSubmitted(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong.");
+      setError(err instanceof Error ? err.message : t("consult.errGeneric"));
     } finally {
       setBusy(false);
     }
@@ -123,31 +125,31 @@ export default function ConsultationBookingForm({
         <div className="text-center">
           <div className="text-4xl">🙏</div>
           <h3 className="mt-3 font-heading text-xl text-maroon-700">
-            {paid ? "Consultation confirmed" : "Request received"}
+            {paid ? t("consult.confirmedTitle") : t("consult.receivedTitle")}
           </h3>
           <p className="mt-2 text-sm text-foreground/65">
-            {paid
-              ? `Your ${service.name} is booked. We'll assign a verified astrologer and share the ${mode === "video" ? "video link" : "call details"} before your slot.`
-              : `We've received your ${service.name} request and will be in touch shortly.`}
+            {t(paid ? "consult.paidText" : "consult.receivedText", {
+              service: service.name,
+            })}
           </p>
         </div>
         <dl className="mt-5 space-y-2 border-t border-saffron-50 pt-4 text-sm">
           <div className="flex justify-between">
-            <dt className="text-foreground/65">Mode</dt>
+            <dt className="text-foreground/65">{t("consult.mode")}</dt>
             <dd className="font-medium">
-              {mode === "video" ? "Video call" : "Phone call"}
+              {mode === "video" ? t("consult.videoCall") : t("consult.phoneCall")}
             </dd>
           </div>
           <div className="flex justify-between">
-            <dt className="text-foreground/65">Preferred date</dt>
+            <dt className="text-foreground/65">{t("consult.preferredDate")}</dt>
             <dd className="font-medium">{date || "—"}</dd>
           </div>
           <div className="flex justify-between">
-            <dt className="text-foreground/65">Preferred time</dt>
+            <dt className="text-foreground/65">{t("consult.preferredTime")}</dt>
             <dd className="font-medium">{slot || "—"}</dd>
           </div>
           <div className="flex justify-between border-t border-saffron-50 pt-2 text-base">
-            <dt className="font-semibold">Paid</dt>
+            <dt className="font-semibold">{t("consult.paid")}</dt>
             <dd className="font-semibold text-saffron-700">
               {formatINR(service.price)}
             </dd>
@@ -157,7 +159,7 @@ export default function ConsultationBookingForm({
           href="/account/consultations"
           className="mt-5 block rounded-full bg-saffron-700 py-2.5 text-center text-sm font-semibold text-white transition-colors hover:bg-saffron-800"
         >
-          View your consultations
+          {t("consult.viewYours")}
         </Link>
       </div>
     );
@@ -169,17 +171,19 @@ export default function ConsultationBookingForm({
       className="rounded-2xl border border-saffron-100 bg-white p-6 shadow-sm"
     >
       <h3 className="font-heading text-xl text-maroon-700">
-        Book this consultation
+        {t("consult.formTitle")}
       </h3>
       <p className="mt-1 text-sm text-foreground/65">
-        {service.durationMins} min · {formatINR(service.price)} · delivered by a
-        verified astrologer.
+        {t("consult.formSubtitle", {
+          mins: service.durationMins,
+          price: formatINR(service.price),
+        })}
       </p>
 
       <div className="mt-5 space-y-4">
         <fieldset>
           <legend className="mb-1 block text-sm font-medium text-foreground/80">
-            How would you like the consultation?
+            {t("consult.modeQuestion")}
           </legend>
           <div className="flex gap-2">
             {(["phone", "video"] as const).map((m) => (
@@ -199,7 +203,7 @@ export default function ConsultationBookingForm({
                   onChange={() => setMode(m)}
                   className="sr-only"
                 />
-                {m === "phone" ? "📞 Phone call" : "🎥 Video call"}
+                {m === "phone" ? t("consult.phoneCall") : t("consult.videoCall")}
               </label>
             ))}
           </div>
@@ -208,7 +212,7 @@ export default function ConsultationBookingForm({
         <div className="grid grid-cols-2 gap-3">
           <div>
             <label htmlFor="cf-date" className="mb-1 block text-sm font-medium text-foreground/80">
-              Preferred date
+              {t("consult.preferredDate")}
             </label>
             <input
               id="cf-date"
@@ -222,7 +226,7 @@ export default function ConsultationBookingForm({
           </div>
           <div>
             <label htmlFor="cf-slot" className="mb-1 block text-sm font-medium text-foreground/80">
-              Preferred time
+              {t("consult.preferredTime")}
             </label>
             <select
               id="cf-slot"
@@ -232,7 +236,7 @@ export default function ConsultationBookingForm({
               className={inputClass}
             >
               <option value="" disabled>
-                Select a slot
+                {t("consult.selectSlot")}
               </option>
               {timeSlots.map((s) => (
                 <option key={s} value={s}>
@@ -246,12 +250,12 @@ export default function ConsultationBookingForm({
         {service.needsBirthDetails && (
           <div className="rounded-xl border border-saffron-100 bg-saffron-50/50 p-3">
             <p className="text-xs font-medium text-maroon-800">
-              Birth details (for an accurate chart)
+              {t("consult.birthHeading")}
             </p>
             <div className="mt-2 grid grid-cols-2 gap-3">
               <div>
                 <label htmlFor="cf-bdate" className="mb-1 block text-xs text-foreground/70">
-                  Date of birth
+                  {t("consult.birthDate")}
                 </label>
                 <input
                   id="cf-bdate"
@@ -265,7 +269,7 @@ export default function ConsultationBookingForm({
               </div>
               <div>
                 <label htmlFor="cf-btime" className="mb-1 block text-xs text-foreground/70">
-                  Time of birth
+                  {t("consult.birthTime")}
                 </label>
                 <input
                   id="cf-btime"
@@ -278,7 +282,7 @@ export default function ConsultationBookingForm({
             </div>
             <div className="mt-3">
               <label htmlFor="cf-bplace" className="mb-1 block text-xs text-foreground/70">
-                Place of birth (city)
+                {t("consult.birthPlace")}
               </label>
               <input
                 id="cf-bplace"
@@ -286,7 +290,7 @@ export default function ConsultationBookingForm({
                 required
                 value={birthPlace}
                 onChange={(e) => setBirthPlace(e.target.value)}
-                placeholder="e.g. Varanasi, Uttar Pradesh"
+                placeholder={t("consult.birthPlacePh")}
                 className={inputClass}
               />
             </div>
@@ -296,7 +300,7 @@ export default function ConsultationBookingForm({
         <div className="grid grid-cols-2 gap-3">
           <div>
             <label htmlFor="cf-name" className="mb-1 block text-sm font-medium text-foreground/80">
-              Your name
+              {t("consult.name")}
             </label>
             <input
               id="cf-name"
@@ -309,7 +313,7 @@ export default function ConsultationBookingForm({
           </div>
           <div>
             <label htmlFor="cf-phone" className="mb-1 block text-sm font-medium text-foreground/80">
-              Phone
+              {t("consult.phone")}
             </label>
             <input
               id="cf-phone"
@@ -317,7 +321,7 @@ export default function ConsultationBookingForm({
               required
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              placeholder="10-digit mobile"
+              placeholder={t("consult.phonePh")}
               className={inputClass}
             />
           </div>
@@ -325,7 +329,7 @@ export default function ConsultationBookingForm({
 
         <div>
           <label htmlFor="cf-email" className="mb-1 block text-sm font-medium text-foreground/80">
-            Email (for the confirmation)
+            {t("consult.email")}
           </label>
           <input
             id="cf-email"
@@ -338,21 +342,23 @@ export default function ConsultationBookingForm({
 
         <div>
           <label htmlFor="cf-notes" className="mb-1 block text-sm font-medium text-foreground/80">
-            What would you like to discuss? (optional)
+            {t("consult.discuss")}
           </label>
           <textarea
             id="cf-notes"
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             rows={2}
-            placeholder="Your main questions or concern"
+            placeholder={t("consult.discussPh")}
             className={inputClass}
           />
         </div>
       </div>
 
       <div className="mt-4 flex items-center justify-between border-t border-saffron-50 pt-4">
-        <span className="text-sm text-foreground/65">Total payable</span>
+        <span className="text-sm text-foreground/65">
+          {t("consult.totalPayable")}
+        </span>
         <span className="font-heading text-xl text-saffron-700">
           {formatINR(service.price)}
         </span>
@@ -370,13 +376,13 @@ export default function ConsultationBookingForm({
         className="mt-4 w-full rounded-full bg-saffron-700 py-3 text-base font-semibold text-white shadow-sm transition-colors hover:bg-saffron-800 disabled:opacity-60"
       >
         {busy
-          ? "Processing…"
+          ? t("consult.processing")
           : user
-            ? `Pay ${formatINR(service.price)} & book`
-            : "Sign in to book"}
+            ? t("consult.pay", { amount: formatINR(service.price) })
+            : t("consult.signInToBook")}
       </button>
       <p className="mt-3 text-center text-xs text-foreground/65">
-        {user ? "Secure payment via Razorpay." : "You'll sign in first, then pay."}
+        {user ? t("consult.securePay") : t("consult.signInFirst")}
       </p>
     </form>
   );
