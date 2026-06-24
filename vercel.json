@@ -2,7 +2,7 @@
   "crons": [
     {
       "path": "/api/cron/abandoned-carts",
-      "schedule": "0 * * * *"
+      "schedule": "0 9 * * *"
     },
     {
       "path": "/api/cron/accounting-export",
@@ -10,7 +10,7 @@
     },
     {
       "path": "/api/cron/ewb-expiry",
-      "schedule": "30 * * * *"
+      "schedule": "30 7 * * *"
     },
     {
       "path": "/api/cron/recurring-poojas",
