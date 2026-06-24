@@ -8,6 +8,7 @@ import type { User } from "@supabase/supabase-js";
 import { type Pooja, languages, timeSlots, formatINR } from "@/lib/poojas";
 import { createClient } from "@/lib/supabase/client";
 import { payWithRazorpay } from "@/lib/razorpay-client";
+import { trackPurchase } from "@/lib/analytics";
 import { useT } from "@/components/LanguageProvider";
 
 const inputClass =
@@ -93,6 +94,13 @@ export default function OnlinePoojaForm({ pooja }: { pooja: Pooja }) {
         return;
       }
 
+      trackPurchase({
+        value: total,
+        transactionId: data.bookingId,
+        items: [
+          { item_name: pooja.name, price: total, item_category: "pooja-online" },
+        ],
+      });
       setPaid(true);
       setSubmitted(true);
     } catch (err) {

@@ -4,6 +4,7 @@ import { useMemo, useSyncExternalStore } from "react";
 
 import { createClient } from "@/lib/supabase/client";
 import { announce } from "@/lib/announce";
+import { trackAddToCart } from "@/lib/analytics";
 import { t, getActiveLocale } from "@/lib/i18n";
 import type { Json } from "@/lib/database.types";
 
@@ -121,6 +122,7 @@ export function addToCart(
   }
   if (!silent) {
     announce(t(getActiveLocale(), "cart.announceAdded", { name: item.name }));
+    trackAddToCart({ item_name: item.name, price: item.price, quantity });
   }
 }
 

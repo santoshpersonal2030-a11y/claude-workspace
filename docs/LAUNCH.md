@@ -109,6 +109,10 @@ schedules hitting each):
   push notifications. Generate once with `npx web-push generate-vapid-keys`.
   Until set, the account "Enable notifications" toggle hides itself and push
   sends are skipped (email/SMS/WhatsApp still fire).
+- `NEXT_PUBLIC_GA_ID` — Google Analytics 4 (`G-XXXXXXXXXX`). Loads only in
+  production; fires the conversion funnel (page_view → add_to_cart →
+  begin_checkout → purchase). Add a cookie-consent banner before launch for
+  DPDP/GDPR compliance.
 - `RAZORPAYX_*` — automated payouts
 - `EINVOICE_*`, `EWB_*` — GST e-invoice / e-way-bill integration
 - `GOOGLE_MAPS_API_KEY` — geo-based travel-fee refinement

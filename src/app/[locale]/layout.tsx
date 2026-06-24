@@ -9,6 +9,7 @@ import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
 import SkipLink from "@/components/SkipLink";
 import LiveRegion from "@/components/LiveRegion";
 import InstallPrompt from "@/components/InstallPrompt";
+import Analytics from "@/components/Analytics";
 import { LOCALES, DEFAULT_LOCALE, isLocale, type Locale } from "@/lib/i18n";
 
 const heading = Marcellus({
@@ -122,6 +123,7 @@ export default async function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <SkipLink />
+        <Analytics />
         <LiveRegion />
         <AnnouncementBar />
         <ReferralTracker />

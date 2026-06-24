@@ -9,6 +9,7 @@ import { type Consultation } from "@/lib/consultations";
 import { formatINR, timeSlots } from "@/lib/poojas";
 import { createClient } from "@/lib/supabase/client";
 import { payWithRazorpay } from "@/lib/razorpay-client";
+import { trackPurchase } from "@/lib/analytics";
 import { useT } from "@/components/LanguageProvider";
 
 const inputClass =
@@ -110,6 +111,17 @@ export default function ConsultationBookingForm({
         return;
       }
 
+      trackPurchase({
+        value: service.price,
+        transactionId: data.consultationId,
+        items: [
+          {
+            item_name: service.name,
+            price: service.price,
+            item_category: "consultation",
+          },
+        ],
+      });
       setPaid(true);
       setSubmitted(true);
     } catch (err) {

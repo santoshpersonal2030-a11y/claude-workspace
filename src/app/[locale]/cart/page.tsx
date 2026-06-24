@@ -14,6 +14,7 @@ import { formatINR } from "@/lib/poojas";
 import { redeemableAmount } from "@/lib/rewards";
 import { createClient } from "@/lib/supabase/client";
 import { payWithRazorpay } from "@/lib/razorpay-client";
+import { trackBeginCheckout, trackPurchase } from "@/lib/analytics";
 import { useT } from "@/components/LanguageProvider";
 
 const FREE_SHIPPING_THRESHOLD = 999;
@@ -168,6 +169,13 @@ export default function CartPage() {
       return;
     }
     setBusy(true);
+    const analyticsItems = items.map((i) => ({
+      item_name: i.name,
+      price: i.price,
+      quantity: i.quantity,
+      item_category: "samagri",
+    }));
+    trackBeginCheckout(total, analyticsItems);
     try {
       const res = await fetch("/api/checkout", {
         method: "POST",
@@ -212,6 +220,11 @@ export default function CartPage() {
         return;
       }
 
+      trackPurchase({
+        value: data.razorpay.amount / 100,
+        transactionId: data.orderId,
+        items: analyticsItems,
+      });
       clear();
       router.push("/account/orders?paid=1");
     } catch (err) {

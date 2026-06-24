@@ -14,6 +14,7 @@ import {
 import { createClient } from "@/lib/supabase/client";
 import { redeemableAmount } from "@/lib/rewards";
 import { payWithRazorpay } from "@/lib/razorpay-client";
+import { trackPurchase } from "@/lib/analytics";
 import type { PanditTier } from "@/lib/pandit-tier";
 import { resolveTravelBand, isValidPincode } from "@/lib/travel";
 import { useT } from "@/components/LanguageProvider";
@@ -318,6 +319,11 @@ export default function BookingForm({
         return;
       }
 
+      trackPurchase({
+        value: payable,
+        transactionId: data.bookingId,
+        items: [{ item_name: pooja.name, price: total, item_category: "pooja" }],
+      });
       setPaid(true);
       setSubmitted(true);
     } catch (err) {
