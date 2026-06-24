@@ -99,6 +99,9 @@ remains before go-live is mostly **configuration / ops, not code**:
 | Domain, env keys, provider enablement | 🔧 Ops |
 
 ### Remaining to launch (ops / config — not code)
+
+> Full step-by-step runbook: **`docs/LAUNCH.md`**.
+
 - Connect `bookmypoojari.com` → Vercel (DNS, SSL auto)
 - Set production env keys: `KYC_ENCRYPTION_KEY`, `SENTRY_DSN`, Razorpay & RazorpayX keys, OTP/WhatsApp/SMS/email provider credentials
 - Enable Supabase auth providers (Google/Apple/phone)
