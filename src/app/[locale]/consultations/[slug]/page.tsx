@@ -5,8 +5,10 @@ import { notFound } from "next/navigation";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ConsultationBookingForm from "@/components/ConsultationBookingForm";
+import JsonLd from "@/components/JsonLd";
 import { consultations, getConsultation } from "@/lib/consultations";
 import { formatINR } from "@/lib/poojas";
+import { SITE_URL, breadcrumbLd } from "@/lib/seo";
 import { getDictionary, isLocale, DEFAULT_LOCALE } from "@/lib/i18n";
 
 export function generateStaticParams() {
@@ -34,8 +36,39 @@ export default async function ConsultationDetailPage({
   const service = getConsultation(slug);
   if (!service) notFound();
 
+  const serviceLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Service",
+        name: service.name,
+        serviceType: "Astrology & muhurat consultation",
+        description: service.longDescription ?? service.shortDescription,
+        url: `${SITE_URL}/consultations/${service.slug}`,
+        areaServed: "IN",
+        provider: {
+          "@type": "Organization",
+          name: "BookMyPoojari",
+          url: SITE_URL,
+        },
+        offers: {
+          "@type": "Offer",
+          price: service.price,
+          priceCurrency: "INR",
+          url: `${SITE_URL}/consultations/${service.slug}`,
+        },
+      },
+      breadcrumbLd([
+        { name: "Home", path: "/" },
+        { name: "Consultations", path: "/consultations" },
+        { name: service.name, path: `/consultations/${service.slug}` },
+      ]),
+    ],
+  };
+
   return (
     <>
+      <JsonLd data={serviceLd} />
       <Header />
       <main className="flex-1">
         <section className="bg-temple-gradient">

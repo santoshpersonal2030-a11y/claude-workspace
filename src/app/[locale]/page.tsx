@@ -7,6 +7,7 @@ import AddToCartButton from "@/components/AddToCartButton";
 import RatingStars from "@/components/RatingStars";
 import ProductThumb from "@/components/ProductThumb";
 import { formatINR } from "@/lib/poojas";
+import { organizationLd, websiteLd } from "@/lib/seo";
 import { getPopularPoojas, getPandits, getProducts } from "@/lib/queries";
 import { getApprovedMuhuratWindows } from "@/lib/muhurat-data";
 import TodayPanchang from "@/components/TodayPanchang";
@@ -77,12 +78,18 @@ export default async function Home({
 
   const faqJsonLd = {
     "@context": "https://schema.org",
-    "@type": "FAQPage",
-    mainEntity: faqs.map((f) => ({
-      "@type": "Question",
-      name: f.q,
-      acceptedAnswer: { "@type": "Answer", text: f.a },
-    })),
+    "@graph": [
+      organizationLd,
+      websiteLd,
+      {
+        "@type": "FAQPage",
+        mainEntity: faqs.map((f) => ({
+          "@type": "Question",
+          name: f.q,
+          acceptedAnswer: { "@type": "Answer", text: f.a },
+        })),
+      },
+    ],
   };
 
   const popularPoojas = await getPopularPoojas();

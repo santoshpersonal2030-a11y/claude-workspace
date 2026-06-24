@@ -10,6 +10,8 @@ import {
 } from "@/lib/queries";
 import { panditTierInfo, TIER_BADGE_CLASS } from "@/lib/pandit-tier";
 import PanditAvatar from "@/components/PanditAvatar";
+import JsonLd from "@/components/JsonLd";
+import { SITE_URL, breadcrumbLd } from "@/lib/seo";
 
 function reviewDate(value: string): string {
   return new Date(value).toLocaleDateString("en-IN", {
@@ -51,6 +53,40 @@ export default async function PanditDetailPage({
 
   const reviews = await getPanditReviews(slug);
 
+  const panditLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Person",
+        name: pandit.fullName,
+        jobTitle: "Hindu Priest (Pandit / Poojari)",
+        description: pandit.bio || undefined,
+        image: pandit.photoUrl ?? undefined,
+        url: `${SITE_URL}/pandits/${slug}`,
+        knowsLanguage: pandit.languages.length ? pandit.languages : undefined,
+        worksFor: {
+          "@type": "Organization",
+          name: "BookMyPoojari",
+          url: SITE_URL,
+        },
+        ...(pandit.reviewCount > 0
+          ? {
+              aggregateRating: {
+                "@type": "AggregateRating",
+                ratingValue: pandit.rating,
+                reviewCount: pandit.reviewCount,
+              },
+            }
+          : {}),
+      },
+      breadcrumbLd([
+        { name: "Home", path: "/" },
+        { name: "Our Pandits", path: "/pandits" },
+        { name: pandit.fullName, path: `/pandits/${slug}` },
+      ]),
+    ],
+  };
+
   const tier = panditTierInfo(pandit.experienceYears);
   const facts = [
     { label: "Experience", value: `${pandit.experienceYears}+ years` },
@@ -64,6 +100,7 @@ export default async function PanditDetailPage({
 
   return (
     <>
+      <JsonLd data={panditLd} />
       <Header />
       <main className="flex-1">
         <section className="bg-temple-gradient">

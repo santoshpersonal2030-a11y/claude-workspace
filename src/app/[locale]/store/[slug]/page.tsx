@@ -12,6 +12,8 @@ import NotifyMeButton from "@/components/NotifyMeButton";
 import RatingStars from "@/components/RatingStars";
 import ProductReviews from "@/components/ProductReviews";
 import ReviewForm from "@/components/ReviewForm";
+import JsonLd from "@/components/JsonLd";
+import { SITE_URL, breadcrumbLd } from "@/lib/seo";
 import { formatINR } from "@/lib/poojas";
 import {
   getProductBySlug,
@@ -59,8 +61,52 @@ export default async function ProductDetailPage({
       ? Math.round(((product.mrp - product.price) / product.mrp) * 100)
       : 0;
 
+  const productLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Product",
+        name: product.name,
+        description: product.description ?? undefined,
+        image: product.images.length
+          ? product.images
+          : product.imageUrl
+            ? [product.imageUrl]
+            : undefined,
+        sku: product.slug,
+        ...(product.category ? { category: product.category } : {}),
+        brand: { "@type": "Brand", name: "BookMyPoojari" },
+        offers: {
+          "@type": "Offer",
+          price: product.price,
+          priceCurrency: "INR",
+          availability:
+            product.stock > 0
+              ? "https://schema.org/InStock"
+              : "https://schema.org/OutOfStock",
+          url: `${SITE_URL}/store/${product.slug}`,
+        },
+        ...(product.reviewCount > 0
+          ? {
+              aggregateRating: {
+                "@type": "AggregateRating",
+                ratingValue: product.rating,
+                reviewCount: product.reviewCount,
+              },
+            }
+          : {}),
+      },
+      breadcrumbLd([
+        { name: "Home", path: "/" },
+        { name: "Samagri Store", path: "/store" },
+        { name: product.name, path: `/store/${product.slug}` },
+      ]),
+    ],
+  };
+
   return (
     <>
+      <JsonLd data={productLd} />
       <Header />
       <main className="flex-1">
         <section className="bg-temple-gradient">
