@@ -433,6 +433,7 @@ const en: Dict = {
   "cart.announceReordered": "{count} items added to your cart.",
   // Consultations
   "nav.consultations": "Consultations",
+  "nav.liveAstrology": "Talk to Astrologer",
   "meta.consult.title":
     "Astrology & Muhurat Consultations — Book a Jyotishi Online",
   "meta.consult.desc":
@@ -1054,6 +1055,7 @@ const hi: Dict = {
   "cart.announceReordered": "{count} वस्तुएँ आपके कार्ट में जोड़ी गईं।",
   // Consultations
   "nav.consultations": "परामर्श",
+  "nav.liveAstrology": "ज्योतिषी से बात करें",
   "meta.consult.title": "ज्योतिष व मुहूर्त परामर्श — ऑनलाइन ज्योतिषी बुक करें",
   "meta.consult.desc":
     "सत्यापित ज्योतिषी के साथ 1:1 परामर्श बुक करें — कुंडली विश्लेषण, मुहूर्त निर्णय, गुण मिलान, वास्तु और उपाय। फ़ोन या वीडियो पर।",

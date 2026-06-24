@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ReferralShare from "@/components/ReferralShare";
+import WalletTopUp from "@/components/WalletTopUp";
 import { createClient } from "@/lib/supabase/server";
 import {
   getWalletBalance,
@@ -25,6 +26,8 @@ const REASON_LABEL: Record<WalletReason, string> = {
   refund: "Refund to credit",
   signup_bonus: "Sign-up bonus",
   admin_adjust: "Adjustment",
+  topup: "Wallet top-up",
+  live_consult: "Live consultation",
 };
 
 const siteUrl =
@@ -81,6 +84,18 @@ export default async function WalletPage() {
                 <strong>{settings.maxRedeemPct}%</strong> of a future order.
               </p>
             )}
+          </div>
+
+          {/* Add money */}
+          <div className="mt-6 rounded-2xl border border-saffron-100 bg-white p-6 shadow-sm">
+            <h2 className="font-heading text-lg text-maroon-700">
+              Add money to your wallet
+            </h2>
+            <p className="mt-1 text-sm text-foreground/65">
+              Top up to talk to an astrologer instantly — wallet credit is spent
+              per minute during live chats and calls.
+            </p>
+            <WalletTopUp />
           </div>
 
           {/* Referral */}

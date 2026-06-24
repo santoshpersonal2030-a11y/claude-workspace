@@ -1957,6 +1957,110 @@ export type Database = {
         }
         Relationships: []
       }
+      live_astrologer_status: {
+        Row: {
+          note: string | null
+          slug: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          note?: string | null
+          slug: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          note?: string | null
+          slug?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      live_sessions: {
+        Row: {
+          amount_billed: number
+          astrologer_name: string
+          astrologer_slug: string
+          channel: string
+          created_at: string
+          end_reason: string | null
+          ended_at: string | null
+          id: string
+          last_tick_at: string
+          minutes_billed: number
+          rate_per_min: number
+          started_at: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          amount_billed?: number
+          astrologer_name: string
+          astrologer_slug: string
+          channel: string
+          created_at?: string
+          end_reason?: string | null
+          ended_at?: string | null
+          id?: string
+          last_tick_at?: string
+          minutes_billed?: number
+          rate_per_min: number
+          started_at?: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          amount_billed?: number
+          astrologer_name?: string
+          astrologer_slug?: string
+          channel?: string
+          created_at?: string
+          end_reason?: string | null
+          ended_at?: string | null
+          id?: string
+          last_tick_at?: string
+          minutes_billed?: number
+          rate_per_min?: number
+          started_at?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      live_messages: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          sender: string
+          session_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          sender: string
+          session_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          sender?: string
+          session_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "live_messages_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "live_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       wallet_transactions: {
         Row: {
           amount: number
@@ -1966,6 +2070,7 @@ export type Database = {
           note: string | null
           order_id: string | null
           reason: string
+          reference: string | null
           user_id: string
         }
         Insert: {
@@ -1976,6 +2081,7 @@ export type Database = {
           note?: string | null
           order_id?: string | null
           reason: string
+          reference?: string | null
           user_id: string
         }
         Update: {
@@ -1986,6 +2092,7 @@ export type Database = {
           note?: string | null
           order_id?: string | null
           reason?: string
+          reference?: string | null
           user_id?: string
         }
         Relationships: [

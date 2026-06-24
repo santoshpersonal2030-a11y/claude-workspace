@@ -37,6 +37,9 @@ export async function payWithRazorpay(
   payment: PaymentDetails,
   prefill?: { name?: string; email?: string; contact?: string },
   description = "BookMyPoojari",
+  // Server route that verifies the signature. Defaults to the booking/order
+  // capture route; wallet top-ups pass their own self-contained verifier.
+  verifyPath = "/api/razorpay/verify",
 ): Promise<PaymentResult> {
   const loaded = await loadRazorpayScript();
   if (!loaded) return { ok: false, error: "Could not load the payment window." };
@@ -54,7 +57,7 @@ export async function payWithRazorpay(
       theme: { color: "#d97706" },
       handler: async (response) => {
         try {
-          const res = await fetch("/api/razorpay/verify", {
+          const res = await fetch(verifyPath, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({

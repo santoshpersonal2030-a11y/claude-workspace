@@ -42,6 +42,15 @@ export default async function ConsultationsPage({
             <p className="mt-3 max-w-2xl text-lg text-foreground/70">
               {t("consult.subtitle")}
             </p>
+            <p className="mt-2 text-sm text-foreground/60">
+              Need an answer right now?{" "}
+              <Link
+                href="/live-astrology"
+                className="font-medium text-saffron-700 hover:underline"
+              >
+                Talk to an astrologer live, per minute →
+              </Link>
+            </p>
           </div>
         </section>
 

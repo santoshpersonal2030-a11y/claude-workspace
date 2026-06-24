@@ -20,7 +20,9 @@ export type WalletReason =
   | "referral_referee"
   | "refund"
   | "signup_bonus"
-  | "admin_adjust";
+  | "admin_adjust"
+  | "topup"
+  | "live_consult";
 
 type Source = { orderId?: string | null; bookingId?: string | null };
 
@@ -135,6 +137,34 @@ async function addTxn(
   });
   if (error) {
     if (error.code === "23505") return false; // already granted
+    throw error;
+  }
+  return true;
+}
+
+// Credit or debit with a generic idempotency reference, deduped by the partial
+// unique index on (reference, reason). Used by wallet top-ups (reference = the
+// razorpay order id) and per-minute consult charges (reference =
+// `${sessionId}:${minute}`). Returns true only if a row was actually written;
+// false on a duplicate reference+reason (so retries/double-clicks are safe).
+export async function addReferencedTxn(
+  userId: string,
+  amount: number,
+  reason: WalletReason,
+  reference: string,
+  note: string,
+): Promise<boolean> {
+  if (amount === 0) return false;
+  const admin = createAdminClient();
+  const { error } = await admin.from("wallet_transactions").insert({
+    user_id: userId,
+    amount,
+    reason,
+    reference,
+    note,
+  });
+  if (error) {
+    if (error.code === "23505") return false; // duplicate reference — already applied
     throw error;
   }
   return true;

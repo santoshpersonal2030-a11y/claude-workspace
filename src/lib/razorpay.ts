@@ -51,6 +51,30 @@ export async function createRazorpayOrder(params: {
   return (await res.json()) as RazorpayOrder;
 }
 
+// Fetches an order from Razorpay (authoritative amount + paid status). Used to
+// credit a wallet top-up by the amount Razorpay actually charged, never a value
+// supplied by the browser.
+export async function fetchRazorpayOrder(
+  orderId: string,
+): Promise<{ id: string; amount: number; amount_paid: number; status: string }> {
+  const keyId = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID!;
+  const keySecret = process.env.RAZORPAY_KEY_SECRET!;
+  const auth = Buffer.from(`${keyId}:${keySecret}`).toString("base64");
+
+  const res = await fetch(`${RAZORPAY_API}/orders/${orderId}`, {
+    headers: { Authorization: `Basic ${auth}` },
+  });
+  if (!res.ok) {
+    throw new Error(`Razorpay order fetch failed: ${await res.text()}`);
+  }
+  return (await res.json()) as {
+    id: string;
+    amount: number;
+    amount_paid: number;
+    status: string;
+  };
+}
+
 // Refunds a captured payment. Omit amountInPaise for a full refund.
 export async function createRefund(params: {
   paymentId: string;
