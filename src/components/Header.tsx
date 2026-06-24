@@ -14,6 +14,7 @@ const navLinks = [
   { href: "/ceremonies", key: "nav.ceremonies" },
   { href: "/muhurat", key: "nav.muhurat" },
   { href: "/consultations", key: "nav.consultations" },
+  { href: "/horoscope", key: "nav.horoscope" },
   { href: "/panchang", key: "nav.panchang" },
   { href: "/store", key: "nav.store" },
   { href: "/pandits", key: "nav.pandits" },

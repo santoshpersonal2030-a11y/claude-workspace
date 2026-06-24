@@ -9,6 +9,7 @@ import { CITY_COORDS } from "@/lib/muhurat-engine";
 import { getPublishedPosts } from "@/lib/blog-db";
 import { consultations } from "@/lib/consultations";
 import { templePujas } from "@/lib/temple-pujas";
+import { SIGNS } from "@/lib/horoscope";
 
 const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL ?? "https://bookmypoojari.com";
@@ -26,6 +27,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/festivals",
     "/consultations",
     "/temple-puja",
+    "/horoscope",
+    "/kundli",
     "/blog",
     "/how-it-works",
     "/about",
@@ -58,6 +61,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...panditSlugs.map((slug) => `/pandits/${slug}`),
     ...consultations.map((c) => `/consultations/${c.slug}`),
     ...templePujas.map((p) => `/temple-puja/${p.slug}`),
+    ...SIGNS.map((s) => `/horoscope/${s.slug}`),
     ...citySlugs,
     ...posts.map((p) => `/blog/${p.slug}`),
   ].map((path) => ({

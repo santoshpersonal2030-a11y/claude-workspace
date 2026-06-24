@@ -27,6 +27,8 @@ const columns = [
   {
     title: "Almanac",
     links: [
+      { href: "/horoscope", label: "Daily Horoscope" },
+      { href: "/kundli", label: "Free Kundli" },
       { href: "/consultations", label: "Astrology Consultation" },
       { href: "/muhurat", label: "Shubh Muhurat" },
       { href: "/panchang", label: "Daily Panchang" },
