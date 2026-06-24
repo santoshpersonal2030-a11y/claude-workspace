@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import JsonLd from "@/components/JsonLd";
 import PoojaBooking from "@/components/PoojaBooking";
 import AddToCartButton from "@/components/AddToCartButton";
 import ProductThumb from "@/components/ProductThumb";
@@ -118,10 +119,7 @@ export default async function PoojaDetailPage({
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+      <JsonLd data={jsonLd} />
       <Header />
       <main className="flex-1">
         {/* Hero */}

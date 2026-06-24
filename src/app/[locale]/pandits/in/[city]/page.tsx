@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import JsonLd from "@/components/JsonLd";
 import { CITY_COORDS, fullPanchanga } from "@/lib/muhurat-engine";
 import { getPopularPoojas } from "@/lib/queries";
 import { formatINR } from "@/lib/poojas";
@@ -73,10 +74,7 @@ export default async function CityPanditPage({
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+      <JsonLd data={jsonLd} />
       <Header />
       <main className="flex-1">
         <section className="bg-temple-gradient">

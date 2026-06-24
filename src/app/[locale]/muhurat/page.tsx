@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import JsonLd from "@/components/JsonLd";
 import MuhuratCalendar from "@/components/MuhuratCalendar";
 import { getApprovedMuhuratWindows } from "@/lib/muhurat-data";
 import { getDictionary, isLocale, DEFAULT_LOCALE } from "@/lib/i18n";
@@ -60,10 +61,7 @@ export default async function MuhuratPage({
       <Header />
       <main className="flex-1">
         {windows.length > 0 && (
-          <script
-            type="application/ld+json"
-            dangerouslySetInnerHTML={{ __html: JSON.stringify(eventsLd) }}
-          />
+          <JsonLd data={eventsLd} />
         )}
         <section className="bg-temple-gradient">
           <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6">

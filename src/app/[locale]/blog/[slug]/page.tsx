@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import JsonLd from "@/components/JsonLd";
 import { getPublishedPost } from "@/lib/blog-db";
 
 export const revalidate = 300;
@@ -54,10 +55,7 @@ export default async function BlogPostPage({
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+      <JsonLd data={jsonLd} />
       <Header />
       <main className="flex-1">
         <article className="mx-auto max-w-3xl px-4 py-12 sm:px-6">

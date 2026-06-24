@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import AddToCartButton from "@/components/AddToCartButton";
 import RatingStars from "@/components/RatingStars";
 import ProductThumb from "@/components/ProductThumb";
+import JsonLd from "@/components/JsonLd";
 import { formatINR } from "@/lib/poojas";
 import { organizationLd, websiteLd } from "@/lib/seo";
 import { getPopularPoojas, getPandits, getProducts } from "@/lib/queries";
@@ -499,10 +500,7 @@ export default async function Home({
 
         {/* FAQ */}
         <section className="mx-auto max-w-3xl px-4 pb-16 sm:px-6">
-          <script
-            type="application/ld+json"
-            dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
-          />
+          <JsonLd data={faqJsonLd} />
           <h2 className="text-center font-heading text-3xl text-maroon-800">
             {t("home.faq.title")}
           </h2>
