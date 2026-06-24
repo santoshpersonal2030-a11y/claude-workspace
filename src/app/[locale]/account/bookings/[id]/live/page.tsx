@@ -34,10 +34,9 @@ export default async function LivePoojaPage({
   if (!booking || booking.mode !== "online") notFound();
 
   const ready = booking.status !== "pending" && booking.status !== "cancelled";
+  // Don't fall back to the email — it would be shown to the Pandit in the room.
   const displayName =
-    (user.user_metadata?.full_name as string | undefined) ??
-    user.email ??
-    undefined;
+    (user.user_metadata?.full_name as string | undefined) ?? undefined;
 
   return (
     <>

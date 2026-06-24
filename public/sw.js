@@ -100,8 +100,11 @@ self.addEventListener("notificationclick", (event) => {
       .then((clients) => {
         for (const client of clients) {
           if ("focus" in client) {
-            client.navigate(target);
-            return client.focus();
+            return Promise.resolve(
+              client.navigate ? client.navigate(target) : null,
+            )
+              .catch(() => {})
+              .then(() => client.focus());
           }
         }
         return self.clients.openWindow(target);

@@ -33,10 +33,9 @@ export default async function LiveConsultationPage({
   if (!consult || consult.mode !== "video") notFound();
 
   const ready = consult.status === "confirmed" || consult.status === "completed";
+  // Don't fall back to the email — it would be shown to the astrologer.
   const displayName =
-    (user.user_metadata?.full_name as string | undefined) ??
-    user.email ??
-    undefined;
+    (user.user_metadata?.full_name as string | undefined) ?? undefined;
 
   return (
     <>

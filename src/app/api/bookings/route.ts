@@ -127,7 +127,9 @@ export async function POST(request: Request) {
 
   // Peak-day premium (server-authoritative): a percentage uplift on the
   // dakshina for festival / high-demand dates. Snapshotted on the booking.
-  const peakDay = await getPeakDay(body.bookingDate);
+  // Online poojas are billed at the flat price shown in the simple form (no
+  // peak preview there), so they skip the surcharge to avoid an overcharge.
+  const peakDay = online ? null : await getPeakDay(body.bookingDate);
   const peakSurcharge = peakDay
     ? peakSurchargeAmount(servicePrice, peakDay.surchargePct)
     : 0;

@@ -316,8 +316,13 @@ export default async function PriestCalendarPage({
                   const label = `${b.time_slot.slice(0, 5)} ${
                     b.poojas?.name ?? "Pooja"
                   }`;
-                  // Online ceremonies link to the priest's video room.
-                  return b.mode === "online" ? (
+                  // Online ceremonies link to the priest's video room, but only
+                  // once joinable (paid/active, not cancelled).
+                  const liveJoinable =
+                    b.mode === "online" &&
+                    b.status !== "pending" &&
+                    b.status !== "cancelled";
+                  return liveJoinable ? (
                     <Link
                       key={b.id}
                       href={`/priest/bookings/${b.id}/live`}

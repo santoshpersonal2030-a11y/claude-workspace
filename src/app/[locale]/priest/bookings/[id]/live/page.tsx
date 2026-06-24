@@ -24,8 +24,16 @@ export default async function PriestLivePoojaPage({
     .eq("id", id)
     .maybeSingle();
 
-  // Only the assigned priest may open the room, and only for online poojas.
-  if (!booking || booking.pandit_id !== pandit.id || booking.mode !== "online") {
+  // Only the assigned priest may open the room, only for online poojas, and
+  // only once the booking is live (not pending payment or cancelled) — matching
+  // the customer-side gate.
+  if (
+    !booking ||
+    booking.pandit_id !== pandit.id ||
+    booking.mode !== "online" ||
+    booking.status === "pending" ||
+    booking.status === "cancelled"
+  ) {
     notFound();
   }
 
