@@ -28,38 +28,44 @@ export default async function AdminPanditsPage() {
       >
         <h2 className="font-heading text-lg text-maroon-700">Add a Pandit</h2>
         <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          <input name="full_name" placeholder="Full name" required className={inputClass} />
-          <input name="slug" placeholder="slug" required className={inputClass} />
+          <input name="full_name" aria-label="Full name" placeholder="Full name" required className={inputClass} />
+          <input name="slug" aria-label="URL slug" placeholder="slug" required className={inputClass} />
           <input
             name="experience_years"
             type="number"
+            aria-label="Experience in years"
             placeholder="Experience (years)"
             className={inputClass}
           />
           <input
             name="languages"
+            aria-label="Languages"
             placeholder="Languages (Hindi, Sanskrit)"
             className={inputClass}
           />
           <input
             name="regions"
+            aria-label="Regions"
             placeholder="Regions (Pune, Mumbai)"
             className={inputClass}
           />
           <input
             name="specializations"
+            aria-label="Specializations"
             placeholder="Specializations (Home, Havan, Shanti)"
             title="Pooja categories (Home, Festival, Life Event, Remedial, Ancestral) and/or ritual types (Sanskar, Pooja, Havan, Shanti, Katha, Abhishek, Shraddh)"
             className={inputClass}
           />
           <input
             name="home_pincode"
+            aria-label="Home pincode"
             placeholder="Home pincode (411004)"
             title="Local band — no travel fee"
             className={inputClass}
           />
           <input
             name="service_pincodes"
+            aria-label="Service pincodes"
             placeholder="Service pincodes (411004, 411001)"
             title="All pincodes the priest will travel to"
             className={inputClass}
@@ -67,6 +73,7 @@ export default async function AdminPanditsPage() {
           <input
             name="max_travel_mins"
             type="number"
+            aria-label="Maximum travel minutes"
             placeholder="Max travel mins (30)"
             className={inputClass}
           />
@@ -74,17 +81,20 @@ export default async function AdminPanditsPage() {
             name="rating"
             type="number"
             step="0.1"
+            aria-label="Rating (0 to 5)"
             placeholder="Rating (0–5)"
             className={inputClass}
           />
           <input
             name="review_count"
             type="number"
+            aria-label="Review count"
             placeholder="Reviews"
             className={inputClass}
           />
           <input
             name="bio"
+            aria-label="Short bio"
             placeholder="Short bio"
             className={`${inputClass} sm:col-span-2`}
           />
@@ -99,12 +109,14 @@ export default async function AdminPanditsPage() {
           </label>
           <textarea
             name="qualifications"
+            aria-label="Qualifications, one per line"
             placeholder="Qualifications — one per line"
             rows={3}
             className={`${inputClass} sm:col-span-2 lg:col-span-1`}
           />
           <textarea
             name="achievements"
+            aria-label="Achievements, one per line"
             placeholder="Achievements — one per line"
             rows={3}
             className={`${inputClass} sm:col-span-2`}
@@ -112,6 +124,7 @@ export default async function AdminPanditsPage() {
           <input
             name="login_email"
             type="email"
+            aria-label="Portal login email"
             placeholder="Portal login email (optional)"
             title="The email this priest signs in with — links their self-service portal"
             className={`${inputClass} sm:col-span-2 lg:col-span-1`}
@@ -119,6 +132,7 @@ export default async function AdminPanditsPage() {
           <input
             name="phone"
             type="tel"
+            aria-label="Mobile number for SMS"
             placeholder="Mobile for SMS (optional)"
             title="Priest's mobile for transactional SMS alerts (10-digit)"
             className={`${inputClass} sm:col-span-2 lg:col-span-1`}

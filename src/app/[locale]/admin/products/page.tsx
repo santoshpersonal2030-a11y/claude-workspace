@@ -36,16 +36,18 @@ export default async function AdminProductsPage() {
       >
         <h2 className="font-heading text-lg text-maroon-700">Add a product</h2>
         <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          <input name="name" placeholder="Name" required className={inputClass} />
-          <input name="slug" placeholder="slug" required className={inputClass} />
+          <input name="name" aria-label="Product name" placeholder="Name" required className={inputClass} />
+          <input name="slug" aria-label="URL slug" placeholder="slug" required className={inputClass} />
           <input
             name="category"
+            aria-label="Category"
             placeholder="Category"
             className={inputClass}
           />
           <input
             name="price"
             type="number"
+            aria-label="Price in rupees"
             placeholder="Price ₹"
             required
             className={inputClass}
@@ -53,12 +55,14 @@ export default async function AdminProductsPage() {
           <input
             name="mrp"
             type="number"
+            aria-label="MRP in rupees"
             placeholder="MRP ₹ (optional)"
             className={inputClass}
           />
           <input
             name="stock"
             type="number"
+            aria-label="Stock quantity"
             placeholder="Stock"
             defaultValue={0}
             className={inputClass}
@@ -67,17 +71,20 @@ export default async function AdminProductsPage() {
             name="gst_rate"
             type="number"
             step="0.01"
+            aria-label="GST percentage"
             placeholder="GST %"
             defaultValue={18}
             className={inputClass}
           />
           <input
             name="hsn_code"
+            aria-label="HSN code"
             placeholder="HSN code"
             className={inputClass}
           />
           <input
             name="image_url"
+            aria-label="Image URL"
             placeholder="Image URL (optional)"
             className={`${inputClass} sm:col-span-2 lg:col-span-2`}
           />
@@ -92,6 +99,7 @@ export default async function AdminProductsPage() {
           </label>
           <input
             name="description"
+            aria-label="Description"
             placeholder="Description"
             className={`${inputClass} sm:col-span-2 lg:col-span-3`}
           />
@@ -130,9 +138,15 @@ export default async function AdminProductsPage() {
                 p.images?.length ? p.images : p.image_url ? [p.image_url] : []
               }
             />
-            <input name="name" defaultValue={p.name} className={inputClass} />
+            <input
+              name="name"
+              aria-label="Product name"
+              defaultValue={p.name}
+              className={inputClass}
+            />
             <input
               name="category"
+              aria-label="Category"
               defaultValue={p.category ?? ""}
               placeholder="Category"
               className={inputClass}
@@ -140,12 +154,14 @@ export default async function AdminProductsPage() {
             <input
               name="price"
               type="number"
+              aria-label="Price in rupees"
               defaultValue={p.price}
               className={inputClass}
             />
             <input
               name="mrp"
               type="number"
+              aria-label="MRP in rupees"
               defaultValue={p.mrp ?? ""}
               placeholder="MRP"
               className={inputClass}
@@ -153,6 +169,7 @@ export default async function AdminProductsPage() {
             <input
               name="stock"
               type="number"
+              aria-label="Stock quantity"
               defaultValue={p.stock}
               className={inputClass}
             />
@@ -162,12 +179,14 @@ export default async function AdminProductsPage() {
                 name="gst_rate"
                 type="number"
                 step="0.01"
+                aria-label="GST percentage"
                 defaultValue={Number(p.gst_rate)}
                 className={`${inputClass} w-20`}
               />
               <span>HSN</span>
               <input
                 name="hsn_code"
+                aria-label="HSN code"
                 defaultValue={p.hsn_code ?? ""}
                 placeholder="HSN code"
                 className={`${inputClass} w-32`}

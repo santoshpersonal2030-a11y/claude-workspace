@@ -109,6 +109,7 @@ export default async function AddressesPage() {
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
               <input
                 name="label"
+                aria-label="Address label"
                 placeholder="Label (e.g. Home, Parents')"
                 className={`${inputClass} sm:col-span-2`}
               />
@@ -116,11 +117,12 @@ export default async function AddressesPage() {
                 name="address"
                 required
                 rows={2}
+                aria-label="Full address"
                 placeholder="Full address"
                 className={`${inputClass} sm:col-span-2`}
               />
-              <input name="city" required placeholder="City" className={inputClass} />
-              <input name="pincode" placeholder="Pincode" className={inputClass} />
+              <input name="city" required aria-label="City" placeholder="City" className={inputClass} />
+              <input name="pincode" aria-label="Pincode" placeholder="Pincode" className={inputClass} />
             </div>
             <label className="mt-3 flex items-center gap-2 text-sm text-foreground/70">
               <input type="checkbox" name="is_default" /> Make this my default
