@@ -200,6 +200,33 @@ immediately on `npm run dev` (optionally set `NEXT_PUBLIC_JITSI_DOMAIN`).
 
 ---
 
+## 4. PWA install + web push
+
+Both need HTTPS (or `localhost`) and a real browser; push also needs VAPID keys.
+
+### Install
+- On Chrome/Edge (desktop or Android), after a couple of visits an **"Install
+  app"** banner appears (driven by `beforeinstallprompt`); installing adds it to
+  the home screen / app list and launches standalone. "Not now" hides it
+  (cleared via the `bmp_install_dismissed_v1` localStorage key).
+- iOS Safari doesn't fire that event — install is **Share → Add to Home Screen**
+  (the manifest + icons already support standalone launch).
+
+### Web push
+1. `npx web-push generate-vapid-keys` → set `NEXT_PUBLIC_VAPID_PUBLIC_KEY`,
+   `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT`, then restart.
+2. Sign in → **Account → My account**: the **Push notifications** card shows
+   "Enable notifications". Click it and accept the browser prompt.
+3. Confirm a row landed in `public.push_subscriptions` for your user.
+4. Trigger a confirmation (e.g. complete a test booking/order) → a system
+   notification should appear; clicking it focuses/opens the relevant page.
+5. "Turn off" removes the subscription (row deleted + browser unsubscribed).
+
+- [ ] Toggle hidden entirely when VAPID keys are unset (dormant by default).
+- [ ] Dead subscriptions are pruned automatically (the sender drops 404/410).
+
+---
+
 ## What CI already guarantees
 
 `npm run` ⇒ `tsc --noEmit`, `eslint`, the node test suite, and `next build` all

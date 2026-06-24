@@ -8,6 +8,7 @@ import ReferralTracker from "@/components/ReferralTracker";
 import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
 import SkipLink from "@/components/SkipLink";
 import LiveRegion from "@/components/LiveRegion";
+import InstallPrompt from "@/components/InstallPrompt";
 import { LOCALES, DEFAULT_LOCALE, isLocale, type Locale } from "@/lib/i18n";
 
 const heading = Marcellus({
@@ -125,7 +126,10 @@ export default async function RootLayout({
         <AnnouncementBar />
         <ReferralTracker />
         <ServiceWorkerRegister />
-        <Providers locale={locale}>{children}</Providers>
+        <Providers locale={locale}>
+          {children}
+          <InstallPrompt />
+        </Providers>
       </body>
     </html>
   );

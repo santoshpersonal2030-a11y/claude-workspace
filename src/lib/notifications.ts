@@ -5,6 +5,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { sendEmail, emailLayout } from "@/lib/email";
 import { sendTemplatedSms, type SmsKind } from "@/lib/sms";
 import { sendTemplatedWhatsApp } from "@/lib/whatsapp";
+import { sendPushToUser } from "@/lib/push";
 
 // Fire the mobile channels (SMS + WhatsApp) for a message kind, best-effort.
 // Both are dormant no-ops until their providers/templates are configured.
@@ -96,6 +97,13 @@ export async function sendOrderConfirmation(orderId: string): Promise<void> {
         { filename: `${invNo}.pdf`, content: pdf.toString("base64") },
       ],
     });
+
+    await sendPushToUser(order.user_id, {
+      title: "Order confirmed 🙏",
+      body: "Your BookMyPoojari order is confirmed and being prepared.",
+      url: "/account/orders",
+      tag: `order-${order.id}`,
+    });
   } catch (err) {
     console.error("sendOrderConfirmation failed:", err);
   }
@@ -132,6 +140,13 @@ export async function sendBookingConfirmation(
       to: recipient.email,
       subject: "Your BookMyPoojari booking is confirmed 🙏",
       html: emailLayout("Booking confirmed", body),
+    });
+
+    await sendPushToUser(booking.user_id, {
+      title: "Booking confirmed 🙏",
+      body: `Your ${booking.poojas?.name ?? "pooja"} booking is confirmed.`,
+      url: "/account/bookings",
+      tag: `booking-${booking.id}`,
     });
   } catch (err) {
     console.error("sendBookingConfirmation failed:", err);
@@ -170,6 +185,13 @@ export async function sendConsultationConfirmation(
       to: recipient.email,
       subject: "Your BookMyPoojari consultation is confirmed 🙏",
       html: emailLayout("Consultation confirmed", body),
+    });
+
+    await sendPushToUser(consult.user_id, {
+      title: "Consultation confirmed 🙏",
+      body: `Your ${consult.service_name} is booked.`,
+      url: "/account/consultations",
+      tag: `consult-${consult.id}`,
     });
   } catch (err) {
     console.error("sendConsultationConfirmation failed:", err);

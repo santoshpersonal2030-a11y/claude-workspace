@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import PushToggle from "@/components/PushToggle";
 import { createClient } from "@/lib/supabase/server";
 import { updateProfile } from "@/app/[locale]/account/profile/actions";
 
@@ -105,6 +106,10 @@ export default async function ProfilePage() {
               Save profile
             </button>
           </form>
+
+          <div className="mt-6">
+            <PushToggle />
+          </div>
         </section>
       </main>
       <Footer />

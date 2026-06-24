@@ -105,6 +105,10 @@ schedules hitting each):
 - `NEXT_PUBLIC_COMPANY_*` — real business/GST details on invoices
 
 **Optional (feature-gated; no-ops until set):**
+- `NEXT_PUBLIC_VAPID_PUBLIC_KEY` + `VAPID_PRIVATE_KEY` (+ `VAPID_SUBJECT`) — web
+  push notifications. Generate once with `npx web-push generate-vapid-keys`.
+  Until set, the account "Enable notifications" toggle hides itself and push
+  sends are skipped (email/SMS/WhatsApp still fire).
 - `RAZORPAYX_*` — automated payouts
 - `EINVOICE_*`, `EWB_*` — GST e-invoice / e-way-bill integration
 - `GOOGLE_MAPS_API_KEY` — geo-based travel-fee refinement

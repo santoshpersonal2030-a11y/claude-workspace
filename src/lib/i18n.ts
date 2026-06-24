@@ -510,6 +510,18 @@ const en: Dict = {
   "live.notReady": "This room opens once your booking is confirmed.",
   "live.backToBookings": "Back to my bookings",
   "live.backToConsults": "Back to my consultations",
+  // Push notifications + install
+  "push.title": "Push notifications",
+  "push.desc": "Get booking confirmations and order updates on this device.",
+  "push.enable": "Enable notifications",
+  "push.enabled": "Notifications are on for this device.",
+  "push.disable": "Turn off",
+  "push.blocked":
+    "Notifications are blocked in your browser settings. Allow them to enable.",
+  "push.busy": "Just a moment…",
+  "install.text": "Add BookMyPoojari to your home screen",
+  "install.cta": "Install app",
+  "install.dismiss": "Not now",
   "cart.shippingNote": "Shipping calculated at checkout. Free over ₹999.",
   "cart.viewCheckout": "View cart & checkout",
 
@@ -1018,6 +1030,18 @@ const hi: Dict = {
   "live.notReady": "यह कक्ष आपकी बुकिंग की पुष्टि होने पर खुलता है।",
   "live.backToBookings": "मेरी बुकिंग पर वापस",
   "live.backToConsults": "मेरे परामर्श पर वापस",
+  // Push notifications + install
+  "push.title": "पुश सूचनाएँ",
+  "push.desc": "इस डिवाइस पर बुकिंग पुष्टि और ऑर्डर अपडेट पाएँ।",
+  "push.enable": "सूचनाएँ चालू करें",
+  "push.enabled": "इस डिवाइस पर सूचनाएँ चालू हैं।",
+  "push.disable": "बंद करें",
+  "push.blocked":
+    "आपकी ब्राउज़र सेटिंग में सूचनाएँ अवरुद्ध हैं। चालू करने के लिए अनुमति दें।",
+  "push.busy": "एक क्षण…",
+  "install.text": "BookMyPoojari को अपनी होम स्क्रीन पर जोड़ें",
+  "install.cta": "ऐप इंस्टॉल करें",
+  "install.dismiss": "अभी नहीं",
   "cart.shippingNote": "शिपिंग चेकआउट पर गणना की जाएगी। ₹999 से अधिक पर मुफ़्त।",
   "cart.viewCheckout": "कार्ट देखें और चेकआउट करें",
 
