@@ -1,0 +1,43 @@
+{
+  "packageId": "com.bookmypoojari.twa",
+  "host": "bookmypoojari.com",
+  "name": "BookMyPoojari",
+  "launcherName": "BookMyPoojari",
+  "display": "standalone",
+  "orientation": "portrait",
+  "themeColor": "#d4540a",
+  "themeColorDark": "#3a0d0d",
+  "navigationColor": "#d4540a",
+  "navigationColorDark": "#3a0d0d",
+  "navigationDividerColor": "#d4540a",
+  "navigationDividerColorDark": "#3a0d0d",
+  "backgroundColor": "#fffaf3",
+  "enableNotifications": true,
+  "startUrl": "/",
+  "iconUrl": "https://bookmypoojari.com/icon-512.png",
+  "maskableIconUrl": "https://bookmypoojari.com/icon-512.png",
+  "splashScreenFadeOutDuration": 300,
+  "signingKey": {
+    "path": "./android-signing.keystore",
+    "alias": "bookmypoojari"
+  },
+  "appVersionName": "1.0.0",
+  "appVersionCode": 1,
+  "shortcuts": [
+    { "name": "Book a Pooja", "shortName": "Book Pooja", "url": "/poojas", "chosenIconUrl": "https://bookmypoojari.com/icon-192.png" },
+    { "name": "Talk to an Astrologer", "shortName": "Astrologer", "url": "/live-astrology", "chosenIconUrl": "https://bookmypoojari.com/icon-192.png" },
+    { "name": "Today's Panchang", "shortName": "Panchang", "url": "/panchang", "chosenIconUrl": "https://bookmypoojari.com/icon-192.png" },
+    { "name": "Samagri Store", "shortName": "Store", "url": "/store", "chosenIconUrl": "https://bookmypoojari.com/icon-192.png" }
+  ],
+  "generatorApp": "bubblewrap-cli",
+  "webManifestUrl": "https://bookmypoojari.com/manifest.webmanifest",
+  "fallbackType": "customtabs",
+  "features": {},
+  "alphaDependencies": { "enabled": false },
+  "enableSiteSettingsShortcut": true,
+  "isChromeOSOnly": false,
+  "isMetaQuest": false,
+  "fullScopeUrl": "https://bookmypoojari.com/",
+  "minSdkVersion": 23,
+  "orientationLockEnabled": false
+}

@@ -1,0 +1,25 @@
+{
+  "appId": "com.bookmypoojari.app",
+  "appName": "BookMyPoojari",
+  "webDir": "public",
+  "backgroundColor": "#fffaf3ff",
+  "server": {
+    "url": "https://bookmypoojari.com",
+    "cleartext": false,
+    "androidScheme": "https"
+  },
+  "android": {
+    "allowMixedContent": false
+  },
+  "ios": {
+    "contentInset": "always",
+    "limitsNavigationsToAppBoundDomains": true
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 800,
+      "backgroundColor": "#fffaf3",
+      "showSpinner": false
+    }
+  }
+}
