@@ -37,7 +37,10 @@ export default function AnnouncementBar() {
   if (dismissed) return null;
 
   return (
-    <div className="relative bg-maroon-700 text-cream-100">
+    <section
+      aria-label="Announcement"
+      className="relative bg-maroon-700 text-cream-100"
+    >
       <div className="mx-auto flex max-w-6xl items-center justify-center gap-2 px-10 py-2 text-center text-xs sm:text-sm">
         <span>🎉 Free delivery on orders over ₹999 —</span>
         <Link
@@ -55,6 +58,6 @@ export default function AnnouncementBar() {
       >
         ✕
       </button>
-    </div>
+    </section>
   );
 }

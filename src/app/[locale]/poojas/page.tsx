@@ -48,6 +48,7 @@ export default async function PoojasPage({
         </section>
 
         <section className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
+          <h2 className="sr-only">{t("dir.allPoojas")}</h2>
           <PoojaList poojas={poojas} />
         </section>
       </main>
