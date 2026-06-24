@@ -4,6 +4,8 @@ import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { upcomingVrats } from "@/lib/muhurat-engine";
+import { upcomingFestivals, FESTIVAL_INFO } from "@/lib/festivals";
+import { poojas } from "@/lib/poojas";
 import { getDictionary, isLocale, DEFAULT_LOCALE } from "@/lib/i18n";
 
 export async function generateMetadata({
@@ -28,8 +30,8 @@ const MONTHS = [
   "July", "August", "September", "October", "November", "December",
 ];
 
-// What to do on each observance — the pooja we'd suggest booking. The blurb is
-// a dictionary key, translated at render time.
+// What to do on each monthly observance — the pooja we'd suggest booking. The
+// blurb is a dictionary key, translated at render time.
 const VRAT_POOJA: Record<string, { emoji: string; blurbKey: string; slug: string; cta: string }> = {
   Ekadashi: { emoji: "🪔", blurbKey: "fes.blurb.ekadashi", slug: "satyanarayan-katha", cta: "Satyanarayan Katha" },
   Purnima: { emoji: "🌕", blurbKey: "fes.blurb.purnima", slug: "satyanarayan-katha", cta: "Satyanarayan Katha" },
@@ -39,12 +41,27 @@ const VRAT_POOJA: Record<string, { emoji: string; blurbKey: string; slug: string
   "Pradosh Vrat": { emoji: "🕉️", blurbKey: "fes.blurb.pradosh", slug: "rudrabhishek", cta: "Rudrabhishek" },
 };
 
+const POOJA_NAME: Record<string, string> = Object.fromEntries(
+  poojas.map((p) => [p.slug, p.name]),
+);
+
 function fmt(date: string): string {
   const [y, m, d] = date.split("-").map(Number);
   const wd = new Date(`${date}T00:00:00Z`).getUTCDay();
   const W = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][wd];
   return `${W}, ${d} ${MONTHS[m - 1]} ${y}`;
 }
+
+// A unified calendar row — either a named festival or a recurring monthly vrat.
+type Row = {
+  date: string;
+  name: string;
+  emoji: string;
+  blurb: string;
+  slug?: string;
+  cta?: string;
+  festival?: boolean;
+};
 
 export default async function FestivalsPage({
   params,
@@ -53,7 +70,39 @@ export default async function FestivalsPage({
 }) {
   const { locale } = await params;
   const { t } = getDictionary(isLocale(locale) ? locale : DEFAULT_LOCALE);
-  const vrats = upcomingVrats(todayIST(), 120);
+  const from = todayIST();
+  const WINDOW = 120;
+
+  const festivals: Row[] = upcomingFestivals(from, WINDOW).map((f) => ({
+    date: f.date,
+    name: f.name,
+    emoji: FESTIVAL_INFO[f.name]?.emoji ?? "🎉",
+    blurb: FESTIVAL_INFO[f.name]?.push ?? "",
+    slug: f.slug,
+    cta: POOJA_NAME[f.slug],
+    festival: true,
+  }));
+
+  // Named festivals take precedence over the generic monthly observance on the
+  // same day (e.g. Diwali over a plain Amavasya).
+  const festDates = new Set(festivals.map((f) => f.date));
+  const vrats: Row[] = upcomingVrats(from, WINDOW)
+    .filter((v) => !festDates.has(v.date))
+    .map((v) => {
+      const info = VRAT_POOJA[v.name];
+      return {
+        date: v.date,
+        name: v.name,
+        emoji: info?.emoji ?? "🗓️",
+        blurb: info ? t(info.blurbKey) : "",
+        slug: info?.slug,
+        cta: info?.cta,
+      };
+    });
+
+  const rows = [...festivals, ...vrats].sort((a, b) =>
+    a.date.localeCompare(b.date),
+  );
 
   return (
     <>
@@ -79,36 +128,40 @@ export default async function FestivalsPage({
 
         <section className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
           <div className="space-y-3">
-            {vrats.map((v) => {
-              const info = VRAT_POOJA[v.name];
-              return (
-                <div
-                  key={`${v.date}-${v.name}`}
-                  className="flex flex-wrap items-center gap-4 rounded-2xl border border-saffron-100 bg-white p-4 shadow-sm"
-                >
-                  <span className="text-3xl">{info?.emoji ?? "🗓️"}</span>
-                  <div className="min-w-48 flex-1">
-                    <div className="font-heading text-lg text-maroon-700">
-                      {v.name}
-                    </div>
-                    <div className="text-sm text-foreground/65">{fmt(v.date)}</div>
-                    {info && (
-                      <p className="mt-1 text-sm text-foreground/65">
-                        {t(info.blurbKey)}
-                      </p>
+            {rows.map((r) => (
+              <div
+                key={`${r.date}-${r.name}`}
+                className={`flex flex-wrap items-center gap-4 rounded-2xl border bg-white p-4 shadow-sm ${
+                  r.festival ? "border-saffron-300" : "border-saffron-100"
+                }`}
+              >
+                <span className="text-3xl">{r.emoji}</span>
+                <div className="min-w-48 flex-1">
+                  <div className="flex items-center gap-2">
+                    <span className="font-heading text-lg text-maroon-700">
+                      {r.name}
+                    </span>
+                    {r.festival && (
+                      <span className="rounded-full bg-saffron-100 px-2 py-0.5 text-[11px] font-semibold text-saffron-800">
+                        {t("fes.badge")}
+                      </span>
                     )}
                   </div>
-                  {info && (
-                    <Link
-                      href={`/poojas/${info.slug}`}
-                      className="whitespace-nowrap rounded-full bg-saffron-700 px-4 py-2 text-sm font-semibold text-white hover:bg-saffron-800"
-                    >
-                      {t("fes.book", { cta: info.cta })}
-                    </Link>
+                  <div className="text-sm text-foreground/65">{fmt(r.date)}</div>
+                  {r.blurb && (
+                    <p className="mt-1 text-sm text-foreground/65">{r.blurb}</p>
                   )}
                 </div>
-              );
-            })}
+                {r.slug && r.cta && (
+                  <Link
+                    href={`/poojas/${r.slug}`}
+                    className="whitespace-nowrap rounded-full bg-saffron-700 px-4 py-2 text-sm font-semibold text-white hover:bg-saffron-800"
+                  >
+                    {t("fes.book", { cta: r.cta })}
+                  </Link>
+                )}
+              </div>
+            ))}
           </div>
 
           <p className="mt-8 text-xs text-foreground/65">
