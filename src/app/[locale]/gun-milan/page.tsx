@@ -96,7 +96,7 @@ export default async function GunMilanPage({
               <div className="sm:col-span-2">
                 <button
                   type="submit"
-                  className="rounded-full bg-saffron-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-saffron-700"
+                  className="rounded-full bg-saffron-700 px-6 py-2.5 text-sm font-semibold text-white hover:bg-saffron-800"
                 >
                   {t("gm.match")}
                 </button>

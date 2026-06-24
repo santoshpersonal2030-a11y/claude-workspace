@@ -454,7 +454,7 @@ export default async function Home({
 
         {/* Samagri store teaser */}
         <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-          <div className="overflow-hidden rounded-3xl bg-saffron-600 px-8 py-12 text-center shadow-lg sm:px-12">
+          <div className="overflow-hidden rounded-3xl bg-saffron-700 px-8 py-12 text-center shadow-lg sm:px-12">
             <div className="text-5xl">🛍️</div>
             <h2 className="mt-4 font-heading text-3xl text-white">
               {t("home.samagri.title")}
@@ -511,7 +511,7 @@ export default async function Home({
             </p>
             <Link
               href="/poojas"
-              className="mt-7 inline-block rounded-full bg-saffron-600 px-8 py-3.5 text-base font-semibold text-white shadow-sm transition-colors hover:bg-saffron-700"
+              className="mt-7 inline-block rounded-full bg-saffron-700 px-8 py-3.5 text-base font-semibold text-white shadow-sm transition-colors hover:bg-saffron-800"
             >
               {t("home.cta.button")}
             </Link>

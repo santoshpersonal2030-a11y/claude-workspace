@@ -172,7 +172,7 @@ export default function PanditApplicationForm() {
       <button
         type="submit"
         disabled={busy}
-        className="w-full rounded-full bg-saffron-600 py-3 text-base font-semibold text-white shadow-sm transition-colors hover:bg-saffron-700 disabled:opacity-60"
+        className="w-full rounded-full bg-saffron-700 py-3 text-base font-semibold text-white shadow-sm transition-colors hover:bg-saffron-800 disabled:opacity-60"
       >
         {busy ? "Submitting…" : "Submit application"}
       </button>

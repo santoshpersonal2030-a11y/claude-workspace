@@ -51,7 +51,7 @@ export default function PayPendingBooking({
         type="button"
         onClick={pay}
         disabled={busy}
-        className="w-full rounded-full bg-saffron-600 py-2.5 text-sm font-semibold text-white hover:bg-saffron-700 disabled:opacity-60"
+        className="w-full rounded-full bg-saffron-700 py-2.5 text-sm font-semibold text-white hover:bg-saffron-800 disabled:opacity-60"
       >
         {busy ? "Starting payment…" : `Pay ${formatINR(amount)} now`}
       </button>

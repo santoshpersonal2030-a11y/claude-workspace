@@ -235,7 +235,7 @@ export default async function AdminBookingsPage({
                     </select>
                     <button
                       type="submit"
-                      className="rounded-full bg-saffron-600 px-4 py-1.5 text-xs font-semibold text-white hover:bg-saffron-700"
+                      className="rounded-full bg-saffron-700 px-4 py-1.5 text-xs font-semibold text-white hover:bg-saffron-800"
                     >
                       Update
                     </button>
@@ -312,7 +312,7 @@ export default async function AdminBookingsPage({
                   />
                   <button
                     type="submit"
-                    className="rounded-full bg-saffron-600 px-4 py-1.5 text-xs font-semibold text-white hover:bg-saffron-700"
+                    className="rounded-full bg-saffron-700 px-4 py-1.5 text-xs font-semibold text-white hover:bg-saffron-800"
                   >
                     Confirm
                   </button>
@@ -412,7 +412,7 @@ export default async function AdminBookingsPage({
                   </select>
                   <button
                     type="submit"
-                    className="rounded-full bg-saffron-600 px-4 py-1.5 text-xs font-semibold text-white hover:bg-saffron-700"
+                    className="rounded-full bg-saffron-700 px-4 py-1.5 text-xs font-semibold text-white hover:bg-saffron-800"
                   >
                     Update
                   </button>

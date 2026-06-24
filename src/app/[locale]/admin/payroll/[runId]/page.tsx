@@ -186,7 +186,7 @@ export default async function PayrollRunDetailPage({
                         <input type="hidden" name="run_id" value={run.id} />
                         <button
                           type="submit"
-                          className="rounded-full bg-saffron-600 px-3 py-1 text-[11px] font-semibold text-white hover:bg-saffron-700"
+                          className="rounded-full bg-saffron-700 px-3 py-1 text-[11px] font-semibold text-white hover:bg-saffron-800"
                         >
                           Pay via bank
                         </button>

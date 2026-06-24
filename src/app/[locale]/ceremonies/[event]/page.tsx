@@ -151,7 +151,7 @@ export default async function LifeEventPage({
             <div className="mt-4 flex flex-wrap justify-center gap-3">
               <Link
                 href="/muhurat"
-                className="inline-block rounded-full bg-saffron-600 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-saffron-700"
+                className="inline-block rounded-full bg-saffron-700 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-saffron-800"
               >
                 See auspicious dates
               </Link>

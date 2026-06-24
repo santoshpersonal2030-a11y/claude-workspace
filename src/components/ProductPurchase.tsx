@@ -57,7 +57,7 @@ export default function ProductPurchase({
         type="button"
         onClick={handleAdd}
         disabled={soldOut}
-        className="flex-1 rounded-full bg-saffron-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-saffron-700 disabled:cursor-not-allowed disabled:bg-foreground/20"
+        className="flex-1 rounded-full bg-saffron-700 px-6 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-saffron-800 disabled:cursor-not-allowed disabled:bg-foreground/20"
       >
         {soldOut ? "Sold out" : "Add to cart"}
       </button>

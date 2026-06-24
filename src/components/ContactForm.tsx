@@ -114,7 +114,7 @@ export default function ContactForm() {
       <button
         type="submit"
         disabled={busy}
-        className="w-full rounded-full bg-saffron-600 py-3 text-sm font-semibold text-white transition-colors hover:bg-saffron-700 disabled:opacity-60"
+        className="w-full rounded-full bg-saffron-700 py-3 text-sm font-semibold text-white transition-colors hover:bg-saffron-800 disabled:opacity-60"
       >
         {busy ? "Sending…" : "Send message"}
       </button>

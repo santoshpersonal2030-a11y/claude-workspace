@@ -233,7 +233,7 @@ export default function PanditDirectory({ pandits }: { pandits: Pandit[] }) {
 
               <Link
                 href="/poojas"
-                className="mt-5 w-full rounded-full bg-saffron-600 py-2.5 text-center text-sm font-semibold text-white transition-colors hover:bg-saffron-700"
+                className="mt-5 w-full rounded-full bg-saffron-700 py-2.5 text-center text-sm font-semibold text-white transition-colors hover:bg-saffron-800"
               >
                 {t("nav.bookPooja")}
               </Link>

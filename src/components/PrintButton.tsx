@@ -10,7 +10,7 @@ export default function PrintButton({
     <button
       type="button"
       onClick={() => window.print()}
-      className="rounded-full bg-saffron-600 px-5 py-2 text-sm font-semibold text-white hover:bg-saffron-700 print:hidden"
+      className="rounded-full bg-saffron-700 px-5 py-2 text-sm font-semibold text-white hover:bg-saffron-800 print:hidden"
     >
       {label}
     </button>

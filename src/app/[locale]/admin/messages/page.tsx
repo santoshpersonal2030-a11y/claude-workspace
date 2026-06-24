@@ -64,7 +64,7 @@ export default async function AdminMessagesPage() {
                   className={`rounded-full px-4 py-1.5 text-xs font-semibold ${
                     m.handled
                       ? "border border-saffron-200 text-saffron-700 hover:bg-saffron-50"
-                      : "bg-saffron-600 text-white hover:bg-saffron-700"
+                      : "bg-saffron-700 text-white hover:bg-saffron-800"
                   }`}
                 >
                   {m.handled ? "Mark as open" : "Mark as handled"}

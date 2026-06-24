@@ -101,7 +101,7 @@ export default async function FestivalsPage({
                   {info && (
                     <Link
                       href={`/poojas/${info.slug}`}
-                      className="whitespace-nowrap rounded-full bg-saffron-600 px-4 py-2 text-sm font-semibold text-white hover:bg-saffron-700"
+                      className="whitespace-nowrap rounded-full bg-saffron-700 px-4 py-2 text-sm font-semibold text-white hover:bg-saffron-800"
                     >
                       {t("fes.book", { cta: info.cta })}
                     </Link>

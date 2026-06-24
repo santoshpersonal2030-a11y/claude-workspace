@@ -130,7 +130,7 @@ export default async function AdminMuhuratPage({
           </label>
           <button
             type="submit"
-            className="rounded-full bg-saffron-600 px-5 py-2 text-sm font-semibold text-white hover:bg-saffron-700"
+            className="rounded-full bg-saffron-700 px-5 py-2 text-sm font-semibold text-white hover:bg-saffron-800"
           >
             Add window
           </button>
@@ -265,7 +265,7 @@ export default async function AdminMuhuratPage({
             href="/admin/muhurat"
             className={`rounded-full px-3 py-1 font-semibold ${
               !byScore
-                ? "bg-saffron-600 text-white"
+                ? "bg-saffron-700 text-white"
                 : "border border-saffron-200 text-saffron-700"
             }`}
           >
@@ -275,7 +275,7 @@ export default async function AdminMuhuratPage({
             href="/admin/muhurat?sort=score"
             className={`rounded-full px-3 py-1 font-semibold ${
               byScore
-                ? "bg-saffron-600 text-white"
+                ? "bg-saffron-700 text-white"
                 : "border border-saffron-200 text-saffron-700"
             }`}
           >

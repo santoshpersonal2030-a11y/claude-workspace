@@ -689,7 +689,7 @@ export default function BookingForm({
       <button
         type="submit"
         disabled={busy}
-        className="mt-4 w-full rounded-full bg-saffron-600 py-3 text-base font-semibold text-white shadow-sm transition-colors hover:bg-saffron-700 disabled:opacity-60"
+        className="mt-4 w-full rounded-full bg-saffron-700 py-3 text-base font-semibold text-white shadow-sm transition-colors hover:bg-saffron-800 disabled:opacity-60"
       >
         {busy
           ? t("bf.processing")

@@ -34,7 +34,7 @@ export default function BookingStatusTracker({ status }: { status: string }) {
               <div
                 className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-semibold ${
                   done
-                    ? "bg-saffron-600 text-white"
+                    ? "bg-saffron-700 text-white"
                     : "bg-saffron-100 text-saffron-400"
                 }`}
               >

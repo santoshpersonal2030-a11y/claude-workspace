@@ -92,7 +92,7 @@ export default function NotifyMeButton({
       <button
         type="submit"
         disabled={busy}
-        className="rounded-full bg-saffron-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-saffron-700 disabled:opacity-60"
+        className="rounded-full bg-saffron-700 px-5 py-2.5 text-sm font-semibold text-white hover:bg-saffron-800 disabled:opacity-60"
       >
         {busy ? "Saving…" : "Notify me"}
       </button>

@@ -187,7 +187,7 @@ export default async function PanditDetailPage({
                 </p>
                 <Link
                   href="/poojas"
-                  className="mt-5 block w-full rounded-full bg-saffron-600 py-3 text-sm font-semibold text-white transition-colors hover:bg-saffron-700"
+                  className="mt-5 block w-full rounded-full bg-saffron-700 py-3 text-sm font-semibold text-white transition-colors hover:bg-saffron-800"
                 >
                   Browse poojas
                 </Link>

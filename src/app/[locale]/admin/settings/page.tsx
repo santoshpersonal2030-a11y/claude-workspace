@@ -111,7 +111,7 @@ export default async function AdminSettingsPage() {
           </label>
           <button
             type="submit"
-            className="rounded-full bg-saffron-600 px-5 py-2 text-sm font-semibold text-white hover:bg-saffron-700"
+            className="rounded-full bg-saffron-700 px-5 py-2 text-sm font-semibold text-white hover:bg-saffron-800"
           >
             Save business details
           </button>

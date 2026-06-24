@@ -86,7 +86,7 @@ export default async function AdminReviewsPage({
             href={`/admin/reviews?filter=${t.k}`}
             className={`rounded-full px-4 py-1.5 text-sm font-medium ${
               (t.k === "hidden") === showHidden
-                ? "bg-saffron-600 text-white"
+                ? "bg-saffron-700 text-white"
                 : "border border-saffron-200 text-foreground/70 hover:bg-saffron-50"
             }`}
           >

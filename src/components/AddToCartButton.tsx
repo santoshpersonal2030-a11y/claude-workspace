@@ -26,7 +26,7 @@ export default function AddToCartButton({
       type="button"
       onClick={handleAdd}
       disabled={soldOut}
-      className="mt-4 w-full rounded-full bg-saffron-600 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-saffron-700 disabled:cursor-not-allowed disabled:bg-foreground/20"
+      className="mt-4 w-full rounded-full bg-saffron-700 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-saffron-800 disabled:cursor-not-allowed disabled:bg-foreground/20"
     >
       {soldOut ? "Sold out" : "Add to cart"}
     </button>

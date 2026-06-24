@@ -110,7 +110,7 @@ export default async function AdminProductsPage() {
           </label>
           <button
             type="submit"
-            className="rounded-full bg-saffron-600 px-5 py-2 text-sm font-semibold text-white hover:bg-saffron-700"
+            className="rounded-full bg-saffron-700 px-5 py-2 text-sm font-semibold text-white hover:bg-saffron-800"
           >
             Add product
           </button>
@@ -211,7 +211,7 @@ export default async function AdminProductsPage() {
               </label>
               <button
                 type="submit"
-                className="rounded-full bg-saffron-600 px-4 py-1.5 text-xs font-semibold text-white hover:bg-saffron-700"
+                className="rounded-full bg-saffron-700 px-4 py-1.5 text-xs font-semibold text-white hover:bg-saffron-800"
               >
                 Save
               </button>

@@ -138,7 +138,7 @@ export default function StoreBrowser({
             onClick={() => setCategory(null)}
             className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
               !category
-                ? "bg-saffron-600 text-white"
+                ? "bg-saffron-700 text-white"
                 : "border border-saffron-200 bg-white text-saffron-700 hover:bg-saffron-50"
             }`}
           >
@@ -151,7 +151,7 @@ export default function StoreBrowser({
               onClick={() => setCategory(c)}
               className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
                 category === c
-                  ? "bg-saffron-600 text-white"
+                  ? "bg-saffron-700 text-white"
                   : "border border-saffron-200 bg-white text-saffron-700 hover:bg-saffron-50"
               }`}
             >

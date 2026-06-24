@@ -103,7 +103,7 @@ export default function MuhuratCalendar({
       className={
         "rounded-full px-4 py-1.5 text-sm font-medium transition-colors " +
         (ceremony === value
-          ? "bg-saffron-600 text-white shadow-sm"
+          ? "bg-saffron-700 text-white shadow-sm"
           : "border border-saffron-200 bg-white text-saffron-700 hover:bg-saffron-50")
       }
     >
@@ -133,7 +133,7 @@ export default function MuhuratCalendar({
         <button
           type="submit"
           disabled={checking}
-          className="rounded-full bg-saffron-600 px-5 py-2 text-sm font-semibold text-white hover:bg-saffron-700 disabled:opacity-60"
+          className="rounded-full bg-saffron-700 px-5 py-2 text-sm font-semibold text-white hover:bg-saffron-800 disabled:opacity-60"
         >
           {checking ? t("mc.checking") : t("mc.checkAvail")}
         </button>
@@ -210,7 +210,7 @@ export default function MuhuratCalendar({
 
                     <Link
                       href={w.poojaSlug ? `/poojas/${w.poojaSlug}` : "/ceremonies"}
-                      className="mt-4 w-full rounded-full bg-saffron-600 py-2 text-center text-sm font-semibold text-white transition-colors hover:bg-saffron-700"
+                      className="mt-4 w-full rounded-full bg-saffron-700 py-2 text-center text-sm font-semibold text-white transition-colors hover:bg-saffron-800"
                     >
                       {t("mc.book")}
                     </Link>

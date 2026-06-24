@@ -249,7 +249,7 @@ export default async function AdminOverviewPage({
           />
           <button
             type="submit"
-            className="rounded-full bg-saffron-600 px-3 py-1 font-semibold text-white hover:bg-saffron-700"
+            className="rounded-full bg-saffron-700 px-3 py-1 font-semibold text-white hover:bg-saffron-800"
           >
             Apply
           </button>

@@ -52,7 +52,7 @@ export default function LanguageSwitcher({
           aria-pressed={locale === l}
           className={`rounded-full px-2 py-0.5 font-semibold transition-colors ${
             locale === l
-              ? "bg-saffron-600 text-white"
+              ? "bg-saffron-700 text-white"
               : "text-foreground/65 hover:text-saffron-700"
           }`}
         >

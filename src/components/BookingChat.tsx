@@ -114,7 +114,7 @@ export default function BookingChat({ bookingId }: { bookingId: string }) {
               <div
                 className={`max-w-[80%] rounded-2xl px-3 py-2 text-sm ${
                   mine
-                    ? "bg-saffron-600 text-white"
+                    ? "bg-saffron-700 text-white"
                     : "bg-cream text-foreground"
                 }`}
               >
@@ -145,7 +145,7 @@ export default function BookingChat({ bookingId }: { bookingId: string }) {
         <button
           type="submit"
           disabled={busy || !text.trim()}
-          className="rounded-full bg-saffron-600 px-4 py-2 text-sm font-semibold text-white hover:bg-saffron-700 disabled:opacity-50"
+          className="rounded-full bg-saffron-700 px-4 py-2 text-sm font-semibold text-white hover:bg-saffron-800 disabled:opacity-50"
         >
           Send
         </button>

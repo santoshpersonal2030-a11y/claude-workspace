@@ -234,7 +234,7 @@ export default function CartPage() {
               <p className="mt-3 text-foreground/65">{t("cart.empty")}</p>
               <Link
                 href="/store"
-                className="mt-5 inline-block rounded-full bg-saffron-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-saffron-700"
+                className="mt-5 inline-block rounded-full bg-saffron-700 px-6 py-2.5 text-sm font-semibold text-white hover:bg-saffron-800"
               >
                 {t("cart.browseStore")}
               </Link>
@@ -387,7 +387,7 @@ export default function CartPage() {
                       </p>
                       <Link
                         href="/login?next=/cart"
-                        className="mt-3 block w-full rounded-full bg-saffron-600 py-3 text-center text-sm font-semibold text-white hover:bg-saffron-700"
+                        className="mt-3 block w-full rounded-full bg-saffron-700 py-3 text-center text-sm font-semibold text-white hover:bg-saffron-800"
                       >
                         {t("cart.signInContinue")}
                       </Link>
@@ -499,7 +499,7 @@ export default function CartPage() {
                         type="button"
                         onClick={checkout}
                         disabled={busy}
-                        className="w-full rounded-full bg-saffron-600 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-saffron-700 disabled:opacity-60"
+                        className="w-full rounded-full bg-saffron-700 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-saffron-800 disabled:opacity-60"
                       >
                         {busy
                           ? t("bf.processing")

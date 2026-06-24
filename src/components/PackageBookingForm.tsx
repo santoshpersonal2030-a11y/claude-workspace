@@ -233,7 +233,7 @@ export default function PackageBookingForm({
         <button
           type="submit"
           disabled={busy}
-          className="rounded-full bg-saffron-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-saffron-700 disabled:opacity-60"
+          className="rounded-full bg-saffron-700 px-6 py-2.5 text-sm font-semibold text-white hover:bg-saffron-800 disabled:opacity-60"
         >
           {busy ? "Processing…" : "Book the package"}
         </button>

@@ -107,7 +107,7 @@ export default function CartDrawer() {
             <Link
               href="/store"
               onClick={closeCart}
-              className="mt-5 rounded-full bg-saffron-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-saffron-700"
+              className="mt-5 rounded-full bg-saffron-700 px-6 py-2.5 text-sm font-semibold text-white hover:bg-saffron-800"
             >
               {t("cart.browseStore")}
             </Link>
@@ -185,7 +185,7 @@ export default function CartDrawer() {
               <Link
                 href="/cart"
                 onClick={closeCart}
-                className="mt-4 block w-full rounded-full bg-saffron-600 py-3 text-center text-sm font-semibold text-white hover:bg-saffron-700"
+                className="mt-4 block w-full rounded-full bg-saffron-700 py-3 text-center text-sm font-semibold text-white hover:bg-saffron-800"
               >
                 {t("cart.viewCheckout")}
               </Link>

@@ -53,7 +53,7 @@ export default function ReferralShare({
       <button
         type="button"
         onClick={share}
-        className="rounded-full bg-saffron-600 px-4 py-1.5 text-sm font-semibold text-white hover:bg-saffron-700"
+        className="rounded-full bg-saffron-700 px-4 py-1.5 text-sm font-semibold text-white hover:bg-saffron-800"
       >
         Share
       </button>

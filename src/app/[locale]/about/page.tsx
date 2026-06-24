@@ -50,7 +50,7 @@ export default async function AboutPage({
       <div className="mt-10 flex flex-wrap gap-3">
         <Link
           href="/pandits"
-          className="rounded-full bg-saffron-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-saffron-700"
+          className="rounded-full bg-saffron-700 px-6 py-2.5 text-sm font-semibold text-white hover:bg-saffron-800"
         >
           {t("about.meetPandits")}
         </Link>

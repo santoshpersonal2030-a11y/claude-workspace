@@ -167,7 +167,7 @@ export default function PanchangView({
       <div className="flex flex-wrap gap-3 rounded-2xl border border-saffron-100 bg-white p-6 shadow-sm">
         <Link
           href="/muhurat"
-          className="rounded-full bg-saffron-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-saffron-700"
+          className="rounded-full bg-saffron-700 px-6 py-2.5 text-sm font-semibold text-white hover:bg-saffron-800"
         >
           {t("pv.seeDates")}
         </Link>

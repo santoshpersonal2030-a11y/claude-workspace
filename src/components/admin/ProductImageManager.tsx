@@ -131,7 +131,7 @@ export default function ProductImageManager({
               }`}
             />
             {i === 0 ? (
-              <span className="absolute bottom-0 left-0 right-0 rounded-b bg-saffron-600/90 text-center text-[9px] text-white">
+              <span className="absolute bottom-0 left-0 right-0 rounded-b bg-saffron-700/90 text-center text-[9px] text-white">
                 Cover
               </span>
             ) : (
