@@ -522,6 +522,11 @@ const en: Dict = {
   "install.text": "Add BookMyPoojari to your home screen",
   "install.cta": "Install app",
   "install.dismiss": "Not now",
+  "consent.text":
+    "We use cookies for analytics to understand and improve your experience.",
+  "consent.accept": "Accept",
+  "consent.decline": "Decline",
+  "consent.privacy": "Privacy Policy",
   "cart.shippingNote": "Shipping calculated at checkout. Free over ₹999.",
   "cart.viewCheckout": "View cart & checkout",
 
@@ -1042,6 +1047,11 @@ const hi: Dict = {
   "install.text": "BookMyPoojari को अपनी होम स्क्रीन पर जोड़ें",
   "install.cta": "ऐप इंस्टॉल करें",
   "install.dismiss": "अभी नहीं",
+  "consent.text":
+    "हम आपके अनुभव को समझने और बेहतर बनाने के लिए एनालिटिक्स कुकीज़ का उपयोग करते हैं।",
+  "consent.accept": "स्वीकार करें",
+  "consent.decline": "अस्वीकार करें",
+  "consent.privacy": "गोपनीयता नीति",
   "cart.shippingNote": "शिपिंग चेकआउट पर गणना की जाएगी। ₹999 से अधिक पर मुफ़्त।",
   "cart.viewCheckout": "कार्ट देखें और चेकआउट करें",
 

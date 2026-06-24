@@ -5,6 +5,7 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { Suspense, useEffect } from "react";
 
 import { GA_ID, trackPageView } from "@/lib/analytics";
+import { useConsent } from "@/lib/consent";
 
 // SPA page_view on every route change (GA4 config sends none itself —
 // send_page_view:false — so we control it here, including query changes).
@@ -18,10 +19,18 @@ function PageViews() {
   return null;
 }
 
-// Loads gtag.js and wires SPA page views. Dormant unless a GA id is configured
-// and we're in production (dev/preview stay clean).
+// Loads gtag.js and wires SPA page views. Dormant unless a GA id is configured,
+// we're in production (dev/preview stay clean), AND the user has granted
+// consent — so no analytics cookies/requests fire before opt-in.
 export default function Analytics() {
-  if (!GA_ID || process.env.NODE_ENV !== "production") return null;
+  const consent = useConsent();
+  if (
+    !GA_ID ||
+    process.env.NODE_ENV !== "production" ||
+    consent !== "granted"
+  ) {
+    return null;
+  }
   return (
     <>
       <Script
