@@ -68,6 +68,7 @@ schedules hitting each):
 - `/api/cron/recurring-poojas`
 - `/api/cron/accounting-export`
 - `/api/cron/ewb-expiry`
+- `/api/cron/festival-reminders` (web push; no-op until VAPID keys are set)
 
 ---
 

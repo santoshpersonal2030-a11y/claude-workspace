@@ -68,3 +68,41 @@ export async function sendPushToUser(
     await admin.from("push_subscriptions").delete().in("id", stale);
   }
 }
+
+// Sends a push to every registered subscription, across all users. Used by
+// broadcast crons (e.g. festival reminders). Best-effort: dead subscriptions
+// (404/410) are pruned. Returns the number of subscriptions notified.
+export async function broadcastPush(payload: PushPayload): Promise<number> {
+  if (!pushConfigured()) return 0;
+
+  const admin = createAdminClient();
+  const { data: subs } = await admin
+    .from("push_subscriptions")
+    .select("id, endpoint, p256dh, auth");
+  if (!subs || subs.length === 0) return 0;
+
+  const body = JSON.stringify(payload);
+  const stale: string[] = [];
+  let sent = 0;
+
+  await Promise.all(
+    subs.map(async (s) => {
+      try {
+        await webpush.sendNotification(
+          { endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } },
+          body,
+        );
+        sent++;
+      } catch (err) {
+        const status = (err as { statusCode?: number }).statusCode;
+        if (status === 404 || status === 410) stale.push(s.id);
+      }
+    }),
+  );
+
+  if (stale.length > 0) {
+    await admin.from("push_subscriptions").delete().in("id", stale);
+  }
+
+  return sent;
+}
