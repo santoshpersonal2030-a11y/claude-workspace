@@ -52,6 +52,13 @@ export default function Header() {
         </nav>
 
         <div className="flex items-center gap-3">
+          <Link
+            href="/search"
+            aria-label={t("search.title")}
+            className="flex h-9 w-9 items-center justify-center rounded-full text-base text-foreground/70 transition-colors hover:bg-saffron-50 hover:text-saffron-700"
+          >
+            🔎
+          </Link>
           <LanguageSwitcher className="hidden sm:flex" />
           <NotificationBell />
           <WishlistNavButton />
