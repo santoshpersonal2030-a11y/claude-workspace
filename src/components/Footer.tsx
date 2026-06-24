@@ -10,6 +10,7 @@ const columns = [
     title: "Poojas",
     links: [
       { href: "/poojas", label: "All Poojas" },
+      { href: "/temple-puja", label: "Temple e-Puja" },
       { href: "/poojas/satyanarayan-katha", label: "Satyanarayan Katha" },
       { href: "/poojas/griha-pravesh", label: "Griha Pravesh" },
       { href: "/poojas/lakshmi-puja", label: "Lakshmi Puja" },

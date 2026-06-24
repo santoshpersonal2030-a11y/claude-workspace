@@ -198,6 +198,41 @@ export async function sendConsultationConfirmation(
   }
 }
 
+export async function sendTemplePujaConfirmation(
+  templePujaId: string,
+): Promise<void> {
+  try {
+    const admin = createAdminClient();
+    const { data: tp } = await admin
+      .from("temple_puja_bookings")
+      .select("id, user_id, puja_name, temple_name, devotee_name, amount")
+      .eq("id", templePujaId)
+      .maybeSingle();
+    if (!tp) return;
+
+    const recipient = await emailForUser(admin, tp.user_id);
+    if (!recipient) return;
+
+    const body = `
+      <p>Hi ${recipient.name}, your temple puja is confirmed. Our purohit will perform it in your name and gotra, then share a video — and prasad where included — with you.</p>
+      <table style="width:100%;border-collapse:collapse;margin:16px 0">
+        <tr><td style="padding:4px 0;color:#9a8c7a">Puja</td><td style="padding:4px 0;text-align:right">${tp.puja_name}</td></tr>
+        <tr><td style="padding:4px 0;color:#9a8c7a">Temple</td><td style="padding:4px 0;text-align:right">${tp.temple_name}</td></tr>
+        <tr><td style="padding:4px 0;color:#9a8c7a">In the name of</td><td style="padding:4px 0;text-align:right">${tp.devotee_name}</td></tr>
+        <tr><td style="font-weight:600">Paid</td><td style="font-weight:600;text-align:right">${formatINR(tp.amount)}</td></tr>
+      </table>
+      <a href="${siteUrl}/account/temple-pujas" style="display:inline-block;background:#d97706;color:#fff;text-decoration:none;padding:10px 20px;border-radius:999px">View your temple pujas</a>`;
+
+    await sendEmail({
+      to: recipient.email,
+      subject: "Your BookMyPoojari temple puja is confirmed 🙏",
+      html: emailLayout("Temple puja confirmed", body),
+    });
+  } catch (err) {
+    console.error("sendTemplePujaConfirmation failed:", err);
+  }
+}
+
 // Notifies the assigned priest (at their login email) that a new ceremony has
 // been assigned to them, with a link to accept or decline in their portal.
 // Best-effort — never throws into the admin action that triggers it.

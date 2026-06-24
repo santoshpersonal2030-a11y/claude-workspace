@@ -1540,3 +1540,42 @@ export async function updateConsultation(formData: FormData): Promise<void> {
 
   revalidatePath("/admin/consultations");
 }
+
+// ── Temple e-Puja / Chadhava ─────────────────────────────────────────────────
+
+// Fulfils a temple puja: move it through its lifecycle, share the ritual video,
+// and record prasad shipping details the devotee sees in their account.
+export async function updateTemplePuja(formData: FormData): Promise<void> {
+  await assertCapability("bookings");
+  const admin = createAdminClient();
+  const id = str(formData.get("id"));
+  if (!id) return;
+
+  const status = str(formData.get("status"));
+  const allowed = [
+    "pending",
+    "confirmed",
+    "performed",
+    "shipped",
+    "completed",
+    "cancelled",
+  ];
+
+  await admin
+    .from("temple_puja_bookings")
+    .update({
+      video_url: str(formData.get("video_url")) || null,
+      prasad_tracking: str(formData.get("prasad_tracking")) || null,
+      prasad_carrier: str(formData.get("prasad_carrier")) || null,
+      admin_notes: str(formData.get("admin_notes")) || null,
+      ...(allowed.includes(status)
+        ? {
+            status: status as Database["public"]["Enums"]["temple_puja_status"],
+          }
+        : {}),
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", id);
+
+  revalidatePath("/admin/temple-pujas");
+}

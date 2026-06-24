@@ -14,6 +14,7 @@ const inputClass =
 
 const ACCOUNT_LINKS = [
   { href: "/account/bookings", label: "My bookings", emoji: "🪔" },
+  { href: "/account/temple-pujas", label: "My temple pujas", emoji: "🛕" },
   { href: "/account/consultations", label: "My consultations", emoji: "🔮" },
   { href: "/account/orders", label: "My orders", emoji: "📦" },
   { href: "/account/subscriptions", label: "Recurring poojas", emoji: "🔁" },

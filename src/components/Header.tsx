@@ -10,6 +10,7 @@ import { useT } from "@/components/LanguageProvider";
 
 const navLinks = [
   { href: "/poojas", key: "nav.bookPooja" },
+  { href: "/temple-puja", key: "nav.templePuja" },
   { href: "/ceremonies", key: "nav.ceremonies" },
   { href: "/muhurat", key: "nav.muhurat" },
   { href: "/consultations", key: "nav.consultations" },

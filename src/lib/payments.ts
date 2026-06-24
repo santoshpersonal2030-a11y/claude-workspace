@@ -3,6 +3,7 @@ import {
   sendOrderConfirmation,
   sendBookingConfirmation,
   sendConsultationConfirmation,
+  sendTemplePujaConfirmation,
 } from "@/lib/notifications";
 import {
   grantLoyalty,
@@ -77,7 +78,9 @@ export async function capturePaymentByRazorpayOrder(params: {
 
   const { data: payment } = await admin
     .from("payments")
-    .select("id, payment_for, booking_id, order_id, consultation_id")
+    .select(
+      "id, payment_for, booking_id, order_id, consultation_id, temple_puja_id",
+    )
     .eq("razorpay_order_id", params.razorpayOrderId)
     .maybeSingle();
 
@@ -147,6 +150,20 @@ export async function capturePaymentByRazorpayOrder(params: {
       .select("id")
       .maybeSingle();
     if (confirmed) await sendConsultationConfirmation(payment.consultation_id);
+  } else if (
+    payment.payment_for === "temple_puja" &&
+    payment.temple_puja_id
+  ) {
+    // Confirm the temple puja; an admin then performs it, shares the video and
+    // (where applicable) the prasad tracking. Guarded so it runs once.
+    const { data: confirmed } = await admin
+      .from("temple_puja_bookings")
+      .update({ status: "confirmed", updated_at: new Date().toISOString() })
+      .eq("id", payment.temple_puja_id)
+      .neq("status", "confirmed")
+      .select("id")
+      .maybeSingle();
+    if (confirmed) await sendTemplePujaConfirmation(payment.temple_puja_id);
   }
 
   return { ok: true, status: "captured" };

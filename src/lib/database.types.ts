@@ -1181,6 +1181,7 @@ export type Database = {
           razorpay_signature: string | null
           refunded_amount: number
           status: Database["public"]["Enums"]["payment_status"]
+          temple_puja_id: string | null
           updated_at: string
           user_id: string
         }
@@ -1198,6 +1199,7 @@ export type Database = {
           razorpay_signature?: string | null
           refunded_amount?: number
           status?: Database["public"]["Enums"]["payment_status"]
+          temple_puja_id?: string | null
           updated_at?: string
           user_id: string
         }
@@ -1215,6 +1217,7 @@ export type Database = {
           razorpay_signature?: string | null
           refunded_amount?: number
           status?: Database["public"]["Enums"]["payment_status"]
+          temple_puja_id?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -1238,6 +1241,13 @@ export type Database = {
             columns: ["order_id"]
             isOneToOne: false
             referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payments_temple_puja_id_fkey"
+            columns: ["temple_puja_id"]
+            isOneToOne: false
+            referencedRelation: "temple_puja_bookings"
             referencedColumns: ["id"]
           },
           {
@@ -1995,6 +2005,75 @@ export type Database = {
           },
         ]
       }
+      temple_puja_bookings: {
+        Row: {
+          admin_notes: string | null
+          amount: number
+          created_at: string
+          devotee_name: string
+          email: string | null
+          family_names: string | null
+          gotra: string | null
+          id: string
+          phone: string
+          prasad_carrier: string | null
+          prasad_tracking: string | null
+          preferred_date: string | null
+          puja_name: string
+          puja_slug: string
+          sankalp: string | null
+          status: Database["public"]["Enums"]["temple_puja_status"]
+          temple_name: string
+          updated_at: string
+          user_id: string
+          video_url: string | null
+        }
+        Insert: {
+          admin_notes?: string | null
+          amount: number
+          created_at?: string
+          devotee_name: string
+          email?: string | null
+          family_names?: string | null
+          gotra?: string | null
+          id?: string
+          phone: string
+          prasad_carrier?: string | null
+          prasad_tracking?: string | null
+          preferred_date?: string | null
+          puja_name: string
+          puja_slug: string
+          sankalp?: string | null
+          status?: Database["public"]["Enums"]["temple_puja_status"]
+          temple_name: string
+          updated_at?: string
+          user_id: string
+          video_url?: string | null
+        }
+        Update: {
+          admin_notes?: string | null
+          amount?: number
+          created_at?: string
+          devotee_name?: string
+          email?: string | null
+          family_names?: string | null
+          gotra?: string | null
+          id?: string
+          phone?: string
+          prasad_carrier?: string | null
+          prasad_tracking?: string | null
+          preferred_date?: string | null
+          puja_name?: string
+          puja_slug?: string
+          sankalp?: string | null
+          status?: Database["public"]["Enums"]["temple_puja_status"]
+          temple_name?: string
+          updated_at?: string
+          user_id?: string
+          video_url?: string | null
+        }
+        Relationships: []
+      }
       wishlists: {
         Row: {
           created_at: string
@@ -2082,13 +2161,20 @@ export type Database = {
         | "shipped"
         | "delivered"
         | "cancelled"
-      payment_for: "booking" | "consultation" | "order"
+      payment_for: "booking" | "consultation" | "order" | "temple_puja"
       payment_status:
         | "created"
         | "authorized"
         | "captured"
         | "failed"
         | "refunded"
+      temple_puja_status:
+        | "pending"
+        | "confirmed"
+        | "performed"
+        | "shipped"
+        | "completed"
+        | "cancelled"
       pooja_category:
         | "Home"
         | "Festival"
@@ -2257,13 +2343,21 @@ export const Constants = {
         "delivered",
         "cancelled",
       ],
-      payment_for: ["booking", "consultation", "order"],
+      payment_for: ["booking", "consultation", "order", "temple_puja"],
       payment_status: [
         "created",
         "authorized",
         "captured",
         "failed",
         "refunded",
+      ],
+      temple_puja_status: [
+        "pending",
+        "confirmed",
+        "performed",
+        "shipped",
+        "completed",
+        "cancelled",
       ],
       pooja_category: [
         "Home",

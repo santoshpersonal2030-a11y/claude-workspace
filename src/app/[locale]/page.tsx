@@ -255,6 +255,25 @@ export default async function Home({
           </div>
         </section>
 
+        {/* Temple e-Puja CTA */}
+        <section className="mx-auto max-w-6xl px-4 pb-4 sm:px-6">
+          <div className="flex flex-col items-center gap-4 rounded-3xl border border-saffron-100 bg-saffron-50/50 px-6 py-10 text-center sm:px-12">
+            <span className="text-4xl">🛕</span>
+            <h2 className="font-heading text-3xl text-maroon-800">
+              {t("home.temple.title")}
+            </h2>
+            <p className="max-w-xl text-foreground/70">
+              {t("home.temple.text")}
+            </p>
+            <Link
+              href="/temple-puja"
+              className="rounded-full bg-saffron-700 px-7 py-3 text-sm font-semibold text-white transition-colors hover:bg-saffron-800"
+            >
+              {t("home.temple.cta")}
+            </Link>
+          </div>
+        </section>
+
         {/* Shop bestsellers */}
         {featuredProducts.length > 0 && (
           <section className="mx-auto max-w-6xl px-4 pb-16 sm:px-6">
