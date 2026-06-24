@@ -1,0 +1,34 @@
+name: CI
+
+# Runs the full verification gate on every push and PR. Uses placeholder
+# Supabase env so the build never needs real secrets — DB-backed pages fall
+# back to their bundled seed data when the placeholder host is unreachable
+# (the same behaviour as a local build without .env.local).
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder-anon-key
+      SUPABASE_SERVICE_ROLE_KEY: placeholder-service-role-key
+      NEXT_PUBLIC_SITE_URL: http://localhost:3000
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - name: Typecheck
+        run: npx tsc --noEmit
+      - name: Lint
+        run: npx eslint src
+      - name: Unit tests
+        run: npm test
+      - name: Build
+        run: npm run build

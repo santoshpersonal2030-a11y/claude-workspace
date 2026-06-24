@@ -1,0 +1,145 @@
+import crypto from "node:crypto";
+
+// SERVER-ONLY Razorpay helpers. We talk to the REST API directly (Basic auth)
+// and verify signatures with Node crypto, so there's no SDK dependency.
+
+const RAZORPAY_API = "https://api.razorpay.com/v1";
+
+export function razorpayConfigured(): boolean {
+  return Boolean(
+    process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET,
+  );
+}
+
+export function razorpayWebhookConfigured(): boolean {
+  return Boolean(process.env.RAZORPAY_WEBHOOK_SECRET);
+}
+
+export type RazorpayOrder = {
+  id: string;
+  amount: number;
+  currency: string;
+};
+
+// Creates a Razorpay order. `amountInPaise` must be an integer (₹1 = 100 paise).
+export async function createRazorpayOrder(params: {
+  amountInPaise: number;
+  receipt: string;
+  notes?: Record<string, string>;
+}): Promise<RazorpayOrder> {
+  const keyId = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID!;
+  const keySecret = process.env.RAZORPAY_KEY_SECRET!;
+  const auth = Buffer.from(`${keyId}:${keySecret}`).toString("base64");
+
+  const res = await fetch(`${RAZORPAY_API}/orders`, {
+    method: "POST",
+    headers: {
+      Authorization: `Basic ${auth}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      amount: params.amountInPaise,
+      currency: "INR",
+      receipt: params.receipt,
+      notes: params.notes,
+    }),
+  });
+
+  if (!res.ok) {
+    throw new Error(`Razorpay order creation failed: ${await res.text()}`);
+  }
+  return (await res.json()) as RazorpayOrder;
+}
+
+// Fetches an order from Razorpay (authoritative amount + paid status). Used to
+// credit a wallet top-up by the amount Razorpay actually charged, never a value
+// supplied by the browser.
+export async function fetchRazorpayOrder(
+  orderId: string,
+): Promise<{ id: string; amount: number; amount_paid: number; status: string }> {
+  const keyId = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID!;
+  const keySecret = process.env.RAZORPAY_KEY_SECRET!;
+  const auth = Buffer.from(`${keyId}:${keySecret}`).toString("base64");
+
+  const res = await fetch(`${RAZORPAY_API}/orders/${orderId}`, {
+    headers: { Authorization: `Basic ${auth}` },
+  });
+  if (!res.ok) {
+    throw new Error(`Razorpay order fetch failed: ${await res.text()}`);
+  }
+  return (await res.json()) as {
+    id: string;
+    amount: number;
+    amount_paid: number;
+    status: string;
+  };
+}
+
+// Refunds a captured payment. Omit amountInPaise for a full refund.
+export async function createRefund(params: {
+  paymentId: string;
+  amountInPaise?: number;
+  notes?: Record<string, string>;
+}): Promise<{ id: string; amount: number; status: string }> {
+  const keyId = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID!;
+  const keySecret = process.env.RAZORPAY_KEY_SECRET!;
+  const auth = Buffer.from(`${keyId}:${keySecret}`).toString("base64");
+
+  const body: Record<string, unknown> = { notes: params.notes };
+  if (params.amountInPaise) body.amount = params.amountInPaise;
+
+  const res = await fetch(
+    `${RAZORPAY_API}/payments/${params.paymentId}/refund`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Basic ${auth}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    },
+  );
+
+  if (!res.ok) {
+    throw new Error(`Razorpay refund failed: ${await res.text()}`);
+  }
+  return (await res.json()) as { id: string; amount: number; status: string };
+}
+
+// Verifies the signature Razorpay Checkout returns on success. The signature is
+// HMAC-SHA256(`${orderId}|${paymentId}`) keyed with the secret. Constant-time
+// comparison avoids timing leaks.
+export function verifyRazorpaySignature(params: {
+  razorpayOrderId: string;
+  razorpayPaymentId: string;
+  signature: string;
+}): boolean {
+  const keySecret = process.env.RAZORPAY_KEY_SECRET!;
+  const expected = crypto
+    .createHmac("sha256", keySecret)
+    .update(`${params.razorpayOrderId}|${params.razorpayPaymentId}`)
+    .digest("hex");
+
+  const a = Buffer.from(expected);
+  const b = Buffer.from(params.signature);
+  return a.length === b.length && crypto.timingSafeEqual(a, b);
+}
+
+// Verifies a Razorpay webhook delivery. The signature is HMAC-SHA256 of the
+// RAW request body, keyed with the dashboard-configured webhook secret.
+export function verifyWebhookSignature(
+  rawBody: string,
+  signature: string,
+): boolean {
+  const secret = process.env.RAZORPAY_WEBHOOK_SECRET;
+  if (!secret || !signature) return false;
+
+  const expected = crypto
+    .createHmac("sha256", secret)
+    .update(rawBody)
+    .digest("hex");
+
+  const a = Buffer.from(expected);
+  const b = Buffer.from(signature);
+  return a.length === b.length && crypto.timingSafeEqual(a, b);
+}

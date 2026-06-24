@@ -1,0 +1,212 @@
+// Minimal dependency-free PDF generator for simple text documents (e.g. credit
+// notes to attach to emails). Produces a single A4 page of left-aligned text.
+
+import { deflateSync } from "node:zlib";
+
+function escapeText(s: string): string {
+  return s.replace(/\\/g, "\\\\").replace(/\(/g, "\\(").replace(/\)/g, "\\)");
+}
+
+export const A4_HEIGHT = 842;
+export const A4_WIDTH = 595;
+
+type TextOpts = { size?: number; bold?: boolean; align?: "left" | "right" | "center" };
+
+type ImageEntry = {
+  data: string;
+  w: number;
+  h: number;
+  jpeg: boolean;
+  gray: boolean;
+};
+
+// A small absolutely-positioned PDF builder (text + lines + images) supporting
+// multiple pages. Coordinates use PDF space (origin bottom-left); use `fromTop`
+// to position from the top of the page.
+export class PdfDoc {
+  private pages: string[][] = [[]];
+  private images: ImageEntry[] = [];
+
+  private get ops(): string[] {
+    return this.pages[this.pages.length - 1];
+  }
+
+  fromTop(t: number): number {
+    return A4_HEIGHT - t;
+  }
+
+  newPage(): void {
+    this.pages.push([]);
+  }
+
+  private approxWidth(str: string, size: number): number {
+    return str.length * size * 0.5;
+  }
+
+  // Wraps text to fit a maximum width (in points), hard-splitting over-long words.
+  wrapText(str: string, maxWidth: number, size = 9): string[] {
+    const lines: string[] = [];
+    let cur = "";
+    for (const word of str.split(/\s+/)) {
+      let w = word;
+      // Hard-split a single word that can't fit on a line.
+      while (this.approxWidth(w, size) > maxWidth) {
+        const fit = Math.max(1, Math.floor(maxWidth / (size * 0.5)) - 1);
+        if (cur) {
+          lines.push(cur);
+          cur = "";
+        }
+        lines.push(w.slice(0, fit));
+        w = w.slice(fit);
+      }
+      const test = cur ? `${cur} ${w}` : w;
+      if (!cur || this.approxWidth(test, size) <= maxWidth) cur = test;
+      else {
+        lines.push(cur);
+        cur = w;
+      }
+    }
+    if (cur) lines.push(cur);
+    return lines.length ? lines : [""];
+  }
+
+  text(x: number, y: number, str: string, opts: TextOpts = {}): void {
+    const size = opts.size ?? 10;
+    const font = opts.bold ? "F2" : "F1";
+    let tx = x;
+    if (opts.align === "right") tx = x - this.approxWidth(str, size);
+    else if (opts.align === "center") tx = x - this.approxWidth(str, size) / 2;
+    this.ops.push(
+      `BT /${font} ${size} Tf ${tx.toFixed(2)} ${y.toFixed(2)} Td (${escapeText(str)}) Tj ET`,
+    );
+  }
+
+  line(x1: number, y1: number, x2: number, y2: number, width = 0.5): void {
+    this.ops.push(
+      `${width} w ${x1.toFixed(2)} ${y1.toFixed(2)} m ${x2.toFixed(2)} ${y2.toFixed(2)} l S`,
+    );
+  }
+
+  // Embeds a raw RGB image (3 bytes/pixel) and draws it at the given box.
+  image(
+    x: number,
+    y: number,
+    boxW: number,
+    boxH: number,
+    rgb: Buffer,
+    pxW: number,
+    pxH: number,
+  ): void {
+    const idx = this.images.length;
+    this.images.push({
+      data: deflateSync(rgb).toString("latin1"),
+      w: pxW,
+      h: pxH,
+      jpeg: false,
+      gray: false,
+    });
+    this.ops.push(
+      `q ${boxW.toFixed(2)} 0 0 ${boxH.toFixed(2)} ${x.toFixed(2)} ${y.toFixed(2)} cm /Im${idx} Do Q`,
+    );
+  }
+
+  // Embeds a JPEG image directly (DCTDecode), preserving the file bytes.
+  imageJpeg(
+    x: number,
+    y: number,
+    boxW: number,
+    boxH: number,
+    jpeg: Buffer,
+    pxW: number,
+    pxH: number,
+    gray = false,
+  ): void {
+    const idx = this.images.length;
+    this.images.push({
+      data: jpeg.toString("latin1"),
+      w: pxW,
+      h: pxH,
+      jpeg: true,
+      gray,
+    });
+    this.ops.push(
+      `q ${boxW.toFixed(2)} 0 0 ${boxH.toFixed(2)} ${x.toFixed(2)} ${y.toFixed(2)} cm /Im${idx} Do Q`,
+    );
+  }
+
+  render(): Buffer {
+    const fontF1 = 3;
+    const fontF2 = 4;
+    const imageBase = 5;
+    const pageBase = imageBase + this.images.length;
+
+    const xobjRefs = this.images
+      .map((_, i) => `/Im${i} ${imageBase + i} 0 R`)
+      .join(" ");
+
+    const kids = this.pages
+      .map((_, p) => `${pageBase + p * 2} 0 R`)
+      .join(" ");
+
+    const objects: string[] = [
+      "<< /Type /Catalog /Pages 2 0 R >>",
+      `<< /Type /Pages /Kids [${kids}] /Count ${this.pages.length} >>`,
+      "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>",
+      "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>",
+      ...this.images.map(
+        (img) =>
+          `<< /Type /XObject /Subtype /Image /Width ${img.w} /Height ${img.h} /ColorSpace ${img.gray ? "/DeviceGray" : "/DeviceRGB"} /BitsPerComponent 8 /Filter ${img.jpeg ? "/DCTDecode" : "/FlateDecode"} /Length ${img.data.length} >>\nstream\n${img.data}\nendstream`,
+      ),
+    ];
+
+    // Page + content object pairs.
+    this.pages.forEach((ops, p) => {
+      const contentNum = pageBase + p * 2 + 1;
+      objects.push(
+        `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 ${fontF1} 0 R /F2 ${fontF2} 0 R >> /XObject << ${xobjRefs} >> >> /Contents ${contentNum} 0 R >>`,
+      );
+      const stream = ops.join("\n");
+      objects.push(`<< /Length ${stream.length} >>\nstream\n${stream}\nendstream`);
+    });
+
+    return assemble(objects);
+  }
+}
+
+// Assembles numbered PDF objects with a cross-reference table.
+function assemble(objects: string[]): Buffer {
+  let pdf = "%PDF-1.4\n";
+  const offsets: number[] = [];
+  objects.forEach((obj, i) => {
+    offsets.push(pdf.length);
+    pdf += `${i + 1} 0 obj\n${obj}\nendobj\n`;
+  });
+  const xrefPos = pdf.length;
+  pdf += `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n`;
+  for (const off of offsets) {
+    pdf += `${String(off).padStart(10, "0")} 00000 n \n`;
+  }
+  pdf += `trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xrefPos}\n%%EOF`;
+  return Buffer.from(pdf, "latin1");
+}
+
+export function simplePdf(title: string, lines: string[]): Buffer {
+  const parts: string[] = [];
+  parts.push(`BT /F1 16 Tf 50 800 Td (${escapeText(title)}) Tj ET`);
+  let y = 770;
+  for (const line of lines) {
+    parts.push(`BT /F1 11 Tf 50 ${y} Td (${escapeText(line)}) Tj ET`);
+    y -= 18;
+  }
+  const stream = parts.join("\n");
+
+  const objects = [
+    "<< /Type /Catalog /Pages 2 0 R >>",
+    "<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
+    "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>",
+    "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>",
+    `<< /Length ${stream.length} >>\nstream\n${stream}\nendstream`,
+  ];
+  return assemble(objects);
+}
+
