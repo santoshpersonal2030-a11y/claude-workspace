@@ -4,10 +4,14 @@ import { notFound, redirect } from "next/navigation";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import BookingStatusTracker from "@/components/BookingStatusTracker";
+import BookingTimeline, {
+  type TimelineItem,
+} from "@/components/BookingTimeline";
 import BookingChat from "@/components/BookingChat";
 import PayPendingBooking from "@/components/PayPendingBooking";
 import { formatINR, timeSlots } from "@/lib/poojas";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import {
   cancelBooking,
   rescheduleBooking,
@@ -15,6 +19,7 @@ import {
   raiseBookingDispute,
 } from "@/app/[locale]/account/bookings/actions";
 import { SELF_SERVE_HOURS } from "@/lib/booking-policy";
+import { nextStepNote } from "@/lib/booking-status";
 
 const CANCELLABLE = ["pending", "confirmed", "assigned"];
 
@@ -46,12 +51,23 @@ export default async function BookingDetailPage({
   const { data: booking } = await supabase
     .from("bookings")
     .select(
-      "id, status, booking_date, time_slot, language, address, city, pincode, pandit_id, package_id, samagri_kit, service_price, samagri_price, total_amount, created_at, notes, poojas(name, emoji, sanskrit_name), preferred:pandits!bookings_preferred_pandit_id_fkey(full_name), assigned:pandits!bookings_pandit_id_fkey(full_name)",
+      "id, status, mode, booking_date, time_slot, language, address, city, pincode, pandit_id, package_id, priest_response, proposed_date, proposed_time, samagri_kit, service_price, samagri_price, total_amount, created_at, notes, poojas(name, emoji, sanskrit_name), preferred:pandits!bookings_preferred_pandit_id_fkey(full_name), assigned:pandits!bookings_pandit_id_fkey(full_name)",
     )
     .eq("id", id)
     .maybeSingle();
 
   if (!booking) notFound();
+
+  // The RLS-scoped fetch above already proved this booking belongs to the user,
+  // so we can read its (service-only) priest event log with the admin client.
+  const { data: events } = await createAdminClient()
+    .from("booking_priest_events")
+    .select("action, created_at, pandits(full_name)")
+    .eq("booking_id", id)
+    .order("created_at", { ascending: true });
+
+  const timeline = buildTimeline(booking, events ?? []);
+  const nextStep = nextStepNote(booking);
 
   // Any dispute the customer raised on this booking (latest first).
   const { data: dispute } = await supabase
@@ -122,6 +138,19 @@ export default async function BookingDetailPage({
 
           <div className="mt-6 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm">
             <BookingStatusTracker status={booking.status} />
+            {nextStep && (
+              <p className="mt-4 rounded-xl bg-saffron-50 px-3 py-2 text-sm text-saffron-800">
+                {nextStep}
+              </p>
+            )}
+            {timeline.length > 1 && (
+              <div className="mt-5 border-t border-saffron-50 pt-5">
+                <h2 className="mb-4 font-heading text-sm text-maroon-700">
+                  Activity
+                </h2>
+                <BookingTimeline items={timeline} />
+              </div>
+            )}
           </div>
 
           <div className="mt-6 grid gap-6 sm:grid-cols-2">
@@ -392,4 +421,83 @@ export default async function BookingDetailPage({
       <Footer />
     </>
   );
+}
+
+type EventRow = {
+  action: string;
+  created_at: string;
+  pandits: { full_name: string } | null;
+};
+
+// Builds the customer-facing activity timeline: booking placed → payment →
+// priest events (assigned/confirmed/reassigning/proposed) → completed/cancelled.
+function buildTimeline(
+  booking: { created_at: string; status: string },
+  events: EventRow[],
+): TimelineItem[] {
+  const items: TimelineItem[] = [
+    {
+      key: "placed",
+      emoji: "📝",
+      title: "Booking placed",
+      at: booking.created_at,
+      tone: "done",
+    },
+  ];
+
+  if (booking.status !== "pending") {
+    items.push({
+      key: "confirmed",
+      emoji: "💳",
+      title: "Payment confirmed",
+      tone: "done",
+    });
+  }
+
+  events.forEach((e, i) => {
+    const name = e.pandits?.full_name ?? "your Pandit";
+    const base = { key: `e${i}`, at: e.created_at };
+    if (e.action === "assigned") {
+      items.push({ ...base, emoji: "👤", title: `${name} assigned`, tone: "done" });
+    } else if (e.action === "accepted") {
+      items.push({
+        ...base,
+        emoji: "✅",
+        title: `${name} confirmed your booking`,
+        tone: "done",
+      });
+    } else if (e.action === "declined") {
+      items.push({
+        ...base,
+        emoji: "🔄",
+        title: "Reassigning to another Pandit",
+        tone: "muted",
+      });
+    } else if (e.action === "proposed") {
+      items.push({
+        ...base,
+        emoji: "🕑",
+        title: `${name} proposed a new time`,
+        tone: "active",
+      });
+    }
+  });
+
+  if (booking.status === "completed") {
+    items.push({
+      key: "completed",
+      emoji: "🎉",
+      title: "Ceremony completed",
+      tone: "done",
+    });
+  } else if (booking.status === "cancelled") {
+    items.push({
+      key: "cancelled",
+      emoji: "✖️",
+      title: "Booking cancelled",
+      tone: "alert",
+    });
+  }
+
+  return items;
 }

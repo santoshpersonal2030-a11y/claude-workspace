@@ -4,6 +4,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { formatINR } from "@/lib/poojas";
 import { createClient } from "@/lib/supabase/server";
+import { nextStepNote } from "@/lib/booking-status";
 
 export const metadata = { title: "My Bookings" };
 
@@ -26,7 +27,7 @@ export default async function BookingsPage() {
   const { data: bookings } = await supabase
     .from("bookings")
     .select(
-      "id, booking_date, time_slot, status, total_amount, city, mode, poojas(name, emoji, slug), preferred:pandits!bookings_preferred_pandit_id_fkey(full_name), assigned:pandits!bookings_pandit_id_fkey(full_name)",
+      "id, booking_date, time_slot, status, total_amount, city, mode, priest_response, proposed_date, proposed_time, poojas(name, emoji, slug), preferred:pandits!bookings_preferred_pandit_id_fkey(full_name), assigned:pandits!bookings_pandit_id_fkey(full_name)",
     )
     .order("created_at", { ascending: false });
 
@@ -83,6 +84,14 @@ export default async function BookingsPage() {
                         Preferred Pandit: {booking.preferred.full_name}
                       </p>
                     ) : null}
+                    {(() => {
+                      const next = nextStepNote(booking);
+                      return next ? (
+                        <p className="mt-2 text-xs font-medium text-saffron-700">
+                          {next}
+                        </p>
+                      ) : null;
+                    })()}
                     <div className="mt-2 flex flex-wrap items-center gap-4">
                       {booking.mode === "online" &&
                         booking.status !== "pending" &&
