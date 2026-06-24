@@ -2,6 +2,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import {
   sendOrderConfirmation,
   sendBookingConfirmation,
+  sendConsultationConfirmation,
 } from "@/lib/notifications";
 import {
   grantLoyalty,
@@ -76,7 +77,7 @@ export async function capturePaymentByRazorpayOrder(params: {
 
   const { data: payment } = await admin
     .from("payments")
-    .select("id, payment_for, booking_id, order_id")
+    .select("id, payment_for, booking_id, order_id, consultation_id")
     .eq("razorpay_order_id", params.razorpayOrderId)
     .maybeSingle();
 
@@ -132,6 +133,20 @@ export async function capturePaymentByRazorpayOrder(params: {
     if (rows) await rewardConfirmedBookings(rows);
   } else if (payment.payment_for === "order" && payment.order_id) {
     await finalizeOrderPaid(payment.order_id);
+  } else if (
+    payment.payment_for === "consultation" &&
+    payment.consultation_id
+  ) {
+    // Confirm the consultation; an admin then assigns an astrologer and (for
+    // video) shares the meeting link. Guarded so it runs once.
+    const { data: confirmed } = await admin
+      .from("consultation_bookings")
+      .update({ status: "confirmed", updated_at: new Date().toISOString() })
+      .eq("id", payment.consultation_id)
+      .neq("status", "confirmed")
+      .select("id")
+      .maybeSingle();
+    if (confirmed) await sendConsultationConfirmation(payment.consultation_id);
   }
 
   return { ok: true, status: "captured" };

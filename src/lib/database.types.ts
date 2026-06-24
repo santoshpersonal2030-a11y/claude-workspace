@@ -434,6 +434,86 @@ export type Database = {
         }
         Relationships: []
       }
+      consultation_bookings: {
+        Row: {
+          admin_notes: string | null
+          amount: number
+          assigned_pandit_id: string | null
+          birth_date: string | null
+          birth_place: string | null
+          birth_time: string | null
+          created_at: string
+          email: string | null
+          id: string
+          meeting_link: string | null
+          mode: string
+          name: string
+          notes: string | null
+          phone: string
+          preferred_date: string
+          preferred_time: string
+          service_name: string
+          service_slug: string
+          status: Database["public"]["Enums"]["consultation_status"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          amount: number
+          assigned_pandit_id?: string | null
+          birth_date?: string | null
+          birth_place?: string | null
+          birth_time?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          meeting_link?: string | null
+          mode?: string
+          name: string
+          notes?: string | null
+          phone: string
+          preferred_date: string
+          preferred_time: string
+          service_name: string
+          service_slug: string
+          status?: Database["public"]["Enums"]["consultation_status"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_notes?: string | null
+          amount?: number
+          assigned_pandit_id?: string | null
+          birth_date?: string | null
+          birth_place?: string | null
+          birth_time?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          meeting_link?: string | null
+          mode?: string
+          name?: string
+          notes?: string | null
+          phone?: string
+          preferred_date?: string
+          preferred_time?: string
+          service_name?: string
+          service_slug?: string
+          status?: Database["public"]["Enums"]["consultation_status"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "consultation_bookings_assigned_pandit_id_fkey"
+            columns: ["assigned_pandit_id"]
+            isOneToOne: false
+            referencedRelation: "pandits"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contact_messages: {
         Row: {
           created_at: string
@@ -1087,6 +1167,7 @@ export type Database = {
         Row: {
           amount: number
           booking_id: string | null
+          consultation_id: string | null
           created_at: string
           currency: string
           id: string
@@ -1103,6 +1184,7 @@ export type Database = {
         Insert: {
           amount: number
           booking_id?: string | null
+          consultation_id?: string | null
           created_at?: string
           currency?: string
           id?: string
@@ -1119,6 +1201,7 @@ export type Database = {
         Update: {
           amount?: number
           booking_id?: string | null
+          consultation_id?: string | null
           created_at?: string
           currency?: string
           id?: string
@@ -1138,6 +1221,13 @@ export type Database = {
             columns: ["booking_id"]
             isOneToOne: false
             referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payments_consultation_id_fkey"
+            columns: ["consultation_id"]
+            isOneToOne: false
+            referencedRelation: "consultation_bookings"
             referencedColumns: ["id"]
           },
           {
@@ -1939,6 +2029,11 @@ export type Database = {
         | "assigned"
         | "completed"
         | "cancelled"
+      consultation_status:
+        | "pending"
+        | "confirmed"
+        | "completed"
+        | "cancelled"
       coupon_type: "percent" | "flat"
       comp_model:
         | "fixed"
@@ -1954,7 +2049,7 @@ export type Database = {
         | "shipped"
         | "delivered"
         | "cancelled"
-      payment_for: "booking" | "order"
+      payment_for: "booking" | "consultation" | "order"
       payment_status:
         | "created"
         | "authorized"
@@ -2111,6 +2206,7 @@ export const Constants = {
         "completed",
         "cancelled",
       ],
+      consultation_status: ["pending", "confirmed", "completed", "cancelled"],
       coupon_type: ["percent", "flat"],
       comp_model: [
         "fixed",
@@ -2128,7 +2224,7 @@ export const Constants = {
         "delivered",
         "cancelled",
       ],
-      payment_for: ["booking", "order"],
+      payment_for: ["booking", "consultation", "order"],
       payment_status: [
         "created",
         "authorized",

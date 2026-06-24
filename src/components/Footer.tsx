@@ -26,6 +26,7 @@ const columns = [
   {
     title: "Almanac",
     links: [
+      { href: "/consultations", label: "Astrology Consultation" },
       { href: "/muhurat", label: "Shubh Muhurat" },
       { href: "/panchang", label: "Daily Panchang" },
       { href: "/choghadiya", label: "Choghadiya" },

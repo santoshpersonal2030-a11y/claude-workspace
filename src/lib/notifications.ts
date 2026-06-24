@@ -138,6 +138,44 @@ export async function sendBookingConfirmation(
   }
 }
 
+export async function sendConsultationConfirmation(
+  consultationId: string,
+): Promise<void> {
+  try {
+    const admin = createAdminClient();
+    const { data: consult } = await admin
+      .from("consultation_bookings")
+      .select(
+        "id, user_id, service_name, mode, preferred_date, preferred_time, amount",
+      )
+      .eq("id", consultationId)
+      .maybeSingle();
+    if (!consult) return;
+
+    const recipient = await emailForUser(admin, consult.user_id);
+    if (!recipient) return;
+
+    const body = `
+      <p>Hi ${recipient.name}, your consultation is confirmed. We'll assign a verified astrologer and share the ${consult.mode === "video" ? "video link" : "call details"} before your slot.</p>
+      <table style="width:100%;border-collapse:collapse;margin:16px 0">
+        <tr><td style="padding:4px 0;color:#9a8c7a">Consultation</td><td style="padding:4px 0;text-align:right">${consult.service_name}</td></tr>
+        <tr><td style="padding:4px 0;color:#9a8c7a">Mode</td><td style="padding:4px 0;text-align:right">${consult.mode === "video" ? "Video call" : "Phone call"}</td></tr>
+        <tr><td style="padding:4px 0;color:#9a8c7a">Preferred date</td><td style="padding:4px 0;text-align:right">${consult.preferred_date}</td></tr>
+        <tr><td style="padding:4px 0;color:#9a8c7a">Preferred time</td><td style="padding:4px 0;text-align:right">${consult.preferred_time}</td></tr>
+        <tr><td style="font-weight:600">Paid</td><td style="font-weight:600;text-align:right">${formatINR(consult.amount)}</td></tr>
+      </table>
+      <a href="${siteUrl}/account/consultations" style="display:inline-block;background:#d97706;color:#fff;text-decoration:none;padding:10px 20px;border-radius:999px">View your consultations</a>`;
+
+    await sendEmail({
+      to: recipient.email,
+      subject: "Your BookMyPoojari consultation is confirmed 🙏",
+      html: emailLayout("Consultation confirmed", body),
+    });
+  } catch (err) {
+    console.error("sendConsultationConfirmation failed:", err);
+  }
+}
+
 // Notifies the assigned priest (at their login email) that a new ceremony has
 // been assigned to them, with a link to accept or decline in their portal.
 // Best-effort — never throws into the admin action that triggers it.

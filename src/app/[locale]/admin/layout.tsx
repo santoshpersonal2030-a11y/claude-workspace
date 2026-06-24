@@ -8,6 +8,7 @@ const tabs: { href: string; label: string; cap?: Capability }[] = [
   { href: "/admin", label: "Overview" },
   { href: "/admin/analytics", label: "Analytics", cap: "analytics" },
   { href: "/admin/bookings", label: "Bookings & orders", cap: "bookings" },
+  { href: "/admin/consultations", label: "Consultations", cap: "bookings" },
   { href: "/admin/products", label: "Products", cap: "products" },
   { href: "/admin/poojas", label: "Poojas", cap: "catalog" },
   { href: "/admin/pandits", label: "Pandits", cap: "pandits" },

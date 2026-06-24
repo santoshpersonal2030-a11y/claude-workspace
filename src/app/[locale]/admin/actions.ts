@@ -1509,3 +1509,34 @@ export async function rejectPanditApplication(
     .eq("id", id);
   revalidatePath("/admin/pandit-applications");
 }
+
+// ── Consultations (astrology / muhurat) ──────────────────────────────────────
+
+// Fulfils a paid consultation: assign an astrologer, set the status, and (for
+// video) record the meeting link the customer sees in their account.
+export async function updateConsultation(formData: FormData): Promise<void> {
+  await assertCapability("bookings");
+  const admin = createAdminClient();
+  const id = str(formData.get("id"));
+  if (!id) return;
+
+  const status = str(formData.get("status"));
+  const allowed = ["pending", "confirmed", "completed", "cancelled"];
+
+  await admin
+    .from("consultation_bookings")
+    .update({
+      assigned_pandit_id: str(formData.get("assigned_pandit_id")) || null,
+      meeting_link: str(formData.get("meeting_link")) || null,
+      admin_notes: str(formData.get("admin_notes")) || null,
+      ...(allowed.includes(status)
+        ? {
+            status: status as Database["public"]["Enums"]["consultation_status"],
+          }
+        : {}),
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", id);
+
+  revalidatePath("/admin/consultations");
+}
