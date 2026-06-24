@@ -498,6 +498,18 @@ const en: Dict = {
   "search.gProducts": "Samagri",
   "search.gPandits": "Pandits",
   "search.gBlog": "Articles",
+  // Online (video) pooja
+  "bf.modeHome": "At my home",
+  "bf.modeOnline": "Online (video)",
+  "bf.onlineNote":
+    "Performed live over video — a verified Pandit joins you online. No travel or address needed.",
+  "bf.onlineJoinNote":
+    "A “Join live pooja” link will appear in your account before the start time.",
+  "live.joinPooja": "Join live pooja",
+  "live.joinConsult": "Join video consultation",
+  "live.notReady": "This room opens once your booking is confirmed.",
+  "live.backToBookings": "Back to my bookings",
+  "live.backToConsults": "Back to my consultations",
   "cart.shippingNote": "Shipping calculated at checkout. Free over ₹999.",
   "cart.viewCheckout": "View cart & checkout",
 
@@ -994,6 +1006,18 @@ const hi: Dict = {
   "search.gProducts": "सामग्री",
   "search.gPandits": "पंडित",
   "search.gBlog": "लेख",
+  // Online (video) pooja
+  "bf.modeHome": "मेरे घर पर",
+  "bf.modeOnline": "ऑनलाइन (वीडियो)",
+  "bf.onlineNote":
+    "वीडियो पर सीधे — एक सत्यापित पंडित आपके साथ ऑनलाइन जुड़ते हैं। कोई यात्रा या पता आवश्यक नहीं।",
+  "bf.onlineJoinNote":
+    "प्रारंभ समय से पहले आपके खाते में “लाइव पूजा में शामिल हों” लिंक दिखाई देगा।",
+  "live.joinPooja": "लाइव पूजा में शामिल हों",
+  "live.joinConsult": "वीडियो परामर्श में शामिल हों",
+  "live.notReady": "यह कक्ष आपकी बुकिंग की पुष्टि होने पर खुलता है।",
+  "live.backToBookings": "मेरी बुकिंग पर वापस",
+  "live.backToConsults": "मेरे परामर्श पर वापस",
   "cart.shippingNote": "शिपिंग चेकआउट पर गणना की जाएगी। ₹999 से अधिक पर मुफ़्त।",
   "cart.viewCheckout": "कार्ट देखें और चेकआउट करें",
 

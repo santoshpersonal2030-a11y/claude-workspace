@@ -27,6 +27,7 @@ type BookingBody = {
   notes?: string;
   samagriKit?: boolean;
   redeemWallet?: boolean;
+  mode?: "in_person" | "online"; // online = live video pooja (no travel/address)
 };
 
 // Maps a booking-RPC error to a friendly message; null if not a known case.
@@ -51,7 +52,15 @@ export async function POST(request: Request) {
   }
 
   const body = (await request.json()) as BookingBody;
-  if (!body.poojaSlug || !body.bookingDate || !body.timeSlot || !body.address) {
+  // Online (live video) poojas have no venue — a verified Pandit joins over an
+  // embedded Jitsi room — so they don't carry an address or travel.
+  const online = body.mode === "online";
+  if (
+    !body.poojaSlug ||
+    !body.bookingDate ||
+    !body.timeSlot ||
+    (!online && !body.address)
+  ) {
     return NextResponse.json({ error: "Missing fields" }, { status: 400 });
   }
 
@@ -182,8 +191,9 @@ export async function POST(request: Request) {
         booking_date: body.bookingDate,
         time_slot: body.timeSlot,
         language: body.language ?? null,
-        address: body.address,
-        city: body.city,
+        mode: online ? "online" : "in_person",
+        address: online ? "Online (video pooja)" : body.address,
+        city: online ? body.city || "Online" : body.city,
         pincode: pincode,
         notes: body.notes ?? null,
         samagri_kit: Boolean(body.samagriKit),

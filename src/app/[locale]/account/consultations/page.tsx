@@ -105,20 +105,12 @@ export default async function AccountConsultationsPage() {
 
                   {c.status === "confirmed" && c.mode === "video" && (
                     <div className="mt-4 border-t border-saffron-50 pt-3 text-sm">
-                      {c.meeting_link ? (
-                        <a
-                          href={c.meeting_link}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-block rounded-full bg-saffron-700 px-5 py-2 text-sm font-semibold text-white hover:bg-saffron-800"
-                        >
-                          Join video call →
-                        </a>
-                      ) : (
-                        <p className="text-foreground/55">
-                          We&apos;ll share your video link here before the slot.
-                        </p>
-                      )}
+                      <Link
+                        href={`/account/consultations/${c.id}/live`}
+                        className="inline-block rounded-full bg-saffron-700 px-5 py-2 text-sm font-semibold text-white hover:bg-saffron-800"
+                      >
+                        🎥 Join video call →
+                      </Link>
                     </div>
                   )}
                 </div>

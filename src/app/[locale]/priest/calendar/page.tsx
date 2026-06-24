@@ -54,6 +54,7 @@ type CalBooking = {
   time_slot: string;
   status: string;
   priest_response: string;
+  mode: string;
   city: string | null;
   pincode: string | null;
   language: string | null;
@@ -89,7 +90,7 @@ export default async function PriestCalendarPage({
   const { data: monthBookings } = await admin
     .from("bookings")
     .select(
-      "id, booking_date, time_slot, status, priest_response, city, pincode, language, service_price, poojas(name, emoji)",
+      "id, booking_date, time_slot, status, priest_response, mode, city, pincode, language, service_price, poojas(name, emoji)",
     )
     .eq("pandit_id", pandit.id)
     .gte("booking_date", firstDay)
@@ -101,7 +102,7 @@ export default async function PriestCalendarPage({
   const { data: pendingRows } = await admin
     .from("bookings")
     .select(
-      "id, booking_date, time_slot, status, priest_response, city, pincode, language, service_price, poojas(name, emoji)",
+      "id, booking_date, time_slot, status, priest_response, mode, city, pincode, language, service_price, poojas(name, emoji)",
     )
     .eq("pandit_id", pandit.id)
     .eq("priest_response", "pending")
@@ -304,20 +305,33 @@ export default async function PriestCalendarPage({
                 {day}
               </div>
               <div className="mt-0.5 space-y-1">
-                {items.map((b) => (
-                  <div
-                    key={b.id}
-                    className={`truncate rounded px-1 py-0.5 text-[10px] font-medium ${
-                      RESPONSE_BADGE[b.priest_response] ??
-                      "bg-stone-100 text-stone-700"
-                    }`}
-                    title={`${b.time_slot.slice(0, 5)} ${
-                      b.poojas?.name ?? "Pooja"
-                    } · ${b.priest_response}`}
-                  >
-                    {b.time_slot.slice(0, 5)} {b.poojas?.name ?? "Pooja"}
-                  </div>
-                ))}
+                {items.map((b) => {
+                  const cls = `block truncate rounded px-1 py-0.5 text-[10px] font-medium ${
+                    RESPONSE_BADGE[b.priest_response] ??
+                    "bg-stone-100 text-stone-700"
+                  }`;
+                  const title = `${b.time_slot.slice(0, 5)} ${
+                    b.poojas?.name ?? "Pooja"
+                  } · ${b.priest_response}`;
+                  const label = `${b.time_slot.slice(0, 5)} ${
+                    b.poojas?.name ?? "Pooja"
+                  }`;
+                  // Online ceremonies link to the priest's video room.
+                  return b.mode === "online" ? (
+                    <Link
+                      key={b.id}
+                      href={`/priest/bookings/${b.id}/live`}
+                      className={cls}
+                      title={`${title} · online`}
+                    >
+                      🎥 {label}
+                    </Link>
+                  ) : (
+                    <div key={b.id} className={cls} title={title}>
+                      {label}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           );

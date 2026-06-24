@@ -238,6 +238,7 @@ export type Database = {
           invoice_no: number | null
           language: string | null
           last_nudged_at: string | null
+          mode: string
           notes: string | null
           package_id: string | null
           pandit_id: string | null
@@ -276,6 +277,7 @@ export type Database = {
           invoice_no?: number | null
           language?: string | null
           last_nudged_at?: string | null
+          mode?: string
           notes?: string | null
           package_id?: string | null
           pandit_id?: string | null
@@ -314,6 +316,7 @@ export type Database = {
           invoice_no?: number | null
           language?: string | null
           last_nudged_at?: string | null
+          mode?: string
           notes?: string | null
           package_id?: string | null
           pandit_id?: string | null

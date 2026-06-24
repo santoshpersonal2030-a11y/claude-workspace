@@ -26,7 +26,7 @@ export default async function BookingsPage() {
   const { data: bookings } = await supabase
     .from("bookings")
     .select(
-      "id, booking_date, time_slot, status, total_amount, city, poojas(name, emoji, slug), preferred:pandits!bookings_preferred_pandit_id_fkey(full_name), assigned:pandits!bookings_pandit_id_fkey(full_name)",
+      "id, booking_date, time_slot, status, total_amount, city, mode, poojas(name, emoji, slug), preferred:pandits!bookings_preferred_pandit_id_fkey(full_name), assigned:pandits!bookings_pandit_id_fkey(full_name)",
     )
     .order("created_at", { ascending: false });
 
@@ -84,6 +84,16 @@ export default async function BookingsPage() {
                       </p>
                     ) : null}
                     <div className="mt-2 flex flex-wrap items-center gap-4">
+                      {booking.mode === "online" &&
+                        booking.status !== "pending" &&
+                        booking.status !== "cancelled" && (
+                          <Link
+                            href={`/account/bookings/${booking.id}/live`}
+                            className="rounded-full bg-saffron-700 px-4 py-1.5 text-sm font-semibold text-white hover:bg-saffron-800"
+                          >
+                            🎥 Join live pooja
+                          </Link>
+                        )}
                       <Link
                         href={`/account/bookings/${booking.id}`}
                         className="text-sm font-semibold text-saffron-700 hover:text-saffron-800"

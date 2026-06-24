@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import BookingForm from "@/components/BookingForm";
+import PoojaBooking from "@/components/PoojaBooking";
 import AddToCartButton from "@/components/AddToCartButton";
 import ProductThumb from "@/components/ProductThumb";
 import { getIncludes, formatINR } from "@/lib/poojas";
@@ -262,7 +262,7 @@ export default async function PoojaDetailPage({
 
             {/* Right: booking form */}
             <div className="lg:sticky lg:top-24 lg:self-start">
-              <BookingForm pooja={pooja} pandits={pandits} />
+              <PoojaBooking pooja={pooja} pandits={pandits} />
             </div>
           </div>
 
