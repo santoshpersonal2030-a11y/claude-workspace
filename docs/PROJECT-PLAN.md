@@ -64,9 +64,9 @@ delivered to their door. It combines a **service marketplace** with an
 - [x] Blog / SEO engine
 - [x] Almanac/astrology content: muhurat, panchang, choghadiya, gun-milan, festivals
 
-### Phase 3 — Differentiation  ~ partial
-- [ ] Virtual / live pooja over video
-- [ ] Astrology & muhurat **consultation booking** (paid 1:1) — *engine exists, flow doesn't*
+### Phase 3 — Differentiation  ✅ largely complete
+- [x] Virtual / live pooja over video (embedded Jitsi; customer + assigned Pandit join in-app)
+- [x] Astrology & muhurat **consultation booking** (paid 1:1, phone or video)
 - [x] Subscriptions (recurring poojas) + corporate / bulk booking packages
 - [ ] Mobile app — *(PWA shell exists: service worker + offline page)*
 
@@ -75,7 +75,8 @@ delivered to their door. It combines a **service marketplace** with an
 - [x] **Automation crons**: abandoned carts, booking reminders, recurring poojas, accounting export, e-way-bill expiry
 - [x] Role-based admin team (owner / manager / support) with per-capability gating
 - [x] Peak-day surge pricing, coverage map, priest analytics
-- [x] Accessibility pass (in progress): labels, contrast (WCAG AA), landmarks, live regions
+- [x] **Site-wide search** across poojas, store, consultations, pandits & blog
+- [x] Accessibility pass: labels, contrast (WCAG AA), landmarks, live regions, table semantics
 - [x] KYC ID encryption at rest + audited reveal
 
 ## 4b. Current status at a glance
@@ -92,6 +93,8 @@ remains before go-live is mostly **configuration / ops, not code**:
 | Admin console (catalog, orders, payroll, GST, content, team) | ✅ Built |
 | Pandit marketplace (onboarding, KYC, portal, payouts) | ✅ Built |
 | i18n (en + hi), rewards, blog, almanac | ✅ Built |
+| Consultations + live video poojas (Jitsi) | ✅ Built · 🔧 optional JaaS domain |
+| Site-wide search | ✅ Built |
 | Accessibility verification (screen-reader / keyboard) | ~ Manual pass pending |
 | Domain, env keys, provider enablement | 🔧 Ops |
 
@@ -102,9 +105,10 @@ remains before go-live is mostly **configuration / ops, not code**:
 - Complete the manual accessibility pass (screen-reader + keyboard walkthrough; see `docs/` TODO)
 
 ### Candidate next builds (product)
-- **Revenue:** live/virtual pooja over video; paid astrology/muhurat consultation booking
-- **Growth:** site-wide search (poojas + store + blog); PWA push notifications; richer booking-status tracking
-- **Polish:** finish accessibility verification; analytics/conversion funnels; SEO structured-data + performance pass
+- **Mobile:** turn the PWA shell into an installable app (push notifications, home-screen install prompts); native wrapper later
+- **Growth:** richer booking-status tracking/timeline; analytics & conversion funnels; SEO structured-data + performance pass
+- **Trust:** finish the manual accessibility verification (`docs/VERIFICATION.md`)
+- **Video polish:** 8x8 JaaS (JWT-gated rooms, recording) when traffic warrants moving off the free meet.jit.si
 
 ## 5. Data model
 
@@ -116,10 +120,13 @@ Core entities:
 - **pandits** — priest profiles, languages, regions, verification, rating
 - **pandit_applications** — self-onboarding + encrypted KYC
 - **poojas** — catalog of ceremonies (name, description, duration, price)
-- **bookings** — customer + pooja + date/time + location + assigned pandit + status
+- **bookings** — customer + pooja + date/time + location + assigned pandit +
+  status + `mode` (in_person / online video)
+- **consultation_bookings** — paid 1:1 astrology/muhurat consultations
+  (mode, birth details, assigned astrologer, meeting link)
 - **products** — samagri items & kits (name, price, stock, images)
 - **orders** / **order_items** — product orders (items, totals, delivery, status)
-- **payments** — Razorpay transactions linked to bookings/orders
+- **payments** — Razorpay transactions linked to bookings / orders / consultations
 
 Plus supporting tables for: payroll & compensation, payout accounts, credit
 notes & invoice counters, coupons, rewards/wallet, reviews & disputes, muhurat

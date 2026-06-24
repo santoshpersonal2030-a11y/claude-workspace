@@ -1,12 +1,13 @@
 # Verification Guide
 
-Two things can't be verified in the cloud build environment and need a local
-run: a **Razorpay test-mode payment** (no API keys in CI) and a **screen-reader /
-keyboard accessibility pass** (no real browser + assistive tech). Everything
+A few things can't be verified in the cloud build environment and need a local
+run: a **Razorpay test-mode payment** (no API keys in CI), a **screen-reader /
+keyboard accessibility pass** (no real browser + assistive tech), and the
+**live video pooja / Jitsi** round-trip (needs a browser + camera). Everything
 else — type-check, lint, unit tests, production build, and a structural axe-core
 scan — already runs green in CI.
 
-This guide is the checklist to close those two gaps locally.
+This guide is the checklist to close those gaps locally.
 
 ---
 
@@ -147,6 +148,55 @@ unexpectedly, or be skipped.
 - Optional: wire `@axe-core/playwright` into a `test:e2e` spec to keep the
   structural scan in CI on a real browser, including the authenticated routes
   the cloud scan couldn't reach.
+
+---
+
+## 3. Live video pooja — Jitsi room round-trip
+
+Goal: confirm a customer and the assigned Pandit land in the **same** embedded
+video room. The default `meet.jit.si` needs **no API keys**, so this is testable
+immediately on `npm run dev` (optionally set `NEXT_PUBLIC_JITSI_DOMAIN`).
+
+### Online pooja
+
+1. Open any pooja detail page, switch the booking widget to **Online (video)**,
+   pick a date/slot/language and pay (or, with no Razorpay keys, the booking is
+   recorded as pending).
+2. Confirm the row is online:
+
+   ```sql
+   select id, mode, status, booking_date, time_slot
+   from public.bookings order by created_at desc limit 5;
+   -- expect mode = 'online'
+   ```
+
+3. As admin, assign a Pandit to that booking (`/admin/bookings/[id]` or the
+   bookings list) and make sure it's not `pending`/`cancelled`.
+4. **Customer** opens `/account/bookings/[id]/live` (a "🎥 Join live pooja"
+   button appears on `/account/bookings` once it's confirmed/assigned).
+5. **Pandit** signs in and opens the booking from `/priest/calendar` — online
+   ceremonies show a 🎥 link to `/priest/bookings/[id]/live`.
+6. Both should join the **same room** (`bmp-pooja-<booking id>`) and see/hear
+   each other. The prejoin screen lets each set mic/camera first.
+
+### Video consultation
+
+- A confirmed **video** consultation shows "🎥 Join video call" on
+  `/account/consultations`, opening `/account/consultations/[id]/live`.
+- If an admin pasted an external link (Zoom/Meet) in `/admin/consultations`,
+  the page prefers that link; otherwise it embeds the Jitsi room
+  (`bmp-consult-<id>`).
+
+### Checks & notes
+
+- [ ] Both parties land in the same room and can see/hear each other.
+- [ ] The room only opens for the booking's customer, the assigned Pandit, or an
+      admin (others get a 404 / login redirect).
+- [ ] If the in-page embed is blocked (e.g. corporate network), the fallback
+      "Open video room →" link still works.
+- Room access on public `meet.jit.si` is name-only (the names use UUIDs).
+  For stronger control (JWT-gated rooms, recording), point
+  `NEXT_PUBLIC_JITSI_DOMAIN` at an **8x8 JaaS** / self-hosted deployment.
 
 ---
 
