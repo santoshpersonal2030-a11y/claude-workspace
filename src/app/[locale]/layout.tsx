@@ -7,6 +7,7 @@ import AnnouncementBar from "@/components/AnnouncementBar";
 import ReferralTracker from "@/components/ReferralTracker";
 import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
 import SkipLink from "@/components/SkipLink";
+import LiveRegion from "@/components/LiveRegion";
 import { LOCALES, DEFAULT_LOCALE, isLocale, type Locale } from "@/lib/i18n";
 
 const heading = Marcellus({
@@ -120,6 +121,7 @@ export default async function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <SkipLink />
+        <LiveRegion />
         <AnnouncementBar />
         <ReferralTracker />
         <ServiceWorkerRegister />

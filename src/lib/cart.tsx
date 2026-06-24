@@ -3,6 +3,8 @@
 import { useMemo, useSyncExternalStore } from "react";
 
 import { createClient } from "@/lib/supabase/client";
+import { announce } from "@/lib/announce";
+import { t, getActiveLocale } from "@/lib/i18n";
 import type { Json } from "@/lib/database.types";
 
 export type CartItem = {
@@ -99,9 +101,12 @@ function getServerSnapshot(): CartItem[] {
 
 // ── Mutations ──────────────────────────────────────────────────────────────
 
+// `silent` suppresses the screen-reader announcement — used by bulk callers
+// (e.g. reorder) that emit a single summary instead of one per item.
 export function addToCart(
   item: Omit<CartItem, "quantity">,
   quantity = 1,
+  { silent = false }: { silent?: boolean } = {},
 ): void {
   ensureLoaded();
   const existing = items.find((i) => i.slug === item.slug);
@@ -114,20 +119,29 @@ export function addToCart(
   } else {
     commit([...items, { ...item, quantity }]);
   }
+  if (!silent) {
+    announce(t(getActiveLocale(), "cart.announceAdded", { name: item.name }));
+  }
 }
 
 export function setCartQuantity(slug: string, quantity: number): void {
   ensureLoaded();
-  commit(
-    quantity <= 0
-      ? items.filter((i) => i.slug !== slug)
-      : items.map((i) => (i.slug === slug ? { ...i, quantity } : i)),
-  );
+  if (quantity <= 0) {
+    removeFromCart(slug);
+    return;
+  }
+  commit(items.map((i) => (i.slug === slug ? { ...i, quantity } : i)));
 }
 
 export function removeFromCart(slug: string): void {
   ensureLoaded();
+  const removed = items.find((i) => i.slug === slug);
   commit(items.filter((i) => i.slug !== slug));
+  if (removed) {
+    announce(
+      t(getActiveLocale(), "cart.announceRemoved", { name: removed.name }),
+    );
+  }
 }
 
 export function clearCart(): void {

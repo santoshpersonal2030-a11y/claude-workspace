@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect } from "react";
 
 import {
   DEFAULT_LOCALE,
+  setActiveLocale,
   t as translate,
   type Locale,
 } from "@/lib/i18n";
@@ -42,9 +43,13 @@ export default function LanguageProvider({
 }) {
   const locale = initialLocale;
 
-  // Keep the cookie in sync with whatever the URL resolved to.
+  // Keep the cookie and the module-level active locale in sync with whatever
+  // the URL resolved to (the latter lets the cart store localize its SR
+  // announcements). Client-only, which also avoids mutating shared module state
+  // during SSR.
   useEffect(() => {
     persistLocale(locale);
+    setActiveLocale(locale);
   }, [locale]);
 
   const value: Ctx = {

@@ -16,6 +16,17 @@ export function isLocale(value: string | undefined | null): value is Locale {
   return value === "en" || value === "hi";
 }
 
+// The locale currently being rendered, published by LanguageProvider. Lets
+// dependency-free, non-React modules (e.g. the cart store's screen-reader
+// announcements) localize without threading the locale through every call.
+let activeLocale: Locale = DEFAULT_LOCALE;
+export function setActiveLocale(locale: Locale): void {
+  activeLocale = locale;
+}
+export function getActiveLocale(): Locale {
+  return activeLocale;
+}
+
 type Dict = Record<string, string>;
 
 const en: Dict = {
@@ -416,6 +427,9 @@ const en: Dict = {
   "cart.securePay": "Secure payment via Razorpay.",
   "cart.closeCart": "Close cart",
   "cart.remove": "Remove",
+  "cart.announceAdded": "{name} added to cart.",
+  "cart.announceRemoved": "{name} removed from cart.",
+  "cart.announceReordered": "{count} items added to your cart.",
   "cart.shippingNote": "Shipping calculated at checkout. Free over ₹999.",
   "cart.viewCheckout": "View cart & checkout",
 
@@ -842,6 +856,9 @@ const hi: Dict = {
   "cart.securePay": "Razorpay के माध्यम से सुरक्षित भुगतान।",
   "cart.closeCart": "कार्ट बंद करें",
   "cart.remove": "हटाएँ",
+  "cart.announceAdded": "{name} कार्ट में जोड़ा गया।",
+  "cart.announceRemoved": "{name} कार्ट से हटाया गया।",
+  "cart.announceReordered": "{count} वस्तुएँ आपके कार्ट में जोड़ी गईं।",
   "cart.shippingNote": "शिपिंग चेकआउट पर गणना की जाएगी। ₹999 से अधिक पर मुफ़्त।",
   "cart.viewCheckout": "कार्ट देखें और चेकआउट करें",
 

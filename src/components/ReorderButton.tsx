@@ -3,6 +3,8 @@
 import { useState } from "react";
 
 import { addToCart, openCart } from "@/lib/cart";
+import { announce } from "@/lib/announce";
+import { t, getActiveLocale } from "@/lib/i18n";
 
 type ReorderItem = {
   slug: string;
@@ -32,8 +34,13 @@ export default function ReorderButton({
           imageUrl: item.imageUrl,
         },
         item.quantity,
+        { silent: true },
       );
     }
+    // One summary announcement instead of one per item.
+    announce(
+      t(getActiveLocale(), "cart.announceReordered", { count: items.length }),
+    );
     setAdded(true);
     openCart();
   }
