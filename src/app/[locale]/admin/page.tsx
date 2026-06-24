@@ -404,10 +404,10 @@ export default async function AdminOverviewPage({
           <table className="mt-3 w-full text-sm">
             <thead>
               <tr className="border-b border-saffron-50 text-left text-foreground/65">
-                <th className="py-2">FY</th>
-                <th className="py-2 text-right">Store</th>
-                <th className="py-2 text-right">Bookings</th>
-                <th className="py-2 text-right">Total</th>
+                <th scope="col" className="py-2">FY</th>
+                <th scope="col" className="py-2 text-right">Store</th>
+                <th scope="col" className="py-2 text-right">Bookings</th>
+                <th scope="col" className="py-2 text-right">Total</th>
               </tr>
             </thead>
             <tbody>

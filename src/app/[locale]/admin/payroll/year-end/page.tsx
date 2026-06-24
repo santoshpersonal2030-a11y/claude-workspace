@@ -193,15 +193,15 @@ export default async function PayrollYearEndPage({
         <table className="w-full min-w-[860px] border-collapse text-sm">
           <thead>
             <tr className="border-b border-saffron-200 text-left text-xs text-foreground/65">
-              <th className="py-2 pr-3">Priest</th>
-              <th className="py-2 pr-3 text-right">Payslips</th>
-              <th className="py-2 pr-3 text-right">Ceremonies</th>
-              <th className="py-2 pr-3 text-right">Gross</th>
-              <th className="py-2 pr-3 text-right">Net</th>
-              <th className="py-2 pr-3 text-right">Paid</th>
-              <th className="py-2 pr-3 text-right">Pending</th>
-              <th className="py-2 pr-3 text-right">PF (er)</th>
-              <th className="py-2 pr-3 text-right">Gratuity</th>
+              <th scope="col" className="py-2 pr-3">Priest</th>
+              <th scope="col" className="py-2 pr-3 text-right">Payslips</th>
+              <th scope="col" className="py-2 pr-3 text-right">Ceremonies</th>
+              <th scope="col" className="py-2 pr-3 text-right">Gross</th>
+              <th scope="col" className="py-2 pr-3 text-right">Net</th>
+              <th scope="col" className="py-2 pr-3 text-right">Paid</th>
+              <th scope="col" className="py-2 pr-3 text-right">Pending</th>
+              <th scope="col" className="py-2 pr-3 text-right">PF (er)</th>
+              <th scope="col" className="py-2 pr-3 text-right">Gratuity</th>
             </tr>
           </thead>
           <tbody>

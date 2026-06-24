@@ -151,12 +151,12 @@ export default function OrderInvoice({
       <table className="mt-6 w-full text-sm">
         <thead>
           <tr className="border-b border-saffron-100 text-left text-foreground/65">
-            <th className="py-2">Item</th>
-            <th className="py-2">HSN</th>
-            <th className="py-2 text-center">GST</th>
-            <th className="py-2 text-center">Qty</th>
-            <th className="py-2 text-right">Price</th>
-            <th className="py-2 text-right">Total</th>
+            <th scope="col" className="py-2">Item</th>
+            <th scope="col" className="py-2">HSN</th>
+            <th scope="col" className="py-2 text-center">GST</th>
+            <th scope="col" className="py-2 text-center">Qty</th>
+            <th scope="col" className="py-2 text-right">Price</th>
+            <th scope="col" className="py-2 text-right">Total</th>
           </tr>
         </thead>
         <tbody>
@@ -235,11 +235,11 @@ export default function OrderInvoice({
         <table className="mt-1 w-full text-xs">
           <thead>
             <tr className="border-b border-saffron-100 text-left text-foreground/65">
-              <th className="py-1">HSN</th>
-              <th className="py-1 text-center">Rate</th>
-              <th className="py-1 text-right">Taxable</th>
-              <th className="py-1 text-right">Tax</th>
-              <th className="py-1 text-right">Total</th>
+              <th scope="col" className="py-1">HSN</th>
+              <th scope="col" className="py-1 text-center">Rate</th>
+              <th scope="col" className="py-1 text-right">Taxable</th>
+              <th scope="col" className="py-1 text-right">Tax</th>
+              <th scope="col" className="py-1 text-right">Total</th>
             </tr>
           </thead>
           <tbody>

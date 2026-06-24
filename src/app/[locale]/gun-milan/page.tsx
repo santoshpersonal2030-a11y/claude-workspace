@@ -145,9 +145,9 @@ export default async function GunMilanPage({
                 <table className="w-full min-w-[480px] border-collapse text-sm">
                   <thead>
                     <tr className="border-b border-saffron-200 text-left text-xs text-foreground/65">
-                      <th className="py-2 pr-3">{t("gm.koota")}</th>
-                      <th className="py-2 pr-3">{t("gm.meaning")}</th>
-                      <th className="py-2 pr-3 text-right">{t("gm.score")}</th>
+                      <th scope="col" className="py-2 pr-3">{t("gm.koota")}</th>
+                      <th scope="col" className="py-2 pr-3">{t("gm.meaning")}</th>
+                      <th scope="col" className="py-2 pr-3 text-right">{t("gm.score")}</th>
                     </tr>
                   </thead>
                   <tbody>

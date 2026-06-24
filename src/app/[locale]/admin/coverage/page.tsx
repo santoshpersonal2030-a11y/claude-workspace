@@ -110,10 +110,10 @@ export default async function AdminCoveragePage() {
           <table className="w-full text-sm">
             <thead className="bg-cream-100 text-left text-xs text-foreground/65">
               <tr>
-                <th className="px-4 py-2 font-medium">Pincode</th>
-                <th className="px-4 py-2 font-medium">Bookings</th>
-                <th className="px-4 py-2 font-medium">Area</th>
-                <th className="px-4 py-2 font-medium">Coverage</th>
+                <th scope="col" className="px-4 py-2 font-medium">Pincode</th>
+                <th scope="col" className="px-4 py-2 font-medium">Bookings</th>
+                <th scope="col" className="px-4 py-2 font-medium">Area</th>
+                <th scope="col" className="px-4 py-2 font-medium">Coverage</th>
               </tr>
             </thead>
             <tbody>

@@ -136,11 +136,11 @@ export default async function AdminPayoutsPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-saffron-100 text-left text-xs text-foreground/65">
-                <th className="px-4 py-2">Date</th>
-                <th className="px-3 py-2">Priest</th>
-                <th className="px-3 py-2 text-right">Amount</th>
-                <th className="px-3 py-2">Status</th>
-                <th className="px-3 py-2">UTR / reason</th>
+                <th scope="col" className="px-4 py-2">Date</th>
+                <th scope="col" className="px-3 py-2">Priest</th>
+                <th scope="col" className="px-3 py-2 text-right">Amount</th>
+                <th scope="col" className="px-3 py-2">Status</th>
+                <th scope="col" className="px-3 py-2">UTR / reason</th>
               </tr>
             </thead>
             <tbody>

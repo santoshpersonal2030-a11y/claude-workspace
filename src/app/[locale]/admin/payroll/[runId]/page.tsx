@@ -122,14 +122,14 @@ export default async function PayrollRunDetailPage({
         <table className="w-full min-w-[820px] border-collapse text-sm">
           <thead>
             <tr className="border-b border-saffron-200 text-left text-xs text-foreground/65">
-              <th className="py-2 pr-3">Priest</th>
-              <th className="py-2 pr-3">Model</th>
-              <th className="py-2 pr-3 text-right">Bookings</th>
-              <th className="py-2 pr-3 text-right">Gross</th>
-              <th className="py-2 pr-3 text-right">Deductions</th>
-              <th className="py-2 pr-3 text-right">Net pay</th>
-              <th className="py-2 pr-3">Status</th>
-              <th className="py-2 pr-3"></th>
+              <th scope="col" className="py-2 pr-3">Priest</th>
+              <th scope="col" className="py-2 pr-3">Model</th>
+              <th scope="col" className="py-2 pr-3 text-right">Bookings</th>
+              <th scope="col" className="py-2 pr-3 text-right">Gross</th>
+              <th scope="col" className="py-2 pr-3 text-right">Deductions</th>
+              <th scope="col" className="py-2 pr-3 text-right">Net pay</th>
+              <th scope="col" className="py-2 pr-3">Status</th>
+              <th scope="col" className="py-2 pr-3"></th>
             </tr>
           </thead>
           <tbody>

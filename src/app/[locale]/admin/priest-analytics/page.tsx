@@ -87,15 +87,15 @@ export default async function PriestAnalyticsPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-saffron-100 text-left text-xs text-foreground/65">
-                <th className="px-4 py-3">Priest</th>
-                <th className="px-3 py-3 text-right">Assigned</th>
-                <th className="px-3 py-3 text-right">Accepted</th>
-                <th className="px-3 py-3 text-right">Declined</th>
-                <th className="px-3 py-3 text-right">Proposed</th>
-                <th className="px-3 py-3 text-right">Acceptance</th>
-                <th className="px-3 py-3 text-right">Avg reply</th>
-                <th className="px-3 py-3 text-right">Median</th>
-                <th className="px-3 py-3 text-right">Awaiting</th>
+                <th scope="col" className="px-4 py-3">Priest</th>
+                <th scope="col" className="px-3 py-3 text-right">Assigned</th>
+                <th scope="col" className="px-3 py-3 text-right">Accepted</th>
+                <th scope="col" className="px-3 py-3 text-right">Declined</th>
+                <th scope="col" className="px-3 py-3 text-right">Proposed</th>
+                <th scope="col" className="px-3 py-3 text-right">Acceptance</th>
+                <th scope="col" className="px-3 py-3 text-right">Avg reply</th>
+                <th scope="col" className="px-3 py-3 text-right">Median</th>
+                <th scope="col" className="px-3 py-3 text-right">Awaiting</th>
               </tr>
             </thead>
             <tbody>
