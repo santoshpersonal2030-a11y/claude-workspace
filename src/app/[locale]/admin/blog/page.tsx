@@ -27,7 +27,7 @@ export default async function AdminBlogPage({
   return (
     <div>
       <h1 className="font-heading text-2xl text-maroon-800">Blog</h1>
-      <p className="mt-1 text-sm text-foreground/60">
+      <p className="mt-1 text-sm text-foreground/65">
         Write posts in markdown-lite: lines starting with{" "}
         <code>## </code> are section headings; blank lines separate paragraphs.
       </p>
@@ -39,7 +39,7 @@ export default async function AdminBlogPage({
       >
         {editing && <input type="hidden" name="id" value={editing.id} />}
         <div className="grid gap-3 sm:grid-cols-2">
-          <label className="text-xs text-foreground/60">
+          <label className="text-xs text-foreground/65">
             Title
             <input
               name="title"
@@ -48,7 +48,7 @@ export default async function AdminBlogPage({
               className={`mt-1 ${inputClass}`}
             />
           </label>
-          <label className="text-xs text-foreground/60">
+          <label className="text-xs text-foreground/65">
             Slug (blank = from title)
             <input
               name="slug"
@@ -56,7 +56,7 @@ export default async function AdminBlogPage({
               className={`mt-1 ${inputClass}`}
             />
           </label>
-          <label className="text-xs text-foreground/60">
+          <label className="text-xs text-foreground/65">
             Category
             <input
               name="category"
@@ -64,7 +64,7 @@ export default async function AdminBlogPage({
               className={`mt-1 ${inputClass}`}
             />
           </label>
-          <label className="text-xs text-foreground/60">
+          <label className="text-xs text-foreground/65">
             Reading minutes
             <input
               name="reading_minutes"
@@ -74,7 +74,7 @@ export default async function AdminBlogPage({
               className={`mt-1 ${inputClass}`}
             />
           </label>
-          <label className="text-xs text-foreground/60">
+          <label className="text-xs text-foreground/65">
             Publish date
             <input
               name="published_at"
@@ -92,7 +92,7 @@ export default async function AdminBlogPage({
             Published
           </label>
         </div>
-        <label className="block text-xs text-foreground/60">
+        <label className="block text-xs text-foreground/65">
           Excerpt
           <textarea
             name="excerpt"
@@ -101,7 +101,7 @@ export default async function AdminBlogPage({
             className={`mt-1 ${inputClass}`}
           />
         </label>
-        <label className="block text-xs text-foreground/60">
+        <label className="block text-xs text-foreground/65">
           Content
           <textarea
             name="content"
@@ -121,7 +121,7 @@ export default async function AdminBlogPage({
           {editing && (
             <Link
               href="/admin/blog"
-              className="text-sm text-foreground/60 hover:text-saffron-700"
+              className="text-sm text-foreground/65 hover:text-saffron-700"
             >
               Cancel edit
             </Link>
@@ -133,7 +133,7 @@ export default async function AdminBlogPage({
       <h2 className="mt-8 font-heading text-lg text-maroon-700">Posts</h2>
       <div className="mt-3 space-y-2">
         {(posts ?? []).length === 0 && (
-          <p className="text-sm text-foreground/50">
+          <p className="text-sm text-foreground/65">
             No DB posts yet. The {blogPosts.length} built-in seed posts below
             stay live until you override them by slug.
           </p>
@@ -144,7 +144,7 @@ export default async function AdminBlogPage({
             className="flex flex-wrap items-center gap-3 rounded-xl border border-saffron-100 bg-white p-3 text-sm shadow-sm"
           >
             <span className="font-medium text-maroon-700">{p.title}</span>
-            <span className="text-xs text-foreground/45">/{p.slug}</span>
+            <span className="text-xs text-foreground/65">/{p.slug}</span>
             <span
               className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${
                 p.published
@@ -165,7 +165,7 @@ export default async function AdminBlogPage({
                 <input type="hidden" name="id" value={p.id} />
                 <button
                   type="submit"
-                  className="text-xs text-foreground/50 hover:text-red-600"
+                  className="text-xs text-foreground/65 hover:text-red-600"
                 >
                   Delete
                 </button>
@@ -179,13 +179,13 @@ export default async function AdminBlogPage({
       <h2 className="mt-8 font-heading text-lg text-maroon-700">
         Built-in posts
       </h2>
-      <p className="mt-1 text-xs text-foreground/50">
+      <p className="mt-1 text-xs text-foreground/65">
         Shipped in code. Create a DB post with the same slug to override one.
       </p>
       <ul className="mt-2 space-y-1 text-sm text-foreground/70">
         {blogPosts.map((p) => (
           <li key={p.slug}>
-            {p.title} <span className="text-xs text-foreground/40">/{p.slug}</span>
+            {p.title} <span className="text-xs text-foreground/65">/{p.slug}</span>
           </li>
         ))}
       </ul>

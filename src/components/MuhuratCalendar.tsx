@@ -177,7 +177,7 @@ export default function MuhuratCalendar({
                         <div className="font-heading text-2xl text-maroon-800">
                           {p.weekday}, {p.d}
                         </div>
-                        <div className="text-xs text-foreground/55">
+                        <div className="text-xs text-foreground/65">
                           {p.monthName} {p.y}
                         </div>
                       </div>

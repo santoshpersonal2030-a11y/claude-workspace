@@ -56,7 +56,7 @@ export default async function GunMilanPage({
       <main className="flex-1">
         <section className="bg-temple-gradient">
           <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
-            <nav className="text-sm text-foreground/60">
+            <nav className="text-sm text-foreground/65">
               <Link href="/" className="hover:text-saffron-700">
                 {t("common.home")}
               </Link>
@@ -73,22 +73,22 @@ export default async function GunMilanPage({
             <form method="get" className="mt-6 grid gap-4 sm:grid-cols-2">
               <div className="rounded-2xl border border-saffron-100 bg-white/70 p-4">
                 <h2 className="font-heading text-maroon-700">{t("gm.bride")}</h2>
-                <label className="mt-2 block text-xs text-foreground/60">
+                <label className="mt-2 block text-xs text-foreground/65">
                   {t("gm.dob")}
                   <input type="date" name="gd" defaultValue={sp.gd} required className={inputClass} />
                 </label>
-                <label className="mt-2 block text-xs text-foreground/60">
+                <label className="mt-2 block text-xs text-foreground/65">
                   {t("gm.tob")}
                   <input type="time" name="gt" defaultValue={sp.gt ?? "12:00"} className={inputClass} />
                 </label>
               </div>
               <div className="rounded-2xl border border-saffron-100 bg-white/70 p-4">
                 <h2 className="font-heading text-maroon-700">{t("gm.groom")}</h2>
-                <label className="mt-2 block text-xs text-foreground/60">
+                <label className="mt-2 block text-xs text-foreground/65">
                   {t("gm.dob")}
                   <input type="date" name="bd" defaultValue={sp.bd} required className={inputClass} />
                 </label>
-                <label className="mt-2 block text-xs text-foreground/60">
+                <label className="mt-2 block text-xs text-foreground/65">
                   {t("gm.tob")}
                   <input type="time" name="bt" defaultValue={sp.bt ?? "12:00"} className={inputClass} />
                 </label>
@@ -107,12 +107,12 @@ export default async function GunMilanPage({
 
         <section className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
           {!result ? (
-            <p className="text-foreground/60">{t("gm.enterDetails")}</p>
+            <p className="text-foreground/65">{t("gm.enterDetails")}</p>
           ) : (
             <>
               <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-saffron-100 bg-white p-6 shadow-sm">
                 <div>
-                  <div className="text-sm text-foreground/55">{t("gm.total")}</div>
+                  <div className="text-sm text-foreground/65">{t("gm.total")}</div>
                   <div className="font-heading text-4xl text-maroon-800">
                     {result.total} / {result.max}
                   </div>
@@ -120,7 +120,7 @@ export default async function GunMilanPage({
                     {result.verdict}
                   </div>
                 </div>
-                <div className="text-right text-sm text-foreground/60">
+                <div className="text-right text-sm text-foreground/65">
                   <div>
                     {t("gm.bride")}: {NAKSHATRAS[girl!.nakshatra - 1]} · {RASHIS[girl!.rashi]}
                   </div>
@@ -144,7 +144,7 @@ export default async function GunMilanPage({
               <div className="mt-6 overflow-x-auto">
                 <table className="w-full min-w-[480px] border-collapse text-sm">
                   <thead>
-                    <tr className="border-b border-saffron-200 text-left text-xs text-foreground/60">
+                    <tr className="border-b border-saffron-200 text-left text-xs text-foreground/65">
                       <th className="py-2 pr-3">{t("gm.koota")}</th>
                       <th className="py-2 pr-3">{t("gm.meaning")}</th>
                       <th className="py-2 pr-3 text-right">{t("gm.score")}</th>
@@ -156,7 +156,7 @@ export default async function GunMilanPage({
                         <td className="py-2 pr-3 font-medium text-maroon-700">
                           {k.name}
                         </td>
-                        <td className="py-2 pr-3 text-foreground/60">{k.note}</td>
+                        <td className="py-2 pr-3 text-foreground/65">{k.note}</td>
                         <td className="py-2 pr-3 text-right font-semibold">
                           {k.score} / {k.max}
                         </td>
@@ -166,7 +166,7 @@ export default async function GunMilanPage({
                 </table>
               </div>
 
-              <p className="mt-6 text-xs text-foreground/45">
+              <p className="mt-6 text-xs text-foreground/65">
                 {t("gm.computedNote")}
               </p>
               <div className="mt-4">

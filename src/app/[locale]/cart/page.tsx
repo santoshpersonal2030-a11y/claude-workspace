@@ -258,7 +258,7 @@ export default function CartPage() {
                       <h3 className="font-medium text-foreground">
                         {item.name}
                       </h3>
-                      <p className="text-sm text-foreground/60">
+                      <p className="text-sm text-foreground/65">
                         {formatINR(item.price)}
                       </p>
                     </div>
@@ -293,7 +293,7 @@ export default function CartPage() {
                     <button
                       type="button"
                       onClick={() => remove(item.slug)}
-                      className="text-foreground/40 hover:text-maroon-600"
+                      className="text-foreground/65 hover:text-maroon-600"
                       aria-label={t("cart.removeItem", { name: item.name })}
                     >
                       ✕
@@ -310,11 +310,11 @@ export default function CartPage() {
                   </h2>
                   <dl className="mt-4 space-y-2 text-sm">
                     <div className="flex justify-between">
-                      <dt className="text-foreground/60">{t("cart.subtotal")}</dt>
+                      <dt className="text-foreground/65">{t("cart.subtotal")}</dt>
                       <dd>{formatINR(subtotal)}</dd>
                     </div>
                     <div className="flex justify-between">
-                      <dt className="text-foreground/60">{t("cart.shipping")}</dt>
+                      <dt className="text-foreground/65">{t("cart.shipping")}</dt>
                       <dd>{shipping === 0 ? t("bf.free") : formatINR(shipping)}</dd>
                     </div>
                     {discount > 0 && (
@@ -507,7 +507,7 @@ export default function CartPage() {
                             ? t("cart.payAmount", { amount: formatINR(payable) })
                             : t("cart.placeOrder")}
                       </button>
-                      <p className="text-center text-xs text-foreground/50">
+                      <p className="text-center text-xs text-foreground/65">
                         {t("cart.securePay")}
                       </p>
                     </div>

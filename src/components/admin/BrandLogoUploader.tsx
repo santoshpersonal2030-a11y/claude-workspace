@@ -61,7 +61,7 @@ export default function BrandLogoUploader() {
           </p>
         )}
         {error && <p className="mt-2 text-sm text-maroon-700">{error}</p>}
-        <p className="mt-1 text-xs text-foreground/50">
+        <p className="mt-1 text-xs text-foreground/65">
           JPEG only. A square image works best.
         </p>
       </div>

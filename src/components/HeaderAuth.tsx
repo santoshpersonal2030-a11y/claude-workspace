@@ -108,7 +108,7 @@ export default function HeaderAuth() {
           role="menu"
           className="absolute right-0 mt-2 w-56 overflow-hidden rounded-xl border border-saffron-100 bg-white py-1 shadow-lg"
         >
-          <div className="truncate px-4 py-2 text-xs text-foreground/50">
+          <div className="truncate px-4 py-2 text-xs text-foreground/65">
             {label}
           </div>
           <Link

@@ -48,7 +48,7 @@ export default async function OrderInvoicePage({
       <div className="mb-6 flex items-center justify-between print:hidden">
         <Link
           href={`/account/orders/${order.id}`}
-          className="text-sm text-foreground/60 hover:text-saffron-700"
+          className="text-sm text-foreground/65 hover:text-saffron-700"
         >
           ← Back to order
         </Link>

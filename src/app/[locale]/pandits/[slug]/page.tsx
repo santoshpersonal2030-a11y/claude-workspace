@@ -68,7 +68,7 @@ export default async function PanditDetailPage({
       <main className="flex-1">
         <section className="bg-temple-gradient">
           <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
-            <nav className="text-sm text-foreground/60">
+            <nav className="text-sm text-foreground/65">
               <Link href="/" className="hover:text-saffron-700">
                 Home
               </Link>
@@ -101,7 +101,7 @@ export default async function PanditDetailPage({
                   <span className="text-gold-600">
                     ★ {pandit.rating.toFixed(1)}
                   </span>
-                  <span className="text-foreground/45">
+                  <span className="text-foreground/65">
                     ({pandit.reviewCount} reviews)
                   </span>
                   {pandit.verified && (
@@ -129,7 +129,7 @@ export default async function PanditDetailPage({
                     key={f.label}
                     className="rounded-2xl border border-saffron-100 bg-white p-4 shadow-sm"
                   >
-                    <div className="text-xs text-foreground/50">{f.label}</div>
+                    <div className="text-xs text-foreground/65">{f.label}</div>
                     <div className="mt-1 font-medium text-maroon-700">
                       {f.value}
                     </div>
@@ -213,7 +213,7 @@ export default async function PanditDetailPage({
                           {"★".repeat(5 - r.rating)}
                         </span>
                       </span>
-                      <span className="text-xs text-foreground/45">
+                      <span className="text-xs text-foreground/65">
                         {reviewDate(r.createdAt)}
                       </span>
                     </div>
@@ -225,7 +225,7 @@ export default async function PanditDetailPage({
                     {r.body && (
                       <p className="mt-1 text-sm text-foreground/70">{r.body}</p>
                     )}
-                    <p className="mt-2 text-xs text-foreground/50">
+                    <p className="mt-2 text-xs text-foreground/65">
                       — {r.reviewerName || "A devotee"}
                     </p>
                   </div>

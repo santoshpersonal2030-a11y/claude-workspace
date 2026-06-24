@@ -115,7 +115,7 @@ export default async function ChoghadiyaPage({
       <main className="flex-1">
         <section className="bg-temple-gradient">
           <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
-            <nav className="text-sm text-foreground/60">
+            <nav className="text-sm text-foreground/65">
               <Link href="/" className="hover:text-saffron-700">
                 {t("common.home")}
               </Link>
@@ -130,7 +130,7 @@ export default async function ChoghadiyaPage({
             </p>
 
             <form method="get" className="mt-5 flex flex-wrap items-end gap-3">
-              <label className="text-xs text-foreground/60">
+              <label className="text-xs text-foreground/65">
                 {t("astro.date")}
                 <input
                   type="date"
@@ -139,7 +139,7 @@ export default async function ChoghadiyaPage({
                   className={`block ${inputClass}`}
                 />
               </label>
-              <label className="text-xs text-foreground/60">
+              <label className="text-xs text-foreground/65">
                 {t("astro.city")}
                 <select
                   name="city"
@@ -165,13 +165,13 @@ export default async function ChoghadiyaPage({
 
         <section className="mx-auto max-w-5xl space-y-8 px-4 py-12 sm:px-6">
           {!ch ? (
-            <p className="text-foreground/60">{t("cho.fail")}</p>
+            <p className="text-foreground/65">{t("cho.fail")}</p>
           ) : (
             <>
-              <p className="text-sm text-foreground/60">{t("cho.legend")}</p>
+              <p className="text-sm text-foreground/65">{t("cho.legend")}</p>
               {renderGrid(t("cho.dayGrid"), ch.day)}
               {renderGrid(t("cho.nightGrid"), ch.night)}
-              <p className="text-xs text-foreground/45">
+              <p className="text-xs text-foreground/65">
                 {t("cho.computed1", { city })}{" "}
                 <Link href="/panchang" className="text-saffron-700 hover:underline">
                   {t("fes.noteLink")}

@@ -58,7 +58,7 @@ export default async function AdminLayout({
             )}
             <Link
               href="/"
-              className="text-sm text-foreground/60 hover:text-saffron-700"
+              className="text-sm text-foreground/65 hover:text-saffron-700"
             >
               ← Back to site
             </Link>

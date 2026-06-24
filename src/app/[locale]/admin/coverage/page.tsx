@@ -75,26 +75,26 @@ export default async function AdminCoveragePage() {
   return (
     <div>
       <h1 className="font-heading text-2xl text-maroon-800">Coverage gaps</h1>
-      <p className="mt-1 text-sm text-foreground/60">
+      <p className="mt-1 text-sm text-foreground/65">
         Pincodes customers are booking from, and whether an active Pandit serves
         them. Gaps are your recruitment targets.
       </p>
 
       <div className="mt-5 grid grid-cols-3 gap-3">
         <div className="rounded-2xl border border-saffron-100 bg-white p-4 shadow-sm">
-          <div className="text-xs text-foreground/50">Pincodes with demand</div>
+          <div className="text-xs text-foreground/65">Pincodes with demand</div>
           <div className="mt-1 font-heading text-2xl text-maroon-700">
             {rows.length}
           </div>
         </div>
         <div className="rounded-2xl border border-saffron-100 bg-white p-4 shadow-sm">
-          <div className="text-xs text-foreground/50">Uncovered pincodes</div>
+          <div className="text-xs text-foreground/65">Uncovered pincodes</div>
           <div className="mt-1 font-heading text-2xl text-maroon-700">
             {gapRows.length}
           </div>
         </div>
         <div className="rounded-2xl border border-saffron-100 bg-white p-4 shadow-sm">
-          <div className="text-xs text-foreground/50">Bookings in gaps</div>
+          <div className="text-xs text-foreground/65">Bookings in gaps</div>
           <div className="mt-1 font-heading text-2xl text-maroon-700">
             {gapDemand}
           </div>
@@ -102,13 +102,13 @@ export default async function AdminCoveragePage() {
       </div>
 
       {rows.length === 0 ? (
-        <p className="mt-8 text-sm text-foreground/55">
+        <p className="mt-8 text-sm text-foreground/65">
           No booking demand recorded yet. As customers book, this map fills in.
         </p>
       ) : (
         <div className="mt-6 overflow-hidden rounded-2xl border border-saffron-100">
           <table className="w-full text-sm">
-            <thead className="bg-cream-100 text-left text-xs text-foreground/60">
+            <thead className="bg-cream-100 text-left text-xs text-foreground/65">
               <tr>
                 <th className="px-4 py-2 font-medium">Pincode</th>
                 <th className="px-4 py-2 font-medium">Bookings</th>
@@ -125,7 +125,7 @@ export default async function AdminCoveragePage() {
                       {r.pincode}
                     </td>
                     <td className="px-4 py-2">{r.bookings}</td>
-                    <td className="px-4 py-2 text-foreground/60">
+                    <td className="px-4 py-2 text-foreground/65">
                       {r.cities.join(", ") || "—"}
                     </td>
                     <td className="px-4 py-2">

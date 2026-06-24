@@ -43,7 +43,7 @@ export default function BecomeAPanditPage() {
               >
                 <div className="text-2xl">{p.emoji}</div>
                 <h3 className="mt-2 font-medium text-maroon-700">{p.title}</h3>
-                <p className="mt-1 text-sm text-foreground/60">{p.body}</p>
+                <p className="mt-1 text-sm text-foreground/65">{p.body}</p>
               </div>
             ))}
           </div>

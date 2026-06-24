@@ -150,7 +150,7 @@ function LoginCard() {
         <h1 className="mt-3 font-heading text-2xl text-maroon-800">
           Sign in to BookMyPoojari
         </h1>
-        <p className="mt-2 text-sm text-foreground/60">
+        <p className="mt-2 text-sm text-foreground/65">
           Sign in to book a Pandit and order samagri.
         </p>
       </div>
@@ -205,7 +205,7 @@ function LoginCard() {
         Continue with Apple
       </button>
 
-      <div className="my-6 flex items-center gap-3 text-xs text-foreground/40">
+      <div className="my-6 flex items-center gap-3 text-xs text-foreground/65">
         <span className="h-px flex-1 bg-saffron-100" />
         OR
         <span className="h-px flex-1 bg-saffron-100" />
@@ -225,7 +225,7 @@ function LoginCard() {
             className={`rounded-full py-1.5 font-semibold capitalize transition-colors ${
               method === m
                 ? "bg-white text-saffron-700 shadow-sm"
-                : "text-foreground/55 hover:text-saffron-700"
+                : "text-foreground/65 hover:text-saffron-700"
             }`}
           >
             {m}
@@ -289,7 +289,7 @@ function LoginCard() {
               <button
                 type="button"
                 onClick={forgotPassword}
-                className="text-foreground/50 hover:text-saffron-700"
+                className="text-foreground/65 hover:text-saffron-700"
               >
                 Forgot password?
               </button>
@@ -302,7 +302,7 @@ function LoginCard() {
             Mobile number
           </label>
           <div className="flex items-center rounded-xl border border-saffron-200 bg-cream px-3 focus-within:border-saffron-400 focus-within:ring-2 focus-within:ring-saffron-100">
-            <span className="text-sm text-foreground/60">+91</span>
+            <span className="text-sm text-foreground/65">+91</span>
             <input
               type="tel"
               inputMode="numeric"
@@ -358,7 +358,7 @@ function LoginCard() {
         </form>
       )}
 
-      <p className="mt-6 text-center text-xs text-foreground/50">
+      <p className="mt-6 text-center text-xs text-foreground/65">
         By continuing you agree to our{" "}
         <Link href="/terms" className="text-saffron-700 hover:underline">
           Terms

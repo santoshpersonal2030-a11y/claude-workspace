@@ -58,7 +58,7 @@ export default async function PanditApplicationsPage({
       <h1 className="font-heading text-2xl text-maroon-800">
         Priest applications
       </h1>
-      <p className="mt-1 text-sm text-foreground/60">
+      <p className="mt-1 text-sm text-foreground/65">
         Review self-onboarding applications. Approving creates a verified pandit
         profile automatically.
       </p>
@@ -80,7 +80,7 @@ export default async function PanditApplicationsPage({
       </div>
 
       {(apps ?? []).length === 0 ? (
-        <p className="mt-8 text-sm text-foreground/55">
+        <p className="mt-8 text-sm text-foreground/65">
           No {filter === "all" ? "" : filter} applications.
         </p>
       ) : (
@@ -108,12 +108,12 @@ export default async function PanditApplicationsPage({
                     <h3 className="font-heading text-lg text-maroon-700">
                       {a.full_name}
                     </h3>
-                    <p className="text-sm text-foreground/60">
+                    <p className="text-sm text-foreground/65">
                       {a.phone}
                       {a.email ? ` · ${a.email}` : ""}
                       {a.city ? ` · ${a.city}` : ""}
                     </p>
-                    <p className="text-xs text-foreground/50">
+                    <p className="text-xs text-foreground/65">
                       Applied{" "}
                       {new Date(a.created_at).toLocaleDateString("en-IN", {
                         day: "numeric",
@@ -173,7 +173,7 @@ export default async function PanditApplicationsPage({
                 <p className="mt-2 text-sm text-foreground/70">{a.bio}</p>
               )}
               {a.review_notes && (
-                <p className="mt-2 text-xs text-foreground/55">
+                <p className="mt-2 text-xs text-foreground/65">
                   Note: {a.review_notes}
                 </p>
               )}
@@ -201,7 +201,7 @@ export default async function PanditApplicationsPage({
                     />
                     <button
                       type="submit"
-                      className="rounded-full border border-stone-200 px-4 py-2 text-sm text-foreground/60 hover:border-red-300 hover:text-red-600"
+                      className="rounded-full border border-stone-200 px-4 py-2 text-sm text-foreground/65 hover:border-red-300 hover:text-red-600"
                     >
                       Reject
                     </button>
@@ -225,7 +225,7 @@ function Row({
 }) {
   return (
     <div className="flex gap-2">
-      <dt className="text-foreground/50">{label}:</dt>
+      <dt className="text-foreground/65">{label}:</dt>
       <dd className="text-foreground/80">{children}</dd>
     </div>
   );

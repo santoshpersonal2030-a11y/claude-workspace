@@ -73,14 +73,14 @@ export default async function PriestPayslipsPage({
   return (
     <div>
       <h1 className="font-heading text-2xl text-maroon-800">My payslips</h1>
-      <p className="mt-1 text-sm text-foreground/60">
+      <p className="mt-1 text-sm text-foreground/65">
         Your monthly pay, computed from your compensation and completed
         ceremonies. Download a payslip for your records.
       </p>
 
       {availableFys.length > 1 && (
         <div className="mt-4 flex flex-wrap items-center gap-2">
-          <span className="text-xs text-foreground/55">Financial year:</span>
+          <span className="text-xs text-foreground/65">Financial year:</span>
           {availableFys.map((y) => (
             <Link
               key={y}
@@ -88,7 +88,7 @@ export default async function PriestPayslipsPage({
               className={`rounded-full px-3 py-1 text-xs font-semibold ${
                 y === selectedFy
                   ? "bg-maroon-700 text-white"
-                  : "border border-stone-200 text-foreground/60 hover:bg-stone-50"
+                  : "border border-stone-200 text-foreground/65 hover:bg-stone-50"
               }`}
             >
               {fyLabel(y)}
@@ -98,7 +98,7 @@ export default async function PriestPayslipsPage({
       )}
 
       {allLines.length === 0 ? (
-        <p className="mt-6 text-sm text-foreground/55">
+        <p className="mt-6 text-sm text-foreground/65">
           No payslips yet. They appear once the admin runs payroll for a month.
         </p>
       ) : (
@@ -108,7 +108,7 @@ export default async function PriestPayslipsPage({
                 <h2 className="font-heading text-lg text-maroon-800">
                   Financial year FY {fy.label}
                 </h2>
-                <span className="text-xs text-foreground/55">
+                <span className="text-xs text-foreground/65">
                   {fy.payslips} payslip{fy.payslips === 1 ? "" : "s"} ·{" "}
                   {fy.ceremonies} ceremonies
                 </span>
@@ -130,7 +130,7 @@ export default async function PriestPayslipsPage({
           <div className="mt-6 overflow-x-auto">
             <table className="w-full min-w-[640px] border-collapse text-sm">
             <thead>
-              <tr className="border-b border-saffron-200 text-left text-xs text-foreground/60">
+              <tr className="border-b border-saffron-200 text-left text-xs text-foreground/65">
                 <th className="py-2 pr-3">Period</th>
                 <th className="py-2 pr-3">Model</th>
                 <th className="py-2 pr-3 text-right">Ceremonies</th>
@@ -144,7 +144,7 @@ export default async function PriestPayslipsPage({
             <tbody>
               {lines.length === 0 && (
                 <tr>
-                  <td colSpan={8} className="py-6 text-center text-foreground/50">
+                  <td colSpan={8} className="py-6 text-center text-foreground/65">
                     No payslips in FY {fy.label}.
                   </td>
                 </tr>
@@ -159,12 +159,12 @@ export default async function PriestPayslipsPage({
                         )
                       : "—"}
                   </td>
-                  <td className="py-2 pr-3 text-xs text-foreground/60">
+                  <td className="py-2 pr-3 text-xs text-foreground/65">
                     {compModelLabel(l.model as CompModel)}
                   </td>
                   <td className="py-2 pr-3 text-right">{l.bookings_count}</td>
                   <td className="py-2 pr-3 text-right">{formatINR(l.gross)}</td>
-                  <td className="py-2 pr-3 text-right text-foreground/60">
+                  <td className="py-2 pr-3 text-right text-foreground/65">
                     {formatINR(l.deductions)}
                   </td>
                   <td className="py-2 pr-3 text-right font-semibold text-maroon-700">
@@ -176,7 +176,7 @@ export default async function PriestPayslipsPage({
                         Paid
                       </span>
                     ) : (
-                      <span className="text-[11px] text-foreground/40">
+                      <span className="text-[11px] text-foreground/65">
                         Pending
                       </span>
                     )}
@@ -220,7 +220,7 @@ function Stat({
       >
         {formatINR(value)}
       </div>
-      <div className="mt-0.5 text-[11px] text-foreground/55">{label}</div>
+      <div className="mt-0.5 text-[11px] text-foreground/65">{label}</div>
     </div>
   );
 }

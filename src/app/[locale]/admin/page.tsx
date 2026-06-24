@@ -214,7 +214,7 @@ export default async function AdminOverviewPage({
             <div className="text-3xl font-heading text-saffron-700">
               {s.value}
             </div>
-            <div className="mt-1 text-sm text-foreground/60">{s.label}</div>
+            <div className="mt-1 text-sm text-foreground/65">{s.label}</div>
           </Link>
         ))}
       </div>
@@ -240,7 +240,7 @@ export default async function AdminOverviewPage({
             defaultValue={from ?? ""}
             className="rounded-lg border border-saffron-200 bg-cream px-2 py-1"
           />
-          <span className="text-foreground/40">→</span>
+          <span className="text-foreground/65">→</span>
           <input
             type="date"
             name="to"
@@ -282,7 +282,7 @@ export default async function AdminOverviewPage({
             <div className="font-heading text-2xl text-maroon-800">
               {m.value}
             </div>
-            <div className="mt-1 text-sm text-foreground/60">{m.label}</div>
+            <div className="mt-1 text-sm text-foreground/65">{m.label}</div>
           </div>
         ))}
       </div>
@@ -302,7 +302,7 @@ export default async function AdminOverviewPage({
             ))}
           </ul>
         ) : (
-          <p className="mt-3 text-sm text-foreground/50">No sales yet.</p>
+          <p className="mt-3 text-sm text-foreground/65">No sales yet.</p>
         )}
       </div>
 
@@ -355,7 +355,7 @@ export default async function AdminOverviewPage({
             })}
           </ul>
         ) : (
-          <p className="mt-3 text-sm text-foreground/50">
+          <p className="mt-3 text-sm text-foreground/65">
             All products are well stocked. 🎉
           </p>
         )}
@@ -386,7 +386,7 @@ export default async function AdminOverviewPage({
             { label: "Exempt", value: gstr3b.exempt },
           ].map((c) => (
             <div key={c.label} className="rounded-xl bg-saffron-50 p-3">
-              <div className="text-xs text-foreground/55">{c.label}</div>
+              <div className="text-xs text-foreground/65">{c.label}</div>
               <div className="font-medium text-maroon-700">
                 {formatINR(c.value)}
               </div>
@@ -403,7 +403,7 @@ export default async function AdminOverviewPage({
         {fyRows.length ? (
           <table className="mt-3 w-full text-sm">
             <thead>
-              <tr className="border-b border-saffron-50 text-left text-foreground/55">
+              <tr className="border-b border-saffron-50 text-left text-foreground/65">
                 <th className="py-2">FY</th>
                 <th className="py-2 text-right">Store</th>
                 <th className="py-2 text-right">Bookings</th>
@@ -426,7 +426,7 @@ export default async function AdminOverviewPage({
             </tbody>
           </table>
         ) : (
-          <p className="mt-3 text-sm text-foreground/50">No revenue yet.</p>
+          <p className="mt-3 text-sm text-foreground/65">No revenue yet.</p>
         )}
       </div>
 
@@ -442,13 +442,13 @@ export default async function AdminOverviewPage({
                   <span className="text-foreground/75">
                     {b.poojas?.name ?? "Pooja"}
                   </span>
-                  <span className="text-foreground/50">
+                  <span className="text-foreground/65">
                     {b.status} · {formatINR(b.total_amount)}
                   </span>
                 </li>
               ))
             ) : (
-              <li className="py-2 text-foreground/50">No bookings yet.</li>
+              <li className="py-2 text-foreground/65">No bookings yet.</li>
             )}
           </ul>
         </div>
@@ -464,13 +464,13 @@ export default async function AdminOverviewPage({
                   <span className="text-foreground/75">
                     {o.delivery_name ?? "Customer"}
                   </span>
-                  <span className="text-foreground/50">
+                  <span className="text-foreground/65">
                     {o.status} · {formatINR(o.total_amount)}
                   </span>
                 </li>
               ))
             ) : (
-              <li className="py-2 text-foreground/50">No orders yet.</li>
+              <li className="py-2 text-foreground/65">No orders yet.</li>
             )}
           </ul>
         </div>

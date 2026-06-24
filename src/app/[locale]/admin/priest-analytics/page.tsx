@@ -21,7 +21,7 @@ function mins(v: number | null): string {
 
 // Colour the acceptance rate so problem priests stand out.
 function rateClass(v: number | null): string {
-  if (v === null) return "text-foreground/40";
+  if (v === null) return "text-foreground/65";
   if (v >= 0.8) return "text-emerald-700";
   if (v >= 0.5) return "text-amber-600";
   return "text-red-600";
@@ -59,7 +59,7 @@ export default async function PriestAnalyticsPage() {
   return (
     <div>
       <h1 className="font-heading text-2xl text-maroon-800">Priest insights</h1>
-      <p className="mt-1 text-sm text-foreground/60">
+      <p className="mt-1 text-sm text-foreground/65">
         Acceptance and response performance from the assignment log. Response
         time is measured from assignment to the priest&apos;s first reply.
       </p>
@@ -70,7 +70,7 @@ export default async function PriestAnalyticsPage() {
             key={c.label}
             className="rounded-2xl border border-saffron-100 bg-white p-4 shadow-sm"
           >
-            <p className="text-xs text-foreground/55">{c.label}</p>
+            <p className="text-xs text-foreground/65">{c.label}</p>
             <p className="mt-1 font-heading text-2xl text-maroon-700">
               {c.value}
             </p>
@@ -79,14 +79,14 @@ export default async function PriestAnalyticsPage() {
       </div>
 
       {stats.length === 0 ? (
-        <p className="mt-8 text-sm text-foreground/55">
+        <p className="mt-8 text-sm text-foreground/65">
           No assignment activity logged yet.
         </p>
       ) : (
         <div className="mt-8 overflow-x-auto rounded-2xl border border-saffron-100 bg-white shadow-sm">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-saffron-100 text-left text-xs text-foreground/55">
+              <tr className="border-b border-saffron-100 text-left text-xs text-foreground/65">
                 <th className="px-4 py-3">Priest</th>
                 <th className="px-3 py-3 text-right">Assigned</th>
                 <th className="px-3 py-3 text-right">Accepted</th>
@@ -125,10 +125,10 @@ export default async function PriestAnalyticsPage() {
                   <td className="px-3 py-3 text-right">
                     {mins(s.avgResponseMins)}
                   </td>
-                  <td className="px-3 py-3 text-right text-foreground/60">
+                  <td className="px-3 py-3 text-right text-foreground/65">
                     {mins(s.medianResponseMins)}
                   </td>
-                  <td className="px-3 py-3 text-right text-foreground/60">
+                  <td className="px-3 py-3 text-right text-foreground/65">
                     {s.pending || "—"}
                   </td>
                 </tr>

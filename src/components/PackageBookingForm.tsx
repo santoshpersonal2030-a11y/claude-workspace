@@ -114,7 +114,7 @@ export default function PackageBookingForm({
       <h3 className="font-heading text-xl text-maroon-800">
         Book the whole package
       </h3>
-      <p className="mt-1 text-sm text-foreground/60">
+      <p className="mt-1 text-sm text-foreground/65">
         Pick a date and time for each ceremony and pay once — the same trusted
         Pandit team guides your celebration.
       </p>
@@ -127,7 +127,7 @@ export default function PackageBookingForm({
           >
             <div className="font-medium text-maroon-700">
               {c.emoji} {c.name}
-              <span className="ml-2 text-xs text-foreground/50">
+              <span className="ml-2 text-xs text-foreground/65">
                 {formatINR(c.price)}
               </span>
             </div>
@@ -219,7 +219,7 @@ export default function PackageBookingForm({
       )}
 
       <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-saffron-50 pt-4">
-        <span className="text-sm text-foreground/60">
+        <span className="text-sm text-foreground/65">
           {creditApplied > 0 ? "To pay " : "Package total "}
           <span className="font-heading text-xl text-maroon-700">
             {formatINR(payable)}
@@ -239,7 +239,7 @@ export default function PackageBookingForm({
         </button>
       </div>
       {error && <p className="mt-2 text-xs text-red-600">{error}</p>}
-      <p className="mt-2 text-xs text-foreground/45">
+      <p className="mt-2 text-xs text-foreground/65">
         You&apos;ll sign in if needed. Secure payment via Razorpay; the Pandit
         confirms the muhurat for the engagement and wedding.
       </p>

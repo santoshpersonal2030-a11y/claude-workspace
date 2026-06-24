@@ -32,10 +32,10 @@ export default async function PriestLayout({
             </span>
           </div>
           <div className="flex items-center gap-4 text-sm">
-            <span className="hidden text-foreground/60 sm:inline">
+            <span className="hidden text-foreground/65 sm:inline">
               {pandit.full_name}
             </span>
-            <Link href="/" className="text-foreground/60 hover:text-saffron-700">
+            <Link href="/" className="text-foreground/65 hover:text-saffron-700">
               ← Site
             </Link>
           </div>

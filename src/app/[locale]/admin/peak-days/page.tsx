@@ -16,7 +16,7 @@ export default async function AdminPeakDaysPage() {
   return (
     <div>
       <h1 className="font-heading text-2xl text-maroon-800">Peak-day pricing</h1>
-      <p className="mt-1 text-sm text-foreground/60">
+      <p className="mt-1 text-sm text-foreground/65">
         Festival and high-demand dates that add a percentage premium to the
         dakshina. The surcharge is applied server-side at booking and shown to
         the customer; commission-based priests automatically earn more on these
@@ -28,7 +28,7 @@ export default async function AdminPeakDaysPage() {
         action={savePeakDay}
         className="mt-6 flex flex-wrap items-end gap-3 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm"
       >
-        <label className="text-xs text-foreground/60">
+        <label className="text-xs text-foreground/65">
           Date
           <input
             name="date"
@@ -38,7 +38,7 @@ export default async function AdminPeakDaysPage() {
             className={`block ${inputClass}`}
           />
         </label>
-        <label className="flex-1 text-xs text-foreground/60">
+        <label className="flex-1 text-xs text-foreground/65">
           Label
           <input
             name="label"
@@ -47,7 +47,7 @@ export default async function AdminPeakDaysPage() {
             className={`block ${inputClass}`}
           />
         </label>
-        <label className="text-xs text-foreground/60">
+        <label className="text-xs text-foreground/65">
           Surcharge %
           <input
             name="surcharge_pct"
@@ -73,7 +73,7 @@ export default async function AdminPeakDaysPage() {
       {/* Existing */}
       <div className="mt-8 space-y-2">
         {(peakDays ?? []).length === 0 && (
-          <p className="text-sm text-foreground/55">
+          <p className="text-sm text-foreground/65">
             No peak days yet. Add festival dates above.
           </p>
         )}

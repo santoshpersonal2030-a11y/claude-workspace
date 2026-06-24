@@ -50,18 +50,18 @@ export default function BookingReceipt({
             {company.name}
           </div>
           {company.addressLines.map((l) => (
-            <p key={l} className="text-xs text-foreground/55">
+            <p key={l} className="text-xs text-foreground/65">
               {l}
             </p>
           ))}
-          <p className="text-xs text-foreground/55">GSTIN: {company.gstin}</p>
+          <p className="text-xs text-foreground/65">GSTIN: {company.gstin}</p>
         </div>
         <div className="text-right text-sm">
           <div className="font-heading text-lg text-maroon-700">Receipt</div>
-          <div className="text-foreground/60">
+          <div className="text-foreground/65">
             {invoiceNumber(booking.invoice_no, booking.invoice_fy, "BKG")}
           </div>
-          <div className="text-foreground/60">
+          <div className="text-foreground/65">
             {formatDate(booking.created_at)}
           </div>
         </div>
@@ -69,7 +69,7 @@ export default function BookingReceipt({
 
       <div className="mt-6 grid grid-cols-2 gap-4 text-sm">
         <div>
-          <div className="text-foreground/55">Ceremony</div>
+          <div className="text-foreground/65">Ceremony</div>
           <div className="font-medium text-foreground">
             {booking.poojas?.name ?? "Pooja"}
           </div>
@@ -81,7 +81,7 @@ export default function BookingReceipt({
           )}
         </div>
         <div>
-          <div className="text-foreground/55">Venue</div>
+          <div className="text-foreground/65">Venue</div>
           <div className="text-foreground/70">{booking.address}</div>
           <div className="text-foreground/70">
             {[booking.city, booking.pincode].filter(Boolean).join(" · ")}
@@ -91,12 +91,12 @@ export default function BookingReceipt({
 
       <div className="mt-6 ml-auto w-56 space-y-1 text-sm">
         <div className="flex justify-between">
-          <span className="text-foreground/60">Service (dakshina)</span>
+          <span className="text-foreground/65">Service (dakshina)</span>
           <span>{formatINR(booking.service_price)}</span>
         </div>
         {booking.samagri_kit && (
           <div className="flex justify-between">
-            <span className="text-foreground/60">Samagri kit</span>
+            <span className="text-foreground/65">Samagri kit</span>
             <span>{formatINR(booking.samagri_price)}</span>
           </div>
         )}
@@ -109,13 +109,13 @@ export default function BookingReceipt({
       </div>
 
       <p className="mt-4 text-sm text-foreground/70">
-        <span className="text-foreground/55">Amount in words: </span>
+        <span className="text-foreground/65">Amount in words: </span>
         {amountInWords(booking.total_amount)}
       </p>
 
       <SignatureBlock qrDataUrl={qrDataUrl} company={company} />
 
-      <p className="mt-4 text-center text-xs text-foreground/50">
+      <p className="mt-4 text-center text-xs text-foreground/65">
         Religious services are GST-exempt · Status: {booking.status} · Thank you
         for booking with BookMyPoojari
       </p>

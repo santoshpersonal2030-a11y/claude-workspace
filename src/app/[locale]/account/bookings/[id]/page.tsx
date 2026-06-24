@@ -94,7 +94,7 @@ export default async function BookingDetailPage({
         <section className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
           <Link
             href="/account/bookings"
-            className="text-sm text-foreground/60 hover:text-saffron-700"
+            className="text-sm text-foreground/65 hover:text-saffron-700"
           >
             ← All bookings
           </Link>
@@ -106,7 +106,7 @@ export default async function BookingDetailPage({
                 <h1 className="font-heading text-3xl text-maroon-800">
                   {booking.poojas?.name ?? "Pooja"}
                 </h1>
-                <p className="mt-1 text-sm text-foreground/55">
+                <p className="mt-1 text-sm text-foreground/65">
                   Booked {formatDate(booking.created_at)} · #
                   {booking.id.slice(0, 8)}
                 </p>
@@ -130,7 +130,7 @@ export default async function BookingDetailPage({
               <dl className="mt-3 space-y-2 text-sm">
                 {rows.map((r) => (
                   <div key={r.label} className="flex justify-between gap-3">
-                    <dt className="text-foreground/55">{r.label}</dt>
+                    <dt className="text-foreground/65">{r.label}</dt>
                     <dd className="text-right font-medium text-foreground">
                       {r.value}
                     </dd>
@@ -139,7 +139,7 @@ export default async function BookingDetailPage({
               </dl>
               {booking.notes && (
                 <p className="mt-3 border-t border-saffron-50 pt-3 text-sm text-foreground/70">
-                  <span className="text-foreground/55">Notes: </span>
+                  <span className="text-foreground/65">Notes: </span>
                   {booking.notes}
                 </p>
               )}
@@ -157,12 +157,12 @@ export default async function BookingDetailPage({
               </div>
               <dl className="mt-4 space-y-1 border-t border-saffron-50 pt-3 text-sm">
                 <div className="flex justify-between">
-                  <dt className="text-foreground/60">Service (dakshina)</dt>
+                  <dt className="text-foreground/65">Service (dakshina)</dt>
                   <dd>{formatINR(booking.service_price)}</dd>
                 </div>
                 {booking.samagri_kit && (
                   <div className="flex justify-between">
-                    <dt className="text-foreground/60">Samagri kit</dt>
+                    <dt className="text-foreground/65">Samagri kit</dt>
                     <dd>{formatINR(booking.samagri_price)}</dd>
                   </div>
                 )}
@@ -180,7 +180,7 @@ export default async function BookingDetailPage({
                 />
               )}
               {booking.status === "pending" && booking.package_id && (
-                <p className="mt-3 border-t border-saffron-50 pt-3 text-xs text-foreground/55">
+                <p className="mt-3 border-t border-saffron-50 pt-3 text-xs text-foreground/65">
                   Part of a package — paid together with the other ceremonies.
                 </p>
               )}
@@ -192,7 +192,7 @@ export default async function BookingDetailPage({
               <h2 className="font-heading text-lg text-maroon-700">
                 Manage booking
               </h2>
-              <p className="mt-1 text-xs text-foreground/55">
+              <p className="mt-1 text-xs text-foreground/65">
                 Free reschedule or full refund up to {SELF_SERVE_HOURS} hours
                 before the ceremony. Closer to the date, please contact support.
               </p>
@@ -213,7 +213,7 @@ export default async function BookingDetailPage({
                   <h3 className="text-sm font-semibold text-maroon-700">
                     Reschedule
                   </h3>
-                  <label className="mt-2 block text-xs text-foreground/60">
+                  <label className="mt-2 block text-xs text-foreground/65">
                     New date
                     <input
                       type="date"
@@ -223,7 +223,7 @@ export default async function BookingDetailPage({
                       className="mt-1 w-full rounded-lg border border-saffron-200 bg-white px-2 py-1.5 text-sm outline-none focus:border-saffron-400"
                     />
                   </label>
-                  <label className="mt-2 block text-xs text-foreground/60">
+                  <label className="mt-2 block text-xs text-foreground/65">
                     New time
                     <select
                       name="time_slot"
@@ -255,7 +255,7 @@ export default async function BookingDetailPage({
                   <h3 className="text-sm font-semibold text-red-700">
                     Cancel booking
                   </h3>
-                  <p className="mt-1 flex-1 text-xs text-foreground/60">
+                  <p className="mt-1 flex-1 text-xs text-foreground/65">
                     Cancelling a paid booking refunds it in full when done at
                     least {SELF_SERVE_HOURS} hours ahead.
                   </p>
@@ -275,14 +275,14 @@ export default async function BookingDetailPage({
               <h2 className="font-heading text-lg text-maroon-700">
                 {myReview ? "Your review" : "Rate your Pandit"}
               </h2>
-              <p className="mt-1 text-xs text-foreground/55">
+              <p className="mt-1 text-xs text-foreground/65">
                 {booking.assigned?.full_name
                   ? `How was your ceremony with ${booking.assigned.full_name}?`
                   : "How was your ceremony?"}
               </p>
               <form action={submitPanditReview} className="mt-4 space-y-3">
                 <input type="hidden" name="booking_id" value={booking.id} />
-                <label className="block text-xs text-foreground/60">
+                <label className="block text-xs text-foreground/65">
                   Rating
                   <select
                     name="rating"
@@ -341,7 +341,7 @@ export default async function BookingDetailPage({
                         dispute.status === "resolved"
                           ? "text-emerald-700"
                           : dispute.status === "rejected"
-                            ? "text-foreground/50"
+                            ? "text-foreground/65"
                             : "text-amber-600"
                       }
                     >
@@ -350,7 +350,7 @@ export default async function BookingDetailPage({
                     .
                   </p>
                   {dispute.resolution_notes && (
-                    <p className="mt-1 text-xs text-foreground/55">
+                    <p className="mt-1 text-xs text-foreground/65">
                       Our response: {dispute.resolution_notes}
                     </p>
                   )}

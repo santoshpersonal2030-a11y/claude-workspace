@@ -61,7 +61,7 @@ export default function TodayPanchang() {
         <div className="flex items-center gap-2">
           <span className="text-xl">🗓️</span>
           <div>
-            <div className="text-xs text-foreground/50">
+            <div className="text-xs text-foreground/65">
               Today&apos;s Panchang · New Delhi
             </div>
             <div className="font-heading text-maroon-800">
@@ -72,7 +72,7 @@ export default function TodayPanchang() {
         <dl className="flex flex-wrap items-center gap-x-6 gap-y-1 text-sm">
           {facts.map((f) => (
             <div key={f.label} className="flex items-baseline gap-1.5">
-              <dt className="text-xs text-foreground/50">{f.label}</dt>
+              <dt className="text-xs text-foreground/65">{f.label}</dt>
               <dd className="font-medium text-maroon-700">{f.value}</dd>
             </div>
           ))}

@@ -31,7 +31,7 @@ export default async function BlogPage() {
       <main className="flex-1">
         <section className="bg-temple-gradient">
           <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
-            <nav className="text-sm text-foreground/60">
+            <nav className="text-sm text-foreground/65">
               <Link href="/" className="hover:text-saffron-700">
                 Home
               </Link>
@@ -63,7 +63,7 @@ export default async function BlogPage() {
                 <p className="mt-2 flex-1 text-sm text-foreground/65">
                   {p.excerpt}
                 </p>
-                <span className="mt-3 text-xs text-foreground/45">
+                <span className="mt-3 text-xs text-foreground/65">
                   {fmt(p.date)}
                 </span>
               </Link>

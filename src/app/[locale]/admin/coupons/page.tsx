@@ -15,7 +15,7 @@ export default async function AdminCouponsPage() {
   return (
     <div>
       <h1 className="font-heading text-2xl text-maroon-800">Coupons</h1>
-      <p className="mt-1 text-sm text-foreground/60">
+      <p className="mt-1 text-sm text-foreground/65">
         Promo codes for the samagri store. Percent or flat off, with optional
         minimum order, max discount, usage limit and expiry.
       </p>
@@ -25,34 +25,34 @@ export default async function AdminCouponsPage() {
         action={saveCoupon}
         className="mt-6 grid items-end gap-3 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm sm:grid-cols-3 lg:grid-cols-7"
       >
-        <label className="text-xs text-foreground/60">
+        <label className="text-xs text-foreground/65">
           Code
           <input name="code" required placeholder="DIWALI10" className={`mt-1 ${inputClass} uppercase`} />
         </label>
-        <label className="text-xs text-foreground/60">
+        <label className="text-xs text-foreground/65">
           Type
           <select name="type" className={`mt-1 ${inputClass}`}>
             <option value="percent">Percent %</option>
             <option value="flat">Flat ₹</option>
           </select>
         </label>
-        <label className="text-xs text-foreground/60">
+        <label className="text-xs text-foreground/65">
           Value
           <input name="value" type="number" required className={`mt-1 ${inputClass}`} />
         </label>
-        <label className="text-xs text-foreground/60">
+        <label className="text-xs text-foreground/65">
           Min order ₹
           <input name="min_order" type="number" defaultValue={0} className={`mt-1 ${inputClass}`} />
         </label>
-        <label className="text-xs text-foreground/60">
+        <label className="text-xs text-foreground/65">
           Max disc ₹
           <input name="max_discount" type="number" placeholder="—" className={`mt-1 ${inputClass}`} />
         </label>
-        <label className="text-xs text-foreground/60">
+        <label className="text-xs text-foreground/65">
           Usage limit
           <input name="usage_limit" type="number" placeholder="∞" className={`mt-1 ${inputClass}`} />
         </label>
-        <label className="text-xs text-foreground/60">
+        <label className="text-xs text-foreground/65">
           Expires
           <input name="expires_at" type="date" className={`mt-1 ${inputClass}`} />
         </label>
@@ -70,7 +70,7 @@ export default async function AdminCouponsPage() {
       {/* Existing */}
       <div className="mt-8 space-y-2">
         {(coupons ?? []).length === 0 && (
-          <p className="text-sm text-foreground/50">No coupons yet.</p>
+          <p className="text-sm text-foreground/65">No coupons yet.</p>
         )}
         {coupons?.map((c) => (
           <div
@@ -84,7 +84,7 @@ export default async function AdminCouponsPage() {
               {c.type === "percent" ? `${c.value}% off` : `${formatINR(c.value)} off`}
               {c.max_discount ? ` (max ${formatINR(c.max_discount)})` : ""}
             </span>
-            <span className="text-xs text-foreground/50">
+            <span className="text-xs text-foreground/65">
               {c.min_order > 0 ? `min ${formatINR(c.min_order)} · ` : ""}
               used {c.used_count}
               {c.usage_limit ? `/${c.usage_limit}` : ""}
@@ -103,7 +103,7 @@ export default async function AdminCouponsPage() {
               <input type="hidden" name="code" value={c.code} />
               <button
                 type="submit"
-                className="rounded-full border border-stone-200 px-3 py-1 text-xs text-foreground/60 hover:border-red-300 hover:text-red-600"
+                className="rounded-full border border-stone-200 px-3 py-1 text-xs text-foreground/65 hover:border-red-300 hover:text-red-600"
               >
                 Delete
               </button>

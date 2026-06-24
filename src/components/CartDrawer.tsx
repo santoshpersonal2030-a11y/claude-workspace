@@ -93,7 +93,7 @@ export default function CartDrawer() {
             ref={closeRef}
             type="button"
             onClick={closeCart}
-            className="flex h-8 w-8 items-center justify-center rounded-full text-foreground/60 hover:bg-saffron-50"
+            className="flex h-8 w-8 items-center justify-center rounded-full text-foreground/65 hover:bg-saffron-50"
             aria-label={t("cart.closeCart")}
           >
             ✕
@@ -132,7 +132,7 @@ export default function CartDrawer() {
                       >
                         {item.name}
                       </Link>
-                      <div className="mt-0.5 text-xs text-foreground/55">
+                      <div className="mt-0.5 text-xs text-foreground/65">
                         {formatINR(item.price)}
                       </div>
                       <div className="mt-2 flex items-center gap-2">
@@ -158,7 +158,7 @@ export default function CartDrawer() {
                         <button
                           type="button"
                           onClick={() => remove(item.slug)}
-                          className="ml-auto text-xs text-foreground/45 hover:text-maroon-600"
+                          className="ml-auto text-xs text-foreground/65 hover:text-maroon-600"
                         >
                           {t("cart.remove")}
                         </button>
@@ -174,12 +174,12 @@ export default function CartDrawer() {
 
             <footer className="border-t border-saffron-100 px-5 py-4">
               <div className="flex items-center justify-between text-sm">
-                <span className="text-foreground/60">{t("cart.subtotal")}</span>
+                <span className="text-foreground/65">{t("cart.subtotal")}</span>
                 <span className="font-heading text-lg text-saffron-700">
                   {formatINR(subtotal)}
                 </span>
               </div>
-              <p className="mt-1 text-xs text-foreground/50">
+              <p className="mt-1 text-xs text-foreground/65">
                 {t("cart.shippingNote")}
               </p>
               <Link

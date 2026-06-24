@@ -96,7 +96,7 @@ export default async function PayrollRunDetailPage({
                 className={`rounded-full px-3 py-1.5 text-xs font-semibold ${
                   run.status === s
                     ? "bg-maroon-700 text-white"
-                    : "border border-stone-200 text-foreground/60 hover:bg-stone-50"
+                    : "border border-stone-200 text-foreground/65 hover:bg-stone-50"
                 }`}
               >
                 {s}
@@ -106,14 +106,14 @@ export default async function PayrollRunDetailPage({
         </div>
       </div>
 
-      <p className="mt-1 text-sm text-foreground/60">
+      <p className="mt-1 text-sm text-foreground/65">
         {lines.length} priests · {paidCount} paid · Gross {formatINR(totalGross)}{" "}
         · Deductions {formatINR(totalDed)} ·{" "}
         <span className="font-semibold text-maroon-700">
           Net payable {formatINR(totalNet)}
         </span>
       </p>
-      <p className="mt-0.5 text-xs text-foreground/45">
+      <p className="mt-0.5 text-xs text-foreground/65">
         Employer cost on top: PF {formatINR(totalEmployerPf)} · gratuity accrual{" "}
         {formatINR(totalGratuity)}
       </p>
@@ -121,7 +121,7 @@ export default async function PayrollRunDetailPage({
       <div className="mt-6 overflow-x-auto">
         <table className="w-full min-w-[820px] border-collapse text-sm">
           <thead>
-            <tr className="border-b border-saffron-200 text-left text-xs text-foreground/60">
+            <tr className="border-b border-saffron-200 text-left text-xs text-foreground/65">
               <th className="py-2 pr-3">Priest</th>
               <th className="py-2 pr-3">Model</th>
               <th className="py-2 pr-3 text-right">Bookings</th>
@@ -135,7 +135,7 @@ export default async function PayrollRunDetailPage({
           <tbody>
             {lines.length === 0 && (
               <tr>
-                <td colSpan={8} className="py-6 text-center text-foreground/50">
+                <td colSpan={8} className="py-6 text-center text-foreground/65">
                   No lines yet — use “Recompute unpaid”, or add active priests.
                 </td>
               </tr>
@@ -148,12 +148,12 @@ export default async function PayrollRunDetailPage({
                 <td className="py-2 pr-3 font-medium text-maroon-800">
                   {nameById.get(l.pandit_id) ?? "—"}
                 </td>
-                <td className="py-2 pr-3 text-xs text-foreground/60">
+                <td className="py-2 pr-3 text-xs text-foreground/65">
                   {compModelLabel(l.model as CompModel)}
                 </td>
                 <td className="py-2 pr-3 text-right">{l.bookings_count}</td>
                 <td className="py-2 pr-3 text-right">{formatINR(l.gross)}</td>
-                <td className="py-2 pr-3 text-right text-foreground/60">
+                <td className="py-2 pr-3 text-right text-foreground/65">
                   {formatINR(l.deductions)}
                 </td>
                 <td className="py-2 pr-3 text-right font-semibold text-maroon-700">
@@ -165,7 +165,7 @@ export default async function PayrollRunDetailPage({
                       Paid{l.payment_ref ? ` · ${l.payment_ref}` : ""}
                     </span>
                   ) : (
-                    <span className="text-[11px] text-foreground/40">
+                    <span className="text-[11px] text-foreground/65">
                       Pending
                     </span>
                   )}

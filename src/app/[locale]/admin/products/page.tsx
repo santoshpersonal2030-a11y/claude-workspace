@@ -24,7 +24,7 @@ export default async function AdminProductsPage() {
   return (
     <div>
       <h1 className="font-heading text-2xl text-maroon-800">Products</h1>
-      <p className="mt-1 text-sm text-foreground/60">
+      <p className="mt-1 text-sm text-foreground/65">
         Edit a row and press Save. Uncheck Active to hide an item from the
         store.
       </p>
@@ -88,7 +88,7 @@ export default async function AdminProductsPage() {
             placeholder="Image URL (optional)"
             className={`${inputClass} sm:col-span-2 lg:col-span-2`}
           />
-          <label className="flex items-center text-xs text-foreground/60">
+          <label className="flex items-center text-xs text-foreground/65">
             <span className="mr-2">or upload:</span>
             <input
               name="image"
@@ -173,7 +173,7 @@ export default async function AdminProductsPage() {
               defaultValue={p.stock}
               className={inputClass}
             />
-            <div className="flex items-center gap-2 text-xs text-foreground/55 sm:col-span-6">
+            <div className="flex items-center gap-2 text-xs text-foreground/65 sm:col-span-6">
               <span>GST %</span>
               <input
                 name="gst_rate"

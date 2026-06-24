@@ -61,7 +61,7 @@ export default async function BlogPostPage({
       <Header />
       <main className="flex-1">
         <article className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
-          <nav className="text-sm text-foreground/60">
+          <nav className="text-sm text-foreground/65">
             <Link href="/blog" className="hover:text-saffron-700">
               ← Blog
             </Link>

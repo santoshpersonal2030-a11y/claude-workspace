@@ -33,7 +33,7 @@ export default async function PoojasPage({
       <main className="flex-1">
         <section className="bg-temple-gradient">
           <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
-            <nav className="text-sm text-foreground/60">
+            <nav className="text-sm text-foreground/65">
               <span>{t("common.home")}</span>
               <span className="mx-2">/</span>
               <span className="text-saffron-700">{t("nav.bookPooja")}</span>

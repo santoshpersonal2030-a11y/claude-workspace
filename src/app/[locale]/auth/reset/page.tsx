@@ -52,7 +52,7 @@ export default function ResetPasswordPage() {
             Password updated — taking you to your account…
           </p>
         ) : !ready ? (
-          <p className="mt-6 text-center text-sm text-foreground/60">
+          <p className="mt-6 text-center text-sm text-foreground/65">
             Open this page from the reset link in your email. If you got here by
             mistake, request a new link from the login page.
           </p>

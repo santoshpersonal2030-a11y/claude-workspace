@@ -129,7 +129,7 @@ export default async function AdminBookingsPage({
               className={`rounded-full px-3 py-1 text-xs font-semibold ${
                 activeResp === c.key || (!activeResp && c.key === null)
                   ? "bg-maroon-700 text-white"
-                  : "border border-stone-200 text-foreground/60 hover:bg-stone-50"
+                  : "border border-stone-200 text-foreground/65 hover:bg-stone-50"
               }`}
             >
               {c.label}
@@ -149,7 +149,7 @@ export default async function AdminBookingsPage({
                     <div className="font-medium text-maroon-700">
                       {b.poojas?.name ?? "Pooja"}
                     </div>
-                    <div className="text-xs text-foreground/55">
+                    <div className="text-xs text-foreground/65">
                       {formatDate(b.booking_date)} · {b.time_slot}
                       {b.city ? ` · ${b.city}` : ""}
                       {b.preferred?.full_name
@@ -197,7 +197,7 @@ export default async function AdminBookingsPage({
                                 </button>
                               </form>
                             ) : (
-                              <span className="text-[11px] font-normal text-foreground/45">
+                              <span className="text-[11px] font-normal text-foreground/65">
                                 nudged {agoLabel}
                               </span>
                             )}
@@ -249,7 +249,7 @@ export default async function AdminBookingsPage({
                 >
                   <input type="hidden" name="id" value={b.id} />
                   <input type="hidden" name="current_status" value={b.status} />
-                  <span className="text-xs font-medium text-foreground/50">
+                  <span className="text-xs font-medium text-foreground/65">
                     Assign Pandit
                   </span>
                   <select
@@ -279,7 +279,7 @@ export default async function AdminBookingsPage({
                   className="mt-2 flex flex-wrap items-center gap-2 border-t border-saffron-50 pt-2"
                 >
                   <input type="hidden" name="id" value={b.id} />
-                  <span className="text-xs font-medium text-foreground/50">
+                  <span className="text-xs font-medium text-foreground/65">
                     Confirm time
                   </span>
                   <select
@@ -320,7 +320,7 @@ export default async function AdminBookingsPage({
               </div>
             ))
           ) : (
-            <p className="text-sm text-foreground/55">
+            <p className="text-sm text-foreground/65">
               {activeResp ? "No bookings in this state." : "No bookings yet."}
             </p>
           )}
@@ -348,7 +348,7 @@ export default async function AdminBookingsPage({
           action={bulkGenerateEInvoicesAction}
           className="mt-4 flex items-center gap-3 rounded-xl border border-saffron-100 bg-saffron-50/40 px-3 py-2"
         >
-          <span className="text-xs text-foreground/60">
+          <span className="text-xs text-foreground/65">
             Select orders, then:
           </span>
           <button
@@ -381,12 +381,12 @@ export default async function AdminBookingsPage({
                     <div className="font-medium text-maroon-700">
                       {o.delivery_name ?? "Customer"}
                       {o.delivery_phone ? (
-                        <span className="ml-2 text-xs text-foreground/50">
+                        <span className="ml-2 text-xs text-foreground/65">
                           {o.delivery_phone}
                         </span>
                       ) : null}
                     </div>
-                    <div className="text-xs text-foreground/55">
+                    <div className="text-xs text-foreground/65">
                       {formatDate(o.created_at)} ·{" "}
                       {o.order_items
                         .map((i) => `${i.product_name} ×${i.quantity}`)
@@ -417,7 +417,7 @@ export default async function AdminBookingsPage({
                     Update
                   </button>
                 </div>
-                <div className="mt-2 flex flex-wrap items-center gap-2 border-t border-saffron-50 pt-2 text-xs text-foreground/55">
+                <div className="mt-2 flex flex-wrap items-center gap-2 border-t border-saffron-50 pt-2 text-xs text-foreground/65">
                   <select
                     name="carrier"
                     defaultValue={o.carrier ?? ""}
@@ -453,7 +453,7 @@ export default async function AdminBookingsPage({
               </form>
             ))
           ) : (
-            <p className="text-sm text-foreground/55">No orders yet.</p>
+            <p className="text-sm text-foreground/65">No orders yet.</p>
           )}
         </div>
       </section>

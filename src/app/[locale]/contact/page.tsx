@@ -40,14 +40,14 @@ export default function ContactPage() {
                 >
                   <span className="text-2xl">{c.icon}</span>
                   <div>
-                    <div className="text-xs text-foreground/50">{c.label}</div>
+                    <div className="text-xs text-foreground/65">{c.label}</div>
                     <div className="mt-0.5 font-medium text-maroon-700">
                       {c.value}
                     </div>
                   </div>
                 </div>
               ))}
-              <p className="px-1 text-sm text-foreground/60">
+              <p className="px-1 text-sm text-foreground/65">
                 Are you a Pandit interested in joining our verified network? Send
                 us a message with your experience and city — we&apos;ll be in
                 touch.

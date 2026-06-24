@@ -34,7 +34,7 @@ export default function NotFound() {
               </Link>
             </div>
 
-            <div className="mt-10 text-sm text-foreground/60">
+            <div className="mt-10 text-sm text-foreground/65">
               Or visit the{" "}
               <Link href="/store" className="font-semibold text-saffron-700 hover:text-saffron-800">
                 Samagri Store

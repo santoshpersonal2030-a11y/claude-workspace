@@ -23,7 +23,7 @@ export default async function AdminSettingsPage() {
         <h2 className="font-heading text-lg text-maroon-700">
           Business details
         </h2>
-        <p className="mt-1 text-sm text-foreground/60">
+        <p className="mt-1 text-sm text-foreground/65">
           Shown as the seller on tax invoices, receipts and credit notes. Saved
           to the database — no redeploy needed. Blank fields fall back to the
           build-time defaults.
@@ -121,7 +121,7 @@ export default async function AdminSettingsPage() {
       {/* Brand logo */}
       <div className="rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm">
         <h2 className="font-heading text-lg text-maroon-700">Brand logo</h2>
-        <p className="mt-1 text-sm text-foreground/60">
+        <p className="mt-1 text-sm text-foreground/65">
           Shown on invoices, receipts and credit notes (PDF and on-screen).
         </p>
         <div className="mt-4">

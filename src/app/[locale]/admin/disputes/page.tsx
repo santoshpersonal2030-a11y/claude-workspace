@@ -45,7 +45,7 @@ export default async function AdminDisputesPage({
   return (
     <div>
       <h1 className="font-heading text-2xl text-maroon-800">Disputes</h1>
-      <p className="mt-1 text-sm text-foreground/60">
+      <p className="mt-1 text-sm text-foreground/65">
         Customer-raised issues on bookings. Resolve or reject with a note; for a
         goodwill refund use &ldquo;Refund as store credit&rdquo; on the order.
       </p>
@@ -67,7 +67,7 @@ export default async function AdminDisputesPage({
       </div>
 
       {(disputes ?? []).length === 0 ? (
-        <p className="mt-8 text-sm text-foreground/55">No {filter === "all" ? "" : filter} disputes.</p>
+        <p className="mt-8 text-sm text-foreground/65">No {filter === "all" ? "" : filter} disputes.</p>
       ) : (
         <div className="mt-6 space-y-4">
           {disputes!.map((d) => (
@@ -79,7 +79,7 @@ export default async function AdminDisputesPage({
                 <span className="font-medium text-maroon-700">
                   {CATEGORY_LABEL[d.category] ?? d.category}
                 </span>
-                <span className="text-sm text-foreground/55">
+                <span className="text-sm text-foreground/65">
                   {d.bookings?.poojas?.name ?? "Booking"}
                   {d.bookings?.booking_date
                     ? ` · ${new Date(d.bookings.booking_date).toLocaleDateString("en-IN")}`
@@ -106,7 +106,7 @@ export default async function AdminDisputesPage({
                 </p>
               )}
               {d.resolution_notes && (
-                <p className="mt-2 text-xs text-foreground/55">
+                <p className="mt-2 text-xs text-foreground/65">
                   Resolution: {d.resolution_notes}
                 </p>
               )}
@@ -134,7 +134,7 @@ export default async function AdminDisputesPage({
                     type="submit"
                     name="status"
                     value="rejected"
-                    className="rounded-full border border-stone-200 px-4 py-1.5 text-sm text-foreground/60 hover:border-red-300 hover:text-red-600"
+                    className="rounded-full border border-stone-200 px-4 py-1.5 text-sm text-foreground/65 hover:border-red-300 hover:text-red-600"
                   >
                     Reject
                   </button>

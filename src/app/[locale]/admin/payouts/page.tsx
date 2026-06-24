@@ -47,7 +47,7 @@ export default async function AdminPayoutsPage() {
   return (
     <div>
       <h1 className="font-heading text-2xl text-maroon-800">Payouts</h1>
-      <p className="mt-1 text-sm text-foreground/60">
+      <p className="mt-1 text-sm text-foreground/65">
         Priest bank details for RazorpayX payouts. Trigger payments per payslip
         from a payroll run. Bank details are private and never shown publicly.
       </p>
@@ -121,7 +121,7 @@ export default async function AdminPayoutsPage() {
           );
         })}
         {(pandits ?? []).length === 0 && (
-          <p className="text-sm text-foreground/50">No active priests.</p>
+          <p className="text-sm text-foreground/65">No active priests.</p>
         )}
       </div>
 
@@ -130,12 +130,12 @@ export default async function AdminPayoutsPage() {
         Recent payouts
       </h2>
       {(payouts ?? []).length === 0 ? (
-        <p className="mt-3 text-sm text-foreground/55">No payouts yet.</p>
+        <p className="mt-3 text-sm text-foreground/65">No payouts yet.</p>
       ) : (
         <div className="mt-3 overflow-hidden rounded-2xl border border-saffron-100 bg-white shadow-sm">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-saffron-100 text-left text-xs text-foreground/55">
+              <tr className="border-b border-saffron-100 text-left text-xs text-foreground/65">
                 <th className="px-4 py-2">Date</th>
                 <th className="px-3 py-2">Priest</th>
                 <th className="px-3 py-2 text-right">Amount</th>
@@ -146,7 +146,7 @@ export default async function AdminPayoutsPage() {
             <tbody>
               {payouts!.map((po) => (
                 <tr key={po.id} className="border-b border-saffron-50 last:border-0">
-                  <td className="px-4 py-2 text-xs text-foreground/60">
+                  <td className="px-4 py-2 text-xs text-foreground/65">
                     {new Date(po.created_at).toLocaleDateString("en-IN")}
                   </td>
                   <td className="px-3 py-2">
@@ -164,7 +164,7 @@ export default async function AdminPayoutsPage() {
                       {po.status}
                     </span>
                   </td>
-                  <td className="px-3 py-2 text-xs text-foreground/60">
+                  <td className="px-3 py-2 text-xs text-foreground/65">
                     {po.utr || po.failure_reason || "—"}
                   </td>
                 </tr>

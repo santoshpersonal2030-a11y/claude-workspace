@@ -33,7 +33,7 @@ export default function HomeHero() {
           {t("common.shopSamagri")}
         </Link>
       </div>
-      <p className="mt-4 text-sm text-foreground/60">{t("home.heroRating")}</p>
+      <p className="mt-4 text-sm text-foreground/65">{t("home.heroRating")}</p>
     </div>
   );
 }

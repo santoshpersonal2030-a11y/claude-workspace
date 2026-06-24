@@ -44,12 +44,12 @@ export default async function AdminSupportPage({
   return (
     <div>
       <h1 className="font-heading text-2xl text-maroon-800">Support inbox</h1>
-      <p className="mt-1 text-sm text-foreground/60">
+      <p className="mt-1 text-sm text-foreground/65">
         Booking conversations with customers and pandits.
       </p>
 
       {ids.length === 0 ? (
-        <p className="mt-8 text-sm text-foreground/55">No conversations yet.</p>
+        <p className="mt-8 text-sm text-foreground/65">No conversations yet.</p>
       ) : (
         <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_1.4fr]">
           <div className="space-y-1">
@@ -70,11 +70,11 @@ export default async function AdminSupportPage({
                     <span className="font-medium text-maroon-700">
                       {bk?.poojas?.name ?? "Booking"}
                     </span>
-                    <span className="text-[10px] text-foreground/40">
+                    <span className="text-[10px] text-foreground/65">
                       {new Date(t.created_at).toLocaleDateString("en-IN")}
                     </span>
                   </div>
-                  <p className="line-clamp-1 text-xs text-foreground/55">
+                  <p className="line-clamp-1 text-xs text-foreground/65">
                     <span className="capitalize">{t.sender_role}</span>: {t.body}
                   </p>
                 </Link>

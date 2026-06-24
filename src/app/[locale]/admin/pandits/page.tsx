@@ -15,7 +15,7 @@ export default async function AdminPanditsPage() {
   return (
     <div>
       <h1 className="font-heading text-2xl text-maroon-800">Pandits</h1>
-      <p className="mt-1 text-sm text-foreground/60">
+      <p className="mt-1 text-sm text-foreground/65">
         Manage the verified roster. Languages, regions and specializations are
         comma-separated. The tier badge is derived automatically from years of
         experience (Pandit &lt;5 · Acharya 5–15 · Vidwan 16+).
@@ -98,7 +98,7 @@ export default async function AdminPanditsPage() {
             placeholder="Short bio"
             className={`${inputClass} sm:col-span-2`}
           />
-          <label className="text-xs text-foreground/60 sm:col-span-1">
+          <label className="text-xs text-foreground/65 sm:col-span-1">
             Photo
             <input
               name="photo"
@@ -230,7 +230,7 @@ export default async function AdminPanditsPage() {
               />
             </div>
             <div className="grid gap-2 sm:col-span-full sm:grid-cols-[auto_auto_1fr]">
-              <label className="flex items-center gap-1 text-xs text-foreground/60">
+              <label className="flex items-center gap-1 text-xs text-foreground/65">
                 Works
                 <input
                   name="work_start"
@@ -240,7 +240,7 @@ export default async function AdminPanditsPage() {
                   className={inputClass}
                 />
               </label>
-              <label className="flex items-center gap-1 text-xs text-foreground/60">
+              <label className="flex items-center gap-1 text-xs text-foreground/65">
                 to
                 <input
                   name="work_end"
@@ -259,7 +259,7 @@ export default async function AdminPanditsPage() {
               />
             </div>
             <div className="grid gap-2 sm:col-span-full sm:grid-cols-[auto_1fr_1fr]">
-              <label className="flex flex-col gap-1 text-xs text-foreground/60">
+              <label className="flex flex-col gap-1 text-xs text-foreground/65">
                 Photo
                 <input
                   name="photo"

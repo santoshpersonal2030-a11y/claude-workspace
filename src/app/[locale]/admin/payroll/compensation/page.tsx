@@ -38,7 +38,7 @@ export default async function AdminCompensationPage() {
           ← Payroll runs
         </Link>
       </div>
-      <p className="mt-1 text-sm text-foreground/60">
+      <p className="mt-1 text-sm text-foreground/65">
         Mix and match how each priest is paid. Components combine freely — set a
         salary, a commission %, a consultant retainer or just let them keep the
         dakshina. PF &amp; gratuity follow Indian statutory defaults and are
@@ -63,12 +63,12 @@ export default async function AdminCompensationPage() {
                 <h2 className="font-heading text-lg text-maroon-700">
                   {p.full_name}
                   {!p.active && (
-                    <span className="ml-2 text-xs text-foreground/40">
+                    <span className="ml-2 text-xs text-foreground/65">
                       (inactive)
                     </span>
                   )}
                 </h2>
-                <span className="text-xs text-foreground/60">
+                <span className="text-xs text-foreground/65">
                   Fixed monthly (no bookings):{" "}
                   <span className="font-semibold text-maroon-700">
                     {formatINR(preview.netPay)}
@@ -78,7 +78,7 @@ export default async function AdminCompensationPage() {
               </div>
 
               <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                <label className="text-xs text-foreground/60">
+                <label className="text-xs text-foreground/65">
                   Model
                   <select
                     name="model"
@@ -92,7 +92,7 @@ export default async function AdminCompensationPage() {
                     ))}
                   </select>
                 </label>
-                <label className="text-xs text-foreground/60">
+                <label className="text-xs text-foreground/65">
                   Base salary (₹/mo)
                   <input
                     name="base_salary"
@@ -101,7 +101,7 @@ export default async function AdminCompensationPage() {
                     className={inputClass}
                   />
                 </label>
-                <label className="text-xs text-foreground/60">
+                <label className="text-xs text-foreground/65">
                   Travel allowance (₹/mo)
                   <input
                     name="travel_allowance"
@@ -110,7 +110,7 @@ export default async function AdminCompensationPage() {
                     className={inputClass}
                   />
                 </label>
-                <label className="text-xs text-foreground/60">
+                <label className="text-xs text-foreground/65">
                   Commission %
                   <input
                     name="commission_pct"
@@ -120,7 +120,7 @@ export default async function AdminCompensationPage() {
                     className={inputClass}
                   />
                 </label>
-                <label className="text-xs text-foreground/60">
+                <label className="text-xs text-foreground/65">
                   Commission basis
                   <select
                     name="commission_basis"
@@ -131,7 +131,7 @@ export default async function AdminCompensationPage() {
                     <option value="total">Total booking</option>
                   </select>
                 </label>
-                <label className="text-xs text-foreground/60">
+                <label className="text-xs text-foreground/65">
                   Consultant fee (₹/mo)
                   <input
                     name="consultant_fee"
@@ -140,7 +140,7 @@ export default async function AdminCompensationPage() {
                     className={inputClass}
                   />
                 </label>
-                <label className="text-xs text-foreground/60">
+                <label className="text-xs text-foreground/65">
                   Incentive per booking (₹)
                   <input
                     name="incentive_per_booking"
@@ -161,7 +161,7 @@ export default async function AdminCompensationPage() {
                   />
                   Provident Fund
                 </label>
-                <label className="text-xs text-foreground/60">
+                <label className="text-xs text-foreground/65">
                   PF employee %
                   <input
                     name="pf_employee_pct"
@@ -171,7 +171,7 @@ export default async function AdminCompensationPage() {
                     className={inputClass}
                   />
                 </label>
-                <label className="text-xs text-foreground/60">
+                <label className="text-xs text-foreground/65">
                   PF employer %
                   <input
                     name="pf_employer_pct"
@@ -181,7 +181,7 @@ export default async function AdminCompensationPage() {
                     className={inputClass}
                   />
                 </label>
-                <label className="text-xs text-foreground/60">
+                <label className="text-xs text-foreground/65">
                   PF wage ceiling (₹, 0=none)
                   <input
                     name="pf_wage_ceiling"
@@ -198,7 +198,7 @@ export default async function AdminCompensationPage() {
                   />
                   Gratuity accrual
                 </label>
-                <label className="text-xs text-foreground/60">
+                <label className="text-xs text-foreground/65">
                   Gratuity %
                   <input
                     name="gratuity_pct"

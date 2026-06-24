@@ -52,7 +52,7 @@ export default async function SubscriptionsPage() {
           {/* Existing subscriptions */}
           <div className="mt-8 space-y-3">
             {(subs ?? []).length === 0 ? (
-              <p className="text-sm text-foreground/55">
+              <p className="text-sm text-foreground/65">
                 No recurring poojas yet — add one below.
               </p>
             ) : (
@@ -66,7 +66,7 @@ export default async function SubscriptionsPage() {
                     <div className="font-heading text-lg text-maroon-700">
                       {s.poojas?.name ?? "Pooja"}
                     </div>
-                    <div className="text-xs text-foreground/55">
+                    <div className="text-xs text-foreground/65">
                       {cadenceLabel(s.cadence as Cadence, s.anchor_day)} ·{" "}
                       {s.time_slot} · next {s.next_run}
                       {s.city ? ` · ${s.city}` : ""}
@@ -99,7 +99,7 @@ export default async function SubscriptionsPage() {
                     <input type="hidden" name="id" value={s.id} />
                     <button
                       type="submit"
-                      className="rounded-full border border-stone-200 px-3 py-1 text-xs text-foreground/60 hover:border-red-300 hover:text-red-600"
+                      className="rounded-full border border-stone-200 px-3 py-1 text-xs text-foreground/65 hover:border-red-300 hover:text-red-600"
                     >
                       Cancel
                     </button>
@@ -118,7 +118,7 @@ export default async function SubscriptionsPage() {
               Add a recurring pooja
             </h2>
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
-              <label className="text-xs text-foreground/60">
+              <label className="text-xs text-foreground/65">
                 Pooja
                 <select name="pooja_id" required className={`mt-1 ${inputClass}`}>
                   {(poojaOptions ?? []).map((p) => (
@@ -128,14 +128,14 @@ export default async function SubscriptionsPage() {
                   ))}
                 </select>
               </label>
-              <label className="text-xs text-foreground/60">
+              <label className="text-xs text-foreground/65">
                 Repeats
                 <select name="cadence" className={`mt-1 ${inputClass}`}>
                   <option value="monthly">Monthly</option>
                   <option value="weekly">Weekly</option>
                 </select>
               </label>
-              <label className="text-xs text-foreground/60">
+              <label className="text-xs text-foreground/65">
                 If monthly — day of month
                 <select name="monthday" defaultValue="1" className={`mt-1 ${inputClass}`}>
                   {Array.from({ length: 28 }, (_, i) => i + 1).map((d) => (
@@ -145,7 +145,7 @@ export default async function SubscriptionsPage() {
                   ))}
                 </select>
               </label>
-              <label className="text-xs text-foreground/60">
+              <label className="text-xs text-foreground/65">
                 If weekly — weekday
                 <select name="weekday" defaultValue="1" className={`mt-1 ${inputClass}`}>
                   {WEEKDAY_NAMES.map((w, i) => (
@@ -155,7 +155,7 @@ export default async function SubscriptionsPage() {
                   ))}
                 </select>
               </label>
-              <label className="text-xs text-foreground/60">
+              <label className="text-xs text-foreground/65">
                 Time
                 <select name="time_slot" required className={`mt-1 ${inputClass}`}>
                   {timeSlots.map((t) => (
@@ -165,7 +165,7 @@ export default async function SubscriptionsPage() {
                   ))}
                 </select>
               </label>
-              <label className="text-xs text-foreground/60">
+              <label className="text-xs text-foreground/65">
                 Language
                 <select name="language" className={`mt-1 ${inputClass}`}>
                   <option value="">—</option>
@@ -176,7 +176,7 @@ export default async function SubscriptionsPage() {
                   ))}
                 </select>
               </label>
-              <label className="text-xs text-foreground/60 sm:col-span-2">
+              <label className="text-xs text-foreground/65 sm:col-span-2">
                 Address
                 <textarea
                   name="address"
@@ -185,11 +185,11 @@ export default async function SubscriptionsPage() {
                   className={`mt-1 ${inputClass}`}
                 />
               </label>
-              <label className="text-xs text-foreground/60">
+              <label className="text-xs text-foreground/65">
                 City
                 <input name="city" required className={`mt-1 ${inputClass}`} />
               </label>
-              <label className="text-xs text-foreground/60">
+              <label className="text-xs text-foreground/65">
                 Pincode
                 <input name="pincode" className={`mt-1 ${inputClass}`} />
               </label>

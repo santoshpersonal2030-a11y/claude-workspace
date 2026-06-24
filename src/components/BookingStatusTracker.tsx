@@ -42,7 +42,7 @@ export default function BookingStatusTracker({ status }: { status: string }) {
               </div>
               <span
                 className={`mt-1 text-[11px] ${
-                  done ? "text-maroon-700" : "text-foreground/40"
+                  done ? "text-maroon-700" : "text-foreground/65"
                 }`}
               >
                 {LABELS[step]}

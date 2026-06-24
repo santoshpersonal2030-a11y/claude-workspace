@@ -25,7 +25,7 @@ export default async function AdminTeamPage() {
   return (
     <div>
       <h1 className="font-heading text-2xl text-maroon-800">Team & roles</h1>
-      <p className="mt-1 text-sm text-foreground/60">
+      <p className="mt-1 text-sm text-foreground/65">
         Grant console access by email and pick a role. The person must have
         signed in at least once so their account exists.
       </p>
@@ -40,7 +40,7 @@ export default async function AdminTeamPage() {
             <p className="text-sm font-semibold text-maroon-700">
               {ROLE_LABEL[r]}
             </p>
-            <p className="mt-1 text-xs text-foreground/55">
+            <p className="mt-1 text-xs text-foreground/65">
               {ROLE_DESCRIPTION[r]}
             </p>
           </div>
@@ -52,7 +52,7 @@ export default async function AdminTeamPage() {
         action={saveAdminMember}
         className="mt-6 flex flex-wrap items-end gap-3 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm"
       >
-        <label className="text-xs text-foreground/60">
+        <label className="text-xs text-foreground/65">
           Email
           <input
             name="email"
@@ -62,7 +62,7 @@ export default async function AdminTeamPage() {
             className={`mt-1 block w-64 ${inputClass}`}
           />
         </label>
-        <label className="text-xs text-foreground/60">
+        <label className="text-xs text-foreground/65">
           Role
           <select name="role" className={`mt-1 block ${inputClass}`}>
             {ADMIN_ROLES.map((r) => (
@@ -91,13 +91,13 @@ export default async function AdminTeamPage() {
               {m.full_name || m.email || m.id.slice(0, 8)}
             </span>
             {m.email && (
-              <span className="text-xs text-foreground/50">{m.email}</span>
+              <span className="text-xs text-foreground/65">{m.email}</span>
             )}
             <span className="rounded-full bg-saffron-50 px-2 py-0.5 text-[11px] font-semibold text-saffron-700">
               {ROLE_LABEL[(m.admin_role as AdminRole | null) ?? "owner"]}
             </span>
             {m.id === ctx.user.id && (
-              <span className="text-[11px] text-foreground/40">(you)</span>
+              <span className="text-[11px] text-foreground/65">(you)</span>
             )}
             {m.id !== ctx.user.id && m.email && (
               <form action={saveAdminMember} className="ml-auto flex items-center gap-2">

@@ -71,7 +71,7 @@ export default async function AdminReviewsPage({
       <h1 className="font-heading text-2xl text-maroon-800">
         Review moderation
       </h1>
-      <p className="mt-1 text-sm text-foreground/60">
+      <p className="mt-1 text-sm text-foreground/65">
         Hide reviews that violate guidelines. Hidden reviews vanish from public
         pages, and pandit ratings recompute automatically.
       </p>
@@ -96,7 +96,7 @@ export default async function AdminReviewsPage({
       </div>
 
       {rows.length === 0 ? (
-        <p className="mt-8 text-sm text-foreground/55">
+        <p className="mt-8 text-sm text-foreground/65">
           No {showHidden ? "hidden" : "published"} reviews.
         </p>
       ) : (
@@ -115,7 +115,7 @@ export default async function AdminReviewsPage({
                   {"★".repeat(r.rating)}
                   {"☆".repeat(Math.max(0, 5 - r.rating))}
                 </span>
-                <span className="text-xs text-foreground/45">
+                <span className="text-xs text-foreground/65">
                   by {r.reviewer_name} ·{" "}
                   {new Date(r.created_at).toLocaleDateString("en-IN")}
                 </span>
@@ -135,7 +135,7 @@ export default async function AdminReviewsPage({
                     className={`rounded-full px-4 py-1.5 text-xs font-semibold ${
                       r.hidden
                         ? "bg-emerald-600 text-white hover:bg-emerald-700"
-                        : "border border-stone-200 text-foreground/60 hover:border-red-300 hover:text-red-600"
+                        : "border border-stone-200 text-foreground/65 hover:border-red-300 hover:text-red-600"
                     }`}
                   >
                     {r.hidden ? "Restore" : "Hide"}

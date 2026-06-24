@@ -344,31 +344,31 @@ export default function BookingForm({
         </div>
         <dl className="mt-5 space-y-2 border-t border-saffron-50 pt-4 text-sm">
           <div className="flex justify-between">
-            <dt className="text-foreground/60">{t("bf.date")}</dt>
+            <dt className="text-foreground/65">{t("bf.date")}</dt>
             <dd className="font-medium">{date || "—"}</dd>
           </div>
           <div className="flex justify-between">
-            <dt className="text-foreground/60">{t("bf.time")}</dt>
+            <dt className="text-foreground/65">{t("bf.time")}</dt>
             <dd className="font-medium">{slot || "—"}</dd>
           </div>
           <div className="flex justify-between">
-            <dt className="text-foreground/60">{t("bf.language")}</dt>
+            <dt className="text-foreground/65">{t("bf.language")}</dt>
             <dd className="font-medium">{language}</dd>
           </div>
           <div className="flex justify-between">
-            <dt className="text-foreground/60">{t("bf.preferredPandit")}</dt>
+            <dt className="text-foreground/65">{t("bf.preferredPandit")}</dt>
             <dd className="font-medium">
               {pandits.find((p) => p.slug === panditSlug)?.fullName ??
                 t("bf.anyAvailable")}
             </dd>
           </div>
           <div className="flex justify-between">
-            <dt className="text-foreground/60">{t("bf.samagriKit")}</dt>
+            <dt className="text-foreground/65">{t("bf.samagriKit")}</dt>
             <dd className="font-medium">{addKit ? t("bf.yes") : t("bf.no")}</dd>
           </div>
           {travelBand && (
             <div className="flex justify-between">
-              <dt className="text-foreground/60">{t("bf.travel")}</dt>
+              <dt className="text-foreground/65">{t("bf.travel")}</dt>
               <dd className="font-medium">
                 {travelFee === 0 ? t("bf.freeLocal") : formatINR(travelFee)}
               </dd>
@@ -376,7 +376,7 @@ export default function BookingForm({
           )}
           {peakSurcharge > 0 && peak && (
             <div className="flex justify-between">
-              <dt className="text-foreground/60">{peak.label} (+{peak.pct}%)</dt>
+              <dt className="text-foreground/65">{peak.label} (+{peak.pct}%)</dt>
               <dd className="font-medium">{formatINR(peakSurcharge)}</dd>
             </div>
           )}
@@ -403,7 +403,7 @@ export default function BookingForm({
       className="rounded-2xl border border-saffron-100 bg-white p-6 shadow-sm"
     >
       <h3 className="font-heading text-xl text-maroon-700">{t("bf.title")}</h3>
-      <p className="mt-1 text-sm text-foreground/60">{t("bf.subtitle")}</p>
+      <p className="mt-1 text-sm text-foreground/65">{t("bf.subtitle")}</p>
 
       {pooja.requiresMuhurat ? (
         <p className="mt-3 rounded-xl bg-gold-400/20 px-3 py-2 text-xs text-maroon-800">
@@ -466,12 +466,12 @@ export default function BookingForm({
             </p>
           )}
           {scheduled && slotOptions.length > 0 && (
-            <p className="mt-1 text-xs text-foreground/50">
+            <p className="mt-1 text-xs text-foreground/65">
               {t("bf.liveAvail", { name: selectedPandit?.fullName ?? "" })}
             </p>
           )}
           {slotMode === "muhurat" && slotsReady && slotOptions.length > 0 && (
-            <p className="mt-1 text-xs text-foreground/50">
+            <p className="mt-1 text-xs text-foreground/65">
               {t("bf.muhuratWindows")}
             </p>
           )}
@@ -515,7 +515,7 @@ export default function BookingForm({
                 </option>
               ))}
             </select>
-            <p className="mt-1 text-xs text-foreground/50">
+            <p className="mt-1 text-xs text-foreground/65">
               {availablePandits.length > 0
                 ? t("bf.showingPandits", { lang: language })
                 : t("bf.noPandits", { lang: language })}
@@ -541,7 +541,7 @@ export default function BookingForm({
                 </option>
               ))}
             </select>
-            <p className="mt-1 text-xs text-foreground/50">
+            <p className="mt-1 text-xs text-foreground/65">
               {t("bf.savedAddrNote1")}{" "}
               <Link href="/account/addresses" className="text-saffron-700 hover:underline">
                 {t("bf.addressBook")}
@@ -618,7 +618,7 @@ export default function BookingForm({
             <span className="font-medium text-foreground">
               {t("bf.addKit", { price: formatINR(kitPrice) })}
             </span>
-            <span className="block text-foreground/60">{t("bf.kitNote")}</span>
+            <span className="block text-foreground/65">{t("bf.kitNote")}</span>
           </span>
         </label>
 
@@ -638,7 +638,7 @@ export default function BookingForm({
       </div>
 
       {travelBand && (
-        <div className="mt-4 flex items-center justify-between text-sm text-foreground/60">
+        <div className="mt-4 flex items-center justify-between text-sm text-foreground/65">
           <span>{t("bf.travelLabel", { label: travelBand.label })}</span>
           <span>{travelFee === 0 ? t("bf.free") : `+ ${formatINR(travelFee)}`}</span>
         </div>
@@ -674,7 +674,7 @@ export default function BookingForm({
       )}
 
       <div className="mt-2 flex items-center justify-between border-t border-saffron-50 pt-4">
-        <span className="text-sm text-foreground/60">{t("bf.totalPayable")}</span>
+        <span className="text-sm text-foreground/65">{t("bf.totalPayable")}</span>
         <span className="font-heading text-xl text-saffron-700">
           {formatINR(payable)}
         </span>
@@ -697,7 +697,7 @@ export default function BookingForm({
             ? t("bf.payConfirm", { amount: formatINR(payable) })
             : t("bf.signInToBook")}
       </button>
-      <p className="mt-3 text-center text-xs text-foreground/50">
+      <p className="mt-3 text-center text-xs text-foreground/65">
         {user ? t("bf.securePay") : t("bf.signInFirst")}
       </p>
     </form>

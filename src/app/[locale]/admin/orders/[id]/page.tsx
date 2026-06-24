@@ -63,7 +63,7 @@ export default async function AdminOrderDetailPage({
     <div>
       <Link
         href="/admin/bookings"
-        className="text-sm text-foreground/60 hover:text-saffron-700"
+        className="text-sm text-foreground/65 hover:text-saffron-700"
       >
         ← Bookings & orders
       </Link>
@@ -72,7 +72,7 @@ export default async function AdminOrderDetailPage({
           <h1 className="font-heading text-2xl text-maroon-800">
             Order #{order.id.slice(0, 8)}
           </h1>
-          <p className="mt-1 text-sm text-foreground/55">
+          <p className="mt-1 text-sm text-foreground/65">
             {new Date(order.created_at).toLocaleString("en-IN")} ·{" "}
             {order.status}
           </p>
@@ -99,7 +99,7 @@ export default async function AdminOrderDetailPage({
                   <div className="text-sm font-medium text-foreground">
                     {item.product_name}
                   </div>
-                  <div className="text-xs text-foreground/55">
+                  <div className="text-xs text-foreground/65">
                     {formatINR(item.unit_price)} each ·{" "}
                     {formatINR(item.line_total)}
                   </div>
@@ -132,17 +132,17 @@ export default async function AdminOrderDetailPage({
               </div>
             ))}
             {order.order_items.length === 0 && (
-              <p className="text-sm text-foreground/55">No items.</p>
+              <p className="text-sm text-foreground/65">No items.</p>
             )}
           </div>
 
           <dl className="mt-4 space-y-1 text-sm">
             <div className="flex justify-between">
-              <dt className="text-foreground/60">Subtotal</dt>
+              <dt className="text-foreground/65">Subtotal</dt>
               <dd>{formatINR(order.subtotal)}</dd>
             </div>
             <div className="flex justify-between">
-              <dt className="text-foreground/60">Shipping</dt>
+              <dt className="text-foreground/65">Shipping</dt>
               <dd>{order.shipping === 0 ? "Free" : formatINR(order.shipping)}</dd>
             </div>
             <div className="flex justify-between text-base font-semibold">
@@ -235,16 +235,16 @@ export default async function AdminOrderDetailPage({
             ) : null}
 
             {!payment?.razorpay_payment_id ? (
-              <p className="mt-2 text-sm text-foreground/55">
+              <p className="mt-2 text-sm text-foreground/65">
                 No captured online payment to refund.
               </p>
             ) : !razorpayConfigured() ? (
-              <p className="mt-2 text-sm text-foreground/55">
+              <p className="mt-2 text-sm text-foreground/65">
                 Razorpay isn&apos;t configured, so refunds can&apos;t be
                 processed yet.
               </p>
             ) : remaining <= 0 ? (
-              <p className="mt-2 text-sm text-foreground/55">
+              <p className="mt-2 text-sm text-foreground/65">
                 This payment is fully refunded.
               </p>
             ) : (
@@ -269,7 +269,7 @@ export default async function AdminOrderDetailPage({
                 >
                   Issue refund
                 </button>
-                <p className="text-[11px] text-foreground/50">
+                <p className="text-[11px] text-foreground/65">
                   A full refund also cancels the order.
                 </p>
               </form>
@@ -299,14 +299,14 @@ export default async function AdminOrderDetailPage({
               >
                 Refund as store credit
               </button>
-              <p className="text-[11px] text-foreground/50">
+              <p className="text-[11px] text-foreground/65">
                 Credits the customer&apos;s wallet; a full amount cancels the order.
               </p>
             </form>
 
             {creditNotes && creditNotes.length > 0 && (
               <div className="mt-4 border-t border-saffron-50 pt-3">
-                <div className="text-xs font-medium text-foreground/55">
+                <div className="text-xs font-medium text-foreground/65">
                   Credit notes
                 </div>
                 <ul className="mt-1 space-y-1 text-sm">
@@ -330,17 +330,17 @@ export default async function AdminOrderDetailPage({
           <div className="rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm">
             <h2 className="font-heading text-lg text-maroon-700">E-invoice</h2>
             {!order.customer_gstin ? (
-              <p className="mt-2 text-sm text-foreground/55">
+              <p className="mt-2 text-sm text-foreground/65">
                 B2C order (no buyer GSTIN) — e-invoice not required.
               </p>
             ) : order.irn ? (
               <div className="mt-2 text-sm text-foreground/75">
                 <p className="break-all">
-                  <span className="text-foreground/55">IRN: </span>
+                  <span className="text-foreground/65">IRN: </span>
                   {order.irn}
                 </p>
                 {order.irn_date && (
-                  <p className="text-xs text-foreground/55">
+                  <p className="text-xs text-foreground/65">
                     Generated{" "}
                     {new Date(order.irn_date).toLocaleString("en-IN")}
                   </p>
@@ -361,14 +361,14 @@ export default async function AdminOrderDetailPage({
                     </button>
                   </form>
                 ) : (
-                  <p className="mt-1 text-[11px] text-foreground/45">
+                  <p className="mt-1 text-[11px] text-foreground/65">
                     Cancellation window (24h) has passed.
                   </p>
                 )}
               </div>
             ) : (
               <div className="mt-2">
-                <p className="text-xs text-foreground/55">
+                <p className="text-xs text-foreground/65">
                   Buyer GSTIN: {order.customer_gstin}
                 </p>
                 <div className="mt-2 flex flex-wrap gap-2">
@@ -401,22 +401,22 @@ export default async function AdminOrderDetailPage({
           <div className="rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm">
             <h2 className="font-heading text-lg text-maroon-700">E-way bill</h2>
             {order.total_amount < EWB_THRESHOLD ? (
-              <p className="mt-2 text-sm text-foreground/55">
+              <p className="mt-2 text-sm text-foreground/65">
                 Below the {formatINR(EWB_THRESHOLD)} threshold — not required.
               </p>
             ) : order.ewb_no ? (
               <div className="mt-2 text-sm text-foreground/75">
                 <p>
-                  <span className="text-foreground/55">EWB No: </span>
+                  <span className="text-foreground/65">EWB No: </span>
                   {order.ewb_no}
                 </p>
                 {order.ewb_valid_until && (
-                  <p className="text-xs text-foreground/55">
+                  <p className="text-xs text-foreground/65">
                     Valid until{" "}
                     {new Date(order.ewb_valid_until).toLocaleString("en-IN")}
                   </p>
                 )}
-                <p className="mt-1 text-xs text-foreground/55">
+                <p className="mt-1 text-xs text-foreground/65">
                   Part-B vehicle: {order.ewb_vehicle ?? "—"}
                 </p>
                 <form

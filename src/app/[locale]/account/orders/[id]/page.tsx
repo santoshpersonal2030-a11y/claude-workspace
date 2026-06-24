@@ -69,7 +69,7 @@ export default async function OrderDetailPage({
         <section className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
           <Link
             href="/account/orders"
-            className="text-sm text-foreground/60 hover:text-saffron-700"
+            className="text-sm text-foreground/65 hover:text-saffron-700"
           >
             ← All orders
           </Link>
@@ -78,7 +78,7 @@ export default async function OrderDetailPage({
               <h1 className="font-heading text-3xl text-maroon-800">
                 Order details
               </h1>
-              <p className="mt-1 text-sm text-foreground/55">
+              <p className="mt-1 text-sm text-foreground/65">
                 Placed {formatDate(order.created_at)} · #{order.id.slice(0, 8)}
               </p>
             </div>
@@ -146,7 +146,7 @@ export default async function OrderDetailPage({
                         {item.product_name}
                       </span>
                     )}
-                    <div className="text-xs text-foreground/55">
+                    <div className="text-xs text-foreground/65">
                       {formatINR(item.unit_price)} × {item.quantity}
                     </div>
                   </div>
@@ -159,11 +159,11 @@ export default async function OrderDetailPage({
 
             <dl className="mt-5 space-y-1 border-t border-saffron-50 pt-4 text-sm">
               <div className="flex justify-between">
-                <dt className="text-foreground/60">Subtotal</dt>
+                <dt className="text-foreground/65">Subtotal</dt>
                 <dd>{formatINR(order.subtotal)}</dd>
               </div>
               <div className="flex justify-between">
-                <dt className="text-foreground/60">Shipping</dt>
+                <dt className="text-foreground/65">Shipping</dt>
                 <dd>
                   {order.shipping === 0 ? "Free" : formatINR(order.shipping)}
                 </dd>

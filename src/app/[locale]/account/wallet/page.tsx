@@ -54,7 +54,7 @@ export default async function WalletPage() {
         <section className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
           <Link
             href="/account/profile"
-            className="text-sm text-foreground/60 hover:text-saffron-700"
+            className="text-sm text-foreground/65 hover:text-saffron-700"
           >
             ← My account
           </Link>
@@ -64,12 +64,12 @@ export default async function WalletPage() {
 
           {/* Balance */}
           <div className="mt-6 rounded-2xl border border-saffron-100 bg-white p-6 shadow-sm">
-            <p className="text-sm text-foreground/60">Available credit</p>
+            <p className="text-sm text-foreground/65">Available credit</p>
             <p className="mt-1 font-heading text-4xl text-saffron-700">
               {formatINR(available)}
             </p>
             {reserved > 0 && (
-              <p className="mt-1 text-xs text-foreground/50">
+              <p className="mt-1 text-xs text-foreground/65">
                 {formatINR(reserved)} reserved by a pending order — frees up if
                 it isn&apos;t completed.
               </p>
@@ -101,7 +101,7 @@ export default async function WalletPage() {
             Credit history
           </h2>
           {txns.length === 0 ? (
-            <p className="mt-3 text-sm text-foreground/55">
+            <p className="mt-3 text-sm text-foreground/65">
               No credit activity yet. Earn credit on your next order or by
               referring a friend.
             </p>
@@ -116,7 +116,7 @@ export default async function WalletPage() {
                     <p className="font-medium text-foreground/80">
                       {REASON_LABEL[t.reason] ?? "Credit"}
                     </p>
-                    <p className="text-xs text-foreground/50">
+                    <p className="text-xs text-foreground/65">
                       {t.note ??
                         new Date(t.created_at).toLocaleDateString("en-IN", {
                           day: "numeric",

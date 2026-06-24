@@ -59,7 +59,7 @@ export default async function AdminMuhuratPage({
   return (
     <div>
       <h1 className="font-heading text-2xl text-maroon-800">Muhurat calendar</h1>
-      <p className="mt-1 text-sm text-foreground/60">
+      <p className="mt-1 text-sm text-foreground/65">
         Auspicious windows for ceremonies that need a muhurat. Approved windows
         are offered to customers; leave a window pending until an astrologer
         verifies it. Set a specific pooja, or a category to cover all its
@@ -73,19 +73,19 @@ export default async function AdminMuhuratPage({
       >
         <h2 className="font-heading text-lg text-maroon-700">Add a window</h2>
         <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <label className="text-xs text-foreground/60">
+          <label className="text-xs text-foreground/65">
             Date
             <input name="date" type="date" required className={inputClass} />
           </label>
-          <label className="text-xs text-foreground/60">
+          <label className="text-xs text-foreground/65">
             Start
             <input name="start_time" type="time" required className={inputClass} />
           </label>
-          <label className="text-xs text-foreground/60">
+          <label className="text-xs text-foreground/65">
             End
             <input name="end_time" type="time" required className={inputClass} />
           </label>
-          <label className="text-xs text-foreground/60">
+          <label className="text-xs text-foreground/65">
             Label
             <input
               name="label"
@@ -93,7 +93,7 @@ export default async function AdminMuhuratPage({
               className={inputClass}
             />
           </label>
-          <label className="text-xs text-foreground/60">
+          <label className="text-xs text-foreground/65">
             Specific pooja (optional)
             <select name="pooja_slug" className={inputClass} defaultValue="">
               <option value="">— Any in category —</option>
@@ -104,7 +104,7 @@ export default async function AdminMuhuratPage({
               ))}
             </select>
           </label>
-          <label className="text-xs text-foreground/60">
+          <label className="text-xs text-foreground/65">
             Category (if no pooja)
             <select name="category" className={inputClass} defaultValue="">
               <option value="">— None —</option>
@@ -115,7 +115,7 @@ export default async function AdminMuhuratPage({
               ))}
             </select>
           </label>
-          <label className="text-xs text-foreground/60 sm:col-span-2">
+          <label className="text-xs text-foreground/65 sm:col-span-2">
             Note
             <input
               name="note"
@@ -145,7 +145,7 @@ export default async function AdminMuhuratPage({
         <h2 className="font-heading text-lg text-maroon-700">
           Generate (computed engine)
         </h2>
-        <p className="mt-1 text-xs text-foreground/60">
+        <p className="mt-1 text-xs text-foreground/65">
           Computes muhurats from astronomy — no external API. <strong>Abhijit</strong>
           {" "}gives the daily auspicious midday window (with Rahu/Yamaganda/Gulika
           to avoid). <strong>Ceremony</strong> filters to dates whose
@@ -155,7 +155,7 @@ export default async function AdminMuhuratPage({
           scored). All rows land <strong>pending</strong> for astrologer approval.
         </p>
         <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-6">
-          <label className="text-xs text-foreground/60">
+          <label className="text-xs text-foreground/65">
             Mode
             <select name="mode" className={inputClass} defaultValue="ceremony">
               <option value="ceremony">Ceremony (by pooja rules)</option>
@@ -163,7 +163,7 @@ export default async function AdminMuhuratPage({
               <option value="choghadiya">Choghadiya (auspicious slots)</option>
             </select>
           </label>
-          <label className="text-xs text-foreground/60">
+          <label className="text-xs text-foreground/65">
             From
             <input
               name="from"
@@ -173,11 +173,11 @@ export default async function AdminMuhuratPage({
               className={inputClass}
             />
           </label>
-          <label className="text-xs text-foreground/60">
+          <label className="text-xs text-foreground/65">
             To
             <input name="to" type="date" required className={inputClass} />
           </label>
-          <label className="text-xs text-foreground/60">
+          <label className="text-xs text-foreground/65">
             City
             <select name="city" className={inputClass} defaultValue="New Delhi">
               {cities.map((c) => (
@@ -187,7 +187,7 @@ export default async function AdminMuhuratPage({
               ))}
             </select>
           </label>
-          <label className="text-xs text-foreground/60">
+          <label className="text-xs text-foreground/65">
             Pooja (optional)
             <select name="scope" className={inputClass} defaultValue="">
               <option value="">— All / any —</option>
@@ -228,7 +228,7 @@ export default async function AdminMuhuratPage({
         <h2 className="font-heading text-lg text-maroon-700">
           Bulk import (CSV)
         </h2>
-        <p className="mt-1 text-xs text-foreground/60">
+        <p className="mt-1 text-xs text-foreground/65">
           One window per line:{" "}
           <code className="rounded bg-cream px-1">
             date, start, end, scope, label, note
@@ -260,7 +260,7 @@ export default async function AdminMuhuratPage({
           Windows ({windows.length})
         </h2>
         <div className="flex items-center gap-2 text-xs">
-          <span className="text-foreground/50">Sort:</span>
+          <span className="text-foreground/65">Sort:</span>
           <Link
             href="/admin/muhurat"
             className={`rounded-full px-3 py-1 font-semibold ${
@@ -285,7 +285,7 @@ export default async function AdminMuhuratPage({
       </div>
       <div className="mt-3 space-y-2">
         {windows.length === 0 ? (
-          <p className="text-sm text-foreground/55">
+          <p className="text-sm text-foreground/65">
             No muhurat windows yet. Add the auspicious dates and times above.
           </p>
         ) : (
@@ -298,7 +298,7 @@ export default async function AdminMuhuratPage({
               <span className="text-foreground/70">
                 {hhmm(w.start_time)}–{hhmm(w.end_time)}
               </span>
-              <span className="text-foreground/55">
+              <span className="text-foreground/65">
                 {w.pooja_slug ?? w.category ?? "All ceremonies"}
                 {w.label ? ` · ${w.label}` : ""}
               </span>

@@ -18,7 +18,7 @@ export default async function AdminPoojasPage() {
   return (
     <div>
       <h1 className="font-heading text-2xl text-maroon-800">Pooja catalog</h1>
-      <p className="mt-1 text-sm text-foreground/60">
+      <p className="mt-1 text-sm text-foreground/65">
         Adjust pricing and visibility. Changes appear on the site within a few
         minutes.
       </p>
@@ -110,7 +110,7 @@ export default async function AdminPoojasPage() {
                 Long description &amp; what&apos;s included
               </summary>
               <div className="mt-2 grid gap-2 sm:grid-cols-2">
-                <label className="text-xs text-foreground/60">
+                <label className="text-xs text-foreground/65">
                   Long description
                   <textarea
                     name="long_description"
@@ -120,7 +120,7 @@ export default async function AdminPoojasPage() {
                     className={`mt-1 ${inputClass}`}
                   />
                 </label>
-                <label className="text-xs text-foreground/60">
+                <label className="text-xs text-foreground/65">
                   What&apos;s included (one per line)
                   <textarea
                     name="includes"

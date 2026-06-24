@@ -102,7 +102,7 @@ export default function StoreBrowser({
       {/* Search + sort */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="relative max-w-md flex-1">
-          <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-foreground/40">
+          <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-foreground/65">
             🔍
           </span>
           <input
@@ -114,7 +114,7 @@ export default function StoreBrowser({
             className="w-full rounded-full border border-saffron-200 bg-white py-2.5 pl-10 pr-4 text-sm outline-none focus:border-saffron-400 focus:ring-2 focus:ring-saffron-100"
           />
         </div>
-        <label className="flex items-center gap-2 text-sm text-foreground/60">
+        <label className="flex items-center gap-2 text-sm text-foreground/65">
           {t("shop.sort")}
           <select
             value={sort}
@@ -161,7 +161,7 @@ export default function StoreBrowser({
         </div>
       )}
 
-      <p className="mt-6 text-sm text-foreground/50">
+      <p className="mt-6 text-sm text-foreground/65">
         {t(visible.length === 1 ? "shop.product" : "shop.products", {
           n: visible.length,
         })}
@@ -169,7 +169,7 @@ export default function StoreBrowser({
 
       {/* Grid */}
       {visible.length === 0 ? (
-        <p className="mt-10 text-center text-foreground/60">
+        <p className="mt-10 text-center text-foreground/65">
           {t("shop.noMatch")}
         </p>
       ) : (
@@ -223,7 +223,7 @@ export default function StoreBrowser({
                     {formatINR(product.price)}
                   </span>
                   {discount > 0 && product.mrp && (
-                    <span className="text-sm text-foreground/40 line-through">
+                    <span className="text-sm text-foreground/65 line-through">
                       {formatINR(product.mrp)}
                     </span>
                   )}

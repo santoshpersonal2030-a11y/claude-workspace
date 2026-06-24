@@ -56,7 +56,7 @@ export default async function PanchangPage({
       <main className="flex-1">
         <section className="bg-temple-gradient">
           <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
-            <nav className="text-sm text-foreground/60">
+            <nav className="text-sm text-foreground/65">
               <Link href="/" className="hover:text-saffron-700">
                 {t("common.home")}
               </Link>
@@ -72,7 +72,7 @@ export default async function PanchangPage({
 
             {/* Date + city picker (no JS needed) */}
             <form method="get" className="mt-5 flex flex-wrap items-end gap-3">
-              <label className="text-xs text-foreground/60">
+              <label className="text-xs text-foreground/65">
                 {t("astro.date")}
                 <input
                   type="date"
@@ -81,7 +81,7 @@ export default async function PanchangPage({
                   className={`block ${inputClass}`}
                 />
               </label>
-              <label className="text-xs text-foreground/60">
+              <label className="text-xs text-foreground/65">
                 {t("astro.city")}
                 <select name="city" defaultValue={city} className={`block ${inputClass}`}>
                   {cities.map((c) => (
@@ -103,7 +103,7 @@ export default async function PanchangPage({
 
         <section className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
           {!pan ? (
-            <p className="text-foreground/60">{t("pan.fail")}</p>
+            <p className="text-foreground/65">{t("pan.fail")}</p>
           ) : (
             <PanchangView pan={pan} city={city} t={t} />
           )}

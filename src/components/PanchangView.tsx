@@ -7,7 +7,7 @@ import type { Translator } from "@/lib/i18n";
 function ChoghGrid({ title, slots }: { title: string; slots: Choghadiya[] }) {
   return (
     <div className="mt-4">
-      <h3 className="text-sm font-semibold text-foreground/60">{title}</h3>
+      <h3 className="text-sm font-semibold text-foreground/65">{title}</h3>
       <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
         {slots.map((c, i) => (
           <div
@@ -79,7 +79,7 @@ export default function PanchangView({
               key={l.label}
               className="rounded-2xl border border-saffron-100 bg-white p-4 shadow-sm"
             >
-              <div className="text-xs text-foreground/50">{l.label}</div>
+              <div className="text-xs text-foreground/65">{l.label}</div>
               <div className="mt-1 font-heading text-lg text-maroon-700">
                 {l.value}
               </div>
@@ -93,11 +93,11 @@ export default function PanchangView({
           <h3 className="font-heading text-lg text-maroon-700">{t("pv.sun")}</h3>
           <dl className="mt-3 space-y-2 text-sm">
             <div className="flex justify-between">
-              <dt className="text-foreground/60">{t("pv.sunrise")}</dt>
+              <dt className="text-foreground/65">{t("pv.sunrise")}</dt>
               <dd className="font-medium">{to12h(pan.sunrise)}</dd>
             </div>
             <div className="flex justify-between">
-              <dt className="text-foreground/60">{t("pv.sunset")}</dt>
+              <dt className="text-foreground/65">{t("pv.sunset")}</dt>
               <dd className="font-medium">{to12h(pan.sunset)}</dd>
             </div>
           </dl>
@@ -109,7 +109,7 @@ export default function PanchangView({
           </h3>
           <dl className="mt-3 space-y-2 text-sm">
             <div className="flex justify-between">
-              <dt className="text-foreground/60">{t("pv.abhijit")}</dt>
+              <dt className="text-foreground/65">{t("pv.abhijit")}</dt>
               <dd className="font-medium text-emerald-800">
                 {to12h(pan.abhijit.start)} – {to12h(pan.abhijit.end)}
               </dd>
@@ -124,7 +124,7 @@ export default function PanchangView({
           <dl className="mt-3 space-y-2 text-sm">
             {avoid.map((a) => (
               <div key={a.label} className="flex justify-between">
-                <dt className="text-foreground/60">{a.label}</dt>
+                <dt className="text-foreground/65">{a.label}</dt>
                 <dd className="font-medium text-red-800">
                   {to12h(a.p.start)} – {to12h(a.p.end)}
                 </dd>
@@ -147,12 +147,12 @@ export default function PanchangView({
           <h2 className="font-heading text-2xl text-maroon-800">
             {t("pv.chogh")}
           </h2>
-          <p className="mt-1 text-sm text-foreground/55">{t("pv.choghNote")}</p>
+          <p className="mt-1 text-sm text-foreground/65">{t("pv.choghNote")}</p>
           <ChoghGrid title={t("pv.day")} slots={pan.choghadiya.day} />
           {pan.choghadiya.night.length > 0 && (
             <ChoghGrid title={t("pv.night")} slots={pan.choghadiya.night} />
           )}
-          <p className="mt-3 text-xs text-foreground/45">
+          <p className="mt-3 text-xs text-foreground/65">
             <Link href="/choghadiya" className="text-saffron-700 hover:underline">
               {t("pv.openChogh")}
             </Link>
@@ -160,7 +160,7 @@ export default function PanchangView({
         </div>
       )}
 
-      <p className="text-xs text-foreground/45">
+      <p className="text-xs text-foreground/65">
         {t("pv.computedNote", { city })}
       </p>
 

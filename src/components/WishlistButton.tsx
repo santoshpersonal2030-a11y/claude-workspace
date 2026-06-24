@@ -31,7 +31,7 @@ export default function WishlistButton({
       aria-pressed={saved}
       aria-label={saved ? "Remove from saved items" : "Save for later"}
       className={`flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-lg shadow-sm transition-colors hover:bg-white ${
-        saved ? "text-maroon-600" : "text-foreground/40 hover:text-maroon-600"
+        saved ? "text-maroon-600" : "text-foreground/65 hover:text-maroon-600"
       } ${className}`}
     >
       {saved ? "♥" : "♡"}

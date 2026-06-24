@@ -46,7 +46,7 @@ export default async function BookingsPage() {
           </div>
 
           {!bookings || bookings.length === 0 ? (
-            <p className="mt-8 text-foreground/60">
+            <p className="mt-8 text-foreground/65">
               You haven&apos;t booked a pooja yet.
             </p>
           ) : (
@@ -66,7 +66,7 @@ export default async function BookingsPage() {
                         {STATUS_LABEL[booking.status] ?? booking.status}
                       </span>
                     </div>
-                    <p className="mt-1 text-sm text-foreground/60">
+                    <p className="mt-1 text-sm text-foreground/65">
                       {new Date(booking.booking_date).toLocaleDateString(
                         "en-IN",
                         { day: "numeric", month: "short", year: "numeric" },
@@ -79,7 +79,7 @@ export default async function BookingsPage() {
                         Pandit assigned: {booking.assigned.full_name}
                       </p>
                     ) : booking.preferred?.full_name ? (
-                      <p className="mt-1 text-xs text-foreground/50">
+                      <p className="mt-1 text-xs text-foreground/65">
                         Preferred Pandit: {booking.preferred.full_name}
                       </p>
                     ) : null}

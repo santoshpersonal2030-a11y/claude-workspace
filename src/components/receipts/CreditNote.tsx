@@ -42,27 +42,27 @@ export default function CreditNote({
             {company.name}
           </div>
           {company.addressLines.map((l) => (
-            <p key={l} className="text-xs text-foreground/55">
+            <p key={l} className="text-xs text-foreground/65">
               {l}
             </p>
           ))}
-          <p className="text-xs text-foreground/55">GSTIN: {company.gstin}</p>
+          <p className="text-xs text-foreground/65">GSTIN: {company.gstin}</p>
         </div>
         <div className="text-right text-sm">
           <div className="font-heading text-lg text-maroon-700">
             Credit Note
           </div>
-          <div className="text-foreground/60">
+          <div className="text-foreground/65">
             {invoiceNumber(note.invoice_no, note.invoice_fy, "CN")}
           </div>
-          <div className="text-foreground/60">
+          <div className="text-foreground/65">
             {new Date(note.created_at).toLocaleDateString("en-IN")}
           </div>
         </div>
       </div>
 
       <div className="mt-6 text-sm">
-        <div className="text-foreground/55">Issued to</div>
+        <div className="text-foreground/65">Issued to</div>
         <div className="font-medium text-foreground">
           {order?.delivery_name ?? "Customer"}
         </div>
@@ -78,7 +78,7 @@ export default function CreditNote({
             .join(" · ")}
         </div>
         {order?.invoice_no && (
-          <div className="mt-2 text-xs text-foreground/55">
+          <div className="mt-2 text-xs text-foreground/65">
             Against invoice:{" "}
             {invoiceNumber(order.invoice_no, order.invoice_fy)}
           </div>
@@ -93,19 +93,19 @@ export default function CreditNote({
       </div>
 
       <p className="mt-4 text-sm text-foreground/70">
-        <span className="text-foreground/55">Amount in words: </span>
+        <span className="text-foreground/65">Amount in words: </span>
         {amountInWords(note.amount)}
       </p>
       {note.reason && (
         <p className="mt-2 text-sm text-foreground/70">
-          <span className="text-foreground/55">Reason: </span>
+          <span className="text-foreground/65">Reason: </span>
           {note.reason}
         </p>
       )}
 
       <SignatureBlock qrDataUrl={qrDataUrl} company={company} />
 
-      <p className="mt-4 text-center text-xs text-foreground/50">
+      <p className="mt-4 text-center text-xs text-foreground/65">
         This credit note reflects a refund processed to your original payment
         method.
       </p>

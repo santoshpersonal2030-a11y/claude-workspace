@@ -70,7 +70,7 @@ export default async function AdminBookingDetailPage({
     <div>
       <Link
         href="/admin/bookings"
-        className="text-sm text-foreground/60 hover:text-saffron-700"
+        className="text-sm text-foreground/65 hover:text-saffron-700"
       >
         ← Bookings & orders
       </Link>
@@ -81,7 +81,7 @@ export default async function AdminBookingDetailPage({
             <h1 className="font-heading text-2xl text-maroon-800">
               {booking.poojas?.name ?? "Pooja"}
             </h1>
-            <p className="text-sm text-foreground/55">
+            <p className="text-sm text-foreground/65">
               #{booking.id.slice(0, 8)} ·{" "}
               {new Date(booking.created_at).toLocaleDateString("en-IN")}
               {booking.preferred?.full_name
@@ -109,7 +109,7 @@ export default async function AdminBookingDetailPage({
             Ceremony details
           </h2>
           <div className="grid gap-3 sm:grid-cols-2">
-            <label className="text-xs text-foreground/60">
+            <label className="text-xs text-foreground/65">
               Date
               <input
                 name="booking_date"
@@ -118,7 +118,7 @@ export default async function AdminBookingDetailPage({
                 className={`mt-1 ${inputClass}`}
               />
             </label>
-            <label className="text-xs text-foreground/60">
+            <label className="text-xs text-foreground/65">
               Time
               <select
                 name="time_slot"
@@ -132,7 +132,7 @@ export default async function AdminBookingDetailPage({
                 ))}
               </select>
             </label>
-            <label className="text-xs text-foreground/60">
+            <label className="text-xs text-foreground/65">
               Language
               <select
                 name="language"
@@ -147,7 +147,7 @@ export default async function AdminBookingDetailPage({
                 ))}
               </select>
             </label>
-            <label className="text-xs text-foreground/60">
+            <label className="text-xs text-foreground/65">
               Status
               <select
                 name="status"
@@ -161,7 +161,7 @@ export default async function AdminBookingDetailPage({
                 ))}
               </select>
             </label>
-            <label className="text-xs text-foreground/60 sm:col-span-2">
+            <label className="text-xs text-foreground/65 sm:col-span-2">
               Assigned Pandit
               <select
                 name="pandit_id"
@@ -178,7 +178,7 @@ export default async function AdminBookingDetailPage({
             </label>
           </div>
 
-          <label className="block text-xs text-foreground/60">
+          <label className="block text-xs text-foreground/65">
             Address
             <textarea
               name="address"
@@ -188,7 +188,7 @@ export default async function AdminBookingDetailPage({
             />
           </label>
           <div className="grid gap-3 sm:grid-cols-2">
-            <label className="text-xs text-foreground/60">
+            <label className="text-xs text-foreground/65">
               City
               <input
                 name="city"
@@ -197,7 +197,7 @@ export default async function AdminBookingDetailPage({
               />
             </label>
           </div>
-          <label className="block text-xs text-foreground/60">
+          <label className="block text-xs text-foreground/65">
             Notes
             <textarea
               name="notes"
@@ -219,12 +219,12 @@ export default async function AdminBookingDetailPage({
           <h2 className="font-heading text-lg text-maroon-700">Charges</h2>
           <dl className="mt-3 space-y-1 text-sm">
             <div className="flex justify-between">
-              <dt className="text-foreground/60">Service</dt>
+              <dt className="text-foreground/65">Service</dt>
               <dd>{formatINR(booking.service_price)}</dd>
             </div>
             {booking.samagri_kit && (
               <div className="flex justify-between">
-                <dt className="text-foreground/60">Samagri kit</dt>
+                <dt className="text-foreground/65">Samagri kit</dt>
                 <dd>{formatINR(booking.samagri_price)}</dd>
               </div>
             )}
@@ -289,7 +289,7 @@ export default async function AdminBookingDetailPage({
                   </button>
                 </form>
               ) : (
-                <span className="text-xs text-foreground/45">
+                <span className="text-xs text-foreground/65">
                   Nudged {agoLabel}
                 </span>
               );
@@ -335,7 +335,7 @@ export default async function AdminBookingDetailPage({
                 ✓ Accept proposed time
               </button>
             </form>
-            <span className="text-xs text-foreground/50">
+            <span className="text-xs text-foreground/65">
               …or reassign the Pandit above.
             </span>
           </div>
@@ -356,13 +356,13 @@ export default async function AdminBookingDetailPage({
                       e.action}
                   </span>
                   {e.pandit?.full_name ? ` · ${e.pandit.full_name}` : ""}
-                  <span className="text-foreground/45">
+                  <span className="text-foreground/65">
                     {" "}
                     · {formatStamp(e.created_at)}
                   </span>
                 </div>
                 {e.reason && (
-                  <div className="text-xs text-foreground/60">
+                  <div className="text-xs text-foreground/65">
                     “{e.reason}”
                   </div>
                 )}

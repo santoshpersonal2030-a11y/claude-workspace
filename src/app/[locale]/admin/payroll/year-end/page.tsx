@@ -137,7 +137,7 @@ export default async function PayrollYearEndPage({
           ⤓ Export CSV
         </a>
       </div>
-      <p className="mt-1 text-sm text-foreground/60">
+      <p className="mt-1 text-sm text-foreground/65">
         Every priest&apos;s pay across all monthly runs in the Indian financial
         year (April–March), totalled for year-end reconciliation.
       </p>
@@ -145,7 +145,7 @@ export default async function PayrollYearEndPage({
       {/* FY selector */}
       {availableFys.length > 1 && (
         <div className="mt-4 flex flex-wrap items-center gap-2">
-          <span className="text-xs text-foreground/55">Financial year:</span>
+          <span className="text-xs text-foreground/65">Financial year:</span>
           {availableFys.map((y) => (
             <Link
               key={y}
@@ -153,7 +153,7 @@ export default async function PayrollYearEndPage({
               className={`rounded-full px-3 py-1 text-xs font-semibold ${
                 y === selectedFy
                   ? "bg-maroon-700 text-white"
-                  : "border border-stone-200 text-foreground/60 hover:bg-stone-50"
+                  : "border border-stone-200 text-foreground/65 hover:bg-stone-50"
               }`}
             >
               {fyLabel(y)}
@@ -168,7 +168,7 @@ export default async function PayrollYearEndPage({
           <h2 className="font-heading text-lg text-maroon-800">
             All priests, FY {fyLabel(selectedFy)}
           </h2>
-          <span className="text-xs text-foreground/55">
+          <span className="text-xs text-foreground/65">
             {priestRows.length} priest{priestRows.length === 1 ? "" : "s"} ·{" "}
             {org.payslips} payslip{org.payslips === 1 ? "" : "s"} ·{" "}
             {org.ceremonies} ceremonies
@@ -192,7 +192,7 @@ export default async function PayrollYearEndPage({
       <div className="mt-6 overflow-x-auto">
         <table className="w-full min-w-[860px] border-collapse text-sm">
           <thead>
-            <tr className="border-b border-saffron-200 text-left text-xs text-foreground/60">
+            <tr className="border-b border-saffron-200 text-left text-xs text-foreground/65">
               <th className="py-2 pr-3">Priest</th>
               <th className="py-2 pr-3 text-right">Payslips</th>
               <th className="py-2 pr-3 text-right">Ceremonies</th>
@@ -207,7 +207,7 @@ export default async function PayrollYearEndPage({
           <tbody>
             {priestRows.length === 0 && (
               <tr>
-                <td colSpan={9} className="py-6 text-center text-foreground/50">
+                <td colSpan={9} className="py-6 text-center text-foreground/65">
                   No payroll lines in FY {fyLabel(selectedFy)} yet.
                 </td>
               </tr>
@@ -223,16 +223,16 @@ export default async function PayrollYearEndPage({
                 <td className="py-2 pr-3 text-right font-semibold text-maroon-700">
                   {formatINR(r.net)}
                 </td>
-                <td className="py-2 pr-3 text-right text-foreground/60">
+                <td className="py-2 pr-3 text-right text-foreground/65">
                   {formatINR(r.paid)}
                 </td>
-                <td className="py-2 pr-3 text-right text-foreground/60">
+                <td className="py-2 pr-3 text-right text-foreground/65">
                   {formatINR(r.net - r.paid)}
                 </td>
-                <td className="py-2 pr-3 text-right text-foreground/60">
+                <td className="py-2 pr-3 text-right text-foreground/65">
                   {formatINR(r.pfEmployer)}
                 </td>
-                <td className="py-2 pr-3 text-right text-foreground/60">
+                <td className="py-2 pr-3 text-right text-foreground/65">
                   {formatINR(r.gratuity)}
                 </td>
               </tr>
@@ -262,7 +262,7 @@ function Stat({
       >
         {formatINR(value)}
       </div>
-      <div className="mt-0.5 text-[11px] text-foreground/55">{label}</div>
+      <div className="mt-0.5 text-[11px] text-foreground/65">{label}</div>
     </div>
   );
 }

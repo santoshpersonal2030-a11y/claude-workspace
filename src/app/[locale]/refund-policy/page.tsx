@@ -41,7 +41,7 @@ export default function RefundPolicyPage() {
             </p>
           </div>
         ))}
-        <p className="text-xs text-foreground/50">
+        <p className="text-xs text-foreground/65">
           This is a general template and not legal advice. Please have it
           reviewed by a qualified professional before launch.
         </p>

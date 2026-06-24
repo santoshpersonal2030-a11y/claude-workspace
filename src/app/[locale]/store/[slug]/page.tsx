@@ -65,7 +65,7 @@ export default async function ProductDetailPage({
       <main className="flex-1">
         <section className="bg-temple-gradient">
           <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
-            <nav className="text-sm text-foreground/60">
+            <nav className="text-sm text-foreground/65">
               <Link href="/" className="hover:text-saffron-700">
                 Home
               </Link>
@@ -106,7 +106,7 @@ export default async function ProductDetailPage({
                 </span>
                 {discount > 0 && product.mrp && (
                   <>
-                    <span className="text-lg text-foreground/40 line-through">
+                    <span className="text-lg text-foreground/65 line-through">
                       {formatINR(product.mrp)}
                     </span>
                     <span className="text-sm font-semibold text-green-700">
@@ -116,7 +116,7 @@ export default async function ProductDetailPage({
                 )}
               </div>
 
-              <p className="mt-2 text-sm text-foreground/60">
+              <p className="mt-2 text-sm text-foreground/65">
                 {product.stock > 0
                   ? product.stock <= 5
                     ? `Only ${product.stock} left in stock`
@@ -146,7 +146,7 @@ export default async function ProductDetailPage({
                 </div>
               )}
 
-              <p className="mt-4 text-sm text-foreground/60">
+              <p className="mt-4 text-sm text-foreground/65">
                 Free delivery on orders over ₹999. Authentic, freshly sourced
                 samagri.
               </p>
@@ -209,7 +209,7 @@ export default async function ProductDetailPage({
                           {formatINR(item.price)}
                         </span>
                         {itemDiscount > 0 && item.mrp && (
-                          <span className="text-xs text-foreground/40 line-through">
+                          <span className="text-xs text-foreground/65 line-through">
                             {formatINR(item.mrp)}
                           </span>
                         )}

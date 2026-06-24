@@ -135,7 +135,7 @@ export default async function PriestCalendarPage({
   return (
     <div>
       <h1 className="font-heading text-2xl text-maroon-800">My calendar</h1>
-      <p className="mt-1 text-sm text-foreground/60">
+      <p className="mt-1 text-sm text-foreground/65">
         Ceremonies assigned to you. Accept the ones you can perform, or decline
         to send them back to the team for reassignment.
       </p>
@@ -170,14 +170,14 @@ export default async function PriestCalendarPage({
                   <span className="font-medium text-maroon-700">
                     {b.booking_date}
                   </span>
-                  <span className="text-foreground/60">
+                  <span className="text-foreground/65">
                     {b.time_slot.slice(0, 5)}
                   </span>
                   <span className="font-semibold text-foreground/85">
                     {b.poojas?.emoji ? `${b.poojas.emoji} ` : ""}
                     {b.poojas?.name ?? "Pooja"}
                   </span>
-                  <span className="text-sm text-foreground/55">
+                  <span className="text-sm text-foreground/65">
                     {b.city ?? ""} {b.pincode ?? ""}
                     {b.language ? ` · ${b.language}` : ""}
                   </span>
@@ -280,7 +280,7 @@ export default async function PriestCalendarPage({
         {WEEKDAYS.map((w) => (
           <div
             key={w}
-            className="bg-white px-2 py-2 text-center text-[11px] font-semibold text-foreground/55"
+            className="bg-white px-2 py-2 text-center text-[11px] font-semibold text-foreground/65"
           >
             {w}
           </div>
@@ -298,7 +298,7 @@ export default async function PriestCalendarPage({
                 className={`text-right text-[11px] ${
                   isToday
                     ? "font-bold text-saffron-700"
-                    : "text-foreground/40"
+                    : "text-foreground/65"
                 }`}
               >
                 {day}
@@ -325,7 +325,7 @@ export default async function PriestCalendarPage({
       </div>
 
       {/* Legend */}
-      <div className="mt-3 flex flex-wrap gap-3 text-[11px] text-foreground/55">
+      <div className="mt-3 flex flex-wrap gap-3 text-[11px] text-foreground/65">
         <Legend className="bg-emerald-100 text-emerald-800" label="Accepted" />
         <Legend className="bg-amber-100 text-amber-800" label="Awaiting you" />
       </div>
@@ -352,13 +352,13 @@ export default async function PriestCalendarPage({
                   {e.bookings?.poojas?.name
                     ? ` · ${e.bookings.poojas.name}`
                     : ""}
-                  <span className="text-foreground/45">
+                  <span className="text-foreground/65">
                     {" "}
                     · {formatStamp(e.created_at)}
                   </span>
                 </div>
                 {e.reason && (
-                  <div className="text-xs text-foreground/60">“{e.reason}”</div>
+                  <div className="text-xs text-foreground/65">“{e.reason}”</div>
                 )}
               </li>
             ))}

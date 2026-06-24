@@ -21,7 +21,7 @@ export default async function AdminMessagesPage() {
   return (
     <div>
       <h1 className="font-heading text-2xl text-maroon-800">Messages</h1>
-      <p className="mt-1 text-sm text-foreground/60">
+      <p className="mt-1 text-sm text-foreground/65">
         Submissions from the contact form.
       </p>
 
@@ -40,11 +40,11 @@ export default async function AdminMessagesPage() {
                 <div className="font-medium text-maroon-700">
                   {m.subject || "(no subject)"}
                 </div>
-                <span className="text-xs text-foreground/50">
+                <span className="text-xs text-foreground/65">
                   {formatDate(m.created_at)}
                 </span>
               </div>
-              <div className="mt-1 text-xs text-foreground/55">
+              <div className="mt-1 text-xs text-foreground/65">
                 {m.name}
                 {m.email ? ` · ${m.email}` : ""}
                 {m.phone ? ` · ${m.phone}` : ""}
@@ -73,7 +73,7 @@ export default async function AdminMessagesPage() {
             </div>
           ))
         ) : (
-          <p className="text-sm text-foreground/55">No messages yet.</p>
+          <p className="text-sm text-foreground/65">No messages yet.</p>
         )}
       </div>
     </div>

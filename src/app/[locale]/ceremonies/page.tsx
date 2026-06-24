@@ -37,7 +37,7 @@ export default async function CeremoniesPage({
       <main className="flex-1">
         <section className="bg-temple-gradient">
           <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
-            <nav className="text-sm text-foreground/60">
+            <nav className="text-sm text-foreground/65">
               <Link href="/" className="hover:text-saffron-700">
                 {t("common.home")}
               </Link>
@@ -75,7 +75,7 @@ export default async function CeremoniesPage({
                     {event.tagline}.
                   </p>
                   <div className="mt-5 flex items-center justify-between border-t border-saffron-50 pt-4">
-                    <span className="text-sm text-foreground/60">
+                    <span className="text-sm text-foreground/65">
                       {t("cer.count", { n: event.poojaSlugs.length })}
                       {Number.isFinite(from) && (
                         <>

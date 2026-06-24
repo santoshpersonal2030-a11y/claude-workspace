@@ -54,11 +54,11 @@ export default function PanditApplicationForm() {
       className="space-y-5 rounded-2xl border border-saffron-100 bg-white p-6 shadow-sm"
     >
       <div className="grid gap-4 sm:grid-cols-2">
-        <label className="text-xs text-foreground/60">
+        <label className="text-xs text-foreground/65">
           Full name *
           <input name="full_name" required className={`mt-1 ${inputClass}`} />
         </label>
-        <label className="text-xs text-foreground/60">
+        <label className="text-xs text-foreground/65">
           Phone *
           <input
             name="phone"
@@ -67,15 +67,15 @@ export default function PanditApplicationForm() {
             className={`mt-1 ${inputClass}`}
           />
         </label>
-        <label className="text-xs text-foreground/60">
+        <label className="text-xs text-foreground/65">
           Email
           <input name="email" type="email" className={`mt-1 ${inputClass}`} />
         </label>
-        <label className="text-xs text-foreground/60">
+        <label className="text-xs text-foreground/65">
           City
           <input name="city" className={`mt-1 ${inputClass}`} />
         </label>
-        <label className="text-xs text-foreground/60">
+        <label className="text-xs text-foreground/65">
           Years of experience
           <input
             name="experience_years"
@@ -84,7 +84,7 @@ export default function PanditApplicationForm() {
             className={`mt-1 ${inputClass}`}
           />
         </label>
-        <label className="text-xs text-foreground/60">
+        <label className="text-xs text-foreground/65">
           Home pincode
           <input
             name="home_pincode"
@@ -94,7 +94,7 @@ export default function PanditApplicationForm() {
         </label>
       </div>
 
-      <label className="block text-xs text-foreground/60">
+      <label className="block text-xs text-foreground/65">
         Languages you perform in (comma-separated)
         <input
           name="languages"
@@ -102,7 +102,7 @@ export default function PanditApplicationForm() {
           className={`mt-1 ${inputClass}`}
         />
       </label>
-      <label className="block text-xs text-foreground/60">
+      <label className="block text-xs text-foreground/65">
         Specialisations / ceremonies (comma-separated)
         <input
           name="specializations"
@@ -110,11 +110,11 @@ export default function PanditApplicationForm() {
           className={`mt-1 ${inputClass}`}
         />
       </label>
-      <label className="block text-xs text-foreground/60">
+      <label className="block text-xs text-foreground/65">
         Qualifications / lineage (one per line)
         <textarea name="qualifications" rows={2} className={`mt-1 ${inputClass}`} />
       </label>
-      <label className="block text-xs text-foreground/60">
+      <label className="block text-xs text-foreground/65">
         About you
         <textarea name="bio" rows={3} className={`mt-1 ${inputClass}`} />
       </label>
@@ -123,11 +123,11 @@ export default function PanditApplicationForm() {
         <h3 className="text-sm font-semibold text-maroon-700">
           Identity verification (KYC)
         </h3>
-        <p className="mt-1 text-xs text-foreground/55">
+        <p className="mt-1 text-xs text-foreground/65">
           Your ID is used only for verification and is never shown publicly.
         </p>
         <div className="mt-3 grid gap-4 sm:grid-cols-2">
-          <label className="text-xs text-foreground/60">
+          <label className="text-xs text-foreground/65">
             ID type *
             <select name="id_type" required className={`mt-1 ${inputClass}`}>
               <option value="">Select…</option>
@@ -138,11 +138,11 @@ export default function PanditApplicationForm() {
               ))}
             </select>
           </label>
-          <label className="text-xs text-foreground/60">
+          <label className="text-xs text-foreground/65">
             ID number *
             <input name="id_number" required className={`mt-1 ${inputClass}`} />
           </label>
-          <label className="text-xs text-foreground/60">
+          <label className="text-xs text-foreground/65">
             Upload ID document
             <input
               name="id_doc"
@@ -151,7 +151,7 @@ export default function PanditApplicationForm() {
               className={`mt-1 ${inputClass}`}
             />
           </label>
-          <label className="text-xs text-foreground/60">
+          <label className="text-xs text-foreground/65">
             Profile photo
             <input
               name="photo"
@@ -176,7 +176,7 @@ export default function PanditApplicationForm() {
       >
         {busy ? "Submitting…" : "Submit application"}
       </button>
-      <p className="text-center text-xs text-foreground/50">
+      <p className="text-center text-xs text-foreground/65">
         By applying you agree to our verification process and terms.
       </p>
     </form>

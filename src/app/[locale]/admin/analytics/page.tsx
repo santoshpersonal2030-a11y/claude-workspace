@@ -99,7 +99,7 @@ export default async function AdminAnalyticsPage() {
   return (
     <div>
       <h1 className="font-heading text-2xl text-maroon-800">Analytics</h1>
-      <p className="mt-1 text-sm text-foreground/60">
+      <p className="mt-1 text-sm text-foreground/65">
         Revenue trend, conversion and the booking/order funnels across all time.
       </p>
 
@@ -112,9 +112,9 @@ export default async function AdminAnalyticsPage() {
             <div className="font-heading text-2xl text-maroon-800">
               {c.value}
             </div>
-            <div className="mt-1 text-sm text-foreground/60">{c.label}</div>
+            <div className="mt-1 text-sm text-foreground/65">{c.label}</div>
             {c.sub && (
-              <div className="text-xs text-foreground/45">{c.sub}</div>
+              <div className="text-xs text-foreground/65">{c.sub}</div>
             )}
           </div>
         ))}
@@ -126,7 +126,7 @@ export default async function AdminAnalyticsPage() {
           Revenue — last 12 months
         </h2>
         {trend.length === 0 ? (
-          <p className="mt-3 text-sm text-foreground/50">No revenue yet.</p>
+          <p className="mt-3 text-sm text-foreground/65">No revenue yet.</p>
         ) : (
           <div className="mt-4 flex items-end gap-2" style={{ height: 160 }}>
             {trend.map((t) => (
@@ -143,14 +143,14 @@ export default async function AdminAnalyticsPage() {
                     }}
                   />
                 </div>
-                <span className="text-[10px] text-foreground/50">
+                <span className="text-[10px] text-foreground/65">
                   {MONTH_LABEL(t.month)}
                 </span>
               </div>
             ))}
           </div>
         )}
-        <p className="mt-3 text-xs text-foreground/50">
+        <p className="mt-3 text-xs text-foreground/65">
           <span className="mr-1 inline-block h-2 w-2 rounded-full bg-saffron-500" />
           Store
           <span className="ml-3 mr-1 inline-block h-2 w-2 rounded-full bg-saffron-100" />
@@ -194,7 +194,7 @@ function FunnelCard({
               <span className="text-foreground/70">{s.label}</span>
               <span className="font-medium text-maroon-700">
                 {s.count}{" "}
-                <span className="text-xs text-foreground/40">({s.pct}%)</span>
+                <span className="text-xs text-foreground/65">({s.pct}%)</span>
               </span>
             </div>
             <div className="mt-1 h-2 overflow-hidden rounded-full bg-saffron-50">
@@ -206,7 +206,7 @@ function FunnelCard({
           </div>
         ))}
       </div>
-      <p className="mt-3 text-xs text-foreground/50">{footer}</p>
+      <p className="mt-3 text-xs text-foreground/65">{footer}</p>
     </div>
   );
 }

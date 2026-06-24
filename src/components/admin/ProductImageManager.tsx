@@ -188,7 +188,7 @@ export default function ProductImageManager({
           />
         </label>
       </div>
-      <p className="mt-1 text-[11px] text-foreground/50">
+      <p className="mt-1 text-[11px] text-foreground/65">
         Drag to reorder · first image is the cover · changes save on Save.
       </p>
     </div>

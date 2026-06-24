@@ -93,12 +93,12 @@ export default function OrderInvoice({
             {company.name}
           </div>
           {company.addressLines.map((l) => (
-            <p key={l} className="text-xs text-foreground/55">
+            <p key={l} className="text-xs text-foreground/65">
               {l}
             </p>
           ))}
-          <p className="text-xs text-foreground/55">GSTIN: {company.gstin}</p>
-          <p className="text-xs text-foreground/55">
+          <p className="text-xs text-foreground/65">GSTIN: {company.gstin}</p>
+          <p className="text-xs text-foreground/65">
             {company.email} · {company.phone}
           </p>
         </div>
@@ -106,19 +106,19 @@ export default function OrderInvoice({
           <div className="font-heading text-lg text-maroon-700">
             Tax Invoice
           </div>
-          <div className="text-foreground/60">
+          <div className="text-foreground/65">
             {invoiceNumber(order.invoice_no, order.invoice_fy)}
           </div>
-          <div className="text-foreground/60">
+          <div className="text-foreground/65">
             {new Date(order.created_at).toLocaleDateString("en-IN")}
           </div>
           {order.irn && (
-            <div className="mt-1 max-w-[180px] break-all text-[9px] text-foreground/45">
+            <div className="mt-1 max-w-[180px] break-all text-[9px] text-foreground/65">
               IRN: {order.irn}
             </div>
           )}
           {order.ewb_no && (
-            <div className="text-[9px] text-foreground/45">
+            <div className="text-[9px] text-foreground/65">
               EWB: {order.ewb_no}
             </div>
           )}
@@ -126,7 +126,7 @@ export default function OrderInvoice({
       </div>
 
       <div className="mt-6 text-sm">
-        <div className="text-foreground/55">Billed to</div>
+        <div className="text-foreground/65">Billed to</div>
         <div className="font-medium text-foreground">
           {order.delivery_name ?? "Customer"}
         </div>
@@ -142,7 +142,7 @@ export default function OrderInvoice({
             .join(" · ")}
         </div>
         {order.state && (
-          <div className="mt-1 text-xs text-foreground/55">
+          <div className="mt-1 text-xs text-foreground/65">
             Place of supply: {placeOfSupply(order.state)}
           </div>
         )}
@@ -150,7 +150,7 @@ export default function OrderInvoice({
 
       <table className="mt-6 w-full text-sm">
         <thead>
-          <tr className="border-b border-saffron-100 text-left text-foreground/55">
+          <tr className="border-b border-saffron-100 text-left text-foreground/65">
             <th className="py-2">Item</th>
             <th className="py-2">HSN</th>
             <th className="py-2 text-center">GST</th>
@@ -163,8 +163,8 @@ export default function OrderInvoice({
           {order.order_items.map((i) => (
             <tr key={i.id} className="border-b border-saffron-50">
               <td className="py-2">{i.product_name}</td>
-              <td className="py-2 text-foreground/60">{i.hsn_code ?? "—"}</td>
-              <td className="py-2 text-center text-foreground/60">
+              <td className="py-2 text-foreground/65">{i.hsn_code ?? "—"}</td>
+              <td className="py-2 text-center text-foreground/65">
                 {Number(i.gst_rate)}%
               </td>
               <td className="py-2 text-center">{i.quantity}</td>
@@ -179,7 +179,7 @@ export default function OrderInvoice({
       <div className="mt-4 ml-auto w-72 space-y-1 text-sm">
         {discount > 0 && (
           <>
-            <div className="flex justify-between text-foreground/60">
+            <div className="flex justify-between text-foreground/65">
               <span>Items total</span>
               <span>{formatINR(order.subtotal)}</span>
             </div>
@@ -189,18 +189,18 @@ export default function OrderInvoice({
             </div>
           </>
         )}
-        <div className="flex justify-between text-foreground/60">
+        <div className="flex justify-between text-foreground/65">
           <span>Taxable value</span>
           <span>{formatINR(totalTaxable)}</span>
         </div>
         {rateRows.map(([rate, v]) =>
           interState ? (
-            <div key={rate} className="flex justify-between text-foreground/60">
+            <div key={rate} className="flex justify-between text-foreground/65">
               <span>IGST {rate}%</span>
               <span>{formatINR(v.gst)}</span>
             </div>
           ) : (
-            <div key={rate} className="flex justify-between text-foreground/60">
+            <div key={rate} className="flex justify-between text-foreground/65">
               <span>
                 CGST {rate / 2}% + SGST {rate / 2}%
               </span>
@@ -208,7 +208,7 @@ export default function OrderInvoice({
             </div>
           ),
         )}
-        <div className="flex justify-between border-t border-saffron-50 pt-1 text-foreground/60">
+        <div className="flex justify-between border-t border-saffron-50 pt-1 text-foreground/65">
           <span>Shipping</span>
           <span>
             {order.shipping === 0 ? "Free" : formatINR(order.shipping)}
@@ -223,18 +223,18 @@ export default function OrderInvoice({
       </div>
 
       <p className="mt-4 text-sm text-foreground/70">
-        <span className="text-foreground/55">Amount in words: </span>
+        <span className="text-foreground/65">Amount in words: </span>
         {amountInWords(order.total_amount)}
       </p>
 
       {/* HSN-wise tax summary */}
       <div className="mt-6">
-        <div className="text-xs font-medium text-foreground/55">
+        <div className="text-xs font-medium text-foreground/65">
           HSN / SAC summary
         </div>
         <table className="mt-1 w-full text-xs">
           <thead>
-            <tr className="border-b border-saffron-100 text-left text-foreground/55">
+            <tr className="border-b border-saffron-100 text-left text-foreground/65">
               <th className="py-1">HSN</th>
               <th className="py-1 text-center">Rate</th>
               <th className="py-1 text-right">Taxable</th>
@@ -258,7 +258,7 @@ export default function OrderInvoice({
 
       <SignatureBlock qrDataUrl={qrDataUrl} company={company} />
 
-      <p className="mt-4 text-center text-xs text-foreground/50">
+      <p className="mt-4 text-center text-xs text-foreground/65">
         Total GST: {formatINR(totalGst)} · Prices inclusive of GST · Status:{" "}
         {order.status}
       </p>

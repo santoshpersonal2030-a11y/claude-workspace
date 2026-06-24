@@ -30,7 +30,7 @@ export default async function AdminRewardsPage() {
   return (
     <div>
       <h1 className="font-heading text-2xl text-maroon-800">Rewards</h1>
-      <p className="mt-1 text-sm text-foreground/60">
+      <p className="mt-1 text-sm text-foreground/65">
         Store-credit wallet, referral payouts and loyalty earn-back. Amounts are
         in whole rupees. Changes apply to new orders and bookings.
       </p>
@@ -53,7 +53,7 @@ export default async function AdminRewardsPage() {
           Rewards programme enabled
         </label>
 
-        <label className="text-xs text-foreground/60">
+        <label className="text-xs text-foreground/65">
           Referrer reward (₹)
           <input
             name="referrer_reward"
@@ -63,7 +63,7 @@ export default async function AdminRewardsPage() {
             className={`mt-1 ${inputClass}`}
           />
         </label>
-        <label className="text-xs text-foreground/60">
+        <label className="text-xs text-foreground/65">
           New-customer reward (₹)
           <input
             name="referee_reward"
@@ -73,7 +73,7 @@ export default async function AdminRewardsPage() {
             className={`mt-1 ${inputClass}`}
           />
         </label>
-        <label className="text-xs text-foreground/60">
+        <label className="text-xs text-foreground/65">
           Loyalty earn-back (% of net spend)
           <input
             name="loyalty_earn_pct"
@@ -84,7 +84,7 @@ export default async function AdminRewardsPage() {
             className={`mt-1 ${inputClass}`}
           />
         </label>
-        <label className="text-xs text-foreground/60">
+        <label className="text-xs text-foreground/65">
           Max redeemable per order (% of total)
           <input
             name="max_redeem_pct"

@@ -36,7 +36,7 @@ export default function PoojaList({ poojas }: { poojas: Pooja[] }) {
     <div>
       {/* Search */}
       <div className="relative mb-4 max-w-md">
-        <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-foreground/40">
+        <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-foreground/65">
           🔍
         </span>
         <input
@@ -72,7 +72,7 @@ export default function PoojaList({ poojas }: { poojas: Pooja[] }) {
 
       {/* Ritual-type filter chips */}
       <div className="mt-2 flex flex-wrap items-center gap-2">
-        <span className="text-xs text-foreground/50">{t("browse.type")}</span>
+        <span className="text-xs text-foreground/65">{t("browse.type")}</span>
         {typeFilters.map((rt) => {
           const isActive = activeType === rt;
           return (
@@ -83,7 +83,7 @@ export default function PoojaList({ poojas }: { poojas: Pooja[] }) {
                 "rounded-full px-3 py-1 text-xs font-medium transition-colors " +
                 (isActive
                   ? "bg-maroon-700 text-white shadow-sm"
-                  : "border border-stone-200 bg-white text-foreground/60 hover:bg-stone-50")
+                  : "border border-stone-200 bg-white text-foreground/65 hover:bg-stone-50")
               }
             >
               {rt === "All" ? t("browse.all") : rt}
@@ -121,7 +121,7 @@ export default function PoojaList({ poojas }: { poojas: Pooja[] }) {
               {pooja.shortDescription}
             </p>
             <div className="mt-4 flex items-center justify-between border-t border-saffron-50 pt-4">
-              <span className="text-sm text-foreground/60">
+              <span className="text-sm text-foreground/65">
                 {t("browse.startsAt")}{" "}
                 <span className="font-semibold text-foreground">
                   {formatINR(pooja.startingPrice)}
@@ -136,7 +136,7 @@ export default function PoojaList({ poojas }: { poojas: Pooja[] }) {
       </div>
 
       {visible.length === 0 && (
-        <p className="mt-10 text-center text-foreground/60">
+        <p className="mt-10 text-center text-foreground/65">
           {term
             ? t("browse.noMatch", { q: query.trim() })
             : t("browse.noneInCategory")}

@@ -61,7 +61,7 @@ export default async function FestivalsPage({
       <main className="flex-1">
         <section className="bg-temple-gradient">
           <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
-            <nav className="text-sm text-foreground/60">
+            <nav className="text-sm text-foreground/65">
               <Link href="/" className="hover:text-saffron-700">
                 {t("common.home")}
               </Link>
@@ -91,7 +91,7 @@ export default async function FestivalsPage({
                     <div className="font-heading text-lg text-maroon-700">
                       {v.name}
                     </div>
-                    <div className="text-sm text-foreground/55">{fmt(v.date)}</div>
+                    <div className="text-sm text-foreground/65">{fmt(v.date)}</div>
                     {info && (
                       <p className="mt-1 text-sm text-foreground/65">
                         {t(info.blurbKey)}
@@ -111,7 +111,7 @@ export default async function FestivalsPage({
             })}
           </div>
 
-          <p className="mt-8 text-xs text-foreground/45">
+          <p className="mt-8 text-xs text-foreground/65">
             {t("fes.note1")}{" "}
             <Link href="/panchang" className="text-saffron-700 hover:underline">
               {t("fes.noteLink")}

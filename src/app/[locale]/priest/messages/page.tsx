@@ -31,12 +31,12 @@ export default async function PriestMessagesPage({
   return (
     <div>
       <h1 className="font-heading text-2xl text-maroon-800">Messages</h1>
-      <p className="mt-1 text-sm text-foreground/60">
+      <p className="mt-1 text-sm text-foreground/65">
         Chat with customers about your assigned ceremonies.
       </p>
 
       {list.length === 0 ? (
-        <p className="mt-8 text-sm text-foreground/55">
+        <p className="mt-8 text-sm text-foreground/65">
           No bookings assigned to you yet.
         </p>
       ) : (
@@ -56,11 +56,11 @@ export default async function PriestMessagesPage({
                   <span className="font-medium text-maroon-700">
                     {bk.poojas?.name ?? "Booking"}
                   </span>
-                  <span className="text-[10px] text-foreground/40">
+                  <span className="text-[10px] text-foreground/65">
                     {new Date(bk.booking_date).toLocaleDateString("en-IN")}
                   </span>
                 </div>
-                <p className="text-xs text-foreground/55">
+                <p className="text-xs text-foreground/65">
                   {bk.city ?? ""} · {bk.status}
                 </p>
               </Link>

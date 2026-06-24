@@ -53,7 +53,7 @@ export default function LanguageSwitcher({
           className={`rounded-full px-2 py-0.5 font-semibold transition-colors ${
             locale === l
               ? "bg-saffron-600 text-white"
-              : "text-foreground/60 hover:text-saffron-700"
+              : "text-foreground/65 hover:text-saffron-700"
           }`}
         >
           {LOCALE_LABEL[l]}

@@ -24,7 +24,7 @@ export default function PoojaCard({ pooja }: { pooja: Pooja }) {
         {pooja.shortDescription}
       </p>
       <div className="mt-4 flex items-center justify-between border-t border-saffron-50 pt-4">
-        <span className="text-sm text-foreground/60">
+        <span className="text-sm text-foreground/65">
           Starts at{" "}
           <span className="font-semibold text-foreground">
             {formatINR(pooja.startingPrice)}

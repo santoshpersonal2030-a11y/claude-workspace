@@ -127,7 +127,7 @@ export default async function PoojaDetailPage({
         {/* Hero */}
         <section className="bg-temple-gradient">
           <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
-            <nav className="text-sm text-foreground/60">
+            <nav className="text-sm text-foreground/65">
               <Link href="/" className="hover:text-saffron-700">
                 Home
               </Link>
@@ -182,7 +182,7 @@ export default async function PoojaDetailPage({
             <div>
               <div className="flex flex-wrap gap-6 rounded-2xl border border-saffron-100 bg-white p-6 shadow-sm">
                 <div>
-                  <div className="text-xs text-foreground/50">
+                  <div className="text-xs text-foreground/65">
                     Starting price
                   </div>
                   <div className="font-heading text-2xl text-saffron-700">
@@ -190,13 +190,13 @@ export default async function PoojaDetailPage({
                   </div>
                 </div>
                 <div className="border-l border-saffron-100 pl-6">
-                  <div className="text-xs text-foreground/50">Duration</div>
+                  <div className="text-xs text-foreground/65">Duration</div>
                   <div className="font-heading text-2xl text-maroon-700">
                     ~{pooja.durationHours} hr
                   </div>
                 </div>
                 <div className="border-l border-saffron-100 pl-6">
-                  <div className="text-xs text-foreground/50">Rating</div>
+                  <div className="text-xs text-foreground/65">Rating</div>
                   <div className="font-heading text-2xl text-maroon-700">
                     4.9 ★
                   </div>

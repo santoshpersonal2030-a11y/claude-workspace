@@ -36,7 +36,7 @@ export default function ProductReviews({
                 {"★".repeat(5 - Math.round(rating))}
               </span>
             </div>
-            <div className="mt-1 text-xs text-foreground/55">
+            <div className="mt-1 text-xs text-foreground/65">
               {reviewCount} review{reviewCount === 1 ? "" : "s"}
             </div>
           </div>
@@ -48,14 +48,14 @@ export default function ProductReviews({
                 : 0;
               return (
                 <div key={star} className="flex items-center gap-2 text-xs">
-                  <span className="w-8 text-foreground/60">{star}★</span>
+                  <span className="w-8 text-foreground/65">{star}★</span>
                   <div className="h-2 flex-1 overflow-hidden rounded-full bg-saffron-50">
                     <div
                       className="h-full rounded-full bg-gold-400"
                       style={{ width: `${pct}%` }}
                     />
                   </div>
-                  <span className="w-8 text-right text-foreground/50">
+                  <span className="w-8 text-right text-foreground/65">
                     {count}
                   </span>
                 </div>
@@ -66,7 +66,7 @@ export default function ProductReviews({
       )}
 
       {reviews.length === 0 ? (
-        <p className="mt-4 text-sm text-foreground/60">
+        <p className="mt-4 text-sm text-foreground/65">
           No reviews yet. Be the first to share your experience.
         </p>
       ) : (
@@ -85,7 +85,7 @@ export default function ProductReviews({
                     ✓ Verified Buyer
                   </span>
                 </span>
-                <span className="text-xs text-foreground/45">
+                <span className="text-xs text-foreground/65">
                   {new Date(r.createdAt).toLocaleDateString("en-IN", {
                     day: "numeric",
                     month: "short",

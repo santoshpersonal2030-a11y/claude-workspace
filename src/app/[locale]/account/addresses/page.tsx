@@ -35,20 +35,20 @@ export default async function AddressesPage() {
         <section className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
           <Link
             href="/account/profile"
-            className="text-sm text-foreground/60 hover:text-saffron-700"
+            className="text-sm text-foreground/65 hover:text-saffron-700"
           >
             ← My account
           </Link>
           <h1 className="mt-2 font-heading text-3xl text-maroon-800">
             Saved addresses
           </h1>
-          <p className="mt-1 text-sm text-foreground/60">
+          <p className="mt-1 text-sm text-foreground/65">
             Save the places you book ceremonies for, so checkout is quicker.
           </p>
 
           <div className="mt-6 space-y-3">
             {(addresses ?? []).length === 0 ? (
-              <p className="text-sm text-foreground/55">
+              <p className="text-sm text-foreground/65">
                 No saved addresses yet.
               </p>
             ) : (
@@ -89,7 +89,7 @@ export default async function AddressesPage() {
                     <input type="hidden" name="id" value={a.id} />
                     <button
                       type="submit"
-                      className="rounded-full border border-stone-200 px-3 py-1 text-xs text-foreground/60 hover:border-red-300 hover:text-red-600"
+                      className="rounded-full border border-stone-200 px-3 py-1 text-xs text-foreground/65 hover:border-red-300 hover:text-red-600"
                     >
                       Delete
                     </button>

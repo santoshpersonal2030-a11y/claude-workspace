@@ -51,7 +51,7 @@ export default async function LifeEventPage({
       <main className="flex-1">
         <section className="bg-temple-gradient">
           <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
-            <nav className="text-sm text-foreground/60">
+            <nav className="text-sm text-foreground/65">
               <Link href="/" className="hover:text-saffron-700">
                 Home
               </Link>
@@ -133,7 +133,7 @@ export default async function LifeEventPage({
             {lifeEvent.isPackage ? "Ceremonies in this package" : "Ceremonies"}
           </h2>
           {ceremonies.length === 0 ? (
-            <p className="mt-4 text-foreground/60">
+            <p className="mt-4 text-foreground/65">
               These ceremonies are being added — please check back soon.
             </p>
           ) : (

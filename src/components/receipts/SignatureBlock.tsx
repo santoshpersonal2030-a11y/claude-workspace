@@ -15,7 +15,7 @@ export default function SignatureBlock({
           <>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={qrDataUrl} alt="Invoice QR" className="h-24 w-24" />
-            <p className="mt-1 text-[10px] text-foreground/50">
+            <p className="mt-1 text-[10px] text-foreground/65">
               {company.upi ? "Scan to pay via UPI" : "Scan for invoice details"}
             </p>
           </>
@@ -28,7 +28,7 @@ export default function SignatureBlock({
         <div className="border-t border-foreground/30 pt-1 text-xs text-foreground/70">
           For {company.name}
         </div>
-        <div className="text-xs text-foreground/55">Authorised Signatory</div>
+        <div className="text-xs text-foreground/65">Authorised Signatory</div>
       </div>
     </div>
   );

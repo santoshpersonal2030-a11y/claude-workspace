@@ -69,7 +69,7 @@ export default function PanditDirectory({ pandits }: { pandits: Pandit[] }) {
     <>
       {/* Filters */}
       <div className="flex flex-wrap items-center gap-3">
-        <label className="text-sm font-medium text-foreground/60">
+        <label className="text-sm font-medium text-foreground/65">
           {t("dir.pincode")}
           <input
             value={pincode}
@@ -81,7 +81,7 @@ export default function PanditDirectory({ pandits }: { pandits: Pandit[] }) {
             className="ml-2 w-32 rounded-full border border-saffron-200 bg-white px-4 py-2 text-sm text-foreground/80 outline-none focus:border-saffron-400"
           />
         </label>
-        <label className="text-sm font-medium text-foreground/60">
+        <label className="text-sm font-medium text-foreground/65">
           {t("dir.tier")}
           <select
             value={tier}
@@ -96,7 +96,7 @@ export default function PanditDirectory({ pandits }: { pandits: Pandit[] }) {
             ))}
           </select>
         </label>
-        <label className="text-sm font-medium text-foreground/60">
+        <label className="text-sm font-medium text-foreground/65">
           {t("dir.performs")}
           <select
             value={category}
@@ -113,7 +113,7 @@ export default function PanditDirectory({ pandits }: { pandits: Pandit[] }) {
             ))}
           </select>
         </label>
-        <span className="ml-auto text-sm text-foreground/50">
+        <span className="ml-auto text-sm text-foreground/65">
           {t(filtered.length === 1 ? "dir.pandit" : "dir.pandits", {
             n: filtered.length,
           })}
@@ -125,7 +125,7 @@ export default function PanditDirectory({ pandits }: { pandits: Pandit[] }) {
       )}
 
       {pinActive && nearbyCount > 0 && (
-        <p className="mt-2 text-xs text-foreground/55">
+        <p className="mt-2 text-xs text-foreground/65">
           {t("dir.nearbyNote", { pin: pincode, n: nearbyCount })}
         </p>
       )}
@@ -164,7 +164,7 @@ export default function PanditDirectory({ pandits }: { pandits: Pandit[] }) {
                     <span className="text-gold-600">
                       ★ {pandit.rating.toFixed(1)}
                     </span>
-                    <span className="text-foreground/45">
+                    <span className="text-foreground/65">
                       ({pandit.reviewCount})
                     </span>
                     {pandit.verified && (
@@ -210,21 +210,21 @@ export default function PanditDirectory({ pandits }: { pandits: Pandit[] }) {
                 </p>
               )}
 
-              <dl className="mt-4 space-y-1 text-xs text-foreground/60">
+              <dl className="mt-4 space-y-1 text-xs text-foreground/65">
                 <div className="flex gap-2">
-                  <dt className="font-medium text-foreground/50">
+                  <dt className="font-medium text-foreground/65">
                     {t("dir.experience")}
                   </dt>
                   <dd>{t("home.pandits.years", { years: pandit.experienceYears })}</dd>
                 </div>
                 <div className="flex gap-2">
-                  <dt className="font-medium text-foreground/50">
+                  <dt className="font-medium text-foreground/65">
                     {t("dir.languages")}
                   </dt>
                   <dd>{pandit.languages.join(", ")}</dd>
                 </div>
                 <div className="flex gap-2">
-                  <dt className="font-medium text-foreground/50">
+                  <dt className="font-medium text-foreground/65">
                     {t("dir.serves")}
                   </dt>
                   <dd>{pandit.regions.join(", ")}</dd>
@@ -243,7 +243,7 @@ export default function PanditDirectory({ pandits }: { pandits: Pandit[] }) {
       </div>
 
       {filtered.length === 0 && (
-        <p className="mt-10 text-center text-foreground/60">
+        <p className="mt-10 text-center text-foreground/65">
           {t("dir.noMatch")}
         </p>
       )}

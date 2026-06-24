@@ -92,7 +92,7 @@ export default function BookingChat({ bookingId }: { bookingId: string }) {
     <div className="rounded-2xl border border-saffron-100 bg-white shadow-sm">
       <div className="border-b border-saffron-50 px-4 py-3">
         <h3 className="font-heading text-lg text-maroon-700">Messages</h3>
-        <p className="text-xs text-foreground/55">
+        <p className="text-xs text-foreground/65">
           Chat with {me === "customer" ? "your Pandit / our team" : "the customer"}{" "}
           about this booking.
         </p>
@@ -100,7 +100,7 @@ export default function BookingChat({ bookingId }: { bookingId: string }) {
 
       <div className="max-h-80 space-y-3 overflow-y-auto px-4 py-4">
         {loaded && messages.length === 0 && (
-          <p className="text-center text-sm text-foreground/45">
+          <p className="text-center text-sm text-foreground/65">
             No messages yet. Say hello 👋
           </p>
         )}
@@ -120,7 +120,7 @@ export default function BookingChat({ bookingId }: { bookingId: string }) {
               >
                 {m.body}
               </div>
-              <span className="mt-0.5 text-[10px] text-foreground/40">
+              <span className="mt-0.5 text-[10px] text-foreground/65">
                 {ROLE_LABEL[m.sender_role] ?? m.sender_role} ·{" "}
                 {new Date(m.created_at).toLocaleString("en-IN", {
                   day: "numeric",

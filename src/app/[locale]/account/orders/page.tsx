@@ -42,7 +42,7 @@ export default async function OrdersPage() {
           <h1 className="font-heading text-3xl text-maroon-800">My orders</h1>
 
           {!orders || orders.length === 0 ? (
-            <p className="mt-8 text-foreground/60">
+            <p className="mt-8 text-foreground/65">
               You haven&apos;t placed any orders yet.
             </p>
           ) : (
@@ -53,7 +53,7 @@ export default async function OrdersPage() {
                   className="rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm"
                 >
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-foreground/50">
+                    <span className="text-xs text-foreground/65">
                       {new Date(order.created_at).toLocaleDateString("en-IN", {
                         day: "numeric",
                         month: "short",
@@ -73,7 +73,7 @@ export default async function OrdersPage() {
                     <OrderStatusTracker status={order.status} />
                   </div>
                   {(order.tracking_number || order.estimated_delivery) && (
-                    <p className="mt-3 text-xs text-foreground/55">
+                    <p className="mt-3 text-xs text-foreground/65">
                       {order.tracking_number && (
                         <>
                           Tracking:{" "}

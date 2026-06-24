@@ -9,7 +9,7 @@ export default function RatingStars({
   className?: string;
 }) {
   if (!reviewCount) {
-    return <span className={`text-xs text-foreground/45 ${className}`}>No reviews yet</span>;
+    return <span className={`text-xs text-foreground/65 ${className}`}>No reviews yet</span>;
   }
   return (
     <span className={`inline-flex items-center gap-1 text-sm ${className}`}>
@@ -17,7 +17,7 @@ export default function RatingStars({
         ★
       </span>
       <span className="font-medium text-foreground/80">{rating.toFixed(1)}</span>
-      <span className="text-foreground/45">({reviewCount})</span>
+      <span className="text-foreground/65">({reviewCount})</span>
     </span>
   );
 }

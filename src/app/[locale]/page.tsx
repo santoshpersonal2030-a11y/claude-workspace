@@ -117,7 +117,7 @@ export default async function Home({
                       <div className="font-heading text-2xl text-saffron-700">
                         {s.value}
                       </div>
-                      <div className="mt-1 text-xs text-foreground/60">
+                      <div className="mt-1 text-xs text-foreground/65">
                         {s.label}
                       </div>
                     </div>
@@ -170,7 +170,7 @@ export default async function Home({
                   {pooja.shortDescription}
                 </p>
                 <div className="mt-4 flex items-center justify-between border-t border-saffron-50 pt-4">
-                  <span className="text-sm text-foreground/60">
+                  <span className="text-sm text-foreground/65">
                     {t("home.popular.startsAt")}{" "}
                     <span className="font-semibold text-foreground">
                       {formatINR(pooja.startingPrice)}
@@ -294,7 +294,7 @@ export default async function Home({
                         {formatINR(product.price)}
                       </span>
                       {discount > 0 && product.mrp && (
-                        <span className="text-xs text-foreground/40 line-through">
+                        <span className="text-xs text-foreground/65 line-through">
                           {formatINR(product.mrp)}
                         </span>
                       )}
@@ -347,7 +347,7 @@ export default async function Home({
                           <span className="text-gold-600">
                             ★ {pandit.rating.toFixed(1)}
                           </span>
-                          <span className="text-foreground/45">
+                          <span className="text-foreground/65">
                             ({pandit.reviewCount})
                           </span>
                           {pandit.verified && (
@@ -361,7 +361,7 @@ export default async function Home({
                     <p className="mt-4 flex-1 text-sm text-foreground/65">
                       {pandit.bio}
                     </p>
-                    <div className="mt-4 border-t border-saffron-50 pt-3 text-xs text-foreground/55">
+                    <div className="mt-4 border-t border-saffron-50 pt-3 text-xs text-foreground/65">
                       {t("home.pandits.years", { years: pandit.experienceYears })} ·{" "}
                       {pandit.languages.slice(0, 3).join(", ")}
                     </div>
@@ -444,7 +444,7 @@ export default async function Home({
                   </blockquote>
                   <figcaption className="mt-4 border-t border-saffron-50 pt-3">
                     <div className="font-medium text-maroon-700">{tm.name}</div>
-                    <div className="text-xs text-foreground/55">{tm.detail}</div>
+                    <div className="text-xs text-foreground/65">{tm.detail}</div>
                   </figcaption>
                 </figure>
               ))}

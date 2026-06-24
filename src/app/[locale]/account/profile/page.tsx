@@ -60,7 +60,7 @@ export default async function ProfilePage() {
               Profile details
             </h2>
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
-              <label className="text-xs text-foreground/60">
+              <label className="text-xs text-foreground/65">
                 Full name
                 <input
                   name="full_name"
@@ -68,7 +68,7 @@ export default async function ProfilePage() {
                   className={`mt-1 ${inputClass}`}
                 />
               </label>
-              <label className="text-xs text-foreground/60">
+              <label className="text-xs text-foreground/65">
                 Phone
                 <input
                   name="phone"
@@ -77,14 +77,14 @@ export default async function ProfilePage() {
                   className={`mt-1 ${inputClass}`}
                 />
               </label>
-              <label className="text-xs text-foreground/60 sm:col-span-2">
+              <label className="text-xs text-foreground/65 sm:col-span-2">
                 Email
                 <input
                   defaultValue={profile?.email ?? user.email ?? ""}
                   disabled
                   className={`mt-1 ${inputClass} opacity-60`}
                 />
-                <span className="mt-1 block text-[11px] text-foreground/45">
+                <span className="mt-1 block text-[11px] text-foreground/65">
                   Email is managed by your sign-in method.
                 </span>
               </label>

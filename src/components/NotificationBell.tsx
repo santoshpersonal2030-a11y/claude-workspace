@@ -142,7 +142,7 @@ export default function NotificationBell() {
             </div>
             <div className="max-h-96 overflow-y-auto">
               {notes.length === 0 ? (
-                <p className="px-4 py-6 text-center text-sm text-foreground/50">
+                <p className="px-4 py-6 text-center text-sm text-foreground/65">
                   You&apos;re all caught up.
                 </p>
               ) : (
@@ -153,11 +153,11 @@ export default function NotificationBell() {
                         {n.title}
                       </p>
                       {n.body && (
-                        <p className="mt-0.5 line-clamp-2 text-xs text-foreground/60">
+                        <p className="mt-0.5 line-clamp-2 text-xs text-foreground/65">
                           {n.body}
                         </p>
                       )}
-                      <p className="mt-0.5 text-[10px] text-foreground/40">
+                      <p className="mt-0.5 text-[10px] text-foreground/65">
                         {new Date(n.created_at).toLocaleString("en-IN", {
                           day: "numeric",
                           month: "short",

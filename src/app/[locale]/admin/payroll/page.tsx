@@ -69,7 +69,7 @@ export default async function AdminPayrollPage() {
           </Link>
         </div>
       </div>
-      <p className="mt-1 text-sm text-foreground/60">
+      <p className="mt-1 text-sm text-foreground/65">
         Generate a monthly payroll run to compute every active priest&apos;s pay
         from their compensation profile and completed bookings. Re-running a
         month rebuilds unpaid lines (paid lines are preserved).
@@ -80,7 +80,7 @@ export default async function AdminPayrollPage() {
         action={createPayrollRun}
         className="mt-6 flex flex-wrap items-end gap-3 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm"
       >
-        <label className="text-xs text-foreground/60">
+        <label className="text-xs text-foreground/65">
           Month
           <select
             name="period_month"
@@ -94,7 +94,7 @@ export default async function AdminPayrollPage() {
             ))}
           </select>
         </label>
-        <label className="text-xs text-foreground/60">
+        <label className="text-xs text-foreground/65">
           Year
           <input
             name="period_year"
@@ -114,7 +114,7 @@ export default async function AdminPayrollPage() {
       {/* Existing runs */}
       <div className="mt-8 space-y-3">
         {(runs ?? []).length === 0 && (
-          <p className="text-sm text-foreground/50">No payroll runs yet.</p>
+          <p className="text-sm text-foreground/65">No payroll runs yet.</p>
         )}
         {runs?.map((run) => {
           const t = totals.get(run.id) ?? {
@@ -142,7 +142,7 @@ export default async function AdminPayrollPage() {
                 >
                   {run.status}
                 </span>
-                <p className="mt-1 text-xs text-foreground/60">
+                <p className="mt-1 text-xs text-foreground/65">
                   {t.count} priests · gross {formatINR(t.gross)} · net{" "}
                   {formatINR(t.net)} · paid {formatINR(t.paid)}
                 </p>
@@ -158,7 +158,7 @@ export default async function AdminPayrollPage() {
                   <input type="hidden" name="run_id" value={run.id} />
                   <button
                     type="submit"
-                    className="rounded-full border border-stone-200 px-3 py-1.5 text-xs text-foreground/60 hover:border-red-300 hover:text-red-600"
+                    className="rounded-full border border-stone-200 px-3 py-1.5 text-xs text-foreground/65 hover:border-red-300 hover:text-red-600"
                   >
                     Delete
                   </button>
