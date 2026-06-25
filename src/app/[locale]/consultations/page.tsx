@@ -4,6 +4,7 @@ import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { consultations } from "@/lib/consultations";
+import { localizeConsultation } from "@/lib/consultations-i18n";
 import { formatINR } from "@/lib/poojas";
 import { getDictionary, isLocale, DEFAULT_LOCALE } from "@/lib/i18n";
 
@@ -23,7 +24,9 @@ export default async function ConsultationsPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const { t } = getDictionary(isLocale(locale) ? locale : DEFAULT_LOCALE);
+  const loc = isLocale(locale) ? locale : DEFAULT_LOCALE;
+  const { t } = getDictionary(loc);
+  const items = consultations.map((c) => localizeConsultation(c, loc));
 
   return (
     <>
@@ -43,12 +46,12 @@ export default async function ConsultationsPage({
               {t("consult.subtitle")}
             </p>
             <p className="mt-2 text-sm text-foreground/60">
-              Need an answer right now?{" "}
+              {t("consult.liveQ")}{" "}
               <Link
                 href="/live-astrology"
                 className="font-medium text-saffron-700 hover:underline"
               >
-                Talk to an astrologer live, per minute →
+                {t("consult.liveLink")}
               </Link>
             </p>
           </div>
@@ -57,7 +60,7 @@ export default async function ConsultationsPage({
         <section className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
           <h2 className="sr-only">{t("consult.allHeading")}</h2>
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {consultations.map((c) => (
+            {items.map((c) => (
               <Link
                 key={c.slug}
                 href={`/consultations/${c.slug}`}

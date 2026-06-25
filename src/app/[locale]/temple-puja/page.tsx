@@ -4,6 +4,7 @@ import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { templePujas } from "@/lib/temple-pujas";
+import { localizeTemplePuja } from "@/lib/temple-i18n";
 import { formatINR } from "@/lib/poojas";
 import { getDictionary, isLocale, DEFAULT_LOCALE } from "@/lib/i18n";
 
@@ -23,7 +24,9 @@ export default async function TemplePujaPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const { t } = getDictionary(isLocale(locale) ? locale : DEFAULT_LOCALE);
+  const loc = isLocale(locale) ? locale : DEFAULT_LOCALE;
+  const { t } = getDictionary(loc);
+  const items = templePujas.map((p) => localizeTemplePuja(p, loc));
 
   return (
     <>
@@ -48,7 +51,7 @@ export default async function TemplePujaPage({
         <section className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
           <h2 className="sr-only">{t("temple.allHeading")}</h2>
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {templePujas.map((p) => (
+            {items.map((p) => (
               <Link
                 key={p.slug}
                 href={`/temple-puja/${p.slug}`}

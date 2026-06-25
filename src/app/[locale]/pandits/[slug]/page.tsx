@@ -12,6 +12,8 @@ import { panditTierInfo, TIER_BADGE_CLASS } from "@/lib/pandit-tier";
 import PanditAvatar from "@/components/PanditAvatar";
 import JsonLd from "@/components/JsonLd";
 import { SITE_URL, breadcrumbLd } from "@/lib/seo";
+import { getDictionary, isLocale, DEFAULT_LOCALE } from "@/lib/i18n";
+import { localizePandit } from "@/lib/pandits-i18n";
 
 function reviewDate(value: string): string {
   return new Date(value).toLocaleDateString("en-IN", {
@@ -45,11 +47,14 @@ export async function generateMetadata({
 export default async function PanditDetailPage({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ locale: string; slug: string }>;
 }) {
-  const { slug } = await params;
-  const pandit = await getPanditBySlug(slug);
-  if (!pandit) notFound();
+  const { locale, slug } = await params;
+  const loc = isLocale(locale) ? locale : DEFAULT_LOCALE;
+  const { t } = getDictionary(loc);
+  const raw = await getPanditBySlug(slug);
+  if (!raw) notFound();
+  const pandit = localizePandit(raw, loc);
 
   const reviews = await getPanditReviews(slug);
 
@@ -89,12 +94,12 @@ export default async function PanditDetailPage({
 
   const tier = panditTierInfo(pandit.experienceYears);
   const facts = [
-    { label: "Experience", value: `${pandit.experienceYears}+ years` },
-    { label: "Rating", value: `${pandit.rating.toFixed(1)} ★ (${pandit.reviewCount})` },
-    { label: "Languages", value: pandit.languages.join(", ") },
-    { label: "Serves", value: pandit.regions.join(", ") },
+    { label: t("dir.experience"), value: t("home.pandits.years", { years: pandit.experienceYears }) },
+    { label: t("pd.rating"), value: `${pandit.rating.toFixed(1)} ★ (${pandit.reviewCount})` },
+    { label: t("dir.languages"), value: pandit.languages.join(", ") },
+    { label: t("dir.serves"), value: pandit.regions.join(", ") },
     ...(pandit.specializations.length > 0
-      ? [{ label: "Performs", value: pandit.specializations.join(", ") }]
+      ? [{ label: t("dir.performs"), value: pandit.specializations.map((c) => t(`pcat.${c}`)).join(", ") }]
       : []),
   ];
 
@@ -107,11 +112,11 @@ export default async function PanditDetailPage({
           <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6">
             <nav className="text-sm text-foreground/65">
               <Link href="/" className="hover:text-saffron-700">
-                Home
+                {t("common.home")}
               </Link>
               <span className="mx-2">/</span>
               <Link href="/pandits" className="hover:text-saffron-700">
-                Our Pandits
+                {t("nav.pandits")}
               </Link>
               <span className="mx-2">/</span>
               <span className="text-saffron-700">{pandit.fullName}</span>
@@ -139,11 +144,11 @@ export default async function PanditDetailPage({
                     ★ {pandit.rating.toFixed(1)}
                   </span>
                   <span className="text-foreground/65">
-                    ({pandit.reviewCount} reviews)
+                    {t("pdt.reviewsParen", { n: pandit.reviewCount })}
                   </span>
                   {pandit.verified && (
                     <span className="rounded-full bg-green-50 px-2 py-0.5 text-[11px] font-medium text-green-700">
-                      ✓ Verified
+                      {t("home.pandits.verified")}
                     </span>
                   )}
                 </div>
@@ -155,7 +160,9 @@ export default async function PanditDetailPage({
         <section className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
           <div className="grid gap-10 lg:grid-cols-[1.6fr_1fr]">
             <div>
-              <h2 className="font-heading text-2xl text-maroon-800">About</h2>
+              <h2 className="font-heading text-2xl text-maroon-800">
+                {t("pdt.about")}
+              </h2>
               <p className="mt-3 leading-relaxed text-foreground/75">
                 {pandit.bio}
               </p>
@@ -177,7 +184,7 @@ export default async function PanditDetailPage({
               {pandit.qualifications.length > 0 && (
                 <div className="mt-8">
                   <h2 className="font-heading text-2xl text-maroon-800">
-                    Qualifications
+                    {t("pdt.qualifications")}
                   </h2>
                   <ul className="mt-3 space-y-2">
                     {pandit.qualifications.map((q) => (
@@ -196,7 +203,7 @@ export default async function PanditDetailPage({
               {pandit.achievements.length > 0 && (
                 <div className="mt-8">
                   <h2 className="font-heading text-2xl text-maroon-800">
-                    Achievements
+                    {t("pdt.achievements")}
                   </h2>
                   <ul className="mt-3 space-y-2">
                     {pandit.achievements.map((a) => (
@@ -216,17 +223,16 @@ export default async function PanditDetailPage({
             <div className="lg:sticky lg:top-24 lg:self-start">
               <div className="rounded-2xl border border-saffron-100 bg-cream-100/60 p-6 text-center shadow-sm">
                 <h3 className="font-heading text-lg text-maroon-700">
-                  Book a ceremony
+                  {t("pdt.bookCeremony")}
                 </h3>
                 <p className="mt-2 text-sm text-foreground/65">
-                  Choose your pooja and we&apos;ll assign {pandit.fullName} or
-                  another verified priest for your date and location.
+                  {t("pdt.bookBlurb", { name: pandit.fullName })}
                 </p>
                 <Link
                   href="/poojas"
                   className="mt-5 block w-full rounded-full bg-saffron-700 py-3 text-sm font-semibold text-white transition-colors hover:bg-saffron-800"
                 >
-                  Browse poojas
+                  {t("hiw.browse")}
                 </Link>
               </div>
             </div>
@@ -235,7 +241,7 @@ export default async function PanditDetailPage({
           {reviews.length > 0 && (
             <div className="mt-12">
               <h2 className="font-heading text-2xl text-maroon-800">
-                Reviews ({pandit.reviewCount})
+                {t("pdt.reviewsHeading", { n: pandit.reviewCount })}
               </h2>
               <div className="mt-4 grid gap-4 sm:grid-cols-2">
                 {reviews.map((r) => (

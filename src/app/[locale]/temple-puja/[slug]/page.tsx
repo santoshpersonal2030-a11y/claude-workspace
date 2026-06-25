@@ -7,6 +7,7 @@ import Footer from "@/components/Footer";
 import JsonLd from "@/components/JsonLd";
 import TemplePujaBookingForm from "@/components/TemplePujaBookingForm";
 import { templePujas, getTemplePuja } from "@/lib/temple-pujas";
+import { localizeTemplePuja } from "@/lib/temple-i18n";
 import { formatINR } from "@/lib/poojas";
 import { SITE_URL, breadcrumbLd } from "@/lib/seo";
 import { getDictionary, isLocale, DEFAULT_LOCALE } from "@/lib/i18n";
@@ -35,9 +36,11 @@ export default async function TemplePujaDetailPage({
   params: Promise<{ locale: string; slug: string }>;
 }) {
   const { locale, slug } = await params;
-  const { t } = getDictionary(isLocale(locale) ? locale : DEFAULT_LOCALE);
-  const puja = getTemplePuja(slug);
-  if (!puja) notFound();
+  const loc = isLocale(locale) ? locale : DEFAULT_LOCALE;
+  const { t } = getDictionary(loc);
+  const raw = getTemplePuja(slug);
+  if (!raw) notFound();
+  const puja = localizeTemplePuja(raw, loc);
 
   const ld = {
     "@context": "https://schema.org",

@@ -169,6 +169,13 @@ const en: Dict = {
   "pd.defInc4": "Guidance on the muhurat (auspicious time)",
   "pd.defInc5": "Optional authentic samagri kit, delivered to your door",
   "pd.autoDesc": "{short} Our verified Pandits perform the {name} with complete devotion and adherence to Vedic tradition, guiding your family through every ritual. The ceremony typically takes around {h} hours.",
+  "pdt.about": "About",
+  "pdt.qualifications": "Qualifications",
+  "pdt.achievements": "Achievements",
+  "pdt.bookCeremony": "Book a ceremony",
+  "pdt.bookBlurb": "Choose your pooja and we'll assign {name} or another verified priest for your date and location.",
+  "pdt.reviewsParen": "({n} reviews)",
+  "pdt.reviewsHeading": "Reviews ({n})",
 
   // Poojas list
   "poojas.subtitle": "Choose a ceremony and we'll arrange a verified, experienced Pandit — in your language, at your home, with authentic samagri.",
@@ -476,6 +483,8 @@ const en: Dict = {
   "consult.subtitle":
     "Speak 1:1 with a verified astrologer — over phone or video — for a kundli reading, an auspicious muhurat, kundli matching, vastu or targeted remedies.",
   "consult.allHeading": "All consultations",
+  "consult.liveQ": "Need an answer right now?",
+  "consult.liveLink": "Talk to an astrologer live, per minute →",
   "consult.popular": "Popular",
   "consult.minutes": "{mins} min",
   "consult.phoneOrVideo": "Phone or video",
@@ -821,6 +830,13 @@ const hi: Dict = {
   "pd.defInc4": "मुहूर्त (शुभ समय) पर मार्गदर्शन",
   "pd.defInc5": "वैकल्पिक प्रामाणिक सामग्री किट, आपके द्वार तक",
   "pd.autoDesc": "{short} हमारे सत्यापित पंडित {name} को पूरी श्रद्धा और वैदिक परंपरा के अनुसार सम्पन्न कराते हैं, और आपके परिवार को हर अनुष्ठान में मार्गदर्शन देते हैं। इस समारोह में लगभग {h} घंटे लगते हैं।",
+  "pdt.about": "परिचय",
+  "pdt.qualifications": "योग्यताएँ",
+  "pdt.achievements": "उपलब्धियाँ",
+  "pdt.bookCeremony": "समारोह बुक करें",
+  "pdt.bookBlurb": "अपनी पूजा चुनें और हम आपकी तिथि व स्थान के लिए {name} या किसी अन्य सत्यापित पंडित को नियुक्त करेंगे।",
+  "pdt.reviewsParen": "({n} समीक्षाएँ)",
+  "pdt.reviewsHeading": "समीक्षाएँ ({n})",
 
   // Poojas list
   "poojas.subtitle": "एक समारोह चुनें और हम एक सत्यापित, अनुभवी पंडित की व्यवस्था करेंगे — आपकी भाषा में, आपके घर पर, प्रामाणिक सामग्री के साथ।",
@@ -1127,6 +1143,8 @@ const hi: Dict = {
   "consult.subtitle":
     "सत्यापित ज्योतिषी से 1:1 बात करें — फ़ोन या वीडियो पर — कुंडली विश्लेषण, शुभ मुहूर्त, कुंडली मिलान, वास्तु या उपायों के लिए।",
   "consult.allHeading": "सभी परामर्श",
+  "consult.liveQ": "अभी उत्तर चाहिए?",
+  "consult.liveLink": "ज्योतिषी से लाइव बात करें, प्रति मिनट →",
   "consult.popular": "लोकप्रिय",
   "consult.minutes": "{mins} मिनट",
   "consult.phoneOrVideo": "फ़ोन या वीडियो",
@@ -1456,6 +1474,13 @@ const te: Dict = {
   "pd.defInc4": "ముహూర్తం (శుభ సమయం)పై మార్గదర్శనం",
   "pd.defInc5": "ఐచ్ఛిక అసలైన సామగ్రి కిట్, మీ ఇంటికే",
   "pd.autoDesc": "{short} మా ధృవీకరించిన పండితులు {name}ను సంపూర్ణ భక్తితో, వేద సంప్రదాయం ప్రకారం నిర్వహించి, ప్రతి ఆచారంలో మీ కుటుంబానికి మార్గనిర్దేశం చేస్తారు. ఈ కార్యక్రమం సుమారు {h} గంటలు పడుతుంది.",
+  "pdt.about": "పరిచయం",
+  "pdt.qualifications": "అర్హతలు",
+  "pdt.achievements": "విజయాలు",
+  "pdt.bookCeremony": "సంస్కారాన్ని బుక్ చేయండి",
+  "pdt.bookBlurb": "మీ పూజను ఎంచుకోండి, మీ తేదీ మరియు ప్రదేశానికి {name} లేదా మరో ధృవీకరించిన పూజారిని మేము కేటాయిస్తాం.",
+  "pdt.reviewsParen": "({n} సమీక్షలు)",
+  "pdt.reviewsHeading": "సమీక్షలు ({n})",
 
   "poojas.subtitle": "ఒక సంస్కారాన్ని ఎంచుకోండి, మేము ధృవీకరించిన, అనుభవజ్ఞుడైన పండితుడిని ఏర్పాటు చేస్తాం — మీ భాషలో, మీ ఇంటి వద్ద, అసలైన సామగ్రితో.",
   "browse.searchPoojas": "పూజలను వెతకండి (ఉదా. లక్ష్మి, గృహ ప్రవేశం)…",
@@ -1744,6 +1769,8 @@ const te: Dict = {
   "consult.title": "జ్యోతిష్య & ముహూర్త సంప్రదింపులు",
   "consult.subtitle": "ధృవీకరించిన జ్యోతిష్యునితో 1:1 మాట్లాడండి — ఫోన్ లేదా వీడియో ద్వారా — కుండలి విశ్లేషణ, శుభ ముహూర్తం, కుండలి మిలన్, వాస్తు లేదా నిర్దిష్ట పరిహారాల కోసం.",
   "consult.allHeading": "అన్ని సంప్రదింపులు",
+  "consult.liveQ": "ఇప్పుడే సమాధానం కావాలా?",
+  "consult.liveLink": "జ్యోతిష్యునితో ప్రత్యక్షంగా మాట్లాడండి, నిమిషానికి →",
   "consult.popular": "ప్రసిద్ధం",
   "consult.minutes": "{mins} నిమిషాలు",
   "consult.phoneOrVideo": "ఫోన్ లేదా వీడియో",
