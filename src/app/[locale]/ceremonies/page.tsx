@@ -5,6 +5,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { lifeEvents } from "@/lib/ceremonies";
 import { getPoojas } from "@/lib/queries";
+import { localizeLifeEvent } from "@/lib/ceremonies-i18n";
 import { formatINR } from "@/lib/poojas";
 import { getDictionary, isLocale, DEFAULT_LOCALE } from "@/lib/i18n";
 
@@ -26,8 +27,10 @@ export default async function CeremoniesPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const { t } = getDictionary(isLocale(locale) ? locale : DEFAULT_LOCALE);
+  const loc = isLocale(locale) ? locale : DEFAULT_LOCALE;
+  const { t } = getDictionary(loc);
   const poojas = await getPoojas();
+  const events = lifeEvents.map((e) => localizeLifeEvent(e, loc));
   const priceOf = (slug: string) =>
     poojas.find((p) => p.slug === slug)?.startingPrice ?? 0;
 
@@ -55,7 +58,7 @@ export default async function CeremoniesPage({
 
         <section className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
           <div className="grid gap-6 md:grid-cols-3">
-            {lifeEvents.map((event) => {
+            {events.map((event) => {
               const from = event.poojaSlugs
                 .map(priceOf)
                 .filter((n) => n > 0)

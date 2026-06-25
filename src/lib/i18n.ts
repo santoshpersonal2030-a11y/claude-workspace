@@ -264,6 +264,8 @@ const en: Dict = {
   "cer.count": "{n} ceremonies",
   "cer.from": "from",
   "cer.explore": "Explore →",
+  "cer.package": "Package",
+  "cer.inPackage": "Ceremonies in this package",
 
   // Festivals & Vrats
   "fes.crumb": "Festivals & Vrats",
@@ -930,6 +932,8 @@ const hi: Dict = {
   "cer.count": "{n} समारोह",
   "cer.from": "शुरू",
   "cer.explore": "देखें →",
+  "cer.package": "पैकेज",
+  "cer.inPackage": "इस पैकेज की रस्में",
 
   // Festivals & Vrats
   "fes.crumb": "त्योहार और व्रत",
@@ -1573,6 +1577,8 @@ const te: Dict = {
   "cer.count": "{n} సంస్కారాలు",
   "cer.from": "నుండి",
   "cer.explore": "అన్వేషించండి →",
+  "cer.package": "ప్యాకేజీ",
+  "cer.inPackage": "ఈ ప్యాకేజీలోని సంస్కారాలు",
 
   "fes.crumb": "పండుగలు & వ్రతాలు",
   "fes.h1": "పండుగ & వ్రత క్యాలెండర్",

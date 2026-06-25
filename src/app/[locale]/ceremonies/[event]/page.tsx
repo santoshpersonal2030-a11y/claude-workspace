@@ -7,8 +7,11 @@ import Footer from "@/components/Footer";
 import PoojaCard from "@/components/PoojaCard";
 import PackageBookingForm from "@/components/PackageBookingForm";
 import { lifeEvents, getLifeEvent } from "@/lib/ceremonies";
+import { localizeLifeEvent } from "@/lib/ceremonies-i18n";
 import { getPoojas } from "@/lib/queries";
+import { localizePooja } from "@/lib/poojas-i18n";
 import { formatINR, type Pooja } from "@/lib/poojas";
+import { getDictionary, isLocale, DEFAULT_LOCALE } from "@/lib/i18n";
 
 export const revalidate = 300;
 
@@ -30,13 +33,16 @@ export async function generateMetadata({
 export default async function LifeEventPage({
   params,
 }: {
-  params: Promise<{ event: string }>;
+  params: Promise<{ locale: string; event: string }>;
 }) {
-  const { event } = await params;
-  const lifeEvent = getLifeEvent(event);
-  if (!lifeEvent) notFound();
+  const { locale, event } = await params;
+  const loc = isLocale(locale) ? locale : DEFAULT_LOCALE;
+  const { t } = getDictionary(loc);
+  const rawEvent = getLifeEvent(event);
+  if (!rawEvent) notFound();
+  const lifeEvent = localizeLifeEvent(rawEvent, loc);
 
-  const poojas = await getPoojas();
+  const poojas = (await getPoojas()).map((p) => localizePooja(p, loc));
   const bySlug = new Map(poojas.map((p) => [p.slug, p]));
   // Keep the curated order; drop any slug missing from the catalog.
   const ceremonies = lifeEvent.poojaSlugs
@@ -53,11 +59,11 @@ export default async function LifeEventPage({
           <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
             <nav className="text-sm text-foreground/65">
               <Link href="/" className="hover:text-saffron-700">
-                Home
+                {t("common.home")}
               </Link>
               <span className="mx-2">/</span>
               <Link href="/ceremonies" className="hover:text-saffron-700">
-                Ceremonies
+                {t("cer.crumb")}
               </Link>
               <span className="mx-2">/</span>
               <span className="text-saffron-700">{lifeEvent.title}</span>
@@ -84,7 +90,7 @@ export default async function LifeEventPage({
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>
                   <h2 className="font-heading text-2xl text-maroon-800">
-                    {lifeEvent.packageName ?? "Package"}
+                    {lifeEvent.packageName ?? t("cer.package")}
                   </h2>
                   <p className="mt-2 max-w-xl text-sm text-foreground/70">
                     {lifeEvent.packageNote}
@@ -130,7 +136,7 @@ export default async function LifeEventPage({
           )}
 
           <h2 className="font-heading text-2xl text-maroon-800">
-            {lifeEvent.isPackage ? "Ceremonies in this package" : "Ceremonies"}
+            {lifeEvent.isPackage ? t("cer.inPackage") : t("cer.crumb")}
           </h2>
           {ceremonies.length === 0 ? (
             <p className="mt-4 text-foreground/65">
