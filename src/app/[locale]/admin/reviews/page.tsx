@@ -96,11 +96,11 @@ export default async function AdminReviewsPage({
       </div>
 
       {rows.length === 0 ? (
-        <p className="mt-6 text-sm text-foreground/65">
+        <p className="mt-4 text-sm text-foreground/65">
           No {showHidden ? "hidden" : "published"} reviews.
         </p>
       ) : (
-        <div className="mt-6 space-y-3">
+        <div className="mt-4 space-y-3">
           {rows.map((r) => (
             <div
               key={`${r.kind}-${r.id}`}

@@ -9,7 +9,7 @@ export default function SignatureBlock({
   company?: Company;
 }) {
   return (
-    <div className="mt-6 flex items-end justify-between border-t border-saffron-50 pt-4">
+    <div className="mt-4 flex items-end justify-between border-t border-saffron-50 pt-4">
       <div>
         {qrDataUrl ? (
           <>

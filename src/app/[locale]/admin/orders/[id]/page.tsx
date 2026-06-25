@@ -85,7 +85,7 @@ export default async function AdminOrderDetailPage({
         </Link>
       </div>
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-[1.6fr_1fr]">
+      <div className="mt-4 grid gap-6 lg:grid-cols-[1.6fr_1fr]">
         {/* Items */}
         <div className="rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm">
           <h2 className="font-heading text-lg text-maroon-700">Items</h2>

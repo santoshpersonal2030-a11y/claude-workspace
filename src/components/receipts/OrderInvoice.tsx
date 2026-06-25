@@ -125,7 +125,7 @@ export default function OrderInvoice({
         </div>
       </div>
 
-      <div className="mt-6 text-sm">
+      <div className="mt-4 text-sm">
         <div className="text-foreground/65">Billed to</div>
         <div className="font-medium text-foreground">
           {order.delivery_name ?? "Customer"}
@@ -148,7 +148,7 @@ export default function OrderInvoice({
         )}
       </div>
 
-      <table className="mt-6 w-full text-sm">
+      <table className="mt-4 w-full text-sm">
         <thead>
           <tr className="border-b border-saffron-100 text-left text-foreground/65">
             <th scope="col" className="py-2">Item</th>
@@ -228,7 +228,7 @@ export default function OrderInvoice({
       </p>
 
       {/* HSN-wise tax summary */}
-      <div className="mt-6">
+      <div className="mt-4">
         <div className="text-xs font-medium text-foreground/65">
           HSN / SAC summary
         </div>

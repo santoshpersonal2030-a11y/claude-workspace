@@ -57,7 +57,7 @@ export default async function AstrologerProfile({
     <>
       <Header />
       <main className="flex-1">
-        <section className="mx-auto max-w-3xl px-4 py-6 sm:px-6">
+        <section className="mx-auto max-w-3xl px-4 py-4 sm:px-6">
           <Link
             href="/live-astrology"
             className="text-sm text-foreground/65 hover:text-saffron-700"
@@ -112,7 +112,7 @@ export default async function AstrologerProfile({
               Speaks {a.languages.join(", ")}
             </p>
 
-            <div className="mt-6 border-t border-saffron-50 pt-6">
+            <div className="mt-4 border-t border-saffron-50 pt-6">
               <LiveLauncher
                 slug={a.slug}
                 online={presence === "online"}

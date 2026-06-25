@@ -55,7 +55,7 @@ export default async function GunMilanPage({
       <Header />
       <main className="flex-1">
         <section className="bg-temple-gradient">
-          <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6">
+          <div className="mx-auto max-w-5xl px-4 py-4 sm:px-6">
             <nav className="text-sm text-foreground/65">
               <Link href="/" className="hover:text-saffron-700">
                 {t("common.home")}
@@ -70,7 +70,7 @@ export default async function GunMilanPage({
               {t("gm.subtitle")}
             </p>
 
-            <form method="get" className="mt-6 grid gap-4 sm:grid-cols-2">
+            <form method="get" className="mt-4 grid gap-4 sm:grid-cols-2">
               <div className="rounded-2xl border border-saffron-100 bg-white/70 p-4">
                 <h2 className="font-heading text-maroon-700">{t("gm.bride")}</h2>
                 <label className="mt-2 block text-xs text-foreground/65">
@@ -105,7 +105,7 @@ export default async function GunMilanPage({
           </div>
         </section>
 
-        <section className="mx-auto max-w-5xl px-4 py-6 sm:px-6">
+        <section className="mx-auto max-w-5xl px-4 py-4 sm:px-6">
           {!result ? (
             <p className="text-foreground/65">{t("gm.enterDetails")}</p>
           ) : (
@@ -141,7 +141,7 @@ export default async function GunMilanPage({
                 </div>
               )}
 
-              <div className="mt-6 overflow-x-auto">
+              <div className="mt-4 overflow-x-auto">
                 <table className="w-full min-w-[480px] border-collapse text-sm">
                   <thead>
                     <tr className="border-b border-saffron-200 text-left text-xs text-foreground/65">
@@ -166,7 +166,7 @@ export default async function GunMilanPage({
                 </table>
               </div>
 
-              <p className="mt-6 text-xs text-foreground/65">
+              <p className="mt-4 text-xs text-foreground/65">
                 {t("gm.computedNote")}
               </p>
               <div className="mt-4">

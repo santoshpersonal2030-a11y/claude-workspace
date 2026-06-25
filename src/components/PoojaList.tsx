@@ -93,7 +93,7 @@ export default function PoojaList({ poojas }: { poojas: Pooja[] }) {
       </div>
 
       {/* Grid */}
-      <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-4 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {visible.map((pooja) => (
           <Link
             key={pooja.slug}
@@ -136,7 +136,7 @@ export default function PoojaList({ poojas }: { poojas: Pooja[] }) {
       </div>
 
       {visible.length === 0 && (
-        <p className="mt-7 text-center text-foreground/65">
+        <p className="mt-5 text-center text-foreground/65">
           {term
             ? t("browse.noMatch", { q: query.trim() })
             : t("browse.noneInCategory")}

@@ -102,11 +102,11 @@ export default async function AdminCoveragePage() {
       </div>
 
       {rows.length === 0 ? (
-        <p className="mt-6 text-sm text-foreground/65">
+        <p className="mt-4 text-sm text-foreground/65">
           No booking demand recorded yet. As customers book, this map fills in.
         </p>
       ) : (
-        <div className="mt-6 overflow-hidden rounded-2xl border border-saffron-100">
+        <div className="mt-4 overflow-hidden rounded-2xl border border-saffron-100">
           <table className="w-full text-sm">
             <thead className="bg-cream-100 text-left text-xs text-foreground/65">
               <tr>

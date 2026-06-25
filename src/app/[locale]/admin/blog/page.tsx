@@ -35,7 +35,7 @@ export default async function AdminBlogPage({
       {/* Editor */}
       <form
         action={saveBlogPost}
-        className="mt-6 space-y-3 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm"
+        className="mt-4 space-y-3 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm"
       >
         {editing && <input type="hidden" name="id" value={editing.id} />}
         <div className="grid gap-3 sm:grid-cols-2">
@@ -130,7 +130,7 @@ export default async function AdminBlogPage({
       </form>
 
       {/* DB posts */}
-      <h2 className="mt-6 font-heading text-lg text-maroon-700">Posts</h2>
+      <h2 className="mt-4 font-heading text-lg text-maroon-700">Posts</h2>
       <div className="mt-3 space-y-2">
         {(posts ?? []).length === 0 && (
           <p className="text-sm text-foreground/65">
@@ -176,7 +176,7 @@ export default async function AdminBlogPage({
       </div>
 
       {/* Seed posts (read-only reference) */}
-      <h2 className="mt-6 font-heading text-lg text-maroon-700">
+      <h2 className="mt-4 font-heading text-lg text-maroon-700">
         Built-in posts
       </h2>
       <p className="mt-1 text-xs text-foreground/65">

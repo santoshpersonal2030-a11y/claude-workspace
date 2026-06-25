@@ -44,8 +44,8 @@ export default async function OrderInvoicePage({
   );
 
   return (
-    <main className="mx-auto max-w-2xl px-6 py-6">
-      <div className="mb-6 flex items-center justify-between print:hidden">
+    <main className="mx-auto max-w-2xl px-6 py-4">
+      <div className="mb-4 flex items-center justify-between print:hidden">
         <Link
           href={`/account/orders/${order.id}`}
           className="text-sm text-foreground/65 hover:text-saffron-700"

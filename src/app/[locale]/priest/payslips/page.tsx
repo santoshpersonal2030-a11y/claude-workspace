@@ -98,12 +98,12 @@ export default async function PriestPayslipsPage({
       )}
 
       {allLines.length === 0 ? (
-        <p className="mt-6 text-sm text-foreground/65">
+        <p className="mt-4 text-sm text-foreground/65">
           No payslips yet. They appear once the admin runs payroll for a month.
         </p>
       ) : (
         <>
-          <div className="mt-6 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm">
+          <div className="mt-4 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm">
               <div className="flex flex-wrap items-baseline justify-between gap-2">
                 <h2 className="font-heading text-lg text-maroon-800">
                   Financial year FY {fy.label}
@@ -127,7 +127,7 @@ export default async function PriestPayslipsPage({
               </div>
             </div>
 
-          <div className="mt-6 overflow-x-auto">
+          <div className="mt-4 overflow-x-auto">
             <table className="w-full min-w-[640px] border-collapse text-sm">
             <thead>
               <tr className="border-b border-saffron-200 text-left text-xs text-foreground/65">
@@ -144,7 +144,7 @@ export default async function PriestPayslipsPage({
             <tbody>
               {lines.length === 0 && (
                 <tr>
-                  <td colSpan={8} className="py-6 text-center text-foreground/65">
+                  <td colSpan={8} className="py-4 text-center text-foreground/65">
                     No payslips in FY {fy.label}.
                   </td>
                 </tr>

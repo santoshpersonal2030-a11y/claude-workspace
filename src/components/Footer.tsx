@@ -61,7 +61,7 @@ export default function Footer() {
   const t = useT();
   return (
     <footer className="mt-auto border-t border-saffron-100 bg-maroon-700 text-cream-100">
-      <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
+      <div className="mx-auto max-w-6xl px-4 py-4 sm:px-6">
         <div className="grid gap-6 md:grid-cols-[1.4fr_repeat(5,1fr)]">
           <div>
             <div className="flex items-center gap-2">
@@ -99,7 +99,7 @@ export default function Footer() {
           ))}
         </div>
 
-        <div className="mt-7 flex flex-col items-center justify-between gap-3 border-t border-white/10 pt-6 text-xs text-cream-100/60 sm:flex-row">
+        <div className="mt-5 flex flex-col items-center justify-between gap-3 border-t border-white/10 pt-6 text-xs text-cream-100/60 sm:flex-row">
           <p>{t("footer.rights", { year: new Date().getFullYear() })}</p>
           <p>Made with devotion in India 🇮🇳</p>
         </div>

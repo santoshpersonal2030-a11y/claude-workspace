@@ -35,7 +35,7 @@ export default async function BookingsPage() {
     <>
       <Header />
       <main className="flex-1">
-        <section className="mx-auto max-w-4xl px-4 py-6 sm:px-6">
+        <section className="mx-auto max-w-4xl px-4 py-4 sm:px-6">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <h1 className="font-heading text-3xl text-maroon-800">My bookings</h1>
             <Link
@@ -47,11 +47,11 @@ export default async function BookingsPage() {
           </div>
 
           {!bookings || bookings.length === 0 ? (
-            <p className="mt-6 text-foreground/65">
+            <p className="mt-4 text-foreground/65">
               You haven&apos;t booked a pooja yet.
             </p>
           ) : (
-            <div className="mt-6 space-y-4">
+            <div className="mt-4 space-y-4">
               {bookings.map((booking) => (
                 <div
                   key={booking.id}

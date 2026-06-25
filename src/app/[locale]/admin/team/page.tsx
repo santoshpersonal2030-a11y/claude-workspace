@@ -50,7 +50,7 @@ export default async function AdminTeamPage() {
       {/* Add / change */}
       <form
         action={saveAdminMember}
-        className="mt-6 flex flex-wrap items-end gap-3 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm"
+        className="mt-4 flex flex-wrap items-end gap-3 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm"
       >
         <label className="text-xs text-foreground/65">
           Email
@@ -81,7 +81,7 @@ export default async function AdminTeamPage() {
       </form>
 
       {/* Members */}
-      <div className="mt-6 space-y-2">
+      <div className="mt-4 space-y-2">
         {(members ?? []).map((m) => (
           <div
             key={m.id}

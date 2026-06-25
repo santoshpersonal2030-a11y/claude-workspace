@@ -130,7 +130,7 @@ export default function PanditDirectory({ pandits }: { pandits: Pandit[] }) {
         </p>
       )}
 
-      <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-4 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {filtered.map((pandit) => {
           const info = panditTierInfo(pandit.experienceYears);
           const band = pinActive ? resolveTravelBand(pincode, pandit) : null;
@@ -243,7 +243,7 @@ export default function PanditDirectory({ pandits }: { pandits: Pandit[] }) {
       </div>
 
       {filtered.length === 0 && (
-        <p className="mt-7 text-center text-foreground/65">
+        <p className="mt-5 text-center text-foreground/65">
           {t("dir.noMatch")}
         </p>
       )}

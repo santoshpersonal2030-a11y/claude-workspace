@@ -55,7 +55,7 @@ export default async function PriestLivePoojaPage({
           ← My calendar
         </Link>
       </div>
-      <div className="mt-6">
+      <div className="mt-4">
         <VideoRoom
           room={poojaRoomName(booking.id)}
           displayName={

@@ -43,7 +43,7 @@ export default async function SearchPage({
       <Header />
       <main className="flex-1">
         <section className="bg-temple-gradient">
-          <div className="mx-auto max-w-3xl px-4 py-6 sm:px-6">
+          <div className="mx-auto max-w-3xl px-4 py-4 sm:px-6">
             <h1 className="font-heading text-3xl text-maroon-800">
               {t("search.title")}
             </h1>
@@ -57,7 +57,7 @@ export default async function SearchPage({
           </div>
         </section>
 
-        <section className="mx-auto max-w-3xl px-4 py-6 sm:px-6">
+        <section className="mx-auto max-w-3xl px-4 py-4 sm:px-6">
           {results.query.length < 2 ? (
             <p className="text-foreground/65">{t("search.prompt")}</p>
           ) : results.total === 0 ? (
@@ -66,7 +66,7 @@ export default async function SearchPage({
             </p>
           ) : (
             <>
-              <p className="mb-6 text-sm text-foreground/65">
+              <p className="mb-4 text-sm text-foreground/65">
                 {t("search.resultsFor", { q: results.query })}
               </p>
               <div className="space-y-8">

@@ -23,7 +23,7 @@ export default async function AdminCouponsPage() {
       {/* Create / edit */}
       <form
         action={saveCoupon}
-        className="mt-6 grid items-end gap-3 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm sm:grid-cols-3 lg:grid-cols-7"
+        className="mt-4 grid items-end gap-3 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm sm:grid-cols-3 lg:grid-cols-7"
       >
         <label className="text-xs text-foreground/65">
           Code
@@ -68,7 +68,7 @@ export default async function AdminCouponsPage() {
       </form>
 
       {/* Existing */}
-      <div className="mt-6 space-y-2">
+      <div className="mt-4 space-y-2">
         {(coupons ?? []).length === 0 && (
           <p className="text-sm text-foreground/65">No coupons yet.</p>
         )}

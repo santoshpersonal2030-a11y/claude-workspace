@@ -103,7 +103,7 @@ export default async function AdminAnalyticsPage() {
         Revenue trend, conversion and the booking/order funnels across all time.
       </p>
 
-      <div className="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <div className="mt-4 grid grid-cols-2 gap-4 lg:grid-cols-4">
         {cards.map((c) => (
           <div
             key={c.label}
@@ -121,7 +121,7 @@ export default async function AdminAnalyticsPage() {
       </div>
 
       {/* Monthly revenue trend */}
-      <div className="mt-6 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm">
+      <div className="mt-4 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm">
         <h2 className="font-heading text-lg text-maroon-700">
           Revenue — last 12 months
         </h2>
@@ -159,7 +159,7 @@ export default async function AdminAnalyticsPage() {
       </div>
 
       {/* Funnels */}
-      <div className="mt-6 grid gap-6 lg:grid-cols-2">
+      <div className="mt-4 grid gap-6 lg:grid-cols-2">
         <FunnelCard
           title="Order funnel"
           stages={orderFunnel}

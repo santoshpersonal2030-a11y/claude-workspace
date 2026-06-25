@@ -51,11 +51,11 @@ export default async function WishlistPage() {
     <>
       <Header />
       <main className="flex-1">
-        <section className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
+        <section className="mx-auto max-w-6xl px-4 py-4 sm:px-6">
           <h1 className="font-heading text-3xl text-maroon-800">Saved items</h1>
 
           {products.length === 0 ? (
-            <div className="mt-6 rounded-2xl border border-saffron-100 bg-white p-10 text-center shadow-sm">
+            <div className="mt-4 rounded-2xl border border-saffron-100 bg-white p-10 text-center shadow-sm">
               <div className="text-4xl">♡</div>
               <p className="mt-3 text-foreground/65">
                 You haven&apos;t saved any items yet.
@@ -68,7 +68,7 @@ export default async function WishlistPage() {
               </Link>
             </div>
           ) : (
-            <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="mt-4 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {products.map((product) => (
                 <div
                   key={product.slug}

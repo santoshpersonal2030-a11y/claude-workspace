@@ -46,7 +46,7 @@ export default async function AdminCompensationPage() {
         the actual pay.
       </p>
 
-      <div className="mt-6 space-y-4">
+      <div className="mt-4 space-y-4">
         {pandits?.map((p) => {
           const c = compByPandit.get(p.id);
           const profile: CompProfile = c ?? { ...DEFAULT_PROFILE };

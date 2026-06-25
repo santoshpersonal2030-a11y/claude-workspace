@@ -143,7 +143,7 @@ export default async function PoojaDetailPage({
       <main className="flex-1">
         {/* Hero */}
         <section className="bg-temple-gradient">
-          <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
+          <div className="mx-auto max-w-6xl px-4 py-4 sm:px-6">
             <nav className="text-sm text-foreground/65">
               <Link href="/" className="hover:text-saffron-700">
                 {t("common.home")}
@@ -187,7 +187,7 @@ export default async function PoojaDetailPage({
         </section>
 
         {/* Body */}
-        <section className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
+        <section className="mx-auto max-w-6xl px-4 py-4 sm:px-6">
           <div className="grid gap-6 lg:grid-cols-[1.6fr_1fr]">
             {/* Left: details */}
             <div>
@@ -214,14 +214,14 @@ export default async function PoojaDetailPage({
                 </div>
               </div>
 
-              <h2 className="mt-6 font-heading text-2xl text-maroon-800">
+              <h2 className="mt-4 font-heading text-2xl text-maroon-800">
                 {t("pd.about")}
               </h2>
               <p className="mt-3 leading-relaxed text-foreground/75">
                 {longDescription}
               </p>
 
-              <h2 className="mt-6 font-heading text-2xl text-maroon-800">
+              <h2 className="mt-4 font-heading text-2xl text-maroon-800">
                 {t("pd.included")}
               </h2>
               <ul className="mt-3 space-y-2">
@@ -236,7 +236,7 @@ export default async function PoojaDetailPage({
                 ))}
               </ul>
 
-              <h2 className="mt-6 font-heading text-2xl text-maroon-800">
+              <h2 className="mt-4 font-heading text-2xl text-maroon-800">
                 {t("pd.faq")}
               </h2>
               <div className="mt-3 divide-y divide-saffron-100 rounded-2xl border border-saffron-100 bg-white">
@@ -254,7 +254,7 @@ export default async function PoojaDetailPage({
                 ))}
               </div>
 
-              <div className="mt-6 rounded-2xl border border-saffron-100 bg-cream-100/60 p-5">
+              <div className="mt-4 rounded-2xl border border-saffron-100 bg-cream-100/60 p-5">
                 <h3 className="font-heading text-lg text-maroon-700">
                   {t("pd.unsureTitle")}
                 </h3>
@@ -278,14 +278,14 @@ export default async function PoojaDetailPage({
 
           {/* Frequently bought together */}
           {crossSell.length > 0 && (
-            <div className="mt-11">
+            <div className="mt-8">
               <h2 className="font-heading text-2xl text-maroon-800">
                 {t("pd.fbt")}
               </h2>
               <p className="mt-1 text-sm text-foreground/65">
                 {t("pd.fbtSubtitle")}
               </p>
-              <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="mt-4 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
                 {crossSell.map((item) => (
                   <div
                     key={item.slug}

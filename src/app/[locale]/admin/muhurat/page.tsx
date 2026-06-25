@@ -69,7 +69,7 @@ export default async function AdminMuhuratPage({
       {/* Add window */}
       <form
         action={saveMuhuratWindow}
-        className="mt-6 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm"
+        className="mt-4 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm"
       >
         <h2 className="font-heading text-lg text-maroon-700">Add a window</h2>
         <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -140,7 +140,7 @@ export default async function AdminMuhuratPage({
       {/* Computed generation */}
       <form
         action={generateMuhuratWindows}
-        className="mt-6 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm"
+        className="mt-4 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm"
       >
         <h2 className="font-heading text-lg text-maroon-700">
           Generate (computed engine)
@@ -223,7 +223,7 @@ export default async function AdminMuhuratPage({
       {/* Bulk import */}
       <form
         action={importMuhuratWindows}
-        className="mt-6 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm"
+        className="mt-4 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm"
       >
         <h2 className="font-heading text-lg text-maroon-700">
           Bulk import (CSV)
@@ -255,7 +255,7 @@ export default async function AdminMuhuratPage({
       </form>
 
       {/* Existing */}
-      <div className="mt-6 flex items-center justify-between">
+      <div className="mt-4 flex items-center justify-between">
         <h2 className="font-heading text-lg text-maroon-700">
           Windows ({windows.length})
         </h2>

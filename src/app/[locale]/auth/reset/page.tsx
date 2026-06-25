@@ -41,23 +41,23 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <main className="flex flex-1 items-center justify-center bg-temple-gradient px-4 py-9">
+    <main className="flex flex-1 items-center justify-center bg-temple-gradient px-4 py-6">
       <div className="w-full max-w-md rounded-2xl border border-saffron-100 bg-white p-8 shadow-sm">
         <h1 className="text-center font-heading text-2xl text-maroon-800">
           Set a new password
         </h1>
 
         {done ? (
-          <p className="mt-6 rounded-xl bg-emerald-50 px-3 py-2 text-center text-sm text-emerald-700">
+          <p className="mt-4 rounded-xl bg-emerald-50 px-3 py-2 text-center text-sm text-emerald-700">
             Password updated — taking you to your account…
           </p>
         ) : !ready ? (
-          <p className="mt-6 text-center text-sm text-foreground/65">
+          <p className="mt-4 text-center text-sm text-foreground/65">
             Open this page from the reset link in your email. If you got here by
             mistake, request a new link from the login page.
           </p>
         ) : (
-          <form onSubmit={submit} className="mt-6">
+          <form onSubmit={submit} className="mt-4">
             {error && (
               <p className="mb-4 rounded-xl bg-maroon-50 px-3 py-2 text-sm text-maroon-700">
                 {error}

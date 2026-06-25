@@ -25,7 +25,7 @@ export default function Error({
   }, [error]);
 
   return (
-    <div className="mx-auto flex max-w-md flex-col items-center px-6 py-10 text-center">
+    <div className="mx-auto flex max-w-md flex-col items-center px-6 py-8 text-center">
       <div className="text-4xl">🪔</div>
       <h1 className="mt-4 font-heading text-2xl text-maroon-800">
         Something went wrong
@@ -36,7 +36,7 @@ export default function Error({
       </p>
       <button
         onClick={reset}
-        className="mt-6 rounded-full bg-saffron-700 px-6 py-2.5 text-sm font-semibold text-white hover:bg-saffron-800"
+        className="mt-4 rounded-full bg-saffron-700 px-6 py-2.5 text-sm font-semibold text-white hover:bg-saffron-800"
       >
         Try again
       </button>

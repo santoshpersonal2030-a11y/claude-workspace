@@ -67,9 +67,9 @@ export default async function AdminDisputesPage({
       </div>
 
       {(disputes ?? []).length === 0 ? (
-        <p className="mt-6 text-sm text-foreground/65">No {filter === "all" ? "" : filter} disputes.</p>
+        <p className="mt-4 text-sm text-foreground/65">No {filter === "all" ? "" : filter} disputes.</p>
       ) : (
-        <div className="mt-6 space-y-4">
+        <div className="mt-4 space-y-4">
           {disputes!.map((d) => (
             <div
               key={d.id}

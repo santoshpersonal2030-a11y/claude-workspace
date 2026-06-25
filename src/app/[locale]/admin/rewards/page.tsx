@@ -42,7 +42,7 @@ export default async function AdminRewardsPage() {
 
       <form
         action={saveRewardSettings}
-        className="mt-6 grid max-w-2xl gap-4 rounded-2xl border border-saffron-100 bg-white p-6 shadow-sm sm:grid-cols-2"
+        className="mt-4 grid max-w-2xl gap-4 rounded-2xl border border-saffron-100 bg-white p-6 shadow-sm sm:grid-cols-2"
       >
         <label className="flex items-center gap-2 text-sm text-foreground/75 sm:col-span-2">
           <input

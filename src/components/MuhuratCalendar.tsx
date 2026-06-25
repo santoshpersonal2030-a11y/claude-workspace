@@ -116,7 +116,7 @@ export default function MuhuratCalendar({
       {/* Priest-availability check */}
       <form
         onSubmit={checkAvailability}
-        className="mb-6 flex flex-wrap items-center gap-3 rounded-2xl border border-saffron-100 bg-white p-4 shadow-sm"
+        className="mb-4 flex flex-wrap items-center gap-3 rounded-2xl border border-saffron-100 bg-white p-4 shadow-sm"
       >
         <label className="text-sm font-medium text-foreground/70">
           {t("dir.pincode")}
@@ -150,7 +150,7 @@ export default function MuhuratCalendar({
       </form>
 
       {ceremonies.length > 1 && (
-        <div className="mb-6 flex flex-wrap gap-2">
+        <div className="mb-4 flex flex-wrap gap-2">
           {chip("All", t("mc.allCeremonies"))}
           {ceremonies.map((c) => chip(c, c))}
         </div>

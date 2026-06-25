@@ -71,11 +71,11 @@ export default async function AdminConsultationsPage({
       </div>
 
       {(consults ?? []).length === 0 ? (
-        <p className="mt-6 text-sm text-foreground/55">
+        <p className="mt-4 text-sm text-foreground/55">
           No {filter === "all" ? "" : filter} consultations.
         </p>
       ) : (
-        <div className="mt-6 space-y-4">
+        <div className="mt-4 space-y-4">
           {consults!.map((c) => (
             <form
               key={c.id}

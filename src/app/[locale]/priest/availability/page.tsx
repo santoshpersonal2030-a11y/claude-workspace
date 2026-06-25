@@ -17,7 +17,7 @@ export default async function PriestAvailabilityPage() {
 
       <form
         action={updateMyAvailability}
-        className="mt-6 max-w-xl space-y-4 rounded-2xl border border-saffron-100 bg-white p-6 shadow-sm"
+        className="mt-4 max-w-xl space-y-4 rounded-2xl border border-saffron-100 bg-white p-6 shadow-sm"
       >
         <div className="grid grid-cols-2 gap-4">
           <label className="text-xs text-foreground/65">
@@ -62,7 +62,7 @@ export default async function PriestAvailabilityPage() {
         </div>
       </form>
 
-      <div className="mt-6 max-w-xl rounded-2xl border border-saffron-100 bg-white p-5 text-sm text-foreground/65 shadow-sm">
+      <div className="mt-4 max-w-xl rounded-2xl border border-saffron-100 bg-white p-5 text-sm text-foreground/65 shadow-sm">
         <p className="font-medium text-maroon-700">Service area</p>
         <p className="mt-1">
           Home pincode {pandit.home_pincode ?? "—"} · serves{" "}

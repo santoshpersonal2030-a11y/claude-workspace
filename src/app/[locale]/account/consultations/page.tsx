@@ -41,7 +41,7 @@ export default async function AccountConsultationsPage() {
     <>
       <Header />
       <main className="flex-1">
-        <section className="mx-auto max-w-4xl px-4 py-6 sm:px-6">
+        <section className="mx-auto max-w-4xl px-4 py-4 sm:px-6">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <h1 className="font-heading text-3xl text-maroon-800">
               My consultations
@@ -55,7 +55,7 @@ export default async function AccountConsultationsPage() {
           </div>
 
           {(consults ?? []).length === 0 ? (
-            <div className="mt-7 rounded-2xl border border-saffron-100 bg-white p-8 text-center shadow-sm">
+            <div className="mt-5 rounded-2xl border border-saffron-100 bg-white p-8 text-center shadow-sm">
               <div className="text-4xl">🔮</div>
               <p className="mt-3 text-foreground/65">
                 You haven&apos;t booked a consultation yet.
@@ -68,7 +68,7 @@ export default async function AccountConsultationsPage() {
               </Link>
             </div>
           ) : (
-            <div className="mt-6 space-y-4">
+            <div className="mt-4 space-y-4">
               {consults!.map((c) => (
                 <div
                   key={c.id}

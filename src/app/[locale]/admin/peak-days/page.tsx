@@ -26,7 +26,7 @@ export default async function AdminPeakDaysPage() {
       {/* Add a peak day */}
       <form
         action={savePeakDay}
-        className="mt-6 flex flex-wrap items-end gap-3 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm"
+        className="mt-4 flex flex-wrap items-end gap-3 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm"
       >
         <label className="text-xs text-foreground/65">
           Date
@@ -71,7 +71,7 @@ export default async function AdminPeakDaysPage() {
       </form>
 
       {/* Existing */}
-      <div className="mt-6 space-y-2">
+      <div className="mt-4 space-y-2">
         {(peakDays ?? []).length === 0 && (
           <p className="text-sm text-foreground/65">
             No peak days yet. Add festival dates above.

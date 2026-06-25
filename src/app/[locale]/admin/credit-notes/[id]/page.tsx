@@ -39,7 +39,7 @@ export default async function AdminCreditNotePage({
 
   return (
     <div className="mx-auto max-w-2xl">
-      <div className="mb-6 flex items-center justify-between print:hidden">
+      <div className="mb-4 flex items-center justify-between print:hidden">
         <Link
           href={note.order_id ? `/admin/orders/${note.order_id}` : "/admin/bookings"}
           className="text-sm text-foreground/65 hover:text-saffron-700"

@@ -47,7 +47,7 @@ export default async function HowItWorksPage({
         ))}
       </ol>
 
-      <div className="mt-7 rounded-2xl bg-saffron-50 p-6 text-center">
+      <div className="mt-5 rounded-2xl bg-saffron-50 p-6 text-center">
         <h3 className="font-heading text-xl text-maroon-700">
           {t("hiw.ready")}
         </h3>
