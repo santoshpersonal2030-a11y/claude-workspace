@@ -82,7 +82,7 @@ export default async function CityPanditPage({
       <Header />
       <main className="flex-1">
         <section className="bg-temple-gradient">
-          <div className="mx-auto max-w-6xl px-4 py-4 sm:px-6">
+          <div className="mx-auto max-w-6xl px-4 py-3 sm:px-6">
             <nav className="text-sm text-foreground/65">
               <Link href="/" className="hover:text-saffron-700">
                 {t("common.home")}
@@ -117,7 +117,7 @@ export default async function CityPanditPage({
           </div>
         </section>
 
-        <section className="mx-auto max-w-6xl px-4 py-4 sm:px-6">
+        <section className="mx-auto max-w-6xl px-4 py-3 sm:px-6">
           {pan && (
             <div className="mb-5 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm">
               <h2 className="font-heading text-lg text-maroon-700">

@@ -30,7 +30,7 @@ export default async function BlogPage() {
       <Header />
       <main className="flex-1">
         <section className="bg-temple-gradient">
-          <div className="mx-auto max-w-5xl px-4 py-4 sm:px-6">
+          <div className="mx-auto max-w-5xl px-4 py-3 sm:px-6">
             <nav className="text-sm text-foreground/65">
               <Link href="/" className="hover:text-saffron-700">
                 Home
@@ -46,7 +46,7 @@ export default async function BlogPage() {
           </div>
         </section>
 
-        <section className="mx-auto max-w-5xl px-4 py-4 sm:px-6">
+        <section className="mx-auto max-w-5xl px-4 py-3 sm:px-6">
           <div className="grid gap-6 sm:grid-cols-2">
             {posts.map((p) => (
               <Link

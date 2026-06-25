@@ -33,7 +33,7 @@ export default async function ConsultationsPage({
       <Header />
       <main className="flex-1">
         <section className="bg-temple-gradient">
-          <div className="mx-auto max-w-6xl px-4 py-4 sm:px-6">
+          <div className="mx-auto max-w-6xl px-4 py-3 sm:px-6">
             <nav className="text-sm text-foreground/65">
               <span>{t("common.home")}</span>
               <span className="mx-2">/</span>
@@ -57,7 +57,7 @@ export default async function ConsultationsPage({
           </div>
         </section>
 
-        <section className="mx-auto max-w-6xl px-4 py-4 sm:px-6">
+        <section className="mx-auto max-w-6xl px-4 py-3 sm:px-6">
           <h2 className="sr-only">{t("consult.allHeading")}</h2>
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {items.map((c) => (

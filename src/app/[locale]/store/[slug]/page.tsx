@@ -117,7 +117,7 @@ export default async function ProductDetailPage({
       <Header />
       <main className="flex-1">
         <section className="bg-temple-gradient">
-          <div className="mx-auto max-w-5xl px-4 py-4 sm:px-6">
+          <div className="mx-auto max-w-5xl px-4 py-3 sm:px-6">
             <nav className="text-sm text-foreground/65">
               <Link href="/" className="hover:text-saffron-700">
                 {t("common.home")}
@@ -132,7 +132,7 @@ export default async function ProductDetailPage({
           </div>
         </section>
 
-        <section className="mx-auto max-w-5xl px-4 py-4 sm:px-6">
+        <section className="mx-auto max-w-5xl px-4 py-3 sm:px-6">
           <div className="grid gap-6 lg:grid-cols-2">
             <ProductGallery images={product.images} name={product.name} />
 

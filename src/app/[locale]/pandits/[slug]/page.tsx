@@ -109,7 +109,7 @@ export default async function PanditDetailPage({
       <Header />
       <main className="flex-1">
         <section className="bg-temple-gradient">
-          <div className="mx-auto max-w-5xl px-4 py-4 sm:px-6">
+          <div className="mx-auto max-w-5xl px-4 py-3 sm:px-6">
             <nav className="text-sm text-foreground/65">
               <Link href="/" className="hover:text-saffron-700">
                 {t("common.home")}
@@ -157,7 +157,7 @@ export default async function PanditDetailPage({
           </div>
         </section>
 
-        <section className="mx-auto max-w-5xl px-4 py-4 sm:px-6">
+        <section className="mx-auto max-w-5xl px-4 py-3 sm:px-6">
           <div className="grid gap-6 lg:grid-cols-[1.6fr_1fr]">
             <div>
               <h2 className="font-heading text-2xl text-maroon-800">

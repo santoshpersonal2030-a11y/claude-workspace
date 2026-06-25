@@ -43,7 +43,7 @@ export default async function BookingInvoicePage({
   );
 
   return (
-    <main className="mx-auto max-w-2xl px-6 py-4">
+    <main className="mx-auto max-w-2xl px-6 py-3">
       <div className="mb-4 flex items-center justify-between print:hidden">
         <Link
           href={`/account/bookings/${booking.id}`}

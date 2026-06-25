@@ -57,7 +57,7 @@ export default async function AstrologerProfile({
     <>
       <Header />
       <main className="flex-1">
-        <section className="mx-auto max-w-3xl px-4 py-4 sm:px-6">
+        <section className="mx-auto max-w-3xl px-4 py-3 sm:px-6">
           <Link
             href="/live-astrology"
             className="text-sm text-foreground/65 hover:text-saffron-700"

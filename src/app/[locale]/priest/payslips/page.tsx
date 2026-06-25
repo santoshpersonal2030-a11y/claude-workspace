@@ -144,7 +144,7 @@ export default async function PriestPayslipsPage({
             <tbody>
               {lines.length === 0 && (
                 <tr>
-                  <td colSpan={8} className="py-4 text-center text-foreground/65">
+                  <td colSpan={8} className="py-3 text-center text-foreground/65">
                     No payslips in FY {fy.label}.
                   </td>
                 </tr>

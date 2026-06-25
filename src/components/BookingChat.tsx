@@ -98,7 +98,7 @@ export default function BookingChat({ bookingId }: { bookingId: string }) {
         </p>
       </div>
 
-      <div className="max-h-80 space-y-3 overflow-y-auto px-4 py-4">
+      <div className="max-h-80 space-y-3 overflow-y-auto px-4 py-3">
         {loaded && messages.length === 0 && (
           <p className="text-center text-sm text-foreground/65">
             No messages yet. Say hello 👋

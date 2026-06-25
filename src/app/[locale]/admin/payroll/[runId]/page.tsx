@@ -135,7 +135,7 @@ export default async function PayrollRunDetailPage({
           <tbody>
             {lines.length === 0 && (
               <tr>
-                <td colSpan={8} className="py-4 text-center text-foreground/65">
+                <td colSpan={8} className="py-3 text-center text-foreground/65">
                   No lines yet — use “Recompute unpaid”, or add active priests.
                 </td>
               </tr>
