@@ -168,6 +168,7 @@ const en: Dict = {
   "pd.defInc3": "Pandit speaks your preferred language",
   "pd.defInc4": "Guidance on the muhurat (auspicious time)",
   "pd.defInc5": "Optional authentic samagri kit, delivered to your door",
+  "pd.autoDesc": "{short} Our verified Pandits perform the {name} with complete devotion and adherence to Vedic tradition, guiding your family through every ritual. The ceremony typically takes around {h} hours.",
 
   // Poojas list
   "poojas.subtitle": "Choose a ceremony and we'll arrange a verified, experienced Pandit — in your language, at your home, with authentic samagri.",
@@ -819,6 +820,7 @@ const hi: Dict = {
   "pd.defInc3": "पंडित आपकी पसंदीदा भाषा बोलते हैं",
   "pd.defInc4": "मुहूर्त (शुभ समय) पर मार्गदर्शन",
   "pd.defInc5": "वैकल्पिक प्रामाणिक सामग्री किट, आपके द्वार तक",
+  "pd.autoDesc": "{short} हमारे सत्यापित पंडित {name} को पूरी श्रद्धा और वैदिक परंपरा के अनुसार सम्पन्न कराते हैं, और आपके परिवार को हर अनुष्ठान में मार्गदर्शन देते हैं। इस समारोह में लगभग {h} घंटे लगते हैं।",
 
   // Poojas list
   "poojas.subtitle": "एक समारोह चुनें और हम एक सत्यापित, अनुभवी पंडित की व्यवस्था करेंगे — आपकी भाषा में, आपके घर पर, प्रामाणिक सामग्री के साथ।",
@@ -1453,6 +1455,7 @@ const te: Dict = {
   "pd.defInc3": "పండితుడు మీ ఇష్టమైన భాష మాట్లాడతారు",
   "pd.defInc4": "ముహూర్తం (శుభ సమయం)పై మార్గదర్శనం",
   "pd.defInc5": "ఐచ్ఛిక అసలైన సామగ్రి కిట్, మీ ఇంటికే",
+  "pd.autoDesc": "{short} మా ధృవీకరించిన పండితులు {name}ను సంపూర్ణ భక్తితో, వేద సంప్రదాయం ప్రకారం నిర్వహించి, ప్రతి ఆచారంలో మీ కుటుంబానికి మార్గనిర్దేశం చేస్తారు. ఈ కార్యక్రమం సుమారు {h} గంటలు పడుతుంది.",
 
   "poojas.subtitle": "ఒక సంస్కారాన్ని ఎంచుకోండి, మేము ధృవీకరించిన, అనుభవజ్ఞుడైన పండితుడిని ఏర్పాటు చేస్తాం — మీ భాషలో, మీ ఇంటి వద్ద, అసలైన సామగ్రితో.",
   "browse.searchPoojas": "పూజలను వెతకండి (ఉదా. లక్ష్మి, గృహ ప్రవేశం)…",
