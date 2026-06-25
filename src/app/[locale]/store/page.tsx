@@ -3,6 +3,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import StoreBrowser from "@/components/StoreBrowser";
 import { getProducts } from "@/lib/queries";
+import { localizeProduct } from "@/lib/products-i18n";
 import { getDictionary, isLocale, DEFAULT_LOCALE } from "@/lib/i18n";
 
 export async function generateMetadata({
@@ -26,9 +27,10 @@ export default async function StorePage({
   searchParams: Promise<{ category?: string; sort?: string }>;
 }) {
   const { locale } = await params;
-  const { t } = getDictionary(isLocale(locale) ? locale : DEFAULT_LOCALE);
+  const loc = isLocale(locale) ? locale : DEFAULT_LOCALE;
+  const { t } = getDictionary(loc);
   const { category, sort } = await searchParams;
-  const products = await getProducts();
+  const products = (await getProducts()).map((p) => localizeProduct(p, loc));
 
   return (
     <>

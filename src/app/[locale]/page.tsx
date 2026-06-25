@@ -14,6 +14,7 @@ import { getApprovedMuhuratWindows } from "@/lib/muhurat-data";
 import TodayPanchang from "@/components/TodayPanchang";
 import { getDictionary, isLocale, DEFAULT_LOCALE } from "@/lib/i18n";
 import { localizePooja } from "@/lib/poojas-i18n";
+import { localizeProduct } from "@/lib/products-i18n";
 
 const MUHURAT_WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const MUHURAT_MONTHS = [
@@ -101,6 +102,7 @@ export default async function Home({
   const featuredPandits = (await getPandits()).slice(0, 3);
   const muhuratDates = (await getApprovedMuhuratWindows(8)).slice(0, 4);
   const featuredProducts = (await getProducts())
+    .map((p) => localizeProduct(p, loc))
     .slice()
     .sort((a, b) => b.reviewCount - a.reviewCount)
     .slice(0, 4);

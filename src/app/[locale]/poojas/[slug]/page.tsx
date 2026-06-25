@@ -10,6 +10,7 @@ import ProductThumb from "@/components/ProductThumb";
 import { formatINR } from "@/lib/poojas";
 import { getDictionary, isLocale, DEFAULT_LOCALE } from "@/lib/i18n";
 import { localizePooja } from "@/lib/poojas-i18n";
+import { localizeProduct } from "@/lib/products-i18n";
 import {
   getPoojaBySlug,
   getPoojaSlugs,
@@ -73,6 +74,7 @@ export default async function PoojaDetailPage({
   // Cross-sell samagri: prefer kits/essentials, then fill with bestsellers.
   const crossSellRank = ["Puja Kits", "Essentials", "Havan"];
   const crossSell = (await getProducts())
+    .map((p) => localizeProduct(p, loc))
     .slice()
     .sort((a, b) => {
       const ra = crossSellRank.indexOf(a.category ?? "");
