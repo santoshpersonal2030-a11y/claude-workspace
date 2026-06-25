@@ -1,15 +1,22 @@
-// BookMyPoojari service worker — modest offline support.
+// BookMyPoojari service worker — modest offline support + seamless auto-update.
 // - Navigations: network-first, falling back to the cached /offline page.
-// - Same-origin static assets (_next/static, images, icon): cache-first.
+// - Immutable build assets (_next/static): cache-first.
+// - Other same-origin static assets (images, icon): stale-while-revalidate.
 // Bump CACHE when the strategy or precache list changes.
-const CACHE = "bmp-v2";
+const CACHE = "bmp-v3";
 const OFFLINE_URL = "/offline";
 const PRECACHE = [OFFLINE_URL, "/icon.svg", "/manifest.webmanifest"];
 
 self.addEventListener("install", (event) => {
-  event.waitUntil(
-    caches.open(CACHE).then((cache) => cache.addAll(PRECACHE)).then(() => self.skipWaiting()),
-  );
+  // Precache, then wait. The page decides when to activate (via SKIP_WAITING)
+  // so it can reload in lock-step and users see new deploys without a manual
+  // cache-clear. We do NOT skipWaiting() unconditionally here.
+  event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(PRECACHE)));
+});
+
+// The page tells the freshly-installed worker to take over immediately.
+self.addEventListener("message", (event) => {
+  if (event.data === "SKIP_WAITING") self.skipWaiting();
 });
 
 self.addEventListener("activate", (event) => {
@@ -53,8 +60,8 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // Static assets: cache-first, then populate the cache.
-  if (isCacheableAsset(url)) {
+  // Immutable build output (content-hashed): cache-first is safe and fast.
+  if (url.pathname.startsWith("/_next/static/")) {
     event.respondWith(
       caches.match(request).then(
         (cached) =>
@@ -64,6 +71,25 @@ self.addEventListener("fetch", (event) => {
             caches.open(CACHE).then((cache) => cache.put(request, copy));
             return res;
           }),
+      ),
+    );
+    return;
+  }
+
+  // Other static assets (icon, images): stale-while-revalidate — serve the
+  // cached copy instantly but refresh it in the background so updates land.
+  if (isCacheableAsset(url)) {
+    event.respondWith(
+      caches.open(CACHE).then((cache) =>
+        cache.match(request).then((cached) => {
+          const network = fetch(request)
+            .then((res) => {
+              cache.put(request, res.clone());
+              return res;
+            })
+            .catch(() => cached);
+          return cached || network;
+        }),
       ),
     );
   }
