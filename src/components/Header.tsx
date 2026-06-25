@@ -18,6 +18,7 @@ const navLinks = [
   { href: "/live-astrology", key: "nav.liveAstrology" },
   { href: "/horoscope", key: "nav.horoscope" },
   { href: "/panchang", key: "nav.panchang" },
+  { href: "/calendar", key: "nav.calendar" },
   { href: "/store", key: "nav.store" },
   { href: "/pandits", key: "nav.pandits" },
   { href: "/how-it-works", key: "nav.howItWorks" },
