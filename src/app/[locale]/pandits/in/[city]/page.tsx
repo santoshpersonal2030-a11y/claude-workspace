@@ -7,7 +7,9 @@ import Footer from "@/components/Footer";
 import JsonLd from "@/components/JsonLd";
 import { CITY_COORDS, fullPanchanga } from "@/lib/muhurat-engine";
 import { getPopularPoojas } from "@/lib/queries";
+import { localizePooja } from "@/lib/poojas-i18n";
 import { formatINR } from "@/lib/poojas";
+import { getDictionary, isLocale, DEFAULT_LOCALE } from "@/lib/i18n";
 
 const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL ?? "https://bookmypoojari.com";
@@ -52,15 +54,17 @@ export async function generateMetadata({
 export default async function CityPanditPage({
   params,
 }: {
-  params: Promise<{ city: string }>;
+  params: Promise<{ locale: string; city: string }>;
 }) {
-  const { city } = await params;
+  const { locale, city } = await params;
+  const loc = isLocale(locale) ? locale : DEFAULT_LOCALE;
+  const { t } = getDictionary(loc);
   const name = CITY_BY_SLUG.get(city);
   if (!name) notFound();
 
   const coords = CITY_COORDS[name];
   const pan = fullPanchanga(todayIST(), coords.lat, coords.lng);
-  const poojas = await getPopularPoojas();
+  const poojas = (await getPopularPoojas()).map((p) => localizePooja(p, loc));
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -81,36 +85,33 @@ export default async function CityPanditPage({
           <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
             <nav className="text-sm text-foreground/65">
               <Link href="/" className="hover:text-saffron-700">
-                Home
+                {t("common.home")}
               </Link>
               <span className="mx-2">/</span>
               <Link href="/pandits" className="hover:text-saffron-700">
-                Our Pandits
+                {t("nav.pandits")}
               </Link>
               <span className="mx-2">/</span>
               <span className="text-saffron-700">{name}</span>
             </nav>
             <h1 className="mt-3 font-heading text-4xl text-maroon-800">
-              Book a Verified Pandit in {name}
+              {t("cty.h1", { city: name })}
             </h1>
             <p className="mt-3 max-w-2xl text-lg text-foreground/70">
-              Experienced, verified Pandits across {name} for every ceremony —
-              poojas, havans, shanti rites and all sanskars — performed at your
-              home in your language, with authentic samagri delivered to your
-              door.
+              {t("cty.subtitle", { city: name })}
             </p>
             <div className="mt-5 flex flex-wrap gap-3">
               <Link
                 href="/poojas"
                 className="rounded-full bg-saffron-700 px-6 py-2.5 text-sm font-semibold text-white hover:bg-saffron-800"
               >
-                Book a pooja
+                {t("nav.bookPooja")}
               </Link>
               <Link
                 href="/pandits"
                 className="rounded-full border border-saffron-300 px-6 py-2.5 text-sm font-semibold text-saffron-700 hover:bg-saffron-50"
               >
-                Meet our Pandits
+                {t("about.meetPandits")}
               </Link>
             </div>
           </div>
@@ -120,24 +121,25 @@ export default async function CityPanditPage({
           {pan && (
             <div className="mb-10 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm">
               <h2 className="font-heading text-lg text-maroon-700">
-                Today in {name}
+                {t("cty.today", { city: name })}
               </h2>
               <p className="mt-1 text-sm text-foreground/65">
-                {pan.weekday} · {pan.tithi.name} · {pan.nakshatra.name} ·
-                Sunrise {to12h(pan.sunrise)} · Sunset {to12h(pan.sunset)} ·
-                Abhijit {to12h(pan.abhijit.start)}–{to12h(pan.abhijit.end)}.{" "}
+                {pan.weekday} · {pan.tithi.name} · {pan.nakshatra.name} ·{" "}
+                {t("pv.sunrise")} {to12h(pan.sunrise)} · {t("pv.sunset")}{" "}
+                {to12h(pan.sunset)} · {t("pv.abhijit")}{" "}
+                {to12h(pan.abhijit.start)}–{to12h(pan.abhijit.end)}.{" "}
                 <Link
                   href={`/panchang?city=${encodeURIComponent(name)}`}
                   className="font-semibold text-saffron-700 hover:underline"
                 >
-                  Full panchang →
+                  {t("cty.fullPanchang")}
                 </Link>
               </p>
             </div>
           )}
 
           <h2 className="font-heading text-2xl text-maroon-800">
-            Popular poojas in {name}
+            {t("cty.popular", { city: name })}
           </h2>
           <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {poojas.map((p) => (
@@ -154,7 +156,7 @@ export default async function CityPanditPage({
                   {p.shortDescription}
                 </p>
                 <div className="mt-3 text-sm text-foreground/65">
-                  From{" "}
+                  {t("cty.from")}{" "}
                   <span className="font-semibold text-foreground">
                     {formatINR(p.startingPrice)}
                   </span>
@@ -165,15 +167,15 @@ export default async function CityPanditPage({
 
           <div className="mt-12 rounded-2xl border border-saffron-100 bg-cream-100/60 p-6">
             <h2 className="font-heading text-xl text-maroon-800">
-              Why families in {name} choose BookMyPoojari
+              {t("cty.why", { city: name })}
             </h2>
             <ul className="mt-3 grid gap-2 text-sm text-foreground/75 sm:grid-cols-2">
-              <li>✓ Verified, experienced Pandits near you</li>
-              <li>✓ Pandit speaks your preferred language</li>
-              <li>✓ Auspicious muhurat guidance from our panchang</li>
-              <li>✓ Authentic samagri delivered to your door</li>
-              <li>✓ Transparent pricing, no haggling</li>
-              <li>✓ On-time arrival, rituals as per Vedic tradition</li>
+              <li>✓ {t("cty.why1")}</li>
+              <li>✓ {t("cty.why2")}</li>
+              <li>✓ {t("cty.why3")}</li>
+              <li>✓ {t("cty.why4")}</li>
+              <li>✓ {t("cty.why5")}</li>
+              <li>✓ {t("cty.why6")}</li>
             </ul>
           </div>
         </section>

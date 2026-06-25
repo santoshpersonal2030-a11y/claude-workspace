@@ -155,7 +155,7 @@ export default function StoreBrowser({
                   : "border border-saffron-200 bg-white text-saffron-700 hover:bg-saffron-50"
               }`}
             >
-              {c}
+              {t(`scat.${c}`)}
             </button>
           ))}
         </div>
