@@ -80,11 +80,11 @@ export default async function AdminTemplePujasPage({
       </div>
 
       {(pujas ?? []).length === 0 ? (
-        <p className="mt-6 text-sm text-foreground/55">
+        <p className="mt-4 text-sm text-foreground/55">
           No {filter === "all" ? "" : filter} temple pujas.
         </p>
       ) : (
-        <div className="mt-6 space-y-4">
+        <div className="mt-4 space-y-4">
           {pujas!.map((p) => (
             <form
               key={p.id}

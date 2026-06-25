@@ -23,7 +23,7 @@ export default async function AdminPoojasPage() {
         minutes.
       </p>
 
-      <div className="mt-6 space-y-3">
+      <div className="mt-4 space-y-3">
         {poojas?.map((p) => (
           <form
             key={p.id}

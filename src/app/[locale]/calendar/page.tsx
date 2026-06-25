@@ -106,7 +106,7 @@ export default async function CalendarPage({
       <Header />
       <main className="flex-1">
         <section className="bg-temple-gradient">
-          <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6">
+          <div className="mx-auto max-w-5xl px-4 py-4 sm:px-6">
             <nav className="text-sm text-foreground/65">
               <Link href="/" className="hover:text-saffron-700">
                 {t("common.home")}
@@ -122,7 +122,7 @@ export default async function CalendarPage({
             </p>
 
             {/* Language picker */}
-            <div className="mt-6">
+            <div className="mt-4">
               <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-foreground/55">
                 {ui.chooseLanguage}
               </div>
@@ -146,7 +146,7 @@ export default async function CalendarPage({
           </div>
         </section>
 
-        <section className="mx-auto max-w-5xl px-4 py-6 sm:px-6">
+        <section className="mx-auto max-w-5xl px-4 py-4 sm:px-6">
           {/* Month navigation */}
           <div className="flex items-center justify-between gap-4">
             <Link
@@ -179,7 +179,7 @@ export default async function CalendarPage({
           </div>
 
           {/* Weekday headers */}
-          <div className="mt-6 grid grid-cols-7 gap-1 sm:gap-2">
+          <div className="mt-4 grid grid-cols-7 gap-1 sm:gap-2">
             {CAL_WEEKDAYS[lang].map((w, i) => (
               <div
                 key={i}
@@ -235,7 +235,7 @@ export default async function CalendarPage({
           </div>
 
           {/* Festivals this month */}
-          <div className="mt-7">
+          <div className="mt-5">
             <h3 className="font-heading text-xl text-maroon-800">
               {ui.festivalsThisMonth}
             </h3>
@@ -269,7 +269,7 @@ export default async function CalendarPage({
             )}
           </div>
 
-          <p className="mt-6 text-xs text-foreground/65">
+          <p className="mt-4 text-xs text-foreground/65">
             <Link href="/panchang" className="text-saffron-700 hover:underline">
               {ui.fullPanchang}
             </Link>

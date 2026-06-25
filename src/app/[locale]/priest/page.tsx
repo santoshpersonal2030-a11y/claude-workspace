@@ -70,7 +70,7 @@ export default async function PriestDashboard() {
         <Stat label="Total assigned" value={all.length} />
       </div>
 
-      <h2 className="mt-6 font-heading text-xl text-maroon-800">
+      <h2 className="mt-4 font-heading text-xl text-maroon-800">
         Upcoming ceremonies
       </h2>
       {upcoming.length === 0 ? (
@@ -87,7 +87,7 @@ export default async function PriestDashboard() {
 
       {past.length > 0 && (
         <>
-          <h2 className="mt-6 font-heading text-xl text-maroon-800">History</h2>
+          <h2 className="mt-4 font-heading text-xl text-maroon-800">History</h2>
           <div className="mt-3 space-y-2">
             {past.slice(0, 20).map((b) => (
               <BookingRow key={b.id} b={b} muted />

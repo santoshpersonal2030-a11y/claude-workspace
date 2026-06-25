@@ -8,9 +8,9 @@ export default function NotFound() {
       <Header />
       <main className="flex-1">
         <section className="bg-temple-gradient">
-          <div className="mx-auto flex max-w-3xl flex-col items-center px-4 py-10 text-center sm:px-6">
+          <div className="mx-auto flex max-w-3xl flex-col items-center px-4 py-8 text-center sm:px-6">
             <div className="text-6xl">🪔</div>
-            <p className="mt-6 font-heading text-7xl text-saffron-700">404</p>
+            <p className="mt-4 font-heading text-7xl text-saffron-700">404</p>
             <h1 className="mt-2 font-heading text-3xl text-maroon-800">
               This path isn&apos;t on our map
             </h1>
@@ -19,7 +19,7 @@ export default function NotFound() {
               Let&apos;s get you back to something auspicious.
             </p>
 
-            <div className="mt-6 flex flex-wrap justify-center gap-3">
+            <div className="mt-4 flex flex-wrap justify-center gap-3">
               <Link
                 href="/"
                 className="rounded-full bg-saffron-700 px-7 py-3 text-base font-semibold text-white shadow-sm transition-colors hover:bg-saffron-800"
@@ -34,7 +34,7 @@ export default function NotFound() {
               </Link>
             </div>
 
-            <div className="mt-7 text-sm text-foreground/65">
+            <div className="mt-5 text-sm text-foreground/65">
               Or visit the{" "}
               <Link href="/store" className="font-semibold text-saffron-700 hover:text-saffron-800">
                 Samagri Store

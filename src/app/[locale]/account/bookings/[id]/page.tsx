@@ -107,7 +107,7 @@ export default async function BookingDetailPage({
     <>
       <Header />
       <main className="flex-1">
-        <section className="mx-auto max-w-3xl px-4 py-6 sm:px-6">
+        <section className="mx-auto max-w-3xl px-4 py-4 sm:px-6">
           <Link
             href="/account/bookings"
             className="text-sm text-foreground/65 hover:text-saffron-700"
@@ -136,7 +136,7 @@ export default async function BookingDetailPage({
             </Link>
           </div>
 
-          <div className="mt-6 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm">
+          <div className="mt-4 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm">
             <BookingStatusTracker status={booking.status} />
             {nextStep && (
               <p className="mt-4 rounded-xl bg-saffron-50 px-3 py-2 text-sm text-saffron-800">
@@ -153,7 +153,7 @@ export default async function BookingDetailPage({
             )}
           </div>
 
-          <div className="mt-6 grid gap-6 sm:grid-cols-2">
+          <div className="mt-4 grid gap-6 sm:grid-cols-2">
             <div className="rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm">
               <h2 className="font-heading text-lg text-maroon-700">Details</h2>
               <dl className="mt-3 space-y-2 text-sm">
@@ -217,7 +217,7 @@ export default async function BookingDetailPage({
           </div>
 
           {CANCELLABLE.includes(booking.status) && (
-            <div className="mt-6 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm">
+            <div className="mt-4 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm">
               <h2 className="font-heading text-lg text-maroon-700">
                 Manage booking
               </h2>
@@ -300,7 +300,7 @@ export default async function BookingDetailPage({
           )}
 
           {booking.status === "completed" && booking.pandit_id && (
-            <div className="mt-6 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm">
+            <div className="mt-4 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm">
               <h2 className="font-heading text-lg text-maroon-700">
                 {myReview ? "Your review" : "Rate your Pandit"}
               </h2>
@@ -349,13 +349,13 @@ export default async function BookingDetailPage({
             </div>
           )}
 
-          <div className="mt-6">
+          <div className="mt-4">
             <BookingChat bookingId={booking.id} />
           </div>
 
           {/* Dispute / report an issue */}
           {booking.status !== "cancelled" && (
-            <div className="mt-6 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm">
+            <div className="mt-4 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm">
               <h3 className="font-heading text-lg text-maroon-700">
                 Report an issue
               </h3>

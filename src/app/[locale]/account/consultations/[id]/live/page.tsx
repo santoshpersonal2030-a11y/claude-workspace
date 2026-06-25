@@ -41,7 +41,7 @@ export default async function LiveConsultationPage({
     <>
       <Header />
       <main className="flex-1">
-        <section className="mx-auto max-w-5xl px-4 py-6 sm:px-6">
+        <section className="mx-auto max-w-5xl px-4 py-4 sm:px-6">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <h1 className="font-heading text-2xl text-maroon-800">
               🔮 {consult.service_name}
@@ -54,7 +54,7 @@ export default async function LiveConsultationPage({
             </Link>
           </div>
 
-          <div className="mt-6">
+          <div className="mt-4">
             {!ready ? (
               <div className="rounded-2xl border border-saffron-100 bg-white p-10 text-center shadow-sm">
                 <div className="text-4xl">🎥</div>

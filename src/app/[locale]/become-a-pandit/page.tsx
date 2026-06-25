@@ -22,7 +22,7 @@ export default function BecomeAPanditPage() {
     <>
       <Header />
       <main className="flex-1">
-        <section className="mx-auto max-w-3xl px-4 py-6 sm:px-6">
+        <section className="mx-auto max-w-3xl px-4 py-4 sm:px-6">
           <p className="text-sm font-semibold uppercase tracking-wide text-saffron-700">
             For priests
           </p>
@@ -35,7 +35,7 @@ export default function BecomeAPanditPage() {
             ceremony bookings near you.
           </p>
 
-          <div className="mt-6 grid gap-4 sm:grid-cols-3">
+          <div className="mt-4 grid gap-4 sm:grid-cols-3">
             {PERKS.map((p) => (
               <div
                 key={p.title}
@@ -48,7 +48,7 @@ export default function BecomeAPanditPage() {
             ))}
           </div>
 
-          <h2 className="mt-7 font-heading text-2xl text-maroon-800">
+          <h2 className="mt-5 font-heading text-2xl text-maroon-800">
             Apply now
           </h2>
           <div className="mt-4">

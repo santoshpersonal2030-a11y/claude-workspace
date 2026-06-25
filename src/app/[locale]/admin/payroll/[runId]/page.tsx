@@ -118,7 +118,7 @@ export default async function PayrollRunDetailPage({
         {formatINR(totalGratuity)}
       </p>
 
-      <div className="mt-6 overflow-x-auto">
+      <div className="mt-4 overflow-x-auto">
         <table className="w-full min-w-[820px] border-collapse text-sm">
           <thead>
             <tr className="border-b border-saffron-200 text-left text-xs text-foreground/65">
@@ -135,7 +135,7 @@ export default async function PayrollRunDetailPage({
           <tbody>
             {lines.length === 0 && (
               <tr>
-                <td colSpan={8} className="py-6 text-center text-foreground/65">
+                <td colSpan={8} className="py-4 text-center text-foreground/65">
                   No lines yet — use “Recompute unpaid”, or add active priests.
                 </td>
               </tr>

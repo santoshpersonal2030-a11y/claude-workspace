@@ -109,7 +109,7 @@ export default function PackageBookingForm({
   return (
     <form
       onSubmit={submit}
-      className="mt-6 rounded-3xl border border-gold-200 bg-white p-6 shadow-sm"
+      className="mt-4 rounded-3xl border border-gold-200 bg-white p-6 shadow-sm"
     >
       <h3 className="font-heading text-xl text-maroon-800">
         Book the whole package

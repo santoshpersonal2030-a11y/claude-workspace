@@ -64,11 +64,11 @@ export default async function AdminLivePage() {
       </p>
 
       {list.length === 0 ? (
-        <p className="mt-6 rounded-2xl border border-dashed border-saffron-200 bg-white px-4 py-6 text-center text-sm text-foreground/55">
+        <p className="mt-4 rounded-2xl border border-dashed border-saffron-200 bg-white px-4 py-4 text-center text-sm text-foreground/55">
           No active live sessions right now.
         </p>
       ) : (
-        <div className="mt-6 grid gap-5 lg:grid-cols-2">
+        <div className="mt-4 grid gap-5 lg:grid-cols-2">
           {list.map((s) => (
             <div key={s.id}>
               <p className="mb-1.5 text-xs text-foreground/55">

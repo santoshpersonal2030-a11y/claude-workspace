@@ -82,7 +82,7 @@ export default async function CityPanditPage({
       <Header />
       <main className="flex-1">
         <section className="bg-temple-gradient">
-          <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
+          <div className="mx-auto max-w-6xl px-4 py-4 sm:px-6">
             <nav className="text-sm text-foreground/65">
               <Link href="/" className="hover:text-saffron-700">
                 {t("common.home")}
@@ -117,9 +117,9 @@ export default async function CityPanditPage({
           </div>
         </section>
 
-        <section className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
+        <section className="mx-auto max-w-6xl px-4 py-4 sm:px-6">
           {pan && (
-            <div className="mb-7 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm">
+            <div className="mb-5 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm">
               <h2 className="font-heading text-lg text-maroon-700">
                 {t("cty.today", { city: name })}
               </h2>
@@ -141,7 +141,7 @@ export default async function CityPanditPage({
           <h2 className="font-heading text-2xl text-maroon-800">
             {t("cty.popular", { city: name })}
           </h2>
-          <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-4 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {poojas.map((p) => (
               <Link
                 key={p.slug}
@@ -165,7 +165,7 @@ export default async function CityPanditPage({
             ))}
           </div>
 
-          <div className="mt-9 rounded-2xl border border-saffron-100 bg-cream-100/60 p-6">
+          <div className="mt-6 rounded-2xl border border-saffron-100 bg-cream-100/60 p-6">
             <h2 className="font-heading text-xl text-maroon-800">
               {t("cty.why", { city: name })}
             </h2>

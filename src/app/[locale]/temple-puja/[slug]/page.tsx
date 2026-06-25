@@ -78,7 +78,7 @@ export default async function TemplePujaDetailPage({
       <Header />
       <main className="flex-1">
         <section className="bg-temple-gradient">
-          <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
+          <div className="mx-auto max-w-6xl px-4 py-4 sm:px-6">
             <nav className="text-sm text-foreground/65">
               <Link href="/temple-puja" className="hover:text-saffron-700">
                 {t("temple.crumb")}
@@ -126,7 +126,7 @@ export default async function TemplePujaDetailPage({
               </p>
 
               {puja.includes && puja.includes.length > 0 && (
-                <div className="mt-6">
+                <div className="mt-4">
                   <h2 className="font-heading text-lg text-maroon-700">
                     {t("temple.included")}
                   </h2>

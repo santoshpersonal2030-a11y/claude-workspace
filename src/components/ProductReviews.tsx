@@ -70,7 +70,7 @@ export default function ProductReviews({
           No reviews yet. Be the first to share your experience.
         </p>
       ) : (
-        <ul className="mt-6 space-y-5">
+        <ul className="mt-4 space-y-5">
           {reviews.map((r) => (
             <li
               key={r.id}

@@ -61,7 +61,7 @@ export default function CreditNote({
         </div>
       </div>
 
-      <div className="mt-6 text-sm">
+      <div className="mt-4 text-sm">
         <div className="text-foreground/65">Issued to</div>
         <div className="font-medium text-foreground">
           {order?.delivery_name ?? "Customer"}
@@ -85,7 +85,7 @@ export default function CreditNote({
         )}
       </div>
 
-      <div className="mt-6 ml-auto w-64 space-y-1 text-sm">
+      <div className="mt-4 ml-auto w-64 space-y-1 text-sm">
         <div className="flex justify-between border-t border-saffron-100 pt-1 text-base font-semibold">
           <span>Refund amount</span>
           <span className="text-saffron-700">{formatINR(note.amount)}</span>

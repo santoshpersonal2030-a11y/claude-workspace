@@ -40,7 +40,7 @@ export default async function AdminOrderInvoicePage({
 
   return (
     <div className="mx-auto max-w-2xl">
-      <div className="mb-6 flex items-center justify-between print:hidden">
+      <div className="mb-4 flex items-center justify-between print:hidden">
         <Link
           href={`/admin/orders/${order.id}`}
           className="text-sm text-foreground/65 hover:text-saffron-700"

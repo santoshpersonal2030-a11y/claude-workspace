@@ -117,7 +117,7 @@ export default async function ProductDetailPage({
       <Header />
       <main className="flex-1">
         <section className="bg-temple-gradient">
-          <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6">
+          <div className="mx-auto max-w-5xl px-4 py-4 sm:px-6">
             <nav className="text-sm text-foreground/65">
               <Link href="/" className="hover:text-saffron-700">
                 {t("common.home")}
@@ -132,7 +132,7 @@ export default async function ProductDetailPage({
           </div>
         </section>
 
-        <section className="mx-auto max-w-5xl px-4 py-6 sm:px-6">
+        <section className="mx-auto max-w-5xl px-4 py-4 sm:px-6">
           <div className="grid gap-6 lg:grid-cols-2">
             <ProductGallery images={product.images} name={product.name} />
 
@@ -178,12 +178,12 @@ export default async function ProductDetailPage({
               </p>
 
               {product.description && (
-                <p className="mt-6 leading-relaxed text-foreground/75">
+                <p className="mt-4 leading-relaxed text-foreground/75">
                   {product.description}
                 </p>
               )}
 
-              <div className="mt-6 flex max-w-sm items-center gap-3">
+              <div className="mt-4 flex max-w-sm items-center gap-3">
                 <div className="flex-1">
                   <ProductPurchase product={product} />
                 </div>
@@ -206,7 +206,7 @@ export default async function ProductDetailPage({
           </div>
 
           {/* Reviews */}
-          <div className="mt-11 grid gap-6 lg:grid-cols-[1.6fr_1fr]">
+          <div className="mt-8 grid gap-6 lg:grid-cols-[1.6fr_1fr]">
             <ProductReviews
               reviews={reviews}
               rating={product.rating}
@@ -219,11 +219,11 @@ export default async function ProductDetailPage({
 
           {/* Related products */}
           {related.length > 0 && (
-            <div className="mt-11">
+            <div className="mt-8">
               <h2 className="font-heading text-2xl text-maroon-800">
                 {t("sd.related")}
               </h2>
-              <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="mt-4 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
                 {related.map((item) => {
                   const itemDiscount =
                     item.mrp && item.mrp > item.price

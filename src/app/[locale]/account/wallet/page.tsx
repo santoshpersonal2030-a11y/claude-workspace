@@ -54,7 +54,7 @@ export default async function WalletPage() {
     <>
       <Header />
       <main className="flex-1">
-        <section className="mx-auto max-w-3xl px-4 py-6 sm:px-6">
+        <section className="mx-auto max-w-3xl px-4 py-4 sm:px-6">
           <Link
             href="/account/profile"
             className="text-sm text-foreground/65 hover:text-saffron-700"
@@ -66,7 +66,7 @@ export default async function WalletPage() {
           </h1>
 
           {/* Balance */}
-          <div className="mt-6 rounded-2xl border border-saffron-100 bg-white p-6 shadow-sm">
+          <div className="mt-4 rounded-2xl border border-saffron-100 bg-white p-6 shadow-sm">
             <p className="text-sm text-foreground/65">Available credit</p>
             <p className="mt-1 font-heading text-4xl text-saffron-700">
               {formatINR(available)}
@@ -87,7 +87,7 @@ export default async function WalletPage() {
           </div>
 
           {/* Add money */}
-          <div className="mt-6 rounded-2xl border border-saffron-100 bg-white p-6 shadow-sm">
+          <div className="mt-4 rounded-2xl border border-saffron-100 bg-white p-6 shadow-sm">
             <h2 className="font-heading text-lg text-maroon-700">
               Add money to your wallet
             </h2>
@@ -99,7 +99,7 @@ export default async function WalletPage() {
           </div>
 
           {/* Referral */}
-          <div className="mt-6 rounded-2xl border border-saffron-100 bg-white p-6 shadow-sm">
+          <div className="mt-4 rounded-2xl border border-saffron-100 bg-white p-6 shadow-sm">
             <h2 className="font-heading text-lg text-maroon-700">
               Refer friends, both get credit
             </h2>
@@ -112,7 +112,7 @@ export default async function WalletPage() {
           </div>
 
           {/* Ledger */}
-          <h2 className="mt-6 font-heading text-lg text-maroon-700">
+          <h2 className="mt-4 font-heading text-lg text-maroon-700">
             Credit history
           </h2>
           {txns.length === 0 ? (

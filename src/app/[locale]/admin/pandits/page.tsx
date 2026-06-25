@@ -24,7 +24,7 @@ export default async function AdminPanditsPage() {
       {/* Add new */}
       <form
         action={savePandit}
-        className="mt-6 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm"
+        className="mt-4 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm"
       >
         <h2 className="font-heading text-lg text-maroon-700">Add a Pandit</h2>
         <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -157,7 +157,7 @@ export default async function AdminPanditsPage() {
       </form>
 
       {/* Existing */}
-      <div className="mt-6 space-y-3">
+      <div className="mt-4 space-y-3">
         {pandits?.map((p) => (
           <form
             key={p.id}

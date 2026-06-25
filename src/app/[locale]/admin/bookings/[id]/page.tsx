@@ -100,7 +100,7 @@ export default async function AdminBookingDetailPage({
 
       <form
         action={updateBookingDetails}
-        className="mt-6 grid gap-6 lg:grid-cols-[1.4fr_1fr]"
+        className="mt-4 grid gap-6 lg:grid-cols-[1.4fr_1fr]"
       >
         <input type="hidden" name="id" value={booking.id} />
 
@@ -241,7 +241,7 @@ export default async function AdminBookingDetailPage({
       {/* Refund as store credit (separate form — not nested in the details form) */}
       <form
         action={refundBookingToCredit}
-        className="mt-6 flex flex-wrap items-end gap-2 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm"
+        className="mt-4 flex flex-wrap items-end gap-2 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm"
       >
         <input type="hidden" name="id" value={booking.id} />
         <div className="text-sm font-medium text-maroon-700">
@@ -268,7 +268,7 @@ export default async function AdminBookingDetailPage({
       </form>
 
       {/* Priest response & history */}
-      <div className="mt-6 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm">
+      <div className="mt-4 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h2 className="font-heading text-lg text-maroon-700">
             Priest response

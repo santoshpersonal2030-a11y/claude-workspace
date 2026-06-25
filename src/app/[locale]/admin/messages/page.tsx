@@ -25,7 +25,7 @@ export default async function AdminMessagesPage() {
         Submissions from the contact form.
       </p>
 
-      <div className="mt-6 space-y-3">
+      <div className="mt-4 space-y-3">
         {messages?.length ? (
           messages.map((m) => (
             <div

@@ -170,7 +170,7 @@ function LoginCard() {
         type="button"
         onClick={() => signInWithOAuth("google")}
         disabled={busy}
-        className="mt-6 flex w-full items-center justify-center gap-3 rounded-full border border-saffron-200 bg-white py-3 text-sm font-semibold text-foreground shadow-sm transition-colors hover:bg-saffron-50 disabled:opacity-60"
+        className="mt-4 flex w-full items-center justify-center gap-3 rounded-full border border-saffron-200 bg-white py-3 text-sm font-semibold text-foreground shadow-sm transition-colors hover:bg-saffron-50 disabled:opacity-60"
       >
         <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true">
           <path
@@ -358,7 +358,7 @@ function LoginCard() {
         </form>
       )}
 
-      <p className="mt-6 text-center text-xs text-foreground/65">
+      <p className="mt-4 text-center text-xs text-foreground/65">
         By continuing you agree to our{" "}
         <Link href="/terms" className="text-saffron-700 hover:underline">
           Terms
@@ -375,7 +375,7 @@ function LoginCard() {
 
 export default function LoginPage() {
   return (
-    <main className="flex flex-1 items-center justify-center bg-temple-gradient px-4 py-9">
+    <main className="flex flex-1 items-center justify-center bg-temple-gradient px-4 py-6">
       <Suspense>
         <LoginCard />
       </Suspense>

@@ -72,7 +72,7 @@ export default async function AdminPayoutsPage() {
       </div>
 
       {/* Bank accounts */}
-      <h2 className="mt-6 font-heading text-lg text-maroon-700">
+      <h2 className="mt-4 font-heading text-lg text-maroon-700">
         Priest bank accounts
       </h2>
       <div className="mt-3 space-y-2">
@@ -126,7 +126,7 @@ export default async function AdminPayoutsPage() {
       </div>
 
       {/* Recent payouts */}
-      <h2 className="mt-6 font-heading text-lg text-maroon-700">
+      <h2 className="mt-4 font-heading text-lg text-maroon-700">
         Recent payouts
       </h2>
       {(payouts ?? []).length === 0 ? (

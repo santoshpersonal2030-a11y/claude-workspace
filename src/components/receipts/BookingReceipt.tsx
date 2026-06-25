@@ -67,7 +67,7 @@ export default function BookingReceipt({
         </div>
       </div>
 
-      <div className="mt-6 grid grid-cols-2 gap-4 text-sm">
+      <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
         <div>
           <div className="text-foreground/65">Ceremony</div>
           <div className="font-medium text-foreground">
@@ -89,7 +89,7 @@ export default function BookingReceipt({
         </div>
       </div>
 
-      <div className="mt-6 ml-auto w-56 space-y-1 text-sm">
+      <div className="mt-4 ml-auto w-56 space-y-1 text-sm">
         <div className="flex justify-between">
           <span className="text-foreground/65">Service (dakshina)</span>
           <span>{formatINR(booking.service_price)}</span>

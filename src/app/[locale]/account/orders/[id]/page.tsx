@@ -66,7 +66,7 @@ export default async function OrderDetailPage({
     <>
       <Header />
       <main className="flex-1">
-        <section className="mx-auto max-w-3xl px-4 py-6 sm:px-6">
+        <section className="mx-auto max-w-3xl px-4 py-4 sm:px-6">
           <Link
             href="/account/orders"
             className="text-sm text-foreground/65 hover:text-saffron-700"
@@ -96,7 +96,7 @@ export default async function OrderDetailPage({
           </div>
 
           {/* Tracker */}
-          <div className="mt-6 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm">
+          <div className="mt-4 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm">
             <OrderStatusTracker status={order.status} />
             {(order.tracking_number || order.estimated_delivery) && (
               <div className="mt-4 border-t border-saffron-50 pt-3 text-sm text-foreground/70">
@@ -122,7 +122,7 @@ export default async function OrderDetailPage({
           </div>
 
           {/* Items */}
-          <div className="mt-6 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm">
+          <div className="mt-4 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm">
             <h2 className="font-heading text-lg text-maroon-700">Items</h2>
             <ul className="mt-4 space-y-4">
               {order.order_items.map((item) => (
@@ -179,7 +179,7 @@ export default async function OrderDetailPage({
 
           {/* Credit notes */}
           {creditNotes && creditNotes.length > 0 && (
-            <div className="mt-6 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm">
+            <div className="mt-4 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm">
               <h2 className="font-heading text-lg text-maroon-700">
                 Credit notes
               </h2>
@@ -201,7 +201,7 @@ export default async function OrderDetailPage({
 
           {/* Delivery address */}
           {(order.delivery_name || order.address) && (
-            <div className="mt-6 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm">
+            <div className="mt-4 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm">
               <h2 className="font-heading text-lg text-maroon-700">
                 Delivery address
               </h2>

@@ -64,7 +64,7 @@ export default async function PriestAnalyticsPage() {
         time is measured from assignment to the priest&apos;s first reply.
       </p>
 
-      <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
         {cards.map((c) => (
           <div
             key={c.label}
@@ -79,11 +79,11 @@ export default async function PriestAnalyticsPage() {
       </div>
 
       {stats.length === 0 ? (
-        <p className="mt-6 text-sm text-foreground/65">
+        <p className="mt-4 text-sm text-foreground/65">
           No assignment activity logged yet.
         </p>
       ) : (
-        <div className="mt-6 overflow-x-auto rounded-2xl border border-saffron-100 bg-white shadow-sm">
+        <div className="mt-4 overflow-x-auto rounded-2xl border border-saffron-100 bg-white shadow-sm">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-saffron-100 text-left text-xs text-foreground/65">

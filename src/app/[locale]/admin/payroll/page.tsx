@@ -78,7 +78,7 @@ export default async function AdminPayrollPage() {
       {/* Create / refresh a run */}
       <form
         action={createPayrollRun}
-        className="mt-6 flex flex-wrap items-end gap-3 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm"
+        className="mt-4 flex flex-wrap items-end gap-3 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm"
       >
         <label className="text-xs text-foreground/65">
           Month
@@ -112,7 +112,7 @@ export default async function AdminPayrollPage() {
       </form>
 
       {/* Existing runs */}
-      <div className="mt-6 space-y-3">
+      <div className="mt-4 space-y-3">
         {(runs ?? []).length === 0 && (
           <p className="text-sm text-foreground/65">No payroll runs yet.</p>
         )}

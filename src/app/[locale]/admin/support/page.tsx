@@ -49,9 +49,9 @@ export default async function AdminSupportPage({
       </p>
 
       {ids.length === 0 ? (
-        <p className="mt-6 text-sm text-foreground/65">No conversations yet.</p>
+        <p className="mt-4 text-sm text-foreground/65">No conversations yet.</p>
       ) : (
-        <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_1.4fr]">
+        <div className="mt-4 grid gap-6 lg:grid-cols-[1fr_1.4fr]">
           <div className="space-y-1">
             {ids.map((id) => {
               const t = threads.get(id)!;

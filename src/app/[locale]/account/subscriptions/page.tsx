@@ -39,7 +39,7 @@ export default async function SubscriptionsPage() {
     <>
       <Header />
       <main className="flex-1">
-        <section className="mx-auto max-w-4xl px-4 py-6 sm:px-6">
+        <section className="mx-auto max-w-4xl px-4 py-4 sm:px-6">
           <h1 className="font-heading text-3xl text-maroon-800">
             Recurring poojas
           </h1>
@@ -50,7 +50,7 @@ export default async function SubscriptionsPage() {
           </p>
 
           {/* Existing subscriptions */}
-          <div className="mt-6 space-y-3">
+          <div className="mt-4 space-y-3">
             {(subs ?? []).length === 0 ? (
               <p className="text-sm text-foreground/65">
                 No recurring poojas yet — add one below.
@@ -112,7 +112,7 @@ export default async function SubscriptionsPage() {
           {/* Create a subscription */}
           <form
             action={createSubscription}
-            className="mt-6 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm"
+            className="mt-4 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm"
           >
             <h2 className="font-heading text-lg text-maroon-700">
               Add a recurring pooja

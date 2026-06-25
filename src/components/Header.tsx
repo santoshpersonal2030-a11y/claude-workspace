@@ -10,6 +10,7 @@ import NotificationBell from "@/components/NotificationBell";
 import { useT } from "@/components/LanguageProvider";
 
 const navLinks = [
+  { href: "/pandits", key: "nav.pandits" },
   { href: "/poojas", key: "nav.bookPooja" },
   { href: "/temple-puja", key: "nav.templePuja" },
   { href: "/ceremonies", key: "nav.ceremonies" },
@@ -20,7 +21,6 @@ const navLinks = [
   { href: "/panchang", key: "nav.panchang" },
   { href: "/calendar", key: "nav.calendar" },
   { href: "/store", key: "nav.store" },
-  { href: "/pandits", key: "nav.pandits" },
   { href: "/how-it-works", key: "nav.howItWorks" },
 ];
 

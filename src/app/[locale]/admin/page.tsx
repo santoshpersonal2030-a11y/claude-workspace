@@ -204,7 +204,7 @@ export default async function AdminOverviewPage({
     <div>
       <h1 className="font-heading text-2xl text-maroon-800">Overview</h1>
 
-      <div className="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <div className="mt-4 grid grid-cols-2 gap-4 lg:grid-cols-4">
         {stats.map((s) => (
           <Link
             key={s.label}
@@ -220,7 +220,7 @@ export default async function AdminOverviewPage({
       </div>
 
       {/* Date range filter */}
-      <div className="mt-6 flex flex-wrap items-center gap-3">
+      <div className="mt-4 flex flex-wrap items-center gap-3">
         <span className="text-sm font-medium text-foreground/70">
           Metrics for:
         </span>
@@ -288,7 +288,7 @@ export default async function AdminOverviewPage({
       </div>
 
       {/* Top products */}
-      <div className="mt-6 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm">
+      <div className="mt-4 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm">
         <h2 className="font-heading text-lg text-maroon-700">
           Top products (units sold)
         </h2>
@@ -307,7 +307,7 @@ export default async function AdminOverviewPage({
       </div>
 
       {/* Low stock / reorder suggestions */}
-      <div className="mt-6 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm">
+      <div className="mt-4 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm">
         <div className="flex items-center justify-between">
           <h2 className="font-heading text-lg text-maroon-700">
             Low stock — reorder soon
@@ -362,7 +362,7 @@ export default async function AdminOverviewPage({
       </div>
 
       {/* GSTR-3B 3.1 (tax payable) */}
-      <div className="mt-6 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm">
+      <div className="mt-4 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm">
         <div className="flex items-center justify-between">
           <h2 className="font-heading text-lg text-maroon-700">
             GSTR-3B 3.1 — tax payable
@@ -396,7 +396,7 @@ export default async function AdminOverviewPage({
       </div>
 
       {/* Revenue by financial year */}
-      <div className="mt-6 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm">
+      <div className="mt-4 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm">
         <h2 className="font-heading text-lg text-maroon-700">
           Revenue by financial year
         </h2>
@@ -430,7 +430,7 @@ export default async function AdminOverviewPage({
         )}
       </div>
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-2">
+      <div className="mt-4 grid gap-6 lg:grid-cols-2">
         <div className="rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm">
           <h2 className="font-heading text-lg text-maroon-700">
             Recent bookings
