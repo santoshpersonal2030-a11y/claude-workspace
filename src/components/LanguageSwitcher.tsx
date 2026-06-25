@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 
 import { useLanguage } from "@/components/LanguageProvider";
 import {
@@ -21,8 +21,10 @@ function switchLocalePath(pathname: string, target: Locale): string {
   return bare === "/" ? `/${target}` : `/${target}${bare}`;
 }
 
-// Compact EN / हिन्दी toggle. Persists via the provider's cookie and navigates
-// to the locale-prefixed URL so server components re-render in that language.
+// Compact EN / हिन्दी / తెలుగు toggle. Persists via the provider's cookie, then
+// does a FULL navigation (not router.push) so the server re-renders in the new
+// language with the new cookie — avoiding Next's client RSC cache serving a
+// stale-language payload for the unprefixed (default-locale) URL.
 export default function LanguageSwitcher({
   className = "",
 }: {
@@ -30,12 +32,11 @@ export default function LanguageSwitcher({
 }) {
   const { locale, setLocale } = useLanguage();
   const pathname = usePathname();
-  const router = useRouter();
 
   function choose(l: Locale) {
     if (l === locale) return;
-    setLocale(l);
-    router.push(switchLocalePath(pathname, l));
+    setLocale(l); // write the cookie synchronously before navigating
+    window.location.assign(switchLocalePath(pathname, l));
   }
 
   return (

@@ -101,7 +101,7 @@ export default async function PoojaDetailPage({
       h: pooja.durationHours,
     });
 
-  const faqs = poojaFaqs(pooja);
+  const faqs = poojaFaqs(pooja, t);
   const url = `${SITE_URL}/poojas/${pooja.slug}`;
   const jsonLd = {
     "@context": "https://schema.org",
