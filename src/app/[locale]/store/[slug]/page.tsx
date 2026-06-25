@@ -21,6 +21,8 @@ import {
   getRelatedProducts,
   getProductReviews,
 } from "@/lib/queries";
+import { localizeProduct } from "@/lib/products-i18n";
+import { getDictionary, isLocale, DEFAULT_LOCALE } from "@/lib/i18n";
 
 // Re-fetch from the database at most once every 5 minutes.
 export const revalidate = 300;
@@ -47,13 +49,18 @@ export async function generateMetadata({
 export default async function ProductDetailPage({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ locale: string; slug: string }>;
 }) {
-  const { slug } = await params;
-  const product = await getProductBySlug(slug);
-  if (!product) notFound();
+  const { locale, slug } = await params;
+  const loc = isLocale(locale) ? locale : DEFAULT_LOCALE;
+  const { t } = getDictionary(loc);
+  const raw = await getProductBySlug(slug);
+  if (!raw) notFound();
+  const product = localizeProduct(raw, loc);
 
-  const related = await getRelatedProducts(product.slug, product.category);
+  const related = (
+    await getRelatedProducts(product.slug, product.category)
+  ).map((p) => localizeProduct(p, loc));
   const reviews = await getProductReviews(product.slug);
 
   const discount =
@@ -113,11 +120,11 @@ export default async function ProductDetailPage({
           <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
             <nav className="text-sm text-foreground/65">
               <Link href="/" className="hover:text-saffron-700">
-                Home
+                {t("common.home")}
               </Link>
               <span className="mx-2">/</span>
               <Link href="/store" className="hover:text-saffron-700">
-                Samagri Store
+                {t("nav.store")}
               </Link>
               <span className="mx-2">/</span>
               <span className="text-saffron-700">{product.name}</span>
@@ -156,7 +163,7 @@ export default async function ProductDetailPage({
                       {formatINR(product.mrp)}
                     </span>
                     <span className="text-sm font-semibold text-green-700">
-                      {discount}% off
+                      {t("home.store.off", { pct: discount })}
                     </span>
                   </>
                 )}
@@ -165,9 +172,9 @@ export default async function ProductDetailPage({
               <p className="mt-2 text-sm text-foreground/65">
                 {product.stock > 0
                   ? product.stock <= 5
-                    ? `Only ${product.stock} left in stock`
-                    : "In stock"
-                  : "Currently sold out"}
+                    ? t("sd.stockLow", { n: product.stock })
+                    : t("sd.inStock")
+                  : t("sd.soldOut")}
               </p>
 
               {product.description && (
@@ -193,8 +200,7 @@ export default async function ProductDetailPage({
               )}
 
               <p className="mt-4 text-sm text-foreground/65">
-                Free delivery on orders over ₹999. Authentic, freshly sourced
-                samagri.
+                {t("sd.deliveryNote")}
               </p>
             </div>
           </div>
@@ -215,7 +221,7 @@ export default async function ProductDetailPage({
           {related.length > 0 && (
             <div className="mt-16">
               <h2 className="font-heading text-2xl text-maroon-800">
-                You may also like
+                {t("sd.related")}
               </h2>
               <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
                 {related.map((item) => {
