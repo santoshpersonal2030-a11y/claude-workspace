@@ -91,7 +91,7 @@ export default function PanditDirectory({ pandits }: { pandits: Pandit[] }) {
             <option value="All">{t("dir.allTiers")}</option>
             {PANDIT_TIERS.map((tr) => (
               <option key={tr.tier} value={tr.tier}>
-                {tr.tier}
+                {t(`ptier.${tr.tier}`)}
               </option>
             ))}
           </select>
@@ -157,9 +157,9 @@ export default function PanditDirectory({ pandits }: { pandits: Pandit[] }) {
                   <div className="mt-0.5 flex flex-wrap items-center gap-2 text-sm">
                     <span
                       className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${TIER_BADGE_CLASS[info.tier]}`}
-                      title={info.blurb}
+                      title={t(`ptier.blurb.${info.tier}`)}
                     >
-                      {info.tier}
+                      {t(`ptier.${info.tier}`)}
                     </span>
                     <span className="text-gold-600">
                       ★ {pandit.rating.toFixed(1)}

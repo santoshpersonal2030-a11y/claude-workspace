@@ -64,7 +64,7 @@ export default function PoojaList({ poojas }: { poojas: Pooja[] }) {
                   : "border border-saffron-200 bg-white text-saffron-700 hover:bg-saffron-50")
               }
             >
-              {cat === "All" ? t("browse.all") : cat}
+              {cat === "All" ? t("browse.all") : t(`pcat.${cat}`)}
             </button>
           );
         })}
@@ -86,7 +86,7 @@ export default function PoojaList({ poojas }: { poojas: Pooja[] }) {
                   : "border border-stone-200 bg-white text-foreground/65 hover:bg-stone-50")
               }
             >
-              {rt === "All" ? t("browse.all") : rt}
+              {rt === "All" ? t("browse.all") : t(`prit.${rt}`)}
             </button>
           );
         })}
@@ -104,10 +104,10 @@ export default function PoojaList({ poojas }: { poojas: Pooja[] }) {
               <div className="text-4xl">{pooja.emoji}</div>
               <div className="flex flex-col items-end gap-1">
                 <span className="rounded-full bg-saffron-50 px-3 py-1 text-xs font-medium text-saffron-700">
-                  {pooja.category}
+                  {t(`pcat.${pooja.category}`)}
                 </span>
                 <span className="rounded-full bg-maroon-50 px-2.5 py-0.5 text-[11px] font-medium text-maroon-700">
-                  {pooja.ritualType}
+                  {t(`prit.${pooja.ritualType}`)}
                 </span>
               </div>
             </div>

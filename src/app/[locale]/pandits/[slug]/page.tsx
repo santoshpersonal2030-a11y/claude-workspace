@@ -136,9 +136,9 @@ export default async function PanditDetailPage({
                 <div className="mt-1 flex flex-wrap items-center gap-2 text-sm">
                   <span
                     className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${TIER_BADGE_CLASS[tier.tier]}`}
-                    title={tier.blurb}
+                    title={t(`ptier.blurb.${tier.tier}`)}
                   >
-                    {tier.tier}
+                    {t(`ptier.${tier.tier}`)}
                   </span>
                   <span className="text-gold-600">
                     ★ {pandit.rating.toFixed(1)}
