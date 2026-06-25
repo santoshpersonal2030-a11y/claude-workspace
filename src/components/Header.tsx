@@ -62,12 +62,6 @@ export default function Header() {
             <WishlistNavButton />
             <CartButton />
             <HeaderAuth />
-            <Link
-              href="/poojas"
-              className="hidden rounded-full bg-saffron-700 px-5 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-saffron-800 md:inline-flex"
-            >
-              {t("nav.bookPooja")}
-            </Link>
             <button
               type="button"
               onClick={() => setMenuOpen((open) => !open)}
