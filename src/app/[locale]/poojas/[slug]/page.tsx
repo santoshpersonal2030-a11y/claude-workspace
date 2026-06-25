@@ -7,7 +7,9 @@ import JsonLd from "@/components/JsonLd";
 import PoojaBooking from "@/components/PoojaBooking";
 import AddToCartButton from "@/components/AddToCartButton";
 import ProductThumb from "@/components/ProductThumb";
-import { getIncludes, formatINR } from "@/lib/poojas";
+import { formatINR } from "@/lib/poojas";
+import { getDictionary, isLocale, DEFAULT_LOCALE } from "@/lib/i18n";
+import { localizePooja } from "@/lib/poojas-i18n";
 import {
   getPoojaBySlug,
   getPoojaSlugs,
@@ -31,13 +33,15 @@ export async function generateStaticParams() {
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ locale: string; slug: string }>;
 }): Promise<Metadata> {
-  const { slug } = await params;
-  const pooja = await getPoojaBySlug(slug);
-  if (!pooja) return { title: "Pooja not found" };
+  const { locale, slug } = await params;
+  const loc = isLocale(locale) ? locale : DEFAULT_LOCALE;
+  const raw = await getPoojaBySlug(slug);
+  if (!raw) return { title: "Pooja not found" };
+  const pooja = localizePooja(raw, loc);
   return {
-    title: `Book ${pooja.name} — Verified Pandit`,
+    title: `${pooja.name} — BookMyPoojari`,
     description: pooja.shortDescription,
   };
 }
@@ -45,11 +49,14 @@ export async function generateMetadata({
 export default async function PoojaDetailPage({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ locale: string; slug: string }>;
 }) {
-  const { slug } = await params;
-  const pooja = await getPoojaBySlug(slug);
-  if (!pooja) notFound();
+  const { locale, slug } = await params;
+  const loc = isLocale(locale) ? locale : DEFAULT_LOCALE;
+  const { t } = getDictionary(loc);
+  const raw = await getPoojaBySlug(slug);
+  if (!raw) notFound();
+  const pooja = localizePooja(raw, loc);
 
   // Priests who specialise in this pooja's category or ritual type come first.
   const panditRoster = await getPanditsForPooja(pooja.category, pooja.ritualType);
@@ -74,7 +81,16 @@ export default async function PoojaDetailPage({
     })
     .slice(0, 4);
 
-  const includes = getIncludes(pooja);
+  const includes =
+    pooja.includes && pooja.includes.length > 0
+      ? pooja.includes
+      : [
+          t("pd.defInc1"),
+          t("pd.defInc2"),
+          t("pd.defInc3"),
+          t("pd.defInc4"),
+          t("pd.defInc5"),
+        ];
   const longDescription =
     pooja.longDescription ??
     `${pooja.shortDescription} Our verified Pandits perform the ${pooja.name} ` +
@@ -127,11 +143,11 @@ export default async function PoojaDetailPage({
           <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
             <nav className="text-sm text-foreground/65">
               <Link href="/" className="hover:text-saffron-700">
-                Home
+                {t("common.home")}
               </Link>
               <span className="mx-2">/</span>
               <Link href="/poojas" className="hover:text-saffron-700">
-                Book a Pooja
+                {t("nav.bookPooja")}
               </Link>
               <span className="mx-2">/</span>
               <span className="text-saffron-700">{pooja.name}</span>
@@ -142,21 +158,15 @@ export default async function PoojaDetailPage({
               <div>
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="rounded-full bg-saffron-50 px-3 py-1 text-xs font-medium text-saffron-700">
-                    {pooja.category}
+                    {t(`pcat.${pooja.category}`)}
                   </span>
                   {pooja.requiresMuhurat ? (
-                    <span
-                      className="rounded-full bg-gold-400 px-3 py-1 text-xs font-medium text-maroon-800"
-                      title="This ceremony is performed at an auspicious muhurat — the Pandit will confirm the exact timing."
-                    >
-                      🕉️ Auspicious muhurat
+                    <span className="rounded-full bg-gold-400 px-3 py-1 text-xs font-medium text-maroon-800">
+                      🕉️ {t("pd.auspiciousMuhurat")}
                     </span>
                   ) : (
-                    <span
-                      className="rounded-full bg-green-50 px-3 py-1 text-xs font-medium text-green-700"
-                      title="Flexible timing — choose any available slot."
-                    >
-                      ✓ Flexible timing
+                    <span className="rounded-full bg-green-50 px-3 py-1 text-xs font-medium text-green-700">
+                      ✓ {t("pd.flexibleTiming")}
                     </span>
                   )}
                 </div>
@@ -181,20 +191,20 @@ export default async function PoojaDetailPage({
               <div className="flex flex-wrap gap-6 rounded-2xl border border-saffron-100 bg-white p-6 shadow-sm">
                 <div>
                   <div className="text-xs text-foreground/65">
-                    Starting price
+                    {t("pd.startingPrice")}
                   </div>
                   <div className="font-heading text-2xl text-saffron-700">
                     {formatINR(pooja.startingPrice)}
                   </div>
                 </div>
                 <div className="border-l border-saffron-100 pl-6">
-                  <div className="text-xs text-foreground/65">Duration</div>
+                  <div className="text-xs text-foreground/65">{t("pd.duration")}</div>
                   <div className="font-heading text-2xl text-maroon-700">
-                    ~{pooja.durationHours} hr
+                    {t("pd.hours", { h: pooja.durationHours })}
                   </div>
                 </div>
                 <div className="border-l border-saffron-100 pl-6">
-                  <div className="text-xs text-foreground/65">Rating</div>
+                  <div className="text-xs text-foreground/65">{t("pd.rating")}</div>
                   <div className="font-heading text-2xl text-maroon-700">
                     4.9 ★
                   </div>
@@ -202,14 +212,14 @@ export default async function PoojaDetailPage({
               </div>
 
               <h2 className="mt-8 font-heading text-2xl text-maroon-800">
-                About this pooja
+                {t("pd.about")}
               </h2>
               <p className="mt-3 leading-relaxed text-foreground/75">
                 {longDescription}
               </p>
 
               <h2 className="mt-8 font-heading text-2xl text-maroon-800">
-                What&apos;s included
+                {t("pd.included")}
               </h2>
               <ul className="mt-3 space-y-2">
                 {includes.map((item) => (
@@ -224,7 +234,7 @@ export default async function PoojaDetailPage({
               </ul>
 
               <h2 className="mt-8 font-heading text-2xl text-maroon-800">
-                Frequently asked questions
+                {t("pd.faq")}
               </h2>
               <div className="mt-3 divide-y divide-saffron-100 rounded-2xl border border-saffron-100 bg-white">
                 {faqs.map((f) => (
@@ -243,16 +253,15 @@ export default async function PoojaDetailPage({
 
               <div className="mt-8 rounded-2xl border border-saffron-100 bg-cream-100/60 p-5">
                 <h3 className="font-heading text-lg text-maroon-700">
-                  Not sure which pooja you need?
+                  {t("pd.unsureTitle")}
                 </h3>
                 <p className="mt-1 text-sm text-foreground/65">
-                  Our team can guide you to the right ceremony and the
-                  auspicious muhurat.{" "}
+                  {t("pd.unsureText")}{" "}
                   <Link
                     href="/contact"
                     className="font-semibold text-saffron-700 hover:text-saffron-800"
                   >
-                    Talk to us →
+                    {t("pd.talkToUs")}
                   </Link>
                 </p>
               </div>
@@ -268,10 +277,10 @@ export default async function PoojaDetailPage({
           {crossSell.length > 0 && (
             <div className="mt-16">
               <h2 className="font-heading text-2xl text-maroon-800">
-                Frequently bought together
+                {t("pd.fbt")}
               </h2>
               <p className="mt-1 text-sm text-foreground/65">
-                Add the samagri you&apos;ll need for this pooja.
+                {t("pd.fbtSubtitle")}
               </p>
               <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
                 {crossSell.map((item) => (
