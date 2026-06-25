@@ -8,7 +8,7 @@ export default function NotFound() {
       <Header />
       <main className="flex-1">
         <section className="bg-temple-gradient">
-          <div className="mx-auto flex max-w-3xl flex-col items-center px-4 py-24 text-center sm:px-6">
+          <div className="mx-auto flex max-w-3xl flex-col items-center px-4 py-14 text-center sm:px-6">
             <div className="text-6xl">🪔</div>
             <p className="mt-6 font-heading text-7xl text-saffron-700">404</p>
             <h1 className="mt-2 font-heading text-3xl text-maroon-800">

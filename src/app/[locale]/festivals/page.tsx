@@ -109,7 +109,7 @@ export default async function FestivalsPage({
       <Header />
       <main className="flex-1">
         <section className="bg-temple-gradient">
-          <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
+          <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
             <nav className="text-sm text-foreground/65">
               <Link href="/" className="hover:text-saffron-700">
                 {t("common.home")}
@@ -126,7 +126,7 @@ export default async function FestivalsPage({
           </div>
         </section>
 
-        <section className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
+        <section className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
           <div className="space-y-3">
             {rows.map((r) => (
               <div

@@ -33,7 +33,7 @@ export default async function PanditsPage({
       <Header />
       <main className="flex-1">
         <section className="bg-temple-gradient">
-          <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
+          <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
             <nav className="text-sm text-foreground/65">
               <Link href="/" className="hover:text-saffron-700">
                 {t("common.home")}
@@ -50,7 +50,7 @@ export default async function PanditsPage({
           </div>
         </section>
 
-        <section className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
+        <section className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
           <PanditDirectory pandits={pandits} />
 
           <div className="mt-12 border-t border-saffron-100 pt-8">

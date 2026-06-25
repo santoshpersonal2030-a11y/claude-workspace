@@ -32,7 +32,7 @@ export default async function AddressesPage() {
     <>
       <Header />
       <main className="flex-1">
-        <section className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
+        <section className="mx-auto max-w-3xl px-4 py-8 sm:px-6">
           <Link
             href="/account/profile"
             className="text-sm text-foreground/65 hover:text-saffron-700"

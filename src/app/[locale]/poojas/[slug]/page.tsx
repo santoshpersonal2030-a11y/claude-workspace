@@ -124,7 +124,7 @@ export default async function PoojaDetailPage({
       <main className="flex-1">
         {/* Hero */}
         <section className="bg-temple-gradient">
-          <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
+          <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
             <nav className="text-sm text-foreground/65">
               <Link href="/" className="hover:text-saffron-700">
                 Home
@@ -174,7 +174,7 @@ export default async function PoojaDetailPage({
         </section>
 
         {/* Body */}
-        <section className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
+        <section className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
           <div className="grid gap-10 lg:grid-cols-[1.6fr_1fr]">
             {/* Left: details */}
             <div>

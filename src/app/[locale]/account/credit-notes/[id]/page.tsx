@@ -43,7 +43,7 @@ export default async function CreditNotePage({
   );
 
   return (
-    <main className="mx-auto max-w-2xl px-6 py-10">
+    <main className="mx-auto max-w-2xl px-6 py-6">
       <div className="mb-6 flex items-center justify-between print:hidden">
         <Link
           href="/account/orders"
