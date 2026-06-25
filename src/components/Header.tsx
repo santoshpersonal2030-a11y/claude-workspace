@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import HeaderAuth from "@/components/HeaderAuth";
 import CartButton from "@/components/CartButton";
 import WishlistNavButton from "@/components/WishlistNavButton";
@@ -37,8 +38,15 @@ export default function Header() {
             className="flex shrink-0 items-center gap-2"
             onClick={() => setMenuOpen(false)}
           >
-            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-saffron-600 text-xl shadow-sm">
-              🪔
+            <span className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full shadow-sm">
+              <Image
+                src="/icon-192.png"
+                alt="BookMyPoojari"
+                width={40}
+                height={40}
+                className="h-full w-full object-cover"
+                priority
+              />
             </span>
             <span className="leading-tight">
               <span className="block font-heading text-lg text-maroon-700">
