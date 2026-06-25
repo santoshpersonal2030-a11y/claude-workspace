@@ -108,7 +108,7 @@ export default async function Home({
       <main className="flex-1">
         {/* Hero */}
         <section className="bg-temple-gradient">
-          <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 py-16 sm:px-6 lg:grid-cols-2 lg:py-24">
+          <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 py-11 sm:px-6 lg:grid-cols-2 lg:py-14">
             <HomeHero />
 
             <div className="relative">
@@ -140,7 +140,7 @@ export default async function Home({
         <TodayPanchang />
 
         {/* Popular poojas */}
-        <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+        <section className="mx-auto max-w-6xl px-4 py-11 sm:px-6">
           <div className="flex items-end justify-between gap-4">
             <div>
               <h2 className="font-heading text-3xl text-maroon-800">
@@ -195,7 +195,7 @@ export default async function Home({
 
         {/* Upcoming auspicious dates teaser */}
         {muhuratDates.length > 0 && (
-          <section className="bg-cream-100/60 py-12">
+          <section className="bg-cream-100/60 py-8">
             <div className="mx-auto max-w-6xl px-4 sm:px-6">
               <div className="flex items-end justify-between gap-4">
                 <div>
@@ -237,8 +237,8 @@ export default async function Home({
         )}
 
         {/* Consultation CTA */}
-        <section className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
-          <div className="flex flex-col items-center gap-4 rounded-3xl border border-saffron-100 bg-cream-100/70 px-6 py-10 text-center sm:px-12">
+        <section className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+          <div className="flex flex-col items-center gap-4 rounded-3xl border border-saffron-100 bg-cream-100/70 px-6 py-6 text-center sm:px-12">
             <span className="text-4xl">🔮</span>
             <h2 className="font-heading text-3xl text-maroon-800">
               {t("home.consult.title")}
@@ -257,7 +257,7 @@ export default async function Home({
 
         {/* Temple e-Puja CTA */}
         <section className="mx-auto max-w-6xl px-4 pb-4 sm:px-6">
-          <div className="flex flex-col items-center gap-4 rounded-3xl border border-saffron-100 bg-saffron-50/50 px-6 py-10 text-center sm:px-12">
+          <div className="flex flex-col items-center gap-4 rounded-3xl border border-saffron-100 bg-saffron-50/50 px-6 py-6 text-center sm:px-12">
             <span className="text-4xl">🛕</span>
             <h2 className="font-heading text-3xl text-maroon-800">
               {t("home.temple.title")}
@@ -355,7 +355,7 @@ export default async function Home({
 
         {/* Featured pandits */}
         {featuredPandits.length > 0 && (
-          <section className="bg-cream-100/60 py-16">
+          <section className="bg-cream-100/60 py-11">
             <div className="mx-auto max-w-6xl px-4 sm:px-6">
               <div className="flex items-end justify-between gap-4">
                 <div>
@@ -419,7 +419,7 @@ export default async function Home({
         )}
 
         {/* How it works */}
-        <section className="py-16">
+        <section className="py-11">
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
             <h2 className="text-center font-heading text-3xl text-maroon-800">
               {t("home.how.title")}
@@ -447,7 +447,7 @@ export default async function Home({
         </section>
 
         {/* Why choose us */}
-        <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+        <section className="mx-auto max-w-6xl px-4 py-11 sm:px-6">
           <h2 className="text-center font-heading text-3xl text-maroon-800">
             {t("home.why.title")}
           </h2>
@@ -468,7 +468,7 @@ export default async function Home({
         </section>
 
         {/* Testimonials */}
-        <section className="bg-cream-100/60 py-16">
+        <section className="bg-cream-100/60 py-11">
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
             <h2 className="text-center font-heading text-3xl text-maroon-800">
               {t("home.testimonials.title")}
@@ -499,8 +499,8 @@ export default async function Home({
         </section>
 
         {/* Samagri store teaser */}
-        <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-          <div className="overflow-hidden rounded-3xl bg-saffron-700 px-8 py-12 text-center shadow-lg sm:px-12">
+        <section className="mx-auto max-w-6xl px-4 py-11 sm:px-6">
+          <div className="overflow-hidden rounded-3xl bg-saffron-700 px-8 py-8 text-center shadow-lg sm:px-12">
             <div className="text-5xl">🛍️</div>
             <h2 className="mt-4 font-heading text-3xl text-white">
               {t("home.samagri.title")}
@@ -545,7 +545,7 @@ export default async function Home({
 
         {/* Final CTA */}
         <section className="bg-temple-gradient">
-          <div className="mx-auto max-w-3xl px-4 py-16 text-center sm:px-6">
+          <div className="mx-auto max-w-3xl px-4 py-11 text-center sm:px-6">
             <h2 className="font-heading text-3xl text-maroon-800">
               {t("home.cta.title")}
             </h2>

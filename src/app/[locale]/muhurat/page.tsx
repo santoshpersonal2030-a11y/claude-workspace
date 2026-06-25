@@ -64,7 +64,7 @@ export default async function MuhuratPage({
           <JsonLd data={eventsLd} />
         )}
         <section className="bg-temple-gradient">
-          <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
+          <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
             <nav className="text-sm text-foreground/65">
               <Link href="/" className="hover:text-saffron-700">
                 {t("common.home")}
@@ -87,7 +87,7 @@ export default async function MuhuratPage({
           </div>
         </section>
 
-        <section className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
+        <section className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
           {windows.length === 0 ? (
             <div className="rounded-2xl border border-saffron-100 bg-white p-8 text-center shadow-sm">
               <div className="text-4xl">🗓️</div>

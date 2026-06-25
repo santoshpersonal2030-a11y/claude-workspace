@@ -56,7 +56,7 @@ export default async function SignHoroscopePage({
       <Header />
       <main className="flex-1">
         <section className="bg-temple-gradient">
-          <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
+          <div className="mx-auto max-w-3xl px-4 py-6 sm:px-6">
             <nav className="text-sm text-foreground/65">
               <Link href="/horoscope" className="hover:text-saffron-700">
                 {t("horoscope.crumb")}
@@ -82,7 +82,7 @@ export default async function SignHoroscopePage({
           </div>
         </section>
 
-        <section className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
+        <section className="mx-auto max-w-3xl px-4 py-6 sm:px-6">
           <div className="space-y-4">
             {sections.map((s) => (
               <div

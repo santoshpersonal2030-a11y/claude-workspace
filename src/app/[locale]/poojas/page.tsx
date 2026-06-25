@@ -32,7 +32,7 @@ export default async function PoojasPage({
       <Header />
       <main className="flex-1">
         <section className="bg-temple-gradient">
-          <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
+          <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
             <nav className="text-sm text-foreground/65">
               <span>{t("common.home")}</span>
               <span className="mx-2">/</span>
@@ -47,7 +47,7 @@ export default async function PoojasPage({
           </div>
         </section>
 
-        <section className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
+        <section className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
           <h2 className="sr-only">{t("dir.allPoojas")}</h2>
           <PoojaList poojas={poojas} />
         </section>
