@@ -27,7 +27,7 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-50 border-b border-saffron-100 bg-cream/90 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
-        <Link href="/" className="flex items-center gap-2">
+        <Link href="/" className="flex shrink-0 items-center gap-2">
           <span className="flex h-10 w-10 items-center justify-center rounded-full bg-saffron-600 text-xl shadow-sm">
             🪔
           </span>
@@ -41,20 +41,22 @@ export default function Header() {
           </span>
         </Link>
 
-        <nav className="hidden items-center gap-7 md:flex" aria-label="Primary">
-
+        <nav
+          className="hidden min-w-0 flex-nowrap items-center gap-x-5 overflow-x-auto md:flex [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          aria-label="Primary"
+        >
           {navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className="text-sm font-medium text-foreground/80 transition-colors hover:text-saffron-700"
+              className="whitespace-nowrap text-sm font-medium text-foreground/80 transition-colors hover:text-saffron-700"
             >
               {t(link.key)}
             </Link>
           ))}
         </nav>
 
-        <div className="flex items-center gap-3">
+        <div className="flex shrink-0 items-center gap-3">
           <Link
             href="/search"
             aria-label={t("search.title")}
