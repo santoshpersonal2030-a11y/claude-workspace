@@ -81,7 +81,7 @@ export default async function AdminTeamPage() {
       </form>
 
       {/* Members */}
-      <div className="mt-8 space-y-2">
+      <div className="mt-6 space-y-2">
         {(members ?? []).map((m) => (
           <div
             key={m.id}

@@ -96,7 +96,7 @@ export default async function AdminReviewsPage({
       </div>
 
       {rows.length === 0 ? (
-        <p className="mt-8 text-sm text-foreground/65">
+        <p className="mt-6 text-sm text-foreground/65">
           No {showHidden ? "hidden" : "published"} reviews.
         </p>
       ) : (

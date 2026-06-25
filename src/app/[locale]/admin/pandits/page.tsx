@@ -157,7 +157,7 @@ export default async function AdminPanditsPage() {
       </form>
 
       {/* Existing */}
-      <div className="mt-8 space-y-3">
+      <div className="mt-6 space-y-3">
         {pandits?.map((p) => (
           <form
             key={p.id}

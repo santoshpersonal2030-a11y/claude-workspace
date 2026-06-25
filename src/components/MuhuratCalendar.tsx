@@ -150,7 +150,7 @@ export default function MuhuratCalendar({
       </form>
 
       {ceremonies.length > 1 && (
-        <div className="mb-8 flex flex-wrap gap-2">
+        <div className="mb-6 flex flex-wrap gap-2">
           {chip("All", t("mc.allCeremonies"))}
           {ceremonies.map((c) => chip(c, c))}
         </div>

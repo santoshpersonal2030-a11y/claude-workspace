@@ -220,7 +220,7 @@ export default async function AdminOverviewPage({
       </div>
 
       {/* Date range filter */}
-      <div className="mt-8 flex flex-wrap items-center gap-3">
+      <div className="mt-6 flex flex-wrap items-center gap-3">
         <span className="text-sm font-medium text-foreground/70">
           Metrics for:
         </span>

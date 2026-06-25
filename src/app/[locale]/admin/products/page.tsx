@@ -118,7 +118,7 @@ export default async function AdminProductsPage() {
       </form>
 
       {/* Existing */}
-      <div className="mt-8 space-y-3">
+      <div className="mt-6 space-y-3">
         {products?.map((p) => (
           <form
             key={p.id}

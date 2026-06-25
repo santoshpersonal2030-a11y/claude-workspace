@@ -255,7 +255,7 @@ export default async function AdminMuhuratPage({
       </form>
 
       {/* Existing */}
-      <div className="mt-8 flex items-center justify-between">
+      <div className="mt-6 flex items-center justify-between">
         <h2 className="font-heading text-lg text-maroon-700">
           Windows ({windows.length})
         </h2>

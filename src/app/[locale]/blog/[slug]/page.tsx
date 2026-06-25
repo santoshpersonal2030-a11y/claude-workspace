@@ -58,7 +58,7 @@ export default async function BlogPostPage({
       <JsonLd data={jsonLd} />
       <Header />
       <main className="flex-1">
-        <article className="mx-auto max-w-3xl px-4 py-8 sm:px-6">
+        <article className="mx-auto max-w-3xl px-4 py-6 sm:px-6">
           <nav className="text-sm text-foreground/65">
             <Link href="/blog" className="hover:text-saffron-700">
               ← Blog
@@ -72,7 +72,7 @@ export default async function BlogPostPage({
           </h1>
           <p className="mt-3 text-lg text-foreground/70">{post.excerpt}</p>
 
-          <div className="mt-8 space-y-6">
+          <div className="mt-6 space-y-6">
             {post.body.map((section, i) => (
               <section key={i}>
                 {section.heading && (
@@ -92,7 +92,7 @@ export default async function BlogPostPage({
             ))}
           </div>
 
-          <div className="mt-10 flex flex-wrap gap-3 rounded-2xl border border-saffron-100 bg-white p-6 shadow-sm">
+          <div className="mt-7 flex flex-wrap gap-3 rounded-2xl border border-saffron-100 bg-white p-6 shadow-sm">
             <Link
               href="/poojas"
               className="rounded-full bg-saffron-700 px-6 py-2.5 text-sm font-semibold text-white hover:bg-saffron-800"

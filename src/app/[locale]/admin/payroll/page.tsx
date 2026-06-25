@@ -112,7 +112,7 @@ export default async function AdminPayrollPage() {
       </form>
 
       {/* Existing runs */}
-      <div className="mt-8 space-y-3">
+      <div className="mt-6 space-y-3">
         {(runs ?? []).length === 0 && (
           <p className="text-sm text-foreground/65">No payroll runs yet.</p>
         )}

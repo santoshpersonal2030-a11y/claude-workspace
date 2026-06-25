@@ -102,7 +102,7 @@ export default async function AdminCoveragePage() {
       </div>
 
       {rows.length === 0 ? (
-        <p className="mt-8 text-sm text-foreground/65">
+        <p className="mt-6 text-sm text-foreground/65">
           No booking demand recorded yet. As customers book, this map fills in.
         </p>
       ) : (

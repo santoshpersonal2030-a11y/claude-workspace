@@ -169,7 +169,7 @@ export default function StoreBrowser({
 
       {/* Grid */}
       {visible.length === 0 ? (
-        <p className="mt-10 text-center text-foreground/65">
+        <p className="mt-7 text-center text-foreground/65">
           {t("shop.noMatch")}
         </p>
       ) : (

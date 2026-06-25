@@ -106,7 +106,7 @@ export default async function CalendarPage({
       <Header />
       <main className="flex-1">
         <section className="bg-temple-gradient">
-          <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
+          <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6">
             <nav className="text-sm text-foreground/65">
               <Link href="/" className="hover:text-saffron-700">
                 {t("common.home")}
@@ -235,7 +235,7 @@ export default async function CalendarPage({
           </div>
 
           {/* Festivals this month */}
-          <div className="mt-10">
+          <div className="mt-7">
             <h3 className="font-heading text-xl text-maroon-800">
               {ui.festivalsThisMonth}
             </h3>
@@ -269,7 +269,7 @@ export default async function CalendarPage({
             )}
           </div>
 
-          <p className="mt-8 text-xs text-foreground/65">
+          <p className="mt-6 text-xs text-foreground/65">
             <Link href="/panchang" className="text-saffron-700 hover:underline">
               {ui.fullPanchang}
             </Link>

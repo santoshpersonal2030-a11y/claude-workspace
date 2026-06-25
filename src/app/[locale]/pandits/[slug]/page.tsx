@@ -157,8 +157,8 @@ export default async function PanditDetailPage({
           </div>
         </section>
 
-        <section className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
-          <div className="grid gap-10 lg:grid-cols-[1.6fr_1fr]">
+        <section className="mx-auto max-w-5xl px-4 py-6 sm:px-6">
+          <div className="grid gap-6 lg:grid-cols-[1.6fr_1fr]">
             <div>
               <h2 className="font-heading text-2xl text-maroon-800">
                 {t("pdt.about")}
@@ -182,7 +182,7 @@ export default async function PanditDetailPage({
               </div>
 
               {pandit.qualifications.length > 0 && (
-                <div className="mt-8">
+                <div className="mt-6">
                   <h2 className="font-heading text-2xl text-maroon-800">
                     {t("pdt.qualifications")}
                   </h2>
@@ -201,7 +201,7 @@ export default async function PanditDetailPage({
               )}
 
               {pandit.achievements.length > 0 && (
-                <div className="mt-8">
+                <div className="mt-6">
                   <h2 className="font-heading text-2xl text-maroon-800">
                     {t("pdt.achievements")}
                   </h2>
@@ -239,7 +239,7 @@ export default async function PanditDetailPage({
           </div>
 
           {reviews.length > 0 && (
-            <div className="mt-12">
+            <div className="mt-9">
               <h2 className="font-heading text-2xl text-maroon-800">
                 {t("pdt.reviewsHeading", { n: pandit.reviewCount })}
               </h2>
