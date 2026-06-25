@@ -238,7 +238,7 @@ export default function CartPage() {
     <>
       <Header />
       <main className="flex-1">
-        <section className="mx-auto max-w-5xl px-4 py-4 sm:px-6">
+        <section className="mx-auto max-w-5xl px-4 py-3 sm:px-6">
           <h1 className="font-heading text-3xl text-maroon-800">{t("cart.title")}</h1>
 
           {items.length === 0 ? (

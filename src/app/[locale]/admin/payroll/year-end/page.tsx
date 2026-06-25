@@ -207,7 +207,7 @@ export default async function PayrollYearEndPage({
           <tbody>
             {priestRows.length === 0 && (
               <tr>
-                <td colSpan={9} className="py-4 text-center text-foreground/65">
+                <td colSpan={9} className="py-3 text-center text-foreground/65">
                   No payroll lines in FY {fyLabel(selectedFy)} yet.
                 </td>
               </tr>

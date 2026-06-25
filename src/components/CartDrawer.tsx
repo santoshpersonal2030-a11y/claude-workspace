@@ -85,7 +85,7 @@ export default function CartDrawer() {
         aria-modal="true"
         aria-label={t("cart.title")}
       >
-        <header className="flex items-center justify-between border-b border-saffron-100 px-5 py-4">
+        <header className="flex items-center justify-between border-b border-saffron-100 px-5 py-3">
           <h2 className="font-heading text-lg text-maroon-800">
             {t("cart.title")}{items.length > 0 ? ` (${items.length})` : ""}
           </h2>
@@ -114,7 +114,7 @@ export default function CartDrawer() {
           </div>
         ) : (
           <>
-            <div className="flex-1 overflow-y-auto px-5 py-4">
+            <div className="flex-1 overflow-y-auto px-5 py-3">
               <ul className="space-y-4">
                 {items.map((item) => (
                   <li key={item.slug} className="flex gap-3">
@@ -172,7 +172,7 @@ export default function CartDrawer() {
               </ul>
             </div>
 
-            <footer className="border-t border-saffron-100 px-5 py-4">
+            <footer className="border-t border-saffron-100 px-5 py-3">
               <div className="flex items-center justify-between text-sm">
                 <span className="text-foreground/65">{t("cart.subtotal")}</span>
                 <span className="font-heading text-lg text-saffron-700">

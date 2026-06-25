@@ -58,7 +58,7 @@ export default async function BlogPostPage({
       <JsonLd data={jsonLd} />
       <Header />
       <main className="flex-1">
-        <article className="mx-auto max-w-3xl px-4 py-4 sm:px-6">
+        <article className="mx-auto max-w-3xl px-4 py-3 sm:px-6">
           <nav className="text-sm text-foreground/65">
             <Link href="/blog" className="hover:text-saffron-700">
               ← Blog

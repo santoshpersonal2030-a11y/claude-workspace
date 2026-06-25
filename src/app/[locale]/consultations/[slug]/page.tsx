@@ -75,7 +75,7 @@ export default async function ConsultationDetailPage({
       <Header />
       <main className="flex-1">
         <section className="bg-temple-gradient">
-          <div className="mx-auto max-w-6xl px-4 py-4 sm:px-6">
+          <div className="mx-auto max-w-6xl px-4 py-3 sm:px-6">
             <nav className="text-sm text-foreground/65">
               <Link href="/consultations" className="hover:text-saffron-700">
                 {t("consult.crumb")}

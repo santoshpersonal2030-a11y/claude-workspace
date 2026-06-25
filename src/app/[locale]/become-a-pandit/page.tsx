@@ -22,7 +22,7 @@ export default function BecomeAPanditPage() {
     <>
       <Header />
       <main className="flex-1">
-        <section className="mx-auto max-w-3xl px-4 py-4 sm:px-6">
+        <section className="mx-auto max-w-3xl px-4 py-3 sm:px-6">
           <p className="text-sm font-semibold uppercase tracking-wide text-saffron-700">
             For priests
           </p>

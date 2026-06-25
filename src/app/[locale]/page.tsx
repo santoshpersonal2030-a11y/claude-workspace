@@ -201,7 +201,7 @@ export default async function Home({
 
         {/* Upcoming auspicious dates teaser */}
         {muhuratDates.length > 0 && (
-          <section className="bg-cream-100/60 py-4">
+          <section className="bg-cream-100/60 py-3">
             <div className="mx-auto max-w-6xl px-4 sm:px-6">
               <div className="flex items-end justify-between gap-4">
                 <div>
@@ -243,8 +243,8 @@ export default async function Home({
         )}
 
         {/* Consultation CTA */}
-        <section className="mx-auto max-w-6xl px-4 py-4 sm:px-6">
-          <div className="flex flex-col items-center gap-4 rounded-3xl border border-saffron-100 bg-cream-100/70 px-6 py-4 text-center sm:px-12">
+        <section className="mx-auto max-w-6xl px-4 py-3 sm:px-6">
+          <div className="flex flex-col items-center gap-4 rounded-3xl border border-saffron-100 bg-cream-100/70 px-6 py-3 text-center sm:px-12">
             <span className="text-4xl">🔮</span>
             <h2 className="font-heading text-3xl text-maroon-800">
               {t("home.consult.title")}
@@ -263,7 +263,7 @@ export default async function Home({
 
         {/* Temple e-Puja CTA */}
         <section className="mx-auto max-w-6xl px-4 pb-4 sm:px-6">
-          <div className="flex flex-col items-center gap-4 rounded-3xl border border-saffron-100 bg-saffron-50/50 px-6 py-4 text-center sm:px-12">
+          <div className="flex flex-col items-center gap-4 rounded-3xl border border-saffron-100 bg-saffron-50/50 px-6 py-3 text-center sm:px-12">
             <span className="text-4xl">🛕</span>
             <h2 className="font-heading text-3xl text-maroon-800">
               {t("home.temple.title")}
@@ -506,7 +506,7 @@ export default async function Home({
 
         {/* Samagri store teaser */}
         <section className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
-          <div className="overflow-hidden rounded-3xl bg-saffron-700 px-8 py-4 text-center shadow-lg sm:px-12">
+          <div className="overflow-hidden rounded-3xl bg-saffron-700 px-8 py-3 text-center shadow-lg sm:px-12">
             <div className="text-5xl">🛍️</div>
             <h2 className="mt-4 font-heading text-3xl text-white">
               {t("home.samagri.title")}

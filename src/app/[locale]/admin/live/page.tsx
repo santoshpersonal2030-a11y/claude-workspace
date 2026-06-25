@@ -64,7 +64,7 @@ export default async function AdminLivePage() {
       </p>
 
       {list.length === 0 ? (
-        <p className="mt-4 rounded-2xl border border-dashed border-saffron-200 bg-white px-4 py-4 text-center text-sm text-foreground/55">
+        <p className="mt-4 rounded-2xl border border-dashed border-saffron-200 bg-white px-4 py-3 text-center text-sm text-foreground/55">
           No active live sessions right now.
         </p>
       ) : (

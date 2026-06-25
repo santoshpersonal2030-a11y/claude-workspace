@@ -56,7 +56,7 @@ export default async function LifeEventPage({
       <Header />
       <main className="flex-1">
         <section className="bg-temple-gradient">
-          <div className="mx-auto max-w-6xl px-4 py-4 sm:px-6">
+          <div className="mx-auto max-w-6xl px-4 py-3 sm:px-6">
             <nav className="text-sm text-foreground/65">
               <Link href="/" className="hover:text-saffron-700">
                 {t("common.home")}
@@ -83,7 +83,7 @@ export default async function LifeEventPage({
           </div>
         </section>
 
-        <section className="mx-auto max-w-6xl px-4 py-4 sm:px-6">
+        <section className="mx-auto max-w-6xl px-4 py-3 sm:px-6">
           {/* Marriage (or any package) summary banner */}
           {lifeEvent.isPackage && ceremonies.length > 0 && (
             <div className="mb-5 rounded-3xl border border-gold-200 bg-gradient-to-br from-cream-100/80 to-white p-7 shadow-sm">

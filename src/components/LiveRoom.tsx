@@ -299,7 +299,7 @@ export default function LiveRoom({
           </button>
         </form>
       ) : (
-        <div className="border-t border-saffron-100 bg-white px-4 py-4 text-center">
+        <div className="border-t border-saffron-100 bg-white px-4 py-3 text-center">
           <p className="text-sm text-foreground/70">
             {status === "insufficient_balance"
               ? `Session ended — wallet balance used up. You were billed ${formatINR(billed.amount)} for ${billed.minutes} min.`

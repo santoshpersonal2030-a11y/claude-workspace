@@ -46,7 +46,7 @@ export default async function AdminLayout({
   return (
     <div className="flex min-h-full flex-col">
       <header className="border-b border-saffron-100 bg-white print:hidden">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6">
           <div className="flex items-center gap-2">
             <span className="text-xl">🛕</span>
             <span className="font-heading text-lg text-maroon-800">
@@ -83,7 +83,7 @@ export default async function AdminLayout({
         </nav>
       </header>
       <main className="flex-1 bg-cream">
-        <div className="mx-auto max-w-6xl px-4 py-4 sm:px-6">{children}</div>
+        <div className="mx-auto max-w-6xl px-4 py-3 sm:px-6">{children}</div>
       </main>
     </div>
   );
