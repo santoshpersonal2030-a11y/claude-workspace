@@ -62,12 +62,6 @@ export default function Header() {
             <WishlistNavButton />
             <CartButton />
             <HeaderAuth />
-            <Link
-              href="/poojas"
-              className="hidden rounded-full bg-saffron-700 px-5 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-saffron-800 md:inline-flex"
-            >
-              {t("nav.bookPooja")}
-            </Link>
             <button
               type="button"
               onClick={() => setMenuOpen((open) => !open)}
@@ -82,14 +76,14 @@ export default function Header() {
         </div>
 
         <nav
-          className="hidden flex-wrap items-center justify-center gap-x-3 gap-y-2 pb-3 md:flex"
+          className="hidden flex-wrap items-center justify-start gap-x-3 gap-y-2 pb-3 md:flex"
           aria-label="Primary"
         >
           {navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className="whitespace-nowrap rounded-full bg-saffron-700 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-saffron-800"
+              className="whitespace-nowrap rounded-full bg-saffron-100 px-4 py-2 text-sm font-medium text-maroon-700 transition-colors hover:bg-saffron-200"
             >
               {t(link.key)}
             </Link>
