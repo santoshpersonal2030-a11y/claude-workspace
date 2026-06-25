@@ -93,10 +93,11 @@ export default async function PoojaDetailPage({
         ];
   const longDescription =
     pooja.longDescription ??
-    `${pooja.shortDescription} Our verified Pandits perform the ${pooja.name} ` +
-      `with complete devotion and adherence to Vedic tradition, guiding your ` +
-      `family through every ritual. The ceremony typically takes around ` +
-      `${pooja.durationHours} hour${pooja.durationHours > 1 ? "s" : ""}.`;
+    t("pd.autoDesc", {
+      short: pooja.shortDescription,
+      name: pooja.name,
+      h: pooja.durationHours,
+    });
 
   const faqs = poojaFaqs(pooja);
   const url = `${SITE_URL}/poojas/${pooja.slug}`;
