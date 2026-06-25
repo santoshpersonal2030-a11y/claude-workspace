@@ -4,6 +4,7 @@ import Footer from "@/components/Footer";
 import PoojaList from "@/components/PoojaList";
 import { getPoojas } from "@/lib/queries";
 import { getDictionary, isLocale, DEFAULT_LOCALE } from "@/lib/i18n";
+import { localizePooja } from "@/lib/poojas-i18n";
 
 export async function generateMetadata({
   params,
@@ -24,8 +25,9 @@ export default async function PoojasPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const { t } = getDictionary(isLocale(locale) ? locale : DEFAULT_LOCALE);
-  const poojas = await getPoojas();
+  const loc = isLocale(locale) ? locale : DEFAULT_LOCALE;
+  const { t } = getDictionary(loc);
+  const poojas = (await getPoojas()).map((p) => localizePooja(p, loc));
 
   return (
     <>
