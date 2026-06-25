@@ -29,27 +29,60 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-saffron-100 bg-cream/90 backdrop-blur">
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
-        <Link
-          href="/"
-          className="flex shrink-0 items-center gap-2"
-          onClick={() => setMenuOpen(false)}
-        >
-          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-saffron-600 text-xl shadow-sm">
-            🪔
-          </span>
-          <span className="leading-tight">
-            <span className="block font-heading text-lg text-maroon-700">
-              BookMyPoojari
+      <div className="mx-auto max-w-6xl px-4 sm:px-6">
+        <div className="flex items-center justify-between gap-4 py-3">
+          <Link
+            href="/"
+            className="flex shrink-0 items-center gap-2"
+            onClick={() => setMenuOpen(false)}
+          >
+            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-saffron-600 text-xl shadow-sm">
+              🪔
             </span>
-            <span className="block text-[11px] tracking-wide text-saffron-700">
-              {t("brand.tagline")}
+            <span className="leading-tight">
+              <span className="block font-heading text-lg text-maroon-700">
+                BookMyPoojari
+              </span>
+              <span className="block text-[11px] tracking-wide text-saffron-700">
+                {t("brand.tagline")}
+              </span>
             </span>
-          </span>
-        </Link>
+          </Link>
+
+          <div className="flex shrink-0 items-center gap-3">
+            <Link
+              href="/search"
+              aria-label={t("search.title")}
+              className="flex h-9 w-9 items-center justify-center rounded-full text-base text-foreground/70 transition-colors hover:bg-saffron-50 hover:text-saffron-700"
+            >
+              🔎
+            </Link>
+            <LanguageSwitcher className="hidden sm:flex" />
+            <NotificationBell />
+            <WishlistNavButton />
+            <CartButton />
+            <HeaderAuth />
+            <Link
+              href="/poojas"
+              className="hidden rounded-full bg-saffron-700 px-5 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-saffron-800 md:inline-flex"
+            >
+              {t("nav.bookPooja")}
+            </Link>
+            <button
+              type="button"
+              onClick={() => setMenuOpen((open) => !open)}
+              aria-label={menuOpen ? "Close menu" : "Open menu"}
+              aria-expanded={menuOpen}
+              aria-controls="mobile-nav"
+              className="flex h-9 w-9 items-center justify-center rounded-full text-lg text-foreground/70 transition-colors hover:bg-saffron-50 hover:text-saffron-700 md:hidden"
+            >
+              {menuOpen ? "✕" : "☰"}
+            </button>
+          </div>
+        </div>
 
         <nav
-          className="hidden min-w-0 flex-nowrap items-center gap-x-5 overflow-x-auto md:flex [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className="hidden flex-wrap items-center justify-center gap-x-6 gap-y-1 pb-3 md:flex"
           aria-label="Primary"
         >
           {navLinks.map((link) => (
@@ -62,37 +95,6 @@ export default function Header() {
             </Link>
           ))}
         </nav>
-
-        <div className="flex shrink-0 items-center gap-3">
-          <Link
-            href="/search"
-            aria-label={t("search.title")}
-            className="flex h-9 w-9 items-center justify-center rounded-full text-base text-foreground/70 transition-colors hover:bg-saffron-50 hover:text-saffron-700"
-          >
-            🔎
-          </Link>
-          <LanguageSwitcher className="hidden sm:flex" />
-          <NotificationBell />
-          <WishlistNavButton />
-          <CartButton />
-          <HeaderAuth />
-          <Link
-            href="/poojas"
-            className="hidden rounded-full bg-saffron-700 px-5 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-saffron-800 md:inline-flex"
-          >
-            {t("nav.bookPooja")}
-          </Link>
-          <button
-            type="button"
-            onClick={() => setMenuOpen((open) => !open)}
-            aria-label={menuOpen ? "Close menu" : "Open menu"}
-            aria-expanded={menuOpen}
-            aria-controls="mobile-nav"
-            className="flex h-9 w-9 items-center justify-center rounded-full text-lg text-foreground/70 transition-colors hover:bg-saffron-50 hover:text-saffron-700 md:hidden"
-          >
-            {menuOpen ? "✕" : "☰"}
-          </button>
-        </div>
       </div>
 
       {menuOpen && (
