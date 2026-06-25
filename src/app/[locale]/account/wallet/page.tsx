@@ -54,7 +54,7 @@ export default async function WalletPage() {
     <>
       <Header />
       <main className="flex-1">
-        <section className="mx-auto max-w-3xl px-4 py-8 sm:px-6">
+        <section className="mx-auto max-w-3xl px-4 py-6 sm:px-6">
           <Link
             href="/account/profile"
             className="text-sm text-foreground/65 hover:text-saffron-700"
@@ -112,7 +112,7 @@ export default async function WalletPage() {
           </div>
 
           {/* Ledger */}
-          <h2 className="mt-8 font-heading text-lg text-maroon-700">
+          <h2 className="mt-6 font-heading text-lg text-maroon-700">
             Credit history
           </h2>
           {txns.length === 0 ? (

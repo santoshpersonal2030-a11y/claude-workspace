@@ -8,7 +8,7 @@ export default function OfflinePage() {
   return (
     <>
       <Header />
-      <main className="flex flex-1 items-center justify-center px-4 py-14">
+      <main className="flex flex-1 items-center justify-center px-4 py-10">
         <div className="max-w-md text-center">
           <div className="text-5xl">🪔</div>
           <h1 className="mt-4 font-heading text-2xl text-maroon-800">

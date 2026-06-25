@@ -116,7 +116,7 @@ export default async function SignHoroscopePage({
             </div>
           </div>
 
-          <div className="mt-8 rounded-2xl border border-saffron-100 bg-cream-100/60 p-6 text-center">
+          <div className="mt-6 rounded-2xl border border-saffron-100 bg-cream-100/60 p-6 text-center">
             <Link
               href="/consultations/kundli-reading"
               className="inline-block rounded-full bg-saffron-700 px-6 py-2.5 text-sm font-semibold text-white hover:bg-saffron-800"

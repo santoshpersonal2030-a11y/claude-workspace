@@ -68,7 +68,7 @@ export default async function AdminCouponsPage() {
       </form>
 
       {/* Existing */}
-      <div className="mt-8 space-y-2">
+      <div className="mt-6 space-y-2">
         {(coupons ?? []).length === 0 && (
           <p className="text-sm text-foreground/65">No coupons yet.</p>
         )}

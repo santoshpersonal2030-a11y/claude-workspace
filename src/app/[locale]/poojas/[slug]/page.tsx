@@ -187,8 +187,8 @@ export default async function PoojaDetailPage({
         </section>
 
         {/* Body */}
-        <section className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
-          <div className="grid gap-10 lg:grid-cols-[1.6fr_1fr]">
+        <section className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
+          <div className="grid gap-6 lg:grid-cols-[1.6fr_1fr]">
             {/* Left: details */}
             <div>
               <div className="flex flex-wrap gap-6 rounded-2xl border border-saffron-100 bg-white p-6 shadow-sm">
@@ -214,14 +214,14 @@ export default async function PoojaDetailPage({
                 </div>
               </div>
 
-              <h2 className="mt-8 font-heading text-2xl text-maroon-800">
+              <h2 className="mt-6 font-heading text-2xl text-maroon-800">
                 {t("pd.about")}
               </h2>
               <p className="mt-3 leading-relaxed text-foreground/75">
                 {longDescription}
               </p>
 
-              <h2 className="mt-8 font-heading text-2xl text-maroon-800">
+              <h2 className="mt-6 font-heading text-2xl text-maroon-800">
                 {t("pd.included")}
               </h2>
               <ul className="mt-3 space-y-2">
@@ -236,7 +236,7 @@ export default async function PoojaDetailPage({
                 ))}
               </ul>
 
-              <h2 className="mt-8 font-heading text-2xl text-maroon-800">
+              <h2 className="mt-6 font-heading text-2xl text-maroon-800">
                 {t("pd.faq")}
               </h2>
               <div className="mt-3 divide-y divide-saffron-100 rounded-2xl border border-saffron-100 bg-white">
@@ -254,7 +254,7 @@ export default async function PoojaDetailPage({
                 ))}
               </div>
 
-              <div className="mt-8 rounded-2xl border border-saffron-100 bg-cream-100/60 p-5">
+              <div className="mt-6 rounded-2xl border border-saffron-100 bg-cream-100/60 p-5">
                 <h3 className="font-heading text-lg text-maroon-700">
                   {t("pd.unsureTitle")}
                 </h3>
@@ -278,7 +278,7 @@ export default async function PoojaDetailPage({
 
           {/* Frequently bought together */}
           {crossSell.length > 0 && (
-            <div className="mt-16">
+            <div className="mt-11">
               <h2 className="font-heading text-2xl text-maroon-800">
                 {t("pd.fbt")}
               </h2>

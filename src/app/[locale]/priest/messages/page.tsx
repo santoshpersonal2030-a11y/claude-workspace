@@ -36,7 +36,7 @@ export default async function PriestMessagesPage({
       </p>
 
       {list.length === 0 ? (
-        <p className="mt-8 text-sm text-foreground/65">
+        <p className="mt-6 text-sm text-foreground/65">
           No bookings assigned to you yet.
         </p>
       ) : (

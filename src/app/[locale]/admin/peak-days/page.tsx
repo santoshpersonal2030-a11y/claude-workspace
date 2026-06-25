@@ -71,7 +71,7 @@ export default async function AdminPeakDaysPage() {
       </form>
 
       {/* Existing */}
-      <div className="mt-8 space-y-2">
+      <div className="mt-6 space-y-2">
         {(peakDays ?? []).length === 0 && (
           <p className="text-sm text-foreground/65">
             No peak days yet. Add festival dates above.

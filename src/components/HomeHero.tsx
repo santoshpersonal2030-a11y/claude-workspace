@@ -19,7 +19,7 @@ export default function HomeHero() {
       <p className="mt-5 max-w-lg text-lg text-foreground/75">
         {t("home.heroSubtitle")}
       </p>
-      <div className="mt-8 flex flex-wrap gap-3">
+      <div className="mt-6 flex flex-wrap gap-3">
         <Link
           href="/poojas"
           className="rounded-full bg-saffron-700 px-7 py-3 text-base font-semibold text-white shadow-sm transition-colors hover:bg-saffron-800"

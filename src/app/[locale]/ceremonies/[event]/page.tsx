@@ -56,7 +56,7 @@ export default async function LifeEventPage({
       <Header />
       <main className="flex-1">
         <section className="bg-temple-gradient">
-          <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+          <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
             <nav className="text-sm text-foreground/65">
               <Link href="/" className="hover:text-saffron-700">
                 {t("common.home")}
@@ -83,10 +83,10 @@ export default async function LifeEventPage({
           </div>
         </section>
 
-        <section className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+        <section className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
           {/* Marriage (or any package) summary banner */}
           {lifeEvent.isPackage && ceremonies.length > 0 && (
-            <div className="mb-10 rounded-3xl border border-gold-200 bg-gradient-to-br from-cream-100/80 to-white p-7 shadow-sm">
+            <div className="mb-7 rounded-3xl border border-gold-200 bg-gradient-to-br from-cream-100/80 to-white p-7 shadow-sm">
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>
                   <h2 className="font-heading text-2xl text-maroon-800">
@@ -150,7 +150,7 @@ export default async function LifeEventPage({
             </div>
           )}
 
-          <div className="mt-10 rounded-2xl border border-saffron-100 bg-white p-6 text-center shadow-sm">
+          <div className="mt-7 rounded-2xl border border-saffron-100 bg-white p-6 text-center shadow-sm">
             <p className="text-sm text-foreground/70">
               Not sure which ceremony you need, or planning something special?
             </p>

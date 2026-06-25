@@ -21,7 +21,7 @@ export default function ContactPage() {
       <Header />
       <main className="flex-1">
         <section className="bg-temple-gradient">
-          <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
+          <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6">
             <h1 className="font-heading text-4xl text-maroon-800">Contact Us</h1>
             <p className="mt-3 max-w-2xl text-lg text-foreground/70">
               Questions about a booking or order, or want to join as a Pandit?
@@ -30,8 +30,8 @@ export default function ContactPage() {
           </div>
         </section>
 
-        <section className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
-          <div className="grid gap-8 lg:grid-cols-[1fr_1.4fr]">
+        <section className="mx-auto max-w-5xl px-4 py-6 sm:px-6">
+          <div className="grid gap-6 lg:grid-cols-[1fr_1.4fr]">
             <div className="space-y-4">
               {channels.map((c) => (
                 <div

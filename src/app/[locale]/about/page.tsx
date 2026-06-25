@@ -35,7 +35,7 @@ export default async function AboutPage({
         <p>{t("about.p3")}</p>
       </div>
 
-      <div className="mt-10 grid gap-4 sm:grid-cols-3">
+      <div className="mt-7 grid gap-4 sm:grid-cols-3">
         {values.map((v) => (
           <div
             key={v.title}
@@ -47,7 +47,7 @@ export default async function AboutPage({
         ))}
       </div>
 
-      <div className="mt-10 flex flex-wrap gap-3">
+      <div className="mt-7 flex flex-wrap gap-3">
         <Link
           href="/pandits"
           className="rounded-full bg-saffron-700 px-6 py-2.5 text-sm font-semibold text-white hover:bg-saffron-800"

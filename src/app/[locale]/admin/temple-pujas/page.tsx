@@ -80,7 +80,7 @@ export default async function AdminTemplePujasPage({
       </div>
 
       {(pujas ?? []).length === 0 ? (
-        <p className="mt-8 text-sm text-foreground/55">
+        <p className="mt-6 text-sm text-foreground/55">
           No {filter === "all" ? "" : filter} temple pujas.
         </p>
       ) : (

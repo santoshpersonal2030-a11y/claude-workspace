@@ -258,7 +258,7 @@ export default async function PriestCalendarPage({
       )}
 
       {/* Month navigation */}
-      <div className="mt-8 flex items-center justify-between">
+      <div className="mt-6 flex items-center justify-between">
         <Link
           href={`/priest/calendar?m=${ym(year, month - 1)}`}
           className="rounded-full border border-saffron-200 px-3 py-1.5 text-sm text-foreground/70 hover:bg-saffron-50"
@@ -351,7 +351,7 @@ export default async function PriestCalendarPage({
 
       {/* Recent activity */}
       {history.length > 0 && (
-        <section className="mt-8">
+        <section className="mt-6">
           <h2 className="font-heading text-xl text-maroon-800">
             Recent activity
           </h2>

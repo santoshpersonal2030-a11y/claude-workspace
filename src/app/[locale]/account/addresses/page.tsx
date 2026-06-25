@@ -32,7 +32,7 @@ export default async function AddressesPage() {
     <>
       <Header />
       <main className="flex-1">
-        <section className="mx-auto max-w-3xl px-4 py-8 sm:px-6">
+        <section className="mx-auto max-w-3xl px-4 py-6 sm:px-6">
           <Link
             href="/account/profile"
             className="text-sm text-foreground/65 hover:text-saffron-700"
@@ -101,7 +101,7 @@ export default async function AddressesPage() {
 
           <form
             action={addAddress}
-            className="mt-8 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm"
+            className="mt-6 rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm"
           >
             <h2 className="font-heading text-lg text-maroon-700">
               Add an address
