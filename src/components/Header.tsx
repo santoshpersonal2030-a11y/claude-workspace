@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import HeaderAuth from "@/components/HeaderAuth";
 import CartButton from "@/components/CartButton";
@@ -24,10 +25,16 @@ const navLinks = [
 
 export default function Header() {
   const t = useT();
+  const [menuOpen, setMenuOpen] = useState(false);
+
   return (
     <header className="sticky top-0 z-50 border-b border-saffron-100 bg-cream/90 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
-        <Link href="/" className="flex shrink-0 items-center gap-2">
+        <Link
+          href="/"
+          className="flex shrink-0 items-center gap-2"
+          onClick={() => setMenuOpen(false)}
+        >
           <span className="flex h-10 w-10 items-center justify-center rounded-full bg-saffron-600 text-xl shadow-sm">
             🪔
           </span>
@@ -71,12 +78,47 @@ export default function Header() {
           <HeaderAuth />
           <Link
             href="/poojas"
-            className="rounded-full bg-saffron-700 px-5 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-saffron-800"
+            className="hidden rounded-full bg-saffron-700 px-5 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-saffron-800 md:inline-flex"
           >
             {t("nav.bookPooja")}
           </Link>
+          <button
+            type="button"
+            onClick={() => setMenuOpen((open) => !open)}
+            aria-label={menuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={menuOpen}
+            aria-controls="mobile-nav"
+            className="flex h-9 w-9 items-center justify-center rounded-full text-lg text-foreground/70 transition-colors hover:bg-saffron-50 hover:text-saffron-700 md:hidden"
+          >
+            {menuOpen ? "✕" : "☰"}
+          </button>
         </div>
       </div>
+
+      {menuOpen && (
+        <nav
+          id="mobile-nav"
+          aria-label="Primary mobile"
+          className="border-t border-saffron-100 bg-cream/95 px-4 py-2 sm:px-6 md:hidden"
+        >
+          <ul className="flex flex-col">
+            {navLinks.map((link) => (
+              <li key={link.href}>
+                <Link
+                  href={link.href}
+                  onClick={() => setMenuOpen(false)}
+                  className="block rounded-lg px-3 py-2.5 text-sm font-medium text-foreground/80 transition-colors hover:bg-saffron-50 hover:text-saffron-700"
+                >
+                  {t(link.key)}
+                </Link>
+              </li>
+            ))}
+          </ul>
+          <div className="mt-2 flex items-center gap-3 border-t border-saffron-100 px-3 pt-3 sm:hidden">
+            <LanguageSwitcher />
+          </div>
+        </nav>
+      )}
     </header>
   );
 }
