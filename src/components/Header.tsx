@@ -82,14 +82,14 @@ export default function Header() {
         </div>
 
         <nav
-          className="hidden flex-wrap items-center justify-center gap-x-6 gap-y-1 pb-3 md:flex"
+          className="hidden flex-wrap items-center justify-center gap-x-3 gap-y-2 pb-3 md:flex"
           aria-label="Primary"
         >
           {navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className="whitespace-nowrap text-sm font-medium text-foreground/80 transition-colors hover:text-saffron-700"
+              className="whitespace-nowrap rounded-full bg-saffron-700 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-saffron-800"
             >
               {t(link.key)}
             </Link>
