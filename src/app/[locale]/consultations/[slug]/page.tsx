@@ -7,6 +7,7 @@ import Footer from "@/components/Footer";
 import ConsultationBookingForm from "@/components/ConsultationBookingForm";
 import JsonLd from "@/components/JsonLd";
 import { consultations, getConsultation } from "@/lib/consultations";
+import { localizeConsultation } from "@/lib/consultations-i18n";
 import { formatINR } from "@/lib/poojas";
 import { SITE_URL, breadcrumbLd } from "@/lib/seo";
 import { getDictionary, isLocale, DEFAULT_LOCALE } from "@/lib/i18n";
@@ -32,9 +33,11 @@ export default async function ConsultationDetailPage({
   params: Promise<{ locale: string; slug: string }>;
 }) {
   const { locale, slug } = await params;
-  const { t } = getDictionary(isLocale(locale) ? locale : DEFAULT_LOCALE);
-  const service = getConsultation(slug);
-  if (!service) notFound();
+  const loc = isLocale(locale) ? locale : DEFAULT_LOCALE;
+  const { t } = getDictionary(loc);
+  const raw = getConsultation(slug);
+  if (!raw) notFound();
+  const service = localizeConsultation(raw, loc);
 
   const serviceLd = {
     "@context": "https://schema.org",

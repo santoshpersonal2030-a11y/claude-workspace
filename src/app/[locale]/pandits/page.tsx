@@ -4,6 +4,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import PanditDirectory from "@/components/PanditDirectory";
 import { getPandits } from "@/lib/queries";
+import { localizePandit } from "@/lib/pandits-i18n";
 import { CITY_COORDS } from "@/lib/muhurat-engine";
 import { getDictionary, isLocale, DEFAULT_LOCALE } from "@/lib/i18n";
 
@@ -25,8 +26,9 @@ export default async function PanditsPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const { t } = getDictionary(isLocale(locale) ? locale : DEFAULT_LOCALE);
-  const pandits = await getPandits();
+  const loc = isLocale(locale) ? locale : DEFAULT_LOCALE;
+  const { t } = getDictionary(loc);
+  const pandits = (await getPandits()).map((p) => localizePandit(p, loc));
 
   return (
     <>
