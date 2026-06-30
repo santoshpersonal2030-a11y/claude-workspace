@@ -1,0 +1,10 @@
+# Minimal Supabase CLI config for Online Pooja Stores.
+# Run `supabase init` to regenerate the full file if you need more options.
+project_id = "onlinepoojastores"
+
+[db]
+major_version = 15
+
+[db.seed]
+enabled = true
+sql_paths = ["./seed.sql"]
