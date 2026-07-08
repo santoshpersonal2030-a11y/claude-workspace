@@ -5,9 +5,8 @@ export const SITE = {
   owner: 'Santosh L',
   company: 'Provident Global Services (PGS)',
   email: 'onlinepoojastores@gmail.com',
-  // TODO: replace the placeholders below with your real number before launch.
-  phone: '+91 90000 00000',
-  whatsapp: '919000000000', // digits only, with country code, for wa.me links
+  phone: '+91 89856 11922',
+  whatsapp: '918985611922', // digits only, with country code, for wa.me links
   addressLines: [
     'Provident Global Services (PGS)',
     'Hyderabad, Telangana',
