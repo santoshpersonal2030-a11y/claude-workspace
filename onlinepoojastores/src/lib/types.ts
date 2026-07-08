@@ -12,11 +12,13 @@ export type Product = {
   slug: string;
   description: string | null;
   price: number;
+  mrp?: number | null; // optional "compare at" price (needs migration 0005)
   currency: string;
   sku: string | null;
   stock: number;
   image_url: string | null;
   is_active: boolean;
+  created_at?: string;
 };
 
 // A product plus the list of category ids it belongs to (used for filtering).
