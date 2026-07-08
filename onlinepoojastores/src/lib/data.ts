@@ -1,9 +1,14 @@
-import { createSupabaseClient } from './supabase';
-import type { Category, Product, ProductWithCategories } from './types';
+import { createPublicClient } from './supabase/public';
+import type {
+  Category,
+  Product,
+  ProductWithCategories,
+  ShippingZone,
+} from './types';
 
 // Fetch all active products, each with the list of category ids it belongs to.
 export async function getProducts(): Promise<ProductWithCategories[]> {
-  const supabase = createSupabaseClient();
+  const supabase = createPublicClient();
   const { data, error } = await supabase
     .from('products')
     .select('*, product_categories(category_id)')
@@ -25,7 +30,7 @@ export async function getProducts(): Promise<ProductWithCategories[]> {
 
 // Fetch all categories, ordered for the storefront.
 export async function getCategories(): Promise<Category[]> {
-  const supabase = createSupabaseClient();
+  const supabase = createPublicClient();
   const { data, error } = await supabase
     .from('categories')
     .select('id, name, slug, description, sort_order')
@@ -37,7 +42,7 @@ export async function getCategories(): Promise<Category[]> {
 
 // Fetch a single product by its slug (for the product detail page).
 export async function getProductBySlug(slug: string): Promise<Product | null> {
-  const supabase = createSupabaseClient();
+  const supabase = createPublicClient();
   const { data, error } = await supabase
     .from('products')
     .select('*')
@@ -46,4 +51,27 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
 
   if (error) throw error;
   return (data as Product) ?? null;
+}
+
+// Fetch the shipping zones with their rates (for checkout shipping calc).
+export async function getShippingZones(): Promise<ShippingZone[]> {
+  const supabase = createPublicClient();
+  const { data, error } = await supabase
+    .from('shipping_zones')
+    .select('*, shipping_rates(rate, free_above)')
+    .order('priority');
+
+  if (error) throw error;
+
+  return (data ?? []).map((row) => {
+    const { shipping_rates, ...zone } = row as ShippingZone & {
+      shipping_rates: { rate: number; free_above: number }[] | null;
+    };
+    const rate = shipping_rates?.[0];
+    return {
+      ...zone,
+      rate: rate?.rate ?? 0,
+      free_above: rate?.free_above ?? 999,
+    };
+  });
 }

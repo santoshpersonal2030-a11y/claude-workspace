@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { getProductBySlug } from '@/lib/data';
 import { formatRupees } from '@/lib/format';
 import ProductThumb from '@/components/ProductThumb';
+import AddToCartButton from '@/components/AddToCartButton';
 
 export const dynamic = 'force-dynamic';
 
@@ -57,13 +58,13 @@ export default async function ProductPage({
             </p>
           )}
 
-          <button
-            disabled={outOfStock}
-            className="mt-6 w-full rounded-lg bg-burgundy px-6 py-3 text-sm font-semibold text-cream transition hover:bg-burgundy-dark disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
-            title="Cart is coming in the next step"
-          >
-            {outOfStock ? 'Out of stock' : 'Add to cart (coming soon)'}
-          </button>
+          <AddToCartButton
+            slug={product.slug}
+            name={product.name}
+            price={product.price}
+            imageUrl={product.image_url}
+            inStock={!outOfStock}
+          />
 
           <p className="mt-4 text-xs text-burgundy-dark/60">
             Cash on Delivery · Free shipping over ₹999

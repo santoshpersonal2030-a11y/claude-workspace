@@ -14,8 +14,23 @@ other site. Everything for this project lives inside this one folder.
 
 1. ✅ **Step 1 — Database** (`supabase/` files, already applied)
 2. ✅ **Step 2 — Storefront** (product listing + detail pages)
-3. ⬜ Step 3 — Sign in / create account
-4. ⬜ Step 4 — Cart & checkout (shipping + COD orders)
+3. ✅ **Step 3 — Accounts** (email/password sign in, protected pages)
+4. ✅ **Step 4 — Cart & checkout** (shipping calc + COD order placement)
+
+### One Supabase setting to check
+
+For the smoothest sign-up (no email-confirmation step), go to Supabase →
+**Authentication → Providers → Email** and turn **"Confirm email" off** while
+you're testing. Leave it on later if you want verified emails. Either way the
+login screen handles both cases.
+
+### Make yourself the admin
+
+After you sign up once, run this in the Supabase SQL Editor (use your email):
+
+```sql
+update public.profiles set is_admin = true where email = 'you@example.com';
+```
 
 ## Run it on your computer (5 minutes)
 
@@ -46,14 +61,26 @@ You need [Node.js](https://nodejs.org) 18+ installed.
    - `NEXT_PUBLIC_SUPABASE_ANON_KEY` = your publishable (anon) key
 4. Click **Deploy**.
 
-## What's on the storefront (Step 2)
+## What the site can do now
 
-- **Home page** — hero banner, live product grid, **search box**, and
-  **category filter** chips (All, Pooja Items, Flowers & Garlands, …).
-- **Product detail page** — big image area, price, stock status, description,
-  and an "Add to cart" button (wired up in Step 4).
-- Prices shown in ₹, "free shipping over ₹999" messaging, COD notes.
-- Reads live from your Supabase database using the safe publishable key.
+- **Browse** — home page with hero, live product grid, **search**, and
+  **category filters**; product detail pages.
+- **Accounts** — create an account / sign in with email + password. Your
+  profile row is created automatically. Signed-out visitors are sent to the
+  login page when they try to check out or open their account.
+- **Cart** — add to cart (quantities), the header shows a live count, cart
+  persists in the browser.
+- **Checkout** — address form, **live shipping calculation** from your 3 zones
+  (Hyderabad ₹49 · rest of Telangana ₹79 · rest of India ₹149, free over ₹999),
+  and **Cash on Delivery** order placement. Prices are re-checked on the server
+  so they can't be tampered with.
+- **Orders** — an order confirmation page and an order-history list under
+  **Account**. Order numbers look like `ORD-2026-001`.
+- All money in ₹; reads/writes go through Supabase with Row Level Security, so
+  customers only ever see their own orders.
+
+_Not yet wired: a confirmation **email** (needs an email provider — a Phase 2
+add-on) and automatic stock deduction. The order itself is saved correctly._
 
 ## Folder guide
 
