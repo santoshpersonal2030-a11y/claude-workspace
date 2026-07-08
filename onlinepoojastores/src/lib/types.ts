@@ -37,6 +37,14 @@ export type ShippingZone = {
   free_above: number;
 };
 
+export type Review = {
+  id: string;
+  rating: number;
+  title: string | null;
+  body: string | null;
+  created_at: string;
+};
+
 export type OrderStatus =
   | 'pending'
   | 'confirmed'

@@ -3,6 +3,7 @@ import type {
   Category,
   Product,
   ProductWithCategories,
+  Review,
   ShippingZone,
 } from './types';
 
@@ -51,6 +52,20 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
 
   if (error) throw error;
   return (data as Product) ?? null;
+}
+
+// Fetch approved reviews for a product (public — RLS allows approved reviews).
+export async function getApprovedReviews(productId: string): Promise<Review[]> {
+  const supabase = createPublicClient();
+  const { data, error } = await supabase
+    .from('reviews')
+    .select('id, rating, title, body, created_at')
+    .eq('product_id', productId)
+    .eq('is_approved', true)
+    .order('created_at', { ascending: false });
+
+  if (error) throw error;
+  return (data ?? []) as Review[];
 }
 
 // Fetch the shipping zones with their rates (for checkout shipping calc).

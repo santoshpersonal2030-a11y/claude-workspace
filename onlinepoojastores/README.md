@@ -17,6 +17,7 @@ other site. Everything for this project lives inside this one folder.
 3. ✅ **Step 3 — Accounts** (email/password sign in, protected pages)
 4. ✅ **Step 4 — Cart & checkout** (shipping calc + COD order placement)
 5. ✅ **Admin panel** (manage products & orders — no SQL needed)
+6. ✅ **Reviews & ratings** (customers rate products; you approve them)
 
 ### One Supabase setting to check
 
@@ -91,6 +92,10 @@ header. From there you can, without touching the database:
 - **Orders** — see every order with the customer, and change its status
   (Order placed → Confirmed → … → Delivered). Marking an order *Delivered*
   also records the COD payment as paid.
+- **Reviews** — customers who are signed in can rate a product (1–5 stars)
+  and write a review. Reviews stay hidden until you **approve** them under
+  Admin → Reviews. Approved reviews (and the average rating) then show on the
+  product page.
 
 Only admins can reach `/admin`; everyone else is redirected away.
 

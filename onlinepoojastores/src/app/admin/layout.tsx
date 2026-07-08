@@ -26,6 +26,9 @@ export default async function AdminLayout({
           <Link href="/admin/orders" className="text-burgundy hover:underline">
             Orders
           </Link>
+          <Link href="/admin/reviews" className="text-burgundy hover:underline">
+            Reviews
+          </Link>
         </nav>
         <Link
           href="/"
