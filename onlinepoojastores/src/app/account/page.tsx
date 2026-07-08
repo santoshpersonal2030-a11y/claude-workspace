@@ -43,6 +43,21 @@ export default async function AccountPage() {
         <SignOutButton />
       </div>
 
+      <div className="mt-4 flex gap-4 text-sm">
+        <Link
+          href="/account/addresses"
+          className="font-medium text-burgundy hover:underline"
+        >
+          Saved addresses →
+        </Link>
+        <Link
+          href="/wishlist"
+          className="font-medium text-burgundy hover:underline"
+        >
+          Wishlist →
+        </Link>
+      </div>
+
       <h2 className="mt-10 text-lg font-semibold text-burgundy-dark">
         Order history
       </h2>

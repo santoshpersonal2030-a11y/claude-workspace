@@ -37,6 +37,19 @@ export type ShippingZone = {
   free_above: number;
 };
 
+export type Address = {
+  id: string;
+  label: 'home' | 'work' | 'other';
+  full_name: string;
+  phone: string;
+  line1: string;
+  line2: string | null;
+  city: string;
+  state: string;
+  pincode: string;
+  is_default: boolean;
+};
+
 export type Review = {
   id: string;
   rating: number;

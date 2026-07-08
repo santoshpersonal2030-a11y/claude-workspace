@@ -1,7 +1,10 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
-const PROTECTED = ['/account', '/checkout', '/orders', '/admin', '/wishlist'];
+// /checkout is intentionally NOT here — guests can check out (they get an
+// anonymous session), while /account, /orders, /admin and /wishlist stay
+// behind sign-in.
+const PROTECTED = ['/account', '/orders', '/admin', '/wishlist'];
 
 type CookieToSet = { name: string; value: string; options?: CookieOptions };
 

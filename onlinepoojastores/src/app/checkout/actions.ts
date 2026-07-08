@@ -13,6 +13,9 @@ export type PlaceOrderInput = {
   city: string;
   state: string;
   pincode: string;
+  notes: string;
+  guestEmail: string;
+  saveNewAddress: boolean;
   items: { slug: string; quantity: number }[];
 };
 
@@ -109,6 +112,7 @@ export async function placeOrder(
       ship_city: input.city,
       ship_state: input.state,
       ship_pincode: input.pincode,
+      notes: input.notes || null,
     })
     .select('id, order_number')
     .single();
@@ -130,10 +134,35 @@ export async function placeOrder(
     amount: total,
   });
 
+  // For guests, remember their email on their profile so we can contact them.
+  const contactEmail = user.email || input.guestEmail;
+  if (!user.email && input.guestEmail) {
+    await supabase
+      .from('profiles')
+      .update({ email: input.guestEmail, full_name: input.fullName })
+      .eq('id', user.id);
+  }
+
+  // Optionally save this address to the customer's address book.
+  if (input.saveNewAddress) {
+    await supabase.from('addresses').insert({
+      user_id: user.id,
+      label: 'home',
+      full_name: input.fullName,
+      phone: input.phone,
+      line1: input.line1,
+      line2: input.line2 || null,
+      city: input.city,
+      state: input.state,
+      pincode: input.pincode,
+      is_default: false,
+    });
+  }
+
   // Optional confirmation email (no-op until an email provider is configured).
-  if (user.email) {
+  if (contactEmail) {
     await sendOrderConfirmation({
-      to: user.email,
+      to: contactEmail,
       orderNumber: order.order_number as string,
       items: orderItems.map((oi) => ({
         name: oi.product_name,
