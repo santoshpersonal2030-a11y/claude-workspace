@@ -108,8 +108,16 @@ Run `supabase/migrations/0002_auto_stock_decrement.sql` once in the Supabase
 SQL Editor. After that, a product's stock drops automatically whenever it's
 ordered (never below 0), and low-stock items show on the dashboard.
 
-_Still a later add-on: a confirmation **email / SMS** (needs an email or SMS
-provider such as Resend or MSG91 — those require their own account and keys)._
+### Order confirmation emails (optional — code is ready)
+
+Email sending is already built. It stays **off** until you add a key, so the
+store works without it. To turn it on: sign up at [resend.com](https://resend.com),
+verify a sending domain, then set `RESEND_API_KEY` and `RESEND_FROM` (see
+`.env.local.example`) locally and in Vercel. Confirmation emails then go out
+automatically when an order is placed — no code changes.
+
+_Still a later add-on: **SMS/OTP** (needs an SMS provider such as MSG91 or
+Twilio, with their own account and keys)._
 
 ## Folder guide
 

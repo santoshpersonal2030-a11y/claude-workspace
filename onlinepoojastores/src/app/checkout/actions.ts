@@ -3,6 +3,7 @@
 import { createServerSupabase } from '@/lib/supabase/server';
 import { getShippingZones } from '@/lib/data';
 import { computeShipping } from '@/lib/shipping';
+import { sendOrderConfirmation } from '@/lib/email';
 
 export type PlaceOrderInput = {
   fullName: string;
@@ -128,6 +129,23 @@ export async function placeOrder(
     status: 'pending',
     amount: total,
   });
+
+  // Optional confirmation email (no-op until an email provider is configured).
+  if (user.email) {
+    await sendOrderConfirmation({
+      to: user.email,
+      orderNumber: order.order_number as string,
+      items: orderItems.map((oi) => ({
+        name: oi.product_name,
+        quantity: oi.quantity,
+        lineTotal: oi.line_total,
+      })),
+      subtotal,
+      shippingFee: ship.fee,
+      total,
+      shipName: input.fullName,
+    });
+  }
 
   return { ok: true, orderNumber: order.order_number as string };
 }
