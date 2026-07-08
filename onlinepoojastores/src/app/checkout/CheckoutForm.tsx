@@ -9,6 +9,25 @@ import { computeShipping } from '@/lib/shipping';
 import { createBrowserSupabase } from '@/lib/supabase/browser';
 import type { Address, ShippingZone } from '@/lib/types';
 import { placeOrder } from './actions';
+import { createRazorpayOrder, finalizeRazorpayOrder } from './razorpay-actions';
+
+// Loads the Razorpay checkout script once.
+declare global {
+  interface Window {
+    Razorpay?: new (options: Record<string, unknown>) => { open: () => void };
+  }
+}
+
+function loadRazorpayScript(): Promise<boolean> {
+  return new Promise((resolve) => {
+    if (window.Razorpay) return resolve(true);
+    const s = document.createElement('script');
+    s.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    s.onload = () => resolve(true);
+    s.onerror = () => resolve(false);
+    document.body.appendChild(s);
+  });
+}
 
 const EMPTY = {
   fullName: '',
@@ -37,11 +56,13 @@ export default function CheckoutForm({
   savedAddresses,
   signedIn,
   userEmail,
+  onlineEnabled,
 }: {
   zones: ShippingZone[];
   savedAddresses: Address[];
   signedIn: boolean;
   userEmail: string;
+  onlineEnabled: boolean;
 }) {
   const router = useRouter();
   const { items, subtotal, clear } = useCart();
@@ -57,6 +78,7 @@ export default function CheckoutForm({
   const [notes, setNotes] = useState('');
   const [guestEmail, setGuestEmail] = useState('');
   const [saveNewAddress, setSaveNewAddress] = useState(false);
+  const [payMethod, setPayMethod] = useState<'cod' | 'online'>('cod');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -101,42 +123,107 @@ export default function CheckoutForm({
     );
   }
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setBusy(true);
-    setError(null);
-
-    // Guests get an anonymous session so the order is tied to them securely.
-    if (!signedIn) {
-      const supabase = createBrowserSupabase();
-      const { data } = await supabase.auth.getUser();
-      if (!data.user) {
-        const { error: anonErr } = await supabase.auth.signInAnonymously();
-        if (anonErr) {
-          setError(
-            'Guest checkout isn’t enabled yet. Please sign in to place your order.',
-          );
-          setBusy(false);
-          return;
-        }
-      }
-    }
-
-    const res = await placeOrder({
+  function buildInput() {
+    return {
       ...form,
       notes,
       guestEmail: signedIn ? '' : guestEmail,
       saveNewAddress: signedIn && !usingSaved && saveNewAddress,
       items: items.map((i) => ({ slug: i.slug, quantity: i.quantity })),
-    });
+    };
+  }
 
-    if (res.ok) {
-      clear();
-      router.push(`/orders/${res.orderNumber}`);
-    } else {
-      setError(res.error);
-      setBusy(false);
+  // Guests get an anonymous session so the order is tied to them securely.
+  async function ensureSession(): Promise<boolean> {
+    if (signedIn) return true;
+    const supabase = createBrowserSupabase();
+    const { data } = await supabase.auth.getUser();
+    if (!data.user) {
+      const { error: anonErr } = await supabase.auth.signInAnonymously();
+      if (anonErr) {
+        setError(
+          'Guest checkout isn’t enabled yet. Please sign in to place your order.',
+        );
+        return false;
+      }
     }
+    return true;
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setBusy(true);
+    setError(null);
+
+    if (!(await ensureSession())) {
+      setBusy(false);
+      return;
+    }
+    const input = buildInput();
+
+    // --- Cash on Delivery ---
+    if (payMethod === 'cod') {
+      const res = await placeOrder(input);
+      if (res.ok) {
+        clear();
+        router.push(`/orders/${res.orderNumber}`);
+      } else {
+        setError(res.error);
+        setBusy(false);
+      }
+      return;
+    }
+
+    // --- Online payment (Razorpay) ---
+    const created = await createRazorpayOrder(input);
+    if (!created.ok) {
+      setError(created.error);
+      setBusy(false);
+      return;
+    }
+
+    const loaded = await loadRazorpayScript();
+    if (!loaded || !window.Razorpay) {
+      setError('Could not load the payment window. Please try again.');
+      setBusy(false);
+      return;
+    }
+
+    const rzp = new window.Razorpay({
+      key: created.keyId,
+      order_id: created.razorpayOrderId,
+      amount: created.amount,
+      currency: 'INR',
+      name: 'Online Pooja Stores',
+      description: 'Order payment',
+      prefill: created.prefill,
+      theme: { color: '#8b3a3a' },
+      handler: async (resp: {
+        razorpay_order_id: string;
+        razorpay_payment_id: string;
+        razorpay_signature: string;
+      }) => {
+        const fin = await finalizeRazorpayOrder(input, {
+          razorpay_order_id: resp.razorpay_order_id,
+          razorpay_payment_id: resp.razorpay_payment_id,
+          razorpay_signature: resp.razorpay_signature,
+        });
+        if (fin.ok) {
+          clear();
+          router.push(`/orders/${fin.orderNumber}`);
+        } else {
+          setError(fin.error);
+          setBusy(false);
+        }
+      },
+      modal: {
+        ondismiss: () => {
+          setError('Payment was not completed.');
+          setBusy(false);
+        },
+      },
+    });
+    rzp.open();
   }
 
   const inputClass =
@@ -254,6 +341,47 @@ export default function CheckoutForm({
             className={inputClass}
           />
 
+          {/* Payment method */}
+          {onlineEnabled && (
+            <div className="mt-1 flex flex-col gap-2">
+              <span className="text-sm font-semibold uppercase tracking-wide text-burgundy-dark/70">
+                Payment
+              </span>
+              <label
+                className={`flex cursor-pointer items-center gap-2 rounded-lg border p-3 text-sm ${
+                  payMethod === 'cod'
+                    ? 'border-burgundy bg-gold-soft/40'
+                    : 'border-gold/40 bg-white'
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="pay"
+                  checked={payMethod === 'cod'}
+                  onChange={() => setPayMethod('cod')}
+                />
+                <span className="text-burgundy-dark">Cash on Delivery</span>
+              </label>
+              <label
+                className={`flex cursor-pointer items-center gap-2 rounded-lg border p-3 text-sm ${
+                  payMethod === 'online'
+                    ? 'border-burgundy bg-gold-soft/40'
+                    : 'border-gold/40 bg-white'
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="pay"
+                  checked={payMethod === 'online'}
+                  onChange={() => setPayMethod('online')}
+                />
+                <span className="text-burgundy-dark">
+                  Pay online (UPI / card / netbanking)
+                </span>
+              </label>
+            </div>
+          )}
+
           {error && <p className="text-sm text-burgundy">{error}</p>}
 
           <button
@@ -261,10 +389,16 @@ export default function CheckoutForm({
             disabled={busy}
             className="mt-2 rounded-lg bg-burgundy px-6 py-3 text-sm font-semibold text-cream transition hover:bg-burgundy-dark disabled:opacity-60"
           >
-            {busy ? 'Placing order…' : 'Place order · Cash on Delivery'}
+            {busy
+              ? 'Please wait…'
+              : payMethod === 'online'
+                ? 'Pay & place order'
+                : 'Place order · Cash on Delivery'}
           </button>
           <p className="text-xs text-burgundy-dark/60">
-            You’ll pay in cash when your order is delivered.
+            {payMethod === 'online'
+              ? 'You’ll pay securely now via Razorpay.'
+              : 'You’ll pay in cash when your order is delivered.'}
           </p>
         </form>
 

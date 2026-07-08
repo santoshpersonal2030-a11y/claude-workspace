@@ -21,6 +21,9 @@ other site. Everything for this project lives inside this one folder.
 7. ✅ **Wishlist** (customers save products for later)
 8. ✅ **Sales analytics + auto stock** (dashboard insights; stock drops on sale)
 9. ✅ **Works on phones** (mobile-friendly + installable app; Android/iOS ready)
+10. ✅ **Info pages** (About, Contact, Shipping, FAQ, Privacy, Terms)
+11. ✅ **Saved addresses, guest checkout, delivery notes**
+12. ✅ **Online payments** (Razorpay — optional, alongside COD)
 
 ## Web, Android & iPhone — one codebase
 
@@ -49,6 +52,24 @@ After you sign up once, run this in the Supabase SQL Editor (use your email):
 ```sql
 update public.profiles set is_admin = true where email = 'you@example.com';
 ```
+
+### Turn on guest checkout (recommended)
+
+So customers can buy without creating an account: Supabase →
+**Authentication → Providers → Anonymous sign-ins → enable**. (Orders are still
+tied to a secure per-visitor session.)
+
+### Turn on online payments (optional — Razorpay)
+
+Cash on Delivery works without this. To also accept UPI / cards / netbanking:
+1. Run `supabase/migrations/0003_online_payments.sql` in the SQL Editor.
+2. Sign up at [razorpay.com](https://razorpay.com), complete KYC, and get your
+   API keys (start with test keys).
+3. Set `NEXT_PUBLIC_RAZORPAY_KEY_ID` and `RAZORPAY_KEY_SECRET` (see
+   `.env.local.example`) locally and in Vercel.
+
+A "Pay online" option then appears at checkout automatically. Payments are
+verified on the server before the order is confirmed.
 
 ## Run it on your computer (5 minutes)
 

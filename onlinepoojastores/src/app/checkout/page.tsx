@@ -31,12 +31,15 @@ export default async function CheckoutPage() {
     addresses = (data ?? []) as Address[];
   }
 
+  const onlineEnabled = !!process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
+
   return (
     <CheckoutForm
       zones={zones}
       savedAddresses={addresses}
       signedIn={isRealUser}
       userEmail={isRealUser ? (user?.email ?? '') : ''}
+      onlineEnabled={onlineEnabled}
     />
   );
 }
