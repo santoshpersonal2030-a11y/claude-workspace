@@ -54,6 +54,52 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
   return (data as Product) ?? null;
 }
 
+// For the product detail page: the product's primary category (for the
+// breadcrumb) and a few related products ("you may also like").
+export async function getProductExtras(
+  productId: string,
+): Promise<{ category: { name: string; slug: string } | null; related: Product[] }> {
+  const supabase = createPublicClient();
+
+  const { data: pc } = await supabase
+    .from('product_categories')
+    .select('category_id, categories(name, slug)')
+    .eq('product_id', productId)
+    .limit(1)
+    .maybeSingle();
+
+  const cat = (pc as { categories?: { name: string; slug: string } } | null)
+    ?.categories;
+  const category = cat ? { name: cat.name, slug: cat.slug } : null;
+  const categoryId = (pc as { category_id?: string } | null)?.category_id;
+
+  let related: Product[] = [];
+  if (categoryId) {
+    const { data } = await supabase
+      .from('product_categories')
+      .select('products(*)')
+      .eq('category_id', categoryId)
+      .neq('product_id', productId)
+      .limit(8);
+    related = ((data ?? []) as unknown as { products: Product | null }[])
+      .map((r) => r.products)
+      .filter((p): p is Product => !!p && p.is_active)
+      .slice(0, 4);
+  }
+
+  if (related.length === 0) {
+    const { data } = await supabase
+      .from('products')
+      .select('*')
+      .eq('is_active', true)
+      .neq('id', productId)
+      .limit(4);
+    related = (data ?? []) as Product[];
+  }
+
+  return { category, related };
+}
+
 // Fetch approved reviews for a product (public — RLS allows approved reviews).
 export async function getApprovedReviews(productId: string): Promise<Review[]> {
   const supabase = createPublicClient();

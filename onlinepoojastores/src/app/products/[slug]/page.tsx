@@ -1,11 +1,18 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { getApprovedReviews, getProductBySlug } from '@/lib/data';
+import {
+  getApprovedReviews,
+  getProductBySlug,
+  getProductExtras,
+} from '@/lib/data';
 import { formatRupees } from '@/lib/format';
 import { createServerSupabase } from '@/lib/supabase/server';
 import ProductThumb from '@/components/ProductThumb';
+import ProductCard from '@/components/ProductCard';
 import AddToCartButton from '@/components/AddToCartButton';
 import WishlistButton from '@/components/WishlistButton';
+import RecordView from '@/components/RecordView';
+import RecentlyViewed from '@/components/RecentlyViewed';
 import ReviewForm from './ReviewForm';
 
 export const dynamic = 'force-dynamic';
@@ -32,11 +39,19 @@ export default async function ProductPage({
 
   if (!product) notFound();
 
-  const reviews = await getApprovedReviews(product.id);
+  const [reviews, extras] = await Promise.all([
+    getApprovedReviews(product.id),
+    getProductExtras(product.id),
+  ]);
   const avg =
     reviews.length > 0
       ? reviews.reduce((s, r) => s + r.rating, 0) / reviews.length
       : 0;
+
+  const hasMrp = !!product.mrp && product.mrp > product.price;
+  const discount = hasMrp
+    ? Math.round(((product.mrp! - product.price) / product.mrp!) * 100)
+    : 0;
 
   const supabase = await createServerSupabase();
   const {
@@ -58,9 +73,33 @@ export default async function ProductPage({
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8">
-      <Link href="/" className="text-sm text-burgundy hover:underline">
-        ← Back to shop
-      </Link>
+      <RecordView
+        slug={product.slug}
+        name={product.name}
+        price={product.price}
+        image_url={product.image_url}
+        mrp={product.mrp}
+      />
+
+      {/* Breadcrumb */}
+      <nav className="flex flex-wrap items-center gap-1 text-xs text-burgundy-dark/60">
+        <Link href="/" className="hover:text-burgundy hover:underline">
+          Home
+        </Link>
+        {extras.category && (
+          <>
+            <span>/</span>
+            <Link
+              href={`/?category=${extras.category.slug}#shop`}
+              className="hover:text-burgundy hover:underline"
+            >
+              {extras.category.name}
+            </Link>
+          </>
+        )}
+        <span>/</span>
+        <span className="text-burgundy-dark/80">{product.name}</span>
+      </nav>
 
       <div className="mt-4 grid gap-8 md:grid-cols-2">
         {/* Image */}
@@ -84,10 +123,20 @@ export default async function ProductPage({
             </div>
           )}
 
-          <div className="mt-3 flex items-center gap-3">
+          <div className="mt-3 flex flex-wrap items-center gap-3">
             <span className="text-3xl font-bold text-burgundy">
               {formatRupees(product.price)}
             </span>
+            {hasMrp && (
+              <>
+                <span className="text-lg text-burgundy-dark/50 line-through">
+                  {formatRupees(product.mrp!)}
+                </span>
+                <span className="rounded bg-gold px-2 py-0.5 text-xs font-bold text-burgundy-dark">
+                  {discount}% OFF
+                </span>
+              </>
+            )}
             {outOfStock ? (
               <span className="rounded bg-burgundy px-2 py-0.5 text-xs font-medium text-cream">
                 Out of stock
@@ -188,6 +237,22 @@ export default async function ProductPage({
           </div>
         </div>
       </section>
+
+      {/* You may also like */}
+      {extras.related.length > 0 && (
+        <section className="mt-12">
+          <h2 className="mb-4 text-lg font-bold text-burgundy-dark">
+            You may also like
+          </h2>
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+            {extras.related.map((p) => (
+              <ProductCard key={p.id} product={p} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      <RecentlyViewed excludeSlug={product.slug} />
     </div>
   );
 }

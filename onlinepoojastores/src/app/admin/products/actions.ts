@@ -8,6 +8,7 @@ export type ProductInput = {
   slug: string;
   description: string;
   price: number;
+  mrp: number;
   sku: string;
   stock: number;
   image_url: string;
@@ -25,6 +26,23 @@ function slugify(input: string): string {
     .trim()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '');
+}
+
+// Build the DB row. `mrp` is included only when set, so products keep saving
+// even before migration 0005 (which adds the mrp column) is applied.
+function productRow(input: ProductInput, slug: string): Record<string, unknown> {
+  const row: Record<string, unknown> = {
+    name: input.name,
+    slug,
+    description: input.description || null,
+    price: input.price,
+    sku: input.sku || null,
+    stock: input.stock,
+    image_url: input.image_url || null,
+    is_active: input.is_active,
+  };
+  if (input.mrp && input.mrp > 0) row.mrp = input.mrp;
+  return row;
 }
 
 async function setCategory(
@@ -48,16 +66,7 @@ export async function createProduct(input: ProductInput): Promise<ActionResult> 
 
   const { data, error } = await supabase
     .from('products')
-    .insert({
-      name: input.name,
-      slug,
-      description: input.description || null,
-      price: input.price,
-      sku: input.sku || null,
-      stock: input.stock,
-      image_url: input.image_url || null,
-      is_active: input.is_active,
-    })
+    .insert(productRow(input, slug))
     .select('id')
     .single();
 
@@ -80,16 +89,7 @@ export async function updateProduct(
 
   const { error } = await supabase
     .from('products')
-    .update({
-      name: input.name,
-      slug,
-      description: input.description || null,
-      price: input.price,
-      sku: input.sku || null,
-      stock: input.stock,
-      image_url: input.image_url || null,
-      is_active: input.is_active,
-    })
+    .update(productRow(input, slug))
     .eq('id', id);
 
   if (error) return { ok: false, error: error.message };

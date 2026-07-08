@@ -10,6 +10,7 @@ type Row = {
   slug: string;
   description: string | null;
   price: number;
+  mrp: number | null;
   sku: string | null;
   stock: number;
   image_url: string | null;
@@ -28,9 +29,7 @@ export default async function EditProductPage({
   const [{ data }, categories] = await Promise.all([
     supabase
       .from('products')
-      .select(
-        'name, slug, description, price, sku, stock, image_url, is_active, product_categories(category_id)',
-      )
+      .select('*, product_categories(category_id)')
       .eq('id', id)
       .maybeSingle(),
     getCategories(),
@@ -50,6 +49,7 @@ export default async function EditProductPage({
           slug: p.slug,
           description: p.description ?? '',
           price: p.price,
+          mrp: p.mrp ?? 0,
           sku: p.sku ?? '',
           stock: p.stock,
           image_url: p.image_url ?? '',

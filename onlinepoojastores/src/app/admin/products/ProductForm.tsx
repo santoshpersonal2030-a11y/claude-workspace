@@ -20,6 +20,7 @@ export default function ProductForm({ categories, productId, initial }: Props) {
     slug: initial?.slug ?? '',
     description: initial?.description ?? '',
     price: initial?.price ?? 0,
+    mrp: initial?.mrp ?? 0,
     sku: initial?.sku ?? '',
     stock: initial?.stock ?? 0,
     image_url: initial?.image_url ?? '',
@@ -144,6 +145,20 @@ export default function ProductForm({ categories, productId, initial }: Props) {
           />
         </label>
       </div>
+
+      <label className="flex flex-col gap-1">
+        <span className={label}>
+          MRP / original price (optional) — shows a discount if higher than price
+        </span>
+        <input
+          className={input}
+          type="number"
+          min={0}
+          step="1"
+          value={form.mrp}
+          onChange={(e) => setForm({ ...form, mrp: Number(e.target.value) })}
+        />
+      </label>
 
       <div className="grid grid-cols-2 gap-4">
         <label className="flex flex-col gap-1">
