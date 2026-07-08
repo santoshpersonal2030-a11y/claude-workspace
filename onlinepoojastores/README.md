@@ -16,6 +16,7 @@ other site. Everything for this project lives inside this one folder.
 2. ✅ **Step 2 — Storefront** (product listing + detail pages)
 3. ✅ **Step 3 — Accounts** (email/password sign in, protected pages)
 4. ✅ **Step 4 — Cart & checkout** (shipping calc + COD order placement)
+5. ✅ **Admin panel** (manage products & orders — no SQL needed)
 
 ### One Supabase setting to check
 
@@ -79,8 +80,22 @@ You need [Node.js](https://nodejs.org) 18+ installed.
 - All money in ₹; reads/writes go through Supabase with Row Level Security, so
   customers only ever see their own orders.
 
-_Not yet wired: a confirmation **email** (needs an email provider — a Phase 2
-add-on) and automatic stock deduction. The order itself is saved correctly._
+### Admin panel (`/admin`)
+
+Once you're an admin (see the SQL above), an **Admin** link appears in the
+header. From there you can, without touching the database:
+
+- **Dashboard** — order count, revenue, new-order count, and low-stock alerts.
+- **Products** — add, edit, delete; set price, stock, category, image, and
+  whether it shows in the store.
+- **Orders** — see every order with the customer, and change its status
+  (Order placed → Confirmed → … → Delivered). Marking an order *Delivered*
+  also records the COD payment as paid.
+
+Only admins can reach `/admin`; everyone else is redirected away.
+
+_Not yet wired: a confirmation **email** (needs an email provider — a later
+add-on) and automatic stock deduction. Orders themselves save correctly._
 
 ## Folder guide
 

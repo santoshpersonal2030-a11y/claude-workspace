@@ -4,12 +4,21 @@ import CartLink from './CartLink';
 
 export default async function Header() {
   let signedIn = false;
+  let isAdmin = false;
   try {
     const supabase = await createServerSupabase();
     const {
       data: { user },
     } = await supabase.auth.getUser();
     signedIn = !!user;
+    if (user) {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('is_admin')
+        .eq('id', user.id)
+        .maybeSingle();
+      isAdmin = !!profile?.is_admin;
+    }
   } catch {
     // If Supabase isn't configured yet, just show the signed-out header.
   }
@@ -36,6 +45,11 @@ export default async function Header() {
             Shop
           </Link>
           <CartLink />
+          {isAdmin && (
+            <Link href="/admin" className="hover:text-gold">
+              Admin
+            </Link>
+          )}
           {signedIn ? (
             <Link href="/account" className="hover:text-gold">
               Account
