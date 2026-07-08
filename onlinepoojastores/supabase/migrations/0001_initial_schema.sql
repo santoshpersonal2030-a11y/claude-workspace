@@ -40,7 +40,7 @@ do $$ begin
 exception when duplicate_object then null; end $$;
 
 -- -----------------------------------------------------------------------------
--- Helper functions & triggers
+-- Table-independent helper (safe to define before the tables exist)
 -- -----------------------------------------------------------------------------
 
 -- Keep updated_at current on any row change.
@@ -52,57 +52,9 @@ begin
 end;
 $$;
 
--- True if the currently logged-in user is an admin.
--- SECURITY DEFINER so it can read profiles without tripping RLS recursion.
-create or replace function public.is_admin()
-returns boolean
-language sql
-stable
-security definer
-set search_path = public
-as $$
-  select coalesce((select is_admin from public.profiles where id = auth.uid()), false);
-$$;
-
--- Create a matching profile row automatically whenever someone signs up.
-create or replace function public.handle_new_user()
-returns trigger
-language plpgsql
-security definer
-set search_path = public
-as $$
-begin
-  insert into public.profiles (id, email, full_name)
-  values (new.id, new.email, coalesce(new.raw_user_meta_data ->> 'full_name', ''))
-  on conflict (id) do nothing;
-  return new;
-end;
-$$;
-
--- Generate the next order number for the current year: ORD-2026-001, ORD-2026-002 ...
--- The advisory lock serialises concurrent checkouts so two orders never collide.
-create or replace function public.set_order_number()
-returns trigger
-language plpgsql
-as $$
-declare
-  yr  text := to_char(now(), 'YYYY');
-  seq integer;
-begin
-  if new.order_number is null then
-    perform pg_advisory_xact_lock(hashtext('ops_order_number_' || yr));
-    select count(*) + 1
-      into seq
-      from public.orders
-     where order_number like 'ORD-' || yr || '-%';
-    new.order_number := 'ORD-' || yr || '-' || lpad(seq::text, 3, '0');
-  end if;
-  return new;
-end;
-$$;
-
 -- =============================================================================
 -- TABLES
+-- (Created before the functions/triggers that reference them.)
 -- =============================================================================
 
 -- 1. profiles — one row per signed-up user (1:1 with Supabase auth.users)
@@ -290,8 +242,73 @@ create index if not exists idx_reviews_product         on public.reviews (produc
 create index if not exists idx_wishlist_user           on public.wishlist_items (user_id);
 
 -- -----------------------------------------------------------------------------
--- Wire up the triggers
+-- Functions that reference the tables above (defined now that they exist)
 -- -----------------------------------------------------------------------------
+
+-- True if the currently logged-in user is an admin.
+-- SECURITY DEFINER so it can read profiles without tripping RLS recursion.
+create or replace function public.is_admin()
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select coalesce((select is_admin from public.profiles where id = auth.uid()), false);
+$$;
+
+-- Create a matching profile row automatically whenever someone signs up.
+create or replace function public.handle_new_user()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  insert into public.profiles (id, email, full_name)
+  values (new.id, new.email, coalesce(new.raw_user_meta_data ->> 'full_name', ''))
+  on conflict (id) do nothing;
+  return new;
+end;
+$$;
+
+-- Generate the next order number for the current year: ORD-2026-001, ORD-2026-002 ...
+-- The advisory lock serialises concurrent checkouts so two orders never collide.
+create or replace function public.set_order_number()
+returns trigger
+language plpgsql
+as $$
+declare
+  yr  text := to_char(now(), 'YYYY');
+  seq integer;
+begin
+  if new.order_number is null then
+    perform pg_advisory_xact_lock(hashtext('ops_order_number_' || yr));
+    select count(*) + 1
+      into seq
+      from public.orders
+     where order_number like 'ORD-' || yr || '-%';
+    new.order_number := 'ORD-' || yr || '-' || lpad(seq::text, 3, '0');
+  end if;
+  return new;
+end;
+$$;
+
+-- -----------------------------------------------------------------------------
+-- Wire up the triggers (drop-if-exists first, so this script is re-runnable)
+-- -----------------------------------------------------------------------------
+drop trigger if exists trg_profiles_updated       on public.profiles;
+drop trigger if exists trg_categories_updated     on public.categories;
+drop trigger if exists trg_products_updated       on public.products;
+drop trigger if exists trg_shipping_zones_updated on public.shipping_zones;
+drop trigger if exists trg_shipping_rates_updated on public.shipping_rates;
+drop trigger if exists trg_addresses_updated      on public.addresses;
+drop trigger if exists trg_cart_items_updated     on public.cart_items;
+drop trigger if exists trg_orders_updated         on public.orders;
+drop trigger if exists trg_payments_updated       on public.payments;
+drop trigger if exists trg_reviews_updated        on public.reviews;
+drop trigger if exists trg_orders_number          on public.orders;
+
 create trigger trg_profiles_updated       before update on public.profiles       for each row execute function public.set_updated_at();
 create trigger trg_categories_updated     before update on public.categories     for each row execute function public.set_updated_at();
 create trigger trg_products_updated       before update on public.products       for each row execute function public.set_updated_at();
