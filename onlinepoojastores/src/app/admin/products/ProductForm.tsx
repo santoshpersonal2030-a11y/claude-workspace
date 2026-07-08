@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { Category } from '@/lib/types';
+import { createBrowserSupabase } from '@/lib/supabase/browser';
+import ProductThumb from '@/components/ProductThumb';
 import { createProduct, updateProduct, type ProductInput } from './actions';
 
 type Props = {
@@ -26,6 +28,39 @@ export default function ProductForm({ categories, productId, initial }: Props) {
   });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+
+  async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      setError('Please choose an image under 5 MB.');
+      return;
+    }
+    setUploading(true);
+    setError(null);
+    try {
+      const supabase = createBrowserSupabase();
+      const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+      const path = `${crypto.randomUUID()}.${ext}`;
+      const { error: upErr } = await supabase.storage
+        .from('product-images')
+        .upload(path, file, { cacheControl: '3600', upsert: false });
+      if (upErr) throw upErr;
+      const { data } = supabase.storage
+        .from('product-images')
+        .getPublicUrl(path);
+      setForm((f) => ({ ...f, image_url: data.publicUrl }));
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? `Upload failed: ${err.message}`
+          : 'Upload failed. Did you run migration 0004?',
+      );
+    } finally {
+      setUploading(false);
+    }
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -136,15 +171,41 @@ export default function ProductForm({ categories, productId, initial }: Props) {
         </label>
       </div>
 
-      <label className="flex flex-col gap-1">
-        <span className={label}>Image URL (optional)</span>
+      <div className="flex flex-col gap-2">
+        <span className={label}>Product photo</span>
+        <div className="flex items-center gap-4">
+          <div className="h-20 w-20 shrink-0 overflow-hidden rounded-lg border border-gold/40">
+            <ProductThumb name={form.name || '?'} imageUrl={form.image_url} />
+          </div>
+          <div className="flex flex-col gap-2">
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleUpload}
+              disabled={uploading}
+              className="text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-burgundy file:px-4 file:py-2 file:text-sm file:font-semibold file:text-cream hover:file:bg-burgundy-dark"
+            />
+            {uploading && (
+              <span className="text-xs text-burgundy-dark/60">Uploading…</span>
+            )}
+            {form.image_url && !uploading && (
+              <button
+                type="button"
+                onClick={() => setForm({ ...form, image_url: '' })}
+                className="w-fit text-xs font-medium text-burgundy hover:underline"
+              >
+                Remove photo
+              </button>
+            )}
+          </div>
+        </div>
         <input
           className={input}
           value={form.image_url}
-          placeholder="https://…"
+          placeholder="…or paste an image URL"
           onChange={(e) => setForm({ ...form, image_url: e.target.value })}
         />
-      </label>
+      </div>
 
       <label className="flex items-center gap-2">
         <input
