@@ -19,6 +19,7 @@ other site. Everything for this project lives inside this one folder.
 5. ✅ **Admin panel** (manage products & orders — no SQL needed)
 6. ✅ **Reviews & ratings** (customers rate products; you approve them)
 7. ✅ **Wishlist** (customers save products for later)
+8. ✅ **Sales analytics + auto stock** (dashboard insights; stock drops on sale)
 
 ### One Supabase setting to check
 
@@ -87,7 +88,8 @@ You need [Node.js](https://nodejs.org) 18+ installed.
 Once you're an admin (see the SQL above), an **Admin** link appears in the
 header. From there you can, without touching the database:
 
-- **Dashboard** — order count, revenue, new-order count, and low-stock alerts.
+- **Dashboard** — order count, revenue, new-order count, low-stock alerts,
+  **top-selling products**, and **recent orders**.
 - **Products** — add, edit, delete; set price, stock, category, image, and
   whether it shows in the store.
 - **Orders** — see every order with the customer, and change its status
@@ -100,8 +102,14 @@ header. From there you can, without touching the database:
 
 Only admins can reach `/admin`; everyone else is redirected away.
 
-_Not yet wired: a confirmation **email** (needs an email provider — a later
-add-on) and automatic stock deduction. Orders themselves save correctly._
+### Turn on automatic stock reduction (one-time, 30 seconds)
+
+Run `supabase/migrations/0002_auto_stock_decrement.sql` once in the Supabase
+SQL Editor. After that, a product's stock drops automatically whenever it's
+ordered (never below 0), and low-stock items show on the dashboard.
+
+_Still a later add-on: a confirmation **email / SMS** (needs an email or SMS
+provider such as Resend or MSG91 — those require their own account and keys)._
 
 ## Folder guide
 
