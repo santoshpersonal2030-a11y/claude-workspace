@@ -5,6 +5,7 @@ import { formatRupees } from '@/lib/format';
 import { createServerSupabase } from '@/lib/supabase/server';
 import ProductThumb from '@/components/ProductThumb';
 import AddToCartButton from '@/components/AddToCartButton';
+import WishlistButton from '@/components/WishlistButton';
 import ReviewForm from './ReviewForm';
 
 export const dynamic = 'force-dynamic';
@@ -41,6 +42,17 @@ export default async function ProductPage({
   const {
     data: { user },
   } = await supabase.auth.getUser();
+
+  let inWishlist = false;
+  if (user) {
+    const { data: saved } = await supabase
+      .from('wishlist_items')
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('product_id', product.id)
+      .maybeSingle();
+    inWishlist = !!saved;
+  }
 
   const outOfStock = product.stock <= 0;
 
@@ -99,6 +111,13 @@ export default async function ProductPage({
             price={product.price}
             imageUrl={product.image_url}
             inStock={!outOfStock}
+          />
+
+          <WishlistButton
+            productId={product.id}
+            slug={product.slug}
+            signedIn={!!user}
+            initialInWishlist={inWishlist}
           />
 
           <p className="mt-4 text-xs text-burgundy-dark/60">

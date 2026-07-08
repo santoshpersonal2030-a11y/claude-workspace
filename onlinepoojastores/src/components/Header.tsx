@@ -50,6 +50,11 @@ export default async function Header() {
               Admin
             </Link>
           )}
+          {signedIn && (
+            <Link href="/wishlist" className="hover:text-gold">
+              Wishlist
+            </Link>
+          )}
           {signedIn ? (
             <Link href="/account" className="hover:text-gold">
               Account

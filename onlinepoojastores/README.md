@@ -18,6 +18,7 @@ other site. Everything for this project lives inside this one folder.
 4. ✅ **Step 4 — Cart & checkout** (shipping calc + COD order placement)
 5. ✅ **Admin panel** (manage products & orders — no SQL needed)
 6. ✅ **Reviews & ratings** (customers rate products; you approve them)
+7. ✅ **Wishlist** (customers save products for later)
 
 ### One Supabase setting to check
 
