@@ -20,6 +20,20 @@ other site. Everything for this project lives inside this one folder.
 6. ✅ **Reviews & ratings** (customers rate products; you approve them)
 7. ✅ **Wishlist** (customers save products for later)
 8. ✅ **Sales analytics + auto stock** (dashboard insights; stock drops on sale)
+9. ✅ **Works on phones** (mobile-friendly + installable app; Android/iOS ready)
+
+## Web, Android & iPhone — one codebase
+
+The store runs three ways from this **single** project, so every feature is
+identical everywhere and never drifts out of sync:
+
+1. **Mobile website** — responsive, works in any phone browser (done).
+2. **Installable app (PWA)** — customers "Add to Home Screen" for a full-screen
+   app with the diya icon; works offline for pages already visited (done).
+3. **Play Store / App Store apps** — via Capacitor, which wraps this same site
+   as native Android and iOS apps. See **`BUILD-APPS.md`** for the steps.
+
+Ways 1 & 2 work as soon as the site is deployed — no app stores, no fees.
 
 ### One Supabase setting to check
 
@@ -130,7 +144,12 @@ onlinepoojastores/
 │   │   └── products/[slug]/    # product detail page
 │   ├── components/             # Header, Footer, ProductCard, Catalog, …
 │   └── lib/                    # Supabase client, data fetching, helpers
-├── supabase/                   # Step 1 database (migration + seed)
+├── public/
+│   ├── icons/                  # app icons (diya)
+│   └── sw.js                   # service worker (installable app)
+├── supabase/                   # database (migrations + seed)
+├── capacitor.config.ts         # config for the Android/iOS apps
+├── BUILD-APPS.md               # how to publish the phone apps
 └── .env.local.example          # copy to .env.local and add your keys
 ```
 
