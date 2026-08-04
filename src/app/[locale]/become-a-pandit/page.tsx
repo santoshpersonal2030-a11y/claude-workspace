@@ -3,13 +3,28 @@ import type { Metadata } from "next";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import PanditApplicationForm from "@/components/PanditApplicationForm";
+import { localeAlternates } from "@/lib/seo";
+import { isLocale, DEFAULT_LOCALE } from "@/lib/i18n";
 
-export const metadata: Metadata = {
-  title: "Become a Pandit — Join BookMyPoojari",
-  description:
-    "Are you a qualified Pandit or Poojari? Join BookMyPoojari to receive verified ceremony bookings, grow your practice and get paid on time.",
-  alternates: { canonical: "/become-a-pandit" },
-};
+// Was a static `metadata` with `canonical: "/become-a-pandit"` — the same URL in all three
+// languages, which told search engines the Hindi and Telugu versions were duplicates of the
+// English one. generateMetadata is needed instead because the canonical depends on the locale.
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  return {
+    title: "Become a Pandit — Join BookMyPoojari",
+    description:
+      "Are you a qualified Pandit or Poojari? Join BookMyPoojari to receive verified ceremony bookings, grow your practice and get paid on time.",
+    alternates: localeAlternates(
+      isLocale(locale) ? locale : DEFAULT_LOCALE,
+      "/become-a-pandit",
+    ),
+  };
+}
 
 const PERKS = [
   { emoji: "📅", title: "Steady bookings", body: "Receive ceremony requests that match your skills and area." },

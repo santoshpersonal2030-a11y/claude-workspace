@@ -8,7 +8,8 @@ import RatingStars from "@/components/RatingStars";
 import ProductThumb from "@/components/ProductThumb";
 import JsonLd from "@/components/JsonLd";
 import { formatINR } from "@/lib/poojas";
-import { organizationLd, websiteLd } from "@/lib/seo";
+import { organizationLd, websiteLd, localeAlternates } from "@/lib/seo";
+import type { Metadata } from "next";
 import { getPopularPoojas, getPandits, getProducts } from "@/lib/queries";
 import { getApprovedMuhuratWindows } from "@/lib/muhurat-data";
 import TodayPanchang from "@/components/TodayPanchang";
@@ -30,6 +31,19 @@ function muhuratDateLabel(date: string) {
 
 // Re-fetch popular poojas from the database at most once every 5 minutes.
 export const revalidate = 300;
+
+// The canonical + hreflang set that used to live (wrongly, for every page) in the root layout.
+// Here it is correct: this IS the page at "/", "/hi" and "/te".
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  return {
+    alternates: localeAlternates(isLocale(locale) ? locale : DEFAULT_LOCALE),
+  };
+}
 
 function panditInitials(name: string) {
   return name

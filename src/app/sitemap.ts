@@ -10,9 +10,28 @@ import { getPublishedPosts } from "@/lib/blog-db";
 import { consultations } from "@/lib/consultations";
 import { templePujas } from "@/lib/temple-pujas";
 import { SIGNS } from "@/lib/horoscope";
+import { LOCALES, DEFAULT_LOCALE } from "@/lib/i18n";
 
 const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL ?? "https://bookmypoojari.com";
+
+/* The site is served in three languages: English at clean URLs ("/poojas"), Hindi and Telugu
+   under a prefix ("/hi/poojas", "/te/poojas") — see src/proxy.ts. Until 05-Aug-2026 this sitemap
+   listed each page exactly once, at its English URL, so the Hindi and Telugu pages were invisible
+   to search engines even though they exist and are fully translated. Every page is now listed in
+   every language, and each entry carries hreflang alternates so the three are understood as the
+   same page in three languages rather than three duplicates competing with each other. */
+const localizedUrl = (locale: string, path: string) =>
+  `${siteUrl}${locale === DEFAULT_LOCALE ? "" : `/${locale}`}${path}`;
+
+// The hreflang block is identical for every language version of a page, and x-default points at
+// English — the version served to a visitor whose language we do not know.
+const alternatesFor = (path: string) => ({
+  languages: {
+    ...Object.fromEntries(LOCALES.map((l) => [l, localizedUrl(l, path)])),
+    "x-default": localizedUrl(DEFAULT_LOCALE, path),
+  },
+});
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticRoutes = [
@@ -37,12 +56,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/terms",
     "/privacy",
     "/refund-policy",
-  ].map((path) => ({
-    url: `${siteUrl}${path}`,
-    lastModified: new Date(),
-    changeFrequency: "weekly" as const,
-    priority: path === "" ? 1 : 0.7,
-  }));
+  ].flatMap((path) =>
+    LOCALES.map((locale) => ({
+      url: localizedUrl(locale, path),
+      lastModified: new Date(),
+      changeFrequency: "weekly" as const,
+      priority: path === "" ? 1 : 0.7,
+      alternates: alternatesFor(path),
+    })),
+  );
 
   const [poojaSlugs, productSlugs, panditSlugs, posts] = await Promise.all([
     getPoojaSlugs(),
@@ -64,12 +86,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...SIGNS.map((s) => `/horoscope/${s.slug}`),
     ...citySlugs,
     ...posts.map((p) => `/blog/${p.slug}`),
-  ].map((path) => ({
-    url: `${siteUrl}${path}`,
-    lastModified: new Date(),
-    changeFrequency: "weekly" as const,
-    priority: 0.6,
-  }));
+  ].flatMap((path) =>
+    LOCALES.map((locale) => ({
+      url: localizedUrl(locale, path),
+      lastModified: new Date(),
+      changeFrequency: "weekly" as const,
+      priority: 0.6,
+      alternates: alternatesFor(path),
+    })),
+  );
 
   return [...staticRoutes, ...dynamicRoutes];
 }

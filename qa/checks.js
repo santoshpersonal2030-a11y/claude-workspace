@@ -578,6 +578,119 @@ function missingTeBaseline() {
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
+function sitemapChecks() {
+  head("8. SITEMAP — all three languages must be discoverable");
+  /* Reads the sitemap the build actually produced, not the code that produces it. Before
+     05-Aug-2026 this file listed 117 URLs, every one of them English, with no hreflang at all:
+     the Hindi and Telugu pages existed, were fully translated, and could never be found. That
+     built sitemap is the control — these checks fail against it. Skipped (not failed) if there
+     is no build output, so the suite still runs on a fresh clone. */
+  const body = path.join(ROOT, ".next", "server", "app", "sitemap.xml.body");
+  if (!fs.existsSync(body)) {
+    console.log("  skip  no build output — run `npm run build` first");
+    return;
+  }
+  const xml = read(body);
+  const count = (re) => (xml.match(re) || []).length;
+
+  const locs = count(/<loc>/g);
+  const hi = count(/<loc>[^<]*\/hi(\/|<)/g);
+  const te = count(/<loc>[^<]*\/te(\/|<)/g);
+  const alts = count(/hreflang="/g);
+
+  line(locs > 0, "the sitemap has entries", `${locs} URLs`);
+  line(hi > 0, "Hindi pages are listed in the sitemap", `${hi} /hi URLs`);
+  line(te > 0, "Telugu pages are listed in the sitemap", `${te} /te URLs`);
+  line(
+    hi === te,
+    "Hindi and Telugu are listed equally (neither language is half-published)",
+    `hi=${hi} te=${te}`,
+  );
+  line(alts > 0, "entries carry hreflang alternates", `${alts} hreflang links`);
+  line(
+    count(/hreflang="x-default"/g) > 0,
+    "an x-default alternate is declared",
+    `${count(/hreflang="x-default"/g)} x-default links`,
+  );
+
+  control(
+    (('<loc>https://x.com/poojas</loc>').match(/<loc>[^<]*\/hi(\/|<)/g) || []).length === 0,
+    "the /hi detector reports zero against an English-only sitemap (the pre-fix state)",
+  );
+  control(
+    (('<loc>https://x.com/hi/poojas</loc>').match(/<loc>[^<]*\/hi(\/|<)/g) || []).length === 1,
+    "the /hi detector finds a Hindi URL when one is present",
+  );
+  control(
+    (("/histogram").match(/<loc>[^<]*\/hi(\/|<)/g) || []).length === 0,
+    "the /hi detector is not fooled by an unrelated word starting with hi",
+  );
+
+  head("9. CANONICAL URLs — no page may claim to be a different page");
+  /* Read from the rendered HTML. Until 05-Aug-2026 the root layout set the canonical URL, and a
+     layout cannot know which page is rendering — so every one of the 96 pages declared itself
+     canonical to the site root. To a search engine that reads as "these are all the same page",
+     which would have kept the entire site out of the index however good the sitemap was.
+     A page with NO canonical is fine (search engines self-canonicalise); a page pointing at the
+     wrong URL is not. So this only fails on a canonical that contradicts its own path. */
+  const OUT = path.join(ROOT, ".next", "server", "app");
+  const canonicalOf = (html) =>
+    (html.match(/rel="canonical"\s+href="([^"]+)"/) || [])[1] || null;
+
+  const samples = [
+    ["en/about.html", "/about"],
+    ["hi/about.html", "/hi/about"],
+    ["te/about.html", "/te/about"],
+    ["hi/poojas.html", "/hi/poojas"],
+    ["en/become-a-pandit.html", "/become-a-pandit"],
+    ["hi/become-a-pandit.html", "/hi/become-a-pandit"],
+  ];
+  let wrong = [];
+  let checked = 0;
+  for (const [file, expectedPath] of samples) {
+    const p = path.join(OUT, file);
+    if (!fs.existsSync(p)) continue;
+    checked++;
+    const c = canonicalOf(read(p));
+    if (c && !c.endsWith(expectedPath)) wrong.push(`${file} → ${c}`);
+  }
+  line(
+    checked > 0,
+    "sampled rendered pages for a canonical URL",
+    `${checked} pages checked`,
+  );
+  line(
+    wrong.length === 0,
+    "no page declares a canonical URL belonging to a different page",
+    wrong.length ? wrong.join("; ") : `${checked} pages consistent`,
+  );
+
+  // The homepage SHOULD have one, and it should be its own locale root.
+  const home = path.join(OUT, "hi.html");
+  if (fs.existsSync(home)) {
+    const c = canonicalOf(read(home));
+    line(
+      c !== null && /\/hi$/.test(c),
+      "the Hindi homepage declares itself canonical",
+      String(c),
+    );
+  }
+
+  control(
+    canonicalOf('<link rel="canonical" href="https://x.com/hi"/>') === "https://x.com/hi",
+    "the canonical reader extracts the URL",
+  );
+  control(
+    canonicalOf("<html><head></head></html>") === null,
+    "the canonical reader reports null when there is no canonical",
+  );
+  control(
+    !"https://x.com/hi".endsWith("/hi/about"),
+    "the mismatch detector catches a homepage canonical on an inner page (the pre-fix state)",
+  );
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
 function kycChecks() {
   head("7. KYC — the plaintext ID must not reach the database (regression lock only)");
   /* READ-ONLY. Hardening KYC is explicitly out of scope and needs a decision from Santosh.
@@ -618,6 +731,7 @@ function kycChecks() {
   bucketChecks();
   envChecks();
   await i18nChecks();
+  sitemapChecks();
   kycChecks();
 
   console.log("\n" + "=".repeat(70));

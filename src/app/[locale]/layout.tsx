@@ -28,16 +28,9 @@ const body = Mukta({
 const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL ?? "https://bookmypoojari.com";
 
-// Pre-render both locales at build time (per Next.js 16 i18n routing).
+// Pre-render every locale at build time (per Next.js 16 i18n routing).
 export function generateStaticParams() {
   return LOCALES.map((locale) => ({ locale }));
-}
-
-// English lives at clean URLs ("/poojas"); other locales are prefixed
-// ("/hi/poojas"). Build the canonical + hreflang alternates accordingly.
-function localizedPath(locale: Locale, path = "") {
-  const clean = path ? `/${path}` : "";
-  return locale === DEFAULT_LOCALE ? clean || "/" : `/${locale}${clean}`;
 }
 
 export async function generateMetadata({
@@ -65,22 +58,24 @@ export async function generateMetadata({
       "satyanarayan katha",
       "pandit for puja",
     ],
-    alternates: {
-      canonical: localizedPath(loc),
-      languages: {
-        en: "/",
-        hi: "/hi",
-        "x-default": "/",
-      },
-    },
+    /* NO `alternates` HERE — deliberately.
+       A layout cannot know which page is rendering, so the canonical it sets is inherited by
+       every page beneath it. This layout used to set `canonical: "/hi"` (etc.), which meant all
+       96 pages told search engines they were duplicates of the homepage. Canonical and hreflang
+       are now set per page with localeAlternates() from src/lib/seo.ts, and every page is also
+       listed with its hreflang alternates in the sitemap. A missing canonical is harmless — a
+       wrong one is not. */
     openGraph: {
       title: "BookMyPoojari — Book Verified Pandits & Pooja Samagri Online",
       description:
         "Book verified Pandits for any ceremony and order authentic pooja samagri, delivered to your door.",
       type: "website",
       siteName: "BookMyPoojari",
-      locale: loc === "hi" ? "hi_IN" : "en_IN",
-      url: localizedPath(loc),
+      // Was `loc === "hi" ? "hi_IN" : "en_IN"`, which told Facebook and WhatsApp that every
+      // Telugu page was English.
+      locale: `${loc}_IN`,
+      // No `url` here, for the same reason there is no `canonical`: a layout cannot know which
+      // page is rendering, so it would make every shared link point at the locale homepage.
     },
     twitter: {
       card: "summary_large_image",
