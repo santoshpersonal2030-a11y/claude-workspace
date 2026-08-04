@@ -563,6 +563,45 @@ async function i18nChecks() {
   line(orphanHi.length === 0, "no Hindi key without an English parent", orphanHi.slice(0, 5).join(", "));
   line(orphanTe.length === 0, "no Telugu key without an English parent", orphanTe.slice(0, 5).join(", "));
 
+  /* The footer duplicates three pooja names into the UI dictionary rather than importing the
+     105 KB catalog into every page's client bundle. A duplicate that nobody checks is a
+     divergence waiting to happen: this is the check that makes the trade safe. */
+  const pi = await import(
+    "file:///" + path.join(SRC, "lib", "poojas-i18n.ts").split(path.sep).join("/")
+  );
+  const poojaList = poojasMod.poojas;
+  const FOOTER_POOJAS = [
+    ["footer.pooja.satyanarayanKatha", "satyanarayan-katha"],
+    ["footer.pooja.grihaPravesh", "griha-pravesh"],
+    ["footer.pooja.lakshmiPuja", "lakshmi-puja"],
+  ];
+  const drifted = [];
+  for (const [key, slug] of FOOTER_POOJAS) {
+    const pooja = poojaList.find((p) => p.slug === slug);
+    if (!pooja) {
+      drifted.push(`${slug} is no longer in the catalog`);
+      continue;
+    }
+    for (const loc of i18n.LOCALES) {
+      const fromDict = i18n.t(loc, key);
+      const fromCatalog = pi.localizePooja(pooja, loc).name;
+      // The footer label is allowed to be a shortening of the catalog name (the catalog says
+      // "Lakshmi Puja (Diwali)"), but it must not say something the catalog does not.
+      if (!fromCatalog.startsWith(fromDict)) {
+        drifted.push(`${loc}/${slug}: footer "${fromDict}" vs catalog "${fromCatalog}"`);
+      }
+    }
+  }
+  line(
+    drifted.length === 0,
+    "the footer's pooja names still match the catalog translations",
+    drifted.length ? drifted.join("; ") : `${FOOTER_POOJAS.length} names × 3 locales agree`,
+  );
+  control(
+    !pi.localizePooja(poojaList[0], "hi").name.startsWith("Satyanarayan Katha"),
+    "the drift detector would notice an English footer label against a Hindi catalog name",
+  );
+
   control(hiKeys.size > 100 && teKeys.size > 100, `hi=${hiKeys.size} te=${teKeys.size} keys parsed`);
   control(
     [...enKeys].filter((k) => !new Set([...enKeys].slice(1)).has(k)).length === 1,

@@ -59,6 +59,48 @@ const en: Dict = {
   "footer.policies": "Policies",
   "footer.rights": "© {year} BookMyPoojari. All rights reserved.",
 
+  // Footer link tree. These were a hardcoded English array inside Footer.tsx until 05-Aug-2026 —
+  // thirty English strings on all 96 pages, in all three languages. Where a phrase was already
+  // translated elsewhere in this file the existing wording is reused verbatim rather than
+  // re-translated, so the footer cannot drift from the rest of the site.
+  // The three featured pooja names are duplicated from src/lib/poojas-i18n.ts on purpose: the
+  // footer is a client component and importing that 105 KB catalog into every page's JavaScript
+  // to render three link labels is not a fair trade. qa/checks.js asserts they stay identical.
+  "footer.poojas": "Poojas",
+  "footer.allPoojas": "All Poojas",
+  "footer.templeEPuja": "Temple e-Puja",
+  "footer.pooja.satyanarayanKatha": "Satyanarayan Katha",
+  "footer.pooja.grihaPravesh": "Griha Pravesh",
+  "footer.pooja.lakshmiPuja": "Lakshmi Puja",
+  "footer.shop": "Shop",
+  "footer.poojaKits": "Pooja Kits",
+  "footer.diyasLamps": "Diyas & Lamps",
+  "footer.almanac": "Almanac",
+  "footer.dailyHoroscope": "Daily Horoscope",
+  "footer.freeKundli": "Free Kundli",
+  "footer.astrologyConsultation": "Astrology Consultation",
+  "footer.shubhMuhurat": "Shubh Muhurat",
+  "footer.dailyPanchang": "Daily Panchang",
+  "footer.choghadiya": "Choghadiya",
+  "footer.kundliMatching": "Kundli Matching",
+  "footer.festivalsVrats": "Festivals & Vrats",
+  "footer.aboutUs": "About Us",
+  "footer.ourPandits": "Our Pandits",
+  "footer.becomeAPandit": "Become a Pandit",
+  "footer.blog": "Blog",
+  "footer.contact": "Contact",
+  "footer.terms": "Terms & Conditions",
+  "footer.privacy": "Privacy Policy",
+  "footer.refund": "Refund & Cancellation",
+  "footer.madeWithDevotion": "Made with devotion in India 🇮🇳",
+
+  // Announcement bar. The free-delivery threshold is a {amount} variable, not three hardcoded
+  // sentences, so changing the offer is one edit rather than three that can drift apart.
+  "announce.label": "Announcement",
+  "announce.freeDelivery": "🎉 Free delivery on orders over {amount} —",
+  "announce.shopDeals": "shop today's best deals",
+  "announce.dismiss": "Dismiss announcement",
+
   // Homepage — trust stats
   "home.trust.pandits": "Verified Pandits",
   "home.trust.poojas": "Poojas Performed",
@@ -772,6 +814,47 @@ const hi: Dict = {
   "footer.policies": "नीतियाँ",
   "footer.rights": "© {year} बुकमायपुजारी। सर्वाधिकार सुरक्षित।",
 
+  // Footer link tree — see the note in the English block.
+  // Reused verbatim from existing keys: footer.poojas (search.gPoojas), footer.diyasLamps
+  // (scat.Diyas & Lamps), footer.festivalsVrats (fes.crumb), footer.choghadiya (cho.crumb),
+  // footer.kundliMatching (gm.crumb), footer.privacy (consent.privacy), footer.aboutUs
+  // (meta.about.title), footer.ourPandits (nav.pandits), footer.dailyHoroscope (nav.horoscope),
+  // footer.freeKundli (nav.kundli), footer.shubhMuhurat (nav.muhurat).
+  // The pooja names are copied verbatim from poojas-i18n.ts.
+  // The remainder were written for this change and are marked NEEDS REVIEW in NIGHT-SHIFT-LOG.md.
+  "footer.poojas": "पूजाएँ",
+  "footer.allPoojas": "सभी पूजाएँ",
+  "footer.templeEPuja": "मंदिर ई-पूजा",
+  "footer.pooja.satyanarayanKatha": "सत्यनारायण कथा",
+  "footer.pooja.grihaPravesh": "गृह प्रवेश",
+  "footer.pooja.lakshmiPuja": "लक्ष्मी पूजा",
+  "footer.shop": "स्टोर",
+  "footer.poojaKits": "पूजा किट",
+  "footer.diyasLamps": "दीये व लैंप",
+  "footer.almanac": "पंचांग व ज्योतिष",
+  "footer.dailyHoroscope": "दैनिक राशिफल",
+  "footer.freeKundli": "मुफ़्त कुंडली",
+  "footer.astrologyConsultation": "ज्योतिष परामर्श",
+  "footer.shubhMuhurat": "शुभ मुहूर्त",
+  "footer.dailyPanchang": "दैनिक पंचांग",
+  "footer.choghadiya": "चौघड़िया",
+  "footer.kundliMatching": "कुंडली मिलान",
+  "footer.festivalsVrats": "त्योहार और व्रत",
+  "footer.aboutUs": "हमारे बारे में",
+  "footer.ourPandits": "हमारे पंडित",
+  "footer.becomeAPandit": "पंडित बनें",
+  "footer.blog": "ब्लॉग",
+  "footer.contact": "संपर्क करें",
+  "footer.terms": "नियम व शर्तें",
+  "footer.privacy": "गोपनीयता नीति",
+  "footer.refund": "रिफंड व रद्दीकरण",
+  "footer.madeWithDevotion": "भारत में भक्ति के साथ बनाया गया 🇮🇳",
+
+  "announce.label": "घोषणा",
+  "announce.freeDelivery": "🎉 {amount} से अधिक के ऑर्डर पर मुफ़्त डिलीवरी —",
+  "announce.shopDeals": "आज के बेहतरीन ऑफ़र देखें",
+  "announce.dismiss": "घोषणा बंद करें",
+
   // Homepage — trust stats
   "home.trust.pandits": "सत्यापित पंडित",
   "home.trust.poojas": "पूजाएँ संपन्न",
@@ -1479,6 +1562,42 @@ const te: Dict = {
   "footer.company": "సంస్థ",
   "footer.policies": "విధానాలు",
   "footer.rights": "© {year} BookMyPoojari. అన్ని హక్కులు సురక్షితం.",
+
+  // Footer link tree — see the note in the English block. Same reuse policy as Hindi: existing
+  // translated wording is copied verbatim, pooja names come from poojas-i18n.ts, and the rest
+  // were written for this change and are marked NEEDS REVIEW in NIGHT-SHIFT-LOG.md.
+  "footer.poojas": "పూజలు",
+  "footer.allPoojas": "అన్ని పూజలు",
+  "footer.templeEPuja": "ఆలయ ఇ-పూజ",
+  "footer.pooja.satyanarayanKatha": "సత్యనారాయణ కథ",
+  "footer.pooja.grihaPravesh": "గృహ ప్రవేశం",
+  "footer.pooja.lakshmiPuja": "లక్ష్మి పూజ",
+  "footer.shop": "స్టోర్",
+  "footer.poojaKits": "పూజ కిట్‌లు",
+  "footer.diyasLamps": "దీపాలు & లాంప్‌లు",
+  "footer.almanac": "పంచాంగం & జ్యోతిష్యం",
+  "footer.dailyHoroscope": "దైనిక రాశిఫలం",
+  "footer.freeKundli": "ఉచిత కుండలి",
+  "footer.astrologyConsultation": "జ్యోతిష్య సంప్రదింపులు",
+  "footer.shubhMuhurat": "శుభ ముహూర్తం",
+  "footer.dailyPanchang": "దైనిక పంచాంగం",
+  "footer.choghadiya": "చౌఘడియా",
+  "footer.kundliMatching": "కుండలి మిలన్",
+  "footer.festivalsVrats": "పండుగలు & వ్రతాలు",
+  "footer.aboutUs": "మా గురించి",
+  "footer.ourPandits": "మా పండితులు",
+  "footer.becomeAPandit": "పండితులుగా చేరండి",
+  "footer.blog": "బ్లాగ్",
+  "footer.contact": "సంప్రదించండి",
+  "footer.terms": "నిబంధనలు & షరతులు",
+  "footer.privacy": "గోప్యతా విధానం",
+  "footer.refund": "వాపసు & రద్దు",
+  "footer.madeWithDevotion": "భారతదేశంలో భక్తితో రూపొందించబడింది 🇮🇳",
+
+  "announce.label": "ప్రకటన",
+  "announce.freeDelivery": "🎉 {amount} పైబడిన ఆర్డర్‌లపై ఉచిత డెలివరీ —",
+  "announce.shopDeals": "నేటి ఉత్తమ ఆఫర్‌లను చూడండి",
+  "announce.dismiss": "ప్రకటనను మూసివేయండి",
 
   "home.trust.pandits": "ధృవీకరించిన పండితులు",
   "home.trust.poojas": "నిర్వహించిన పూజలు",

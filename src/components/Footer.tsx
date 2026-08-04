@@ -5,60 +5,77 @@ import Link from "next/link";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { useT } from "@/components/LanguageProvider";
 
-const columns = [
+/* The link tree, as dictionary keys rather than English text.
+ *
+ * This MUST be built inside the component, not at module scope. It used to be a module-level
+ * `const columns` holding English strings; translating it in place by calling t() there would
+ * have looked right and been worse — a module constant is evaluated once, when the file first
+ * loads, so the whole footer would freeze in whichever language happened to render first and
+ * then show that language to everyone. Only the shape lives out here; the words are resolved
+ * per render below.
+ */
+const COLUMNS: { title: string; links: { href: string; label: string }[] }[] = [
   {
-    title: "Poojas",
+    title: "footer.poojas",
     links: [
-      { href: "/poojas", label: "All Poojas" },
-      { href: "/temple-puja", label: "Temple e-Puja" },
-      { href: "/poojas/satyanarayan-katha", label: "Satyanarayan Katha" },
-      { href: "/poojas/griha-pravesh", label: "Griha Pravesh" },
-      { href: "/poojas/lakshmi-puja", label: "Lakshmi Puja" },
+      { href: "/poojas", label: "footer.allPoojas" },
+      { href: "/temple-puja", label: "footer.templeEPuja" },
+      {
+        href: "/poojas/satyanarayan-katha",
+        label: "footer.pooja.satyanarayanKatha",
+      },
+      { href: "/poojas/griha-pravesh", label: "footer.pooja.grihaPravesh" },
+      { href: "/poojas/lakshmi-puja", label: "footer.pooja.lakshmiPuja" },
     ],
   },
   {
-    title: "Shop",
+    title: "footer.shop",
     links: [
-      { href: "/store", label: "Samagri Store" },
-      { href: "/store?category=Puja+Kits", label: "Pooja Kits" },
-      { href: "/store?category=Diyas+%26+Lamps", label: "Diyas & Lamps" },
+      { href: "/store", label: "nav.store" },
+      { href: "/store?category=Puja+Kits", label: "footer.poojaKits" },
+      { href: "/store?category=Diyas+%26+Lamps", label: "footer.diyasLamps" },
     ],
   },
   {
-    title: "Almanac",
+    title: "footer.almanac",
     links: [
-      { href: "/horoscope", label: "Daily Horoscope" },
-      { href: "/kundli", label: "Free Kundli" },
-      { href: "/consultations", label: "Astrology Consultation" },
-      { href: "/muhurat", label: "Shubh Muhurat" },
-      { href: "/panchang", label: "Daily Panchang" },
-      { href: "/choghadiya", label: "Choghadiya" },
-      { href: "/gun-milan", label: "Kundli Matching" },
-      { href: "/festivals", label: "Festivals & Vrats" },
+      { href: "/horoscope", label: "footer.dailyHoroscope" },
+      { href: "/kundli", label: "footer.freeKundli" },
+      { href: "/consultations", label: "footer.astrologyConsultation" },
+      { href: "/muhurat", label: "footer.shubhMuhurat" },
+      { href: "/panchang", label: "footer.dailyPanchang" },
+      { href: "/choghadiya", label: "footer.choghadiya" },
+      { href: "/gun-milan", label: "footer.kundliMatching" },
+      { href: "/festivals", label: "footer.festivalsVrats" },
     ],
   },
   {
-    title: "Company",
+    title: "footer.company",
     links: [
-      { href: "/about", label: "About Us" },
-      { href: "/pandits", label: "Our Pandits" },
-      { href: "/become-a-pandit", label: "Become a Pandit" },
-      { href: "/blog", label: "Blog" },
-      { href: "/contact", label: "Contact" },
+      { href: "/about", label: "footer.aboutUs" },
+      { href: "/pandits", label: "footer.ourPandits" },
+      { href: "/become-a-pandit", label: "footer.becomeAPandit" },
+      { href: "/blog", label: "footer.blog" },
+      { href: "/contact", label: "footer.contact" },
     ],
   },
   {
-    title: "Policies",
+    title: "footer.policies",
     links: [
-      { href: "/terms", label: "Terms & Conditions" },
-      { href: "/privacy", label: "Privacy Policy" },
-      { href: "/refund-policy", label: "Refund & Cancellation" },
+      { href: "/terms", label: "footer.terms" },
+      { href: "/privacy", label: "footer.privacy" },
+      { href: "/refund-policy", label: "footer.refund" },
     ],
   },
 ];
 
 export default function Footer() {
   const t = useT();
+  const columns = COLUMNS.map((col) => ({
+    key: col.title,
+    title: t(col.title),
+    links: col.links.map((l) => ({ href: l.href, label: t(l.label) })),
+  }));
   return (
     <footer className="mt-auto border-t border-saffron-100 bg-maroon-700 text-cream-100">
       <div className="mx-auto max-w-6xl px-4 py-3 sm:px-6">
@@ -79,7 +96,7 @@ export default function Footer() {
           </div>
 
           {columns.map((col) => (
-            <div key={col.title}>
+            <div key={col.key}>
               <h2 className="font-heading text-sm text-gold-400">
                 {col.title}
               </h2>
@@ -101,7 +118,7 @@ export default function Footer() {
 
         <div className="mt-5 flex flex-col items-center justify-between gap-3 border-t border-white/10 pt-6 text-xs text-cream-100/60 sm:flex-row">
           <p>{t("footer.rights", { year: new Date().getFullYear() })}</p>
-          <p>Made with devotion in India 🇮🇳</p>
+          <p>{t("footer.madeWithDevotion")}</p>
         </div>
       </div>
     </footer>
