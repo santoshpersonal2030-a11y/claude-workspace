@@ -13,6 +13,12 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
   ]),
+  // qa/ holds standalone CommonJS Node scripts, not application code. They are run directly
+  // with `node qa/checks.js` and are never bundled, so require() is the correct form there.
+  {
+    files: ["qa/**/*.js"],
+    rules: { "@typescript-eslint/no-require-imports": "off" },
+  },
 ]);
 
 export default eslintConfig;

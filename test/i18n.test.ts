@@ -33,7 +33,10 @@ test("every Hindi key is also present in English (no orphan keys)", () => {
 test("isLocale guards the supported set", () => {
   assert.equal(isLocale("en"), true);
   assert.equal(isLocale("hi"), true);
+  assert.equal(isLocale("te"), true);
   assert.equal(isLocale("fr"), false);
   assert.equal(isLocale(undefined), false);
-  assert.equal(LOCALES.length, 2);
+  // Telugu was added after this test was written; the assertion said 2 and had been
+  // failing ever since. The code is right — en, hi, te — and the test was stale.
+  assert.equal(LOCALES.length, 3);
 });
