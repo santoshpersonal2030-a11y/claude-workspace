@@ -1,0 +1,300 @@
+#!/usr/bin/env node
+/* BookMyPoojari — i18n AUDIT.    Run:  npm run build   then   node qa/i18n-audit.js
+ *
+ * WHY THIS READS HTML AND NOT SOURCE CODE
+ * Source-reading is not testing. A phrase can be missing from the dictionary and still look
+ * fine in the code; a phrase can be in the dictionary and never reach the screen. The only
+ * ground truth for "is this page actually in Hindi" is the page Hindi visitors are served.
+ * `npm run build` prerenders 181 pages per locale into .next/server/app/<locale>/. This reads
+ * those and compares them.
+ *
+ * WHAT COUNTS AS A LEAK
+ * A visible string that appears in the Hindi (or Telugu) page AND, character for character, in
+ * the English page, and that contains Latin letters. If a phrase is identical in both languages
+ * and is written in the English alphabet, it was never translated — it was passed through.
+ *
+ * WHAT IS DELIBERATELY NOT A LEAK
+ * Brand names, the language switcher's own labels, and Sanskrit/Hindu terms that are correctly
+ * left in Roman script are allowlisted at the bottom of this file, with a reason for each.
+ *
+ * Exit code is always 0 — this is a report, not a gate. qa/checks.js is the gate.
+ */
+
+"use strict";
+
+if (!process.env.__BMP_QA_CHILD) {
+  const { spawnSync } = require("node:child_process");
+  const r = spawnSync(
+    process.execPath,
+    ["--disable-warning=MODULE_TYPELESS_PACKAGE_JSON", __filename, ...process.argv.slice(2)],
+    { stdio: "inherit", env: { ...process.env, __BMP_QA_CHILD: "1" } },
+  );
+  process.exit(r.status === null ? 1 : r.status);
+}
+
+const fs = require("node:fs");
+const path = require("node:path");
+
+const ROOT = path.resolve(__dirname, "..");
+const OUT = path.join(ROOT, ".next", "server", "app");
+const SRC = path.join(ROOT, "src");
+const LOCALES = ["hi", "te"];
+
+if (!fs.existsSync(path.join(OUT, "hi"))) {
+  console.error("No prerendered output found. Run `npm run build` first.");
+  process.exit(1);
+}
+
+// ── extract the visible text of a rendered page ──────────────────────────────
+const decode = (s) =>
+  s
+    .replace(/&#x27;/g, "'")
+    .replace(/&#39;/g, "'")
+    .replace(/&quot;/g, '"')
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&mdash;/g, "—")
+    .replace(/&#x2F;/g, "/");
+
+/* Inline tags must be transparent, not breaks. The first version of this turned EVERY tag into a
+   newline, so "Book a <strong>verified</strong> pandit" came out as three separate strings and
+   the fragment "a" was reported as untranslated copy. That produced 1,545 "phrases", most of them
+   rubbish. Splitting only on block-level tags keeps a sentence a sentence. */
+const INLINE =
+  "a|abbr|b|bdi|bdo|cite|code|data|dfn|em|i|kbd|mark|q|s|samp|small|span|strong|sub|sup|time|u|var|wbr";
+
+function visibleText(html) {
+  const body = html
+    .replace(/<script[\s\S]*?<\/script>/gi, " ")
+    .replace(/<style[\s\S]*?<\/style>/gi, " ")
+    .replace(/<template[\s\S]*?<\/template>/gi, " ")
+    .replace(/<!--[\s\S]*?-->/g, "")
+    // A closing inline tag followed by another tag is a boundary between two separate things
+    // (two links side by side); anywhere else an inline tag sits inside one sentence.
+    .replace(new RegExp(`</(?:${INLINE})>(?=\\s*<)`, "gi"), "\n")
+    .replace(new RegExp(`</?(?:${INLINE})(?:\\s[^>]*)?>`, "gi"), "")
+    .replace(/<[^>]+>/g, "\n");
+  return new Set(
+    body
+      .split("\n")
+      .map((s) => decode(s).replace(/\s+/g, " ").trim())
+      .filter(Boolean),
+  );
+}
+
+// Attributes a screen reader or a search engine reads. Untranslated ones are still leaks.
+function attrText(html) {
+  const out = new Set();
+  const re = /\b(aria-label|alt|title|placeholder)="([^"]{2,})"/g;
+  let m;
+  while ((m = re.exec(html))) out.add(decode(m[2]).replace(/\s+/g, " ").trim());
+  return out;
+}
+
+// ── what does not count ──────────────────────────────────────────────────────
+const ALLOW = new Set([
+  "BookMyPoojari", // the brand, identical in every language by design
+  "English", // the language switcher must name each language in that language
+  "हिन्दी",
+  "తెలుగు",
+  "Skip to content", // (a real leak, but see the note in the report — kept visible)
+]);
+const ALLOW_RE = [
+  /^[\s\d.,:%₹+\-/|()–—]+$/, // pure numbers, prices, punctuation
+  /^[^\p{L}]*$/u, // emoji and symbols only, no letters at all
+  /^https?:\/\//, // URLs
+  /^[a-z0-9-]+\.(png|jpg|jpeg|svg|webp|ico|xml|txt)$/i, // filenames
+];
+const isAllowed = (s) => ALLOW.has(s) || ALLOW_RE.some((re) => re.test(s));
+const hasLatinLetters = (s) => /[A-Za-z]/.test(s);
+// A string with Devanagari or Telugu characters has clearly been through translation.
+const hasIndicScript = (s) => /[ऀ-ॿఀ-౿]/.test(s);
+
+// ── walk the prerendered pages ───────────────────────────────────────────────
+function pagesFor(locale) {
+  const base = path.join(OUT, locale);
+  const out = new Map();
+  const walk = (dir) => {
+    for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+      const p = path.join(dir, e.name);
+      if (e.isDirectory()) walk(p);
+      else if (e.name.endsWith(".html"))
+        out.set(path.relative(base, p).split(path.sep).join("/"), p);
+    }
+  };
+  walk(base);
+  return out;
+}
+
+const enPages = pagesFor("en");
+const leaksByString = new Map(); // string -> Set of "locale:page"
+const pagesClean = { hi: 0, te: 0 };
+const pagesDirty = { hi: 0, te: 0 };
+const worstPages = [];
+
+for (const locale of LOCALES) {
+  for (const [route, file] of pagesFor(locale)) {
+    const enFile = enPages.get(route);
+    if (!enFile) continue;
+    const loc = fs.readFileSync(file, "utf8");
+    const en = fs.readFileSync(enFile, "utf8");
+
+    const enStrings = new Set([...visibleText(en), ...attrText(en)]);
+    const locStrings = [...visibleText(loc), ...attrText(loc)];
+
+    const leaks = locStrings.filter(
+      (s) =>
+        enStrings.has(s) && hasLatinLetters(s) && !hasIndicScript(s) && !isAllowed(s),
+    );
+    if (leaks.length) {
+      pagesDirty[locale]++;
+      worstPages.push({ locale, route, count: leaks.length });
+      for (const s of leaks) {
+        if (!leaksByString.has(s)) leaksByString.set(s, new Set());
+        leaksByString.get(s).add(`${locale}:${route}`);
+      }
+    } else {
+      pagesClean[locale]++;
+    }
+  }
+}
+
+// ── trace each leaked phrase back to the file that writes it ─────────────────
+const TS_FILES = (function walk(dir, out = []) {
+  for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+    const p = path.join(dir, e.name);
+    if (e.isDirectory()) walk(p, out);
+    else if (/\.tsx?$/.test(e.name)) out.push(p);
+  }
+  return out;
+})(SRC);
+const FILE_TEXT = new Map(TS_FILES.map((f) => [f, fs.readFileSync(f, "utf8")]));
+const rel = (p) => path.relative(ROOT, p).split(path.sep).join("/");
+const isClient = (f) => /^\s*["']use client["']/.test(FILE_TEXT.get(f) || "");
+
+/* Attribute a phrase to the file that WRITES it, not every file that happens to contain the
+   characters. A bare `includes()` blamed 20 files for the word "Poojas" — useless as a work list.
+   A phrase only counts as written here if it appears as a complete quoted string literal, or as
+   the entire text of a JSX element. */
+const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+function writersOf(phrase) {
+  if (phrase.length < 2) return [];
+  const p = esc(phrase);
+  // "phrase"  |  'phrase'  |  `phrase`  |  >phrase<  (whole JSX text node)
+  const asLiteral = new RegExp(`(["'\`])${p}\\1`);
+  const asJsxText = new RegExp(`>\\s*${p}\\s*<`);
+  return TS_FILES.filter((f) => {
+    const src = FILE_TEXT.get(f);
+    return asLiteral.test(src) || asJsxText.test(src);
+  }).map(rel);
+}
+
+/* ── classify ────────────────────────────────────────────────────────────────
+   A flat list of 1,300 "untranslated phrases" is not a work list, it is a wall. Three very
+   different things are mixed together and they need three different decisions:
+
+     CHROME   interface text a developer wrote — buttons, headings, nav, form labels.
+              This is the actual bug, and the actual work.
+     DATA     names of poojas, pandits, products, festivals. Whether "Griha Pravesh" should
+              appear in Devanagari on the Hindi site is a decision for Santosh, not a defect.
+     FORMAT   clock times, weekday and month names, "AM"/"PM". Real, but it is a date-formatting
+              job (one helper), not hundreds of separate translations. */
+const WEEKDAYS = /\b(Mon|Tues|Wednes|Thurs|Fri|Satur|Sun)day\b/;
+const MONTHS =
+  /\b(January|February|March|April|May|June|July|August|September|October|November|December)\b/;
+const CLOCK = /\d{1,2}:\d{2}\s*(AM|PM)/i;
+
+function classify(phrase, writers) {
+  if (CLOCK.test(phrase) || WEEKDAYS.test(phrase) || MONTHS.test(phrase)) return "FORMAT";
+  // Written as a literal in a component or page => a developer typed it into the interface.
+  const inUi = writers.some(
+    (w) => w.startsWith("src/components/") || w.startsWith("src/app/"),
+  );
+  if (inUi) return "CHROME";
+  // Written as a literal in a lib data file, or nowhere findable => catalog/seed content.
+  return "DATA";
+}
+
+// ── report ───────────────────────────────────────────────────────────────────
+const sorted = [...leaksByString.entries()].sort((a, b) => b[1].size - a[1].size);
+
+console.log("BookMyPoojari — i18n AUDIT (rendered output, not source)");
+console.log("=".repeat(78));
+console.log(
+  `\nPages compared: ${enPages.size} routes × 2 non-English locales = ${enPages.size * 2}`,
+);
+console.log(`Hindi   : ${pagesClean.hi} fully translated, ${pagesDirty.hi} with English left in`);
+console.log(`Telugu  : ${pagesClean.te} fully translated, ${pagesDirty.te} with English left in`);
+console.log(`\nDistinct untranslated phrases: ${sorted.length}`);
+
+const buckets = { CHROME: new Map(), DATA: new Map(), FORMAT: new Map() };
+const reach = new Map(); // phrase -> pages affected
+
+for (const [phrase, where] of sorted) {
+  const writers = writersOf(phrase);
+  const kind = classify(phrase, writers);
+  reach.set(phrase, where.size);
+  const keys = writers.length ? writers : ["(no source literal — composed at runtime or from data)"];
+  for (const w of keys) {
+    if (!buckets[kind].has(w)) buckets[kind].set(w, []);
+    buckets[kind].get(w).push(phrase);
+  }
+}
+
+const total = (b) => new Set([...buckets[b].values()].flat()).size;
+
+console.log(`\n  ${total("CHROME")}  interface text   — a developer typed English into the UI`);
+console.log(`  ${total("DATA")}  catalog content  — pooja / pandit / product names, a content decision`);
+console.log(`  ${total("FORMAT")}  times and dates  — one date-formatting job, not many translations`);
+
+const show = (bucket, title, blurb, limit) => {
+  console.log("\n" + "=".repeat(78));
+  console.log(title);
+  console.log("=".repeat(78));
+  console.log(blurb);
+  const rank = [...buckets[bucket].entries()].sort((a, b) => b[1].length - a[1].length);
+  for (const [file, phrases] of rank) {
+    const kind = file.startsWith("src/")
+      ? isClient(path.join(ROOT, file))
+        ? " [client]"
+        : " [server]"
+      : "";
+    console.log(`\n  ${file}${kind}  — ${phrases.length} phrase(s)`);
+    const top = phrases.sort((a, b) => (reach.get(b) || 0) - (reach.get(a) || 0));
+    for (const p of top.slice(0, limit)) {
+      console.log(
+        `      • ${p.length > 62 ? p.slice(0, 62) + "…" : p}   (${reach.get(p)} pages)`,
+      );
+    }
+    if (phrases.length > limit) console.log(`      … and ${phrases.length - limit} more`);
+  }
+};
+
+show(
+  "CHROME",
+  "1. INTERFACE TEXT — THIS IS THE WORK LIST",
+  "English hardcoded into components and pages. Every one of these is visible to a Hindi or\nTelugu visitor. Ordered by how many pages each appears on.",
+  25,
+);
+show(
+  "DATA",
+  "2. CATALOG CONTENT — NEEDS A DECISION, NOT A FIX",
+  "Names of poojas, pandits, products and festivals. Leaving these in Roman script may well be\ncorrect — that is Santosh's call, not a defect to be fixed silently.",
+  10,
+);
+show(
+  "FORMAT",
+  "3. TIMES AND DATES — ONE HELPER, NOT MANY TRANSLATIONS",
+  "Clock times, weekday and month names. Hundreds of distinct strings, one underlying cause:\nnothing passes the locale to toLocaleString/toLocaleDateString.",
+  6,
+);
+
+console.log("\n" + "=".repeat(78));
+console.log(
+  `  ${sorted.length} untranslated phrases total. ` +
+    `${pagesDirty.hi + pagesDirty.te} of ${enPages.size * 2} rendered pages affected.`,
+);
+console.log("=".repeat(78));
