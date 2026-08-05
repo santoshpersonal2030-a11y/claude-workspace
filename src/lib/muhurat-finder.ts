@@ -16,6 +16,8 @@ import {
   CEREMONY_RULES,
 } from "./muhurat-engine.ts";
 import { poojas } from "./poojas.ts";
+import { localizePooja } from "./poojas-i18n.ts";
+import type { Locale } from "./i18n.ts";
 
 /* Public-facing muhurat finder.
  *
@@ -35,16 +37,24 @@ import { poojas } from "./poojas.ts";
 
 export type MuhuratCeremony = { slug: string; name: string; poojaName: string; emoji: string };
 
-// The 14 ceremonies the engine has real rules for. Every key is also a pooja slug, so every
-// result can link to something bookable — verified, not assumed.
-export function muhuratCeremonies(): MuhuratCeremony[] {
+/* The 14 ceremonies the engine has real rules for. Every key is also a pooja slug, so every
+ * result can link to something bookable — verified, not assumed.
+ *
+ * `locale` matters: the pooja catalog is fully translated in poojas-i18n.ts, and the first
+ * version of this ignored it. The ceremony dropdown therefore read "Vivah (Wedding)" on the Hindi
+ * page when विवाह was one function call away — on a page whose whole point is to be usable in
+ * Hindi and Telugu. Nothing caught it: the dictionary was complete, the build was green, and the
+ * i18n audit only reads PRERENDERED pages, which this dynamic one is not. qa/live-audit.js found
+ * it within a minute of existing. */
+export function muhuratCeremonies(locale: Locale = "en"): MuhuratCeremony[] {
   return Object.entries(CEREMONY_RULES).map(([slug, rules]) => {
     const pooja = poojas.find((p) => p.slug === slug);
+    const localized = pooja ? localizePooja(pooja, locale) : undefined;
     return {
       slug,
       name: rules.name,
-      poojaName: pooja?.name ?? rules.name,
-      emoji: pooja?.emoji ?? "🕉️",
+      poojaName: localized?.name ?? rules.name,
+      emoji: localized?.emoji ?? "🕉️",
     };
   });
 }

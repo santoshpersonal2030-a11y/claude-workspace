@@ -1262,6 +1262,56 @@ async function festivalChecks() {
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
+function auditCoverageChecks() {
+  head("15. AUDIT COVERAGE — the tools must not go blind again");
+  /* Both audits read PRERENDERED html, which is 33 of the 98 page routes. The other 65 are
+     server-rendered on demand and were checked by nothing — while the accessibility audit printed
+     a confident "0 instances". Silent about two thirds of the site and sounding definitive is the
+     worst shape a check can have. qa/live-audit.js covers them against a running server. */
+  const rules = read(path.join(ROOT, "qa", "a11y-rules.js"));
+  const a11y = read(path.join(ROOT, "qa", "a11y-audit.js"));
+  const live = read(path.join(ROOT, "qa", "live-audit.js"));
+
+  line(rules.length > 1000, "the accessibility rules live in one shared file", `${rules.length} chars`);
+  line(live.length > 1000, "the live audit exists", `${live.length} chars`);
+  line(
+    a11y.includes('require("./a11y-rules.js")') && live.includes('require("./a11y-rules.js")'),
+    "both audits import the SAME rules rather than keeping copies",
+  );
+  /* Two copies of a rule drift, and then the two reports disagree and nobody knows which to
+     believe. This asserts the rule bodies exist in exactly one place. */
+  const ruleNames = ["control-no-label", "aria-hidden-focusable", "no-aria-expanded"];
+  for (const r of ruleNames) {
+    const inRules = rules.includes(`"${r}"`);
+    const inAudit = a11y.includes(`add("${r}"`) || live.includes(`add("${r}"`);
+    line(inRules && !inAudit, `rule "${r}" is defined once, in a11y-rules.js`);
+  }
+
+  line(
+    /Could not reach|process\.exit\(1\)/.test(live),
+    "the live audit refuses to report a clean run when the server is down",
+  );
+  line(
+    live.includes("CONTENT IS STILL UNAUDITED"),
+    "it names the logged-in pages it could NOT check instead of hiding them in the total",
+  );
+  line(
+    /returned 200 to a signed-out stranger/.test(live),
+    "it treats an auth-gated page answering 200 as a finding",
+  );
+  line(
+    a11y.includes("qa/live-audit.js"),
+    "the prerendered audit points at the live one for the routes it cannot see",
+  );
+
+  control(rules.includes("auditHtml"), "the shared module exports the rule runner");
+  control(
+    !read(path.join(ROOT, "qa", "a11y-rules.js")).includes("readFileSync"),
+    "the shared rules are pure — no filesystem, so both callers can use them",
+  );
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
 function kycChecks() {
   head("7. KYC — the plaintext ID must not reach the database (regression lock only)");
   /* READ-ONLY. Hardening KYC is explicitly out of scope and needs a decision from Santosh.
@@ -1307,6 +1357,7 @@ function kycChecks() {
   codGuestChecks();
   muhuratFinderChecks();
   await festivalChecks();
+  auditCoverageChecks();
   kycChecks();
 
   console.log("\n" + "=".repeat(70));

@@ -24,6 +24,27 @@ test("every ceremony the finder offers is a real, bookable pooja", () => {
   }
 });
 
+test("the ceremony list is translated, not left in English", () => {
+  /* qa/live-audit.js found this the minute it existed: the dropdown read "Vivah (Wedding)" on the
+     Hindi page while विवाह sat unused in poojas-i18n.ts. Nothing else could see it — the
+     dictionary was complete, the build was green, and the i18n audit only reads prerendered
+     pages, which this dynamic one is not. */
+  const DEVANAGARI = /[ऀ-ॿ]/;
+  const TELUGU = /[ఀ-౿]/;
+  const en = muhuratCeremonies("en");
+  const hi = muhuratCeremonies("hi");
+  const te = muhuratCeremonies("te");
+
+  assert.equal(hi.length, en.length);
+  const hiTranslated = hi.filter((c) => DEVANAGARI.test(c.poojaName)).length;
+  const teTranslated = te.filter((c) => TELUGU.test(c.poojaName)).length;
+  assert.equal(hiTranslated, en.length, `only ${hiTranslated}/${en.length} ceremony names in Hindi`);
+  assert.equal(teTranslated, en.length, `only ${teTranslated}/${en.length} ceremony names in Telugu`);
+
+  // Control: English must NOT be in an Indic script, or the assertions above prove nothing.
+  assert.equal(en.filter((c) => DEVANAGARI.test(c.poojaName) || TELUGU.test(c.poojaName)).length, 0);
+});
+
 test("cities are the engine's cities", () => {
   const cities = muhuratCities();
   assert.equal(cities.length, 14);

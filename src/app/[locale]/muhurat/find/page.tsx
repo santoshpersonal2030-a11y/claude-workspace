@@ -66,7 +66,7 @@ export default async function MuhuratFinderPage({
   const city = isKnownCity(sp.city ?? "") ? sp.city! : DEFAULT_CITY;
   const months = MONTH_CHOICES.includes(Number(sp.months)) ? Number(sp.months) : 6;
 
-  const ceremonies = muhuratCeremonies();
+  const ceremonies = muhuratCeremonies(loc);
   const cities = muhuratCities();
   const chosen = ceremonies.find((c) => c.slug === ceremony)!;
 
