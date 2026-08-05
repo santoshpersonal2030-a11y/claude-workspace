@@ -14,6 +14,11 @@
  *   - Anything that only exists after a click: open drawers, dropdown menus, dialogs, toasts.
  *     Those are the highest-risk surfaces for keyboard traps and are NOT covered here.
  *   - Focus order and focus visibility, which need a real browser.
+ *   - DYNAMIC PAGES. This reads .next/server/app, which only holds PRERENDERED html. A route the
+ *     build marks `ƒ` (server-rendered on demand) leaves no file here and is therefore invisible
+ *     to this audit — including /[locale]/muhurat/find, added 05-Aug-2026, and every account,
+ *     admin and priest page. The "181 pages scanned" line is real but it is not the whole site.
+ *     Those pages need checking against a running server instead.
  *   - LAYOUT REFLOW (WCAG 1.4.10). Added to this list on 05-Aug-2026 after a browser found that
  *     every page on the site scrolls sideways at 360px wide — the header needs 436px and clips
  *     the ☰ menu button off the right edge. That is a CSS problem that only exists once a page

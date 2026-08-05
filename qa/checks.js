@@ -115,10 +115,14 @@ control(
 // ══════════════════════════════════════════════════════════════════════════════
 head("1. ROUTE INVENTORY — nothing may silently disappear");
 /* A route vanishing is invisible: the build still goes green, there is just one fewer page.
-   These are the counts as built and verified on 05-Aug-2026 against `npm run build`, which
-   printed 96 page routes, 49 API routes and the 3 root files. */
+   These are the counts as built and verified on 05-Aug-2026 against `npm run build`.
+
+   BASELINE CHANGED 05-Aug-2026: 96 → 97 pages, on purpose. `/[locale]/muhurat/find` was added.
+   This check caught the change and failed, which is the whole point of it — the number moves only
+   when someone writes a new number here and says why. A route disappearing produces exactly the
+   same failure, and that is the case this exists for. */
 const EXPECTED = {
-  pages: 96,
+  pages: 97,
   apiRoutes: 49,
   authRoutes: 2,
   layouts: 3,
@@ -137,7 +141,7 @@ const authRoutes = relFiles.filter(
 );
 const layouts = relFiles.filter((f) => /^src\/app\/.*layout\.tsx$/.test(f));
 
-line(pages.length === EXPECTED.pages, "96 page routes present", `found ${pages.length}`);
+line(pages.length === EXPECTED.pages, "97 page routes present", `found ${pages.length}`);
 line(
   apiRoutes.length === EXPECTED.apiRoutes,
   "49 API routes present",
@@ -981,6 +985,67 @@ function codGuestChecks() {
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
+function muhuratFinderChecks() {
+  head("13. MUHURAT FINDER — the engine is wired to a public page");
+  /* muhurat-engine.ts could do all of this since June; the only caller was the admin screen, so a
+     visitor asking "which dates are auspicious for my wedding?" got an empty page. These lock in
+     that the public route exists, that it cannot be talked into nonsense by a URL, and — the one
+     that matters most — that the honesty note is still on the page. A computed muhurat presented
+     as authoritative is the single way this feature could do real harm. */
+  const finder = strip(read(path.join(SRC, "lib", "muhurat-finder.ts")));
+  const page = strip(read(path.join(APP, "[locale]", "muhurat", "find", "page.tsx")));
+
+  line(finder.length > 500, "the finder library exists", `${finder.length} chars`);
+  line(page.length > 500, "the public /muhurat/find page exists", `${page.length} chars`);
+
+  line(
+    finder.includes("isKnownCeremony") && page.includes("isKnownCeremony"),
+    "the page validates the ceremony from the URL instead of trusting it",
+  );
+  line(
+    page.includes("isKnownCity"),
+    "the page validates the city from the URL instead of trusting it",
+  );
+  line(
+    /MONTH_CHOICES\.includes\(Number\(sp\.months\)\)/.test(page),
+    "the look-ahead is restricted to the offered values",
+  );
+  /* Matched on the whole `const months = …` line rather than with a nested-paren pattern. The
+     first version used `[^)]*`, which cannot cross the `)` inside `Math.floor(opts.months)`, so
+     it reported correctly-clamped code as unclamped. Second time tonight that `[^)]*` has lied. */
+  const monthsLine = (finder.match(/^\s*const months = .*$/m) || [""])[0];
+  line(
+    monthsLine.includes("Math.min") && monthsLine.includes("MAX_MONTHS"),
+    "the finder clamps the range, so a hand-typed URL cannot pin the CPU",
+    monthsLine.trim().slice(0, 70),
+  );
+  line(
+    finder.includes("true, // strict"),
+    "only dates passing every rule are offered — never a near-miss",
+  );
+
+  // The disclaimer. Checked in the DICTIONARY as well as the page, because a key that exists but
+  // is never rendered, and a render of a key that does not exist, look identical from one side.
+  line(page.includes('t("mf.disclaimer")'), "the page renders the honesty note");
+  const dict = read(path.join(SRC, "lib", "i18n.ts"));
+  const disclaimers = (dict.match(/"mf\.disclaimer":/g) || []).length;
+  line(
+    disclaimers === EXPECTED.locales,
+    "the honesty note is written in all three languages",
+    `found ${disclaimers} of ${EXPECTED.locales}`,
+  );
+
+  control(
+    !/MONTH_CHOICES\.includes\(Number\(sp\.months\)\)/.test("const months = Number(sp.months);"),
+    "the range detector rejects a page that takes months straight from the URL",
+  );
+  control(
+    ('{"mf.disclaimer": "a"}'.match(/"mf\.disclaimer":/g) || []).length === 1,
+    "the disclaimer counter counts one occurrence as one",
+  );
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
 function kycChecks() {
   head("7. KYC — the plaintext ID must not reach the database (regression lock only)");
   /* READ-ONLY. Hardening KYC is explicitly out of scope and needs a decision from Santosh.
@@ -1024,6 +1089,7 @@ function kycChecks() {
   sitemapChecks();
   stockChecks();
   codGuestChecks();
+  muhuratFinderChecks();
   kycChecks();
 
   console.log("\n" + "=".repeat(70));

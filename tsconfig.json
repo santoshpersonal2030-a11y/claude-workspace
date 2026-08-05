@@ -11,6 +11,14 @@
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
+    // Lets a file in src/lib import another with an explicit ".ts" extension.
+    // `npm test` runs these files straight through node, which requires the extension on a
+    // relative import; TypeScript forbids it unless this is on. Without it, any lib that imports
+    // another lib simply cannot be unit-tested — which is why every tested file in src/lib until
+    // now was either dependency-free or imported types only. Safe here because `noEmit` is set,
+    // so nothing is ever emitted with a .ts specifier left in it. It permits the extension; it
+    // does not require it, so no existing import changes.
+    "allowImportingTsExtensions": true,
     "jsx": "react-jsx",
     "incremental": true,
     "plugins": [

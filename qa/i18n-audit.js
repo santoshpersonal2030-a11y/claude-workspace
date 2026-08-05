@@ -17,6 +17,11 @@
  * Brand names, the language switcher's own labels, and Sanskrit/Hindu terms that are correctly
  * left in Roman script are allowlisted at the bottom of this file, with a reason for each.
  *
+ * BLIND SPOT — DYNAMIC PAGES. This compares PRERENDERED html. A route the build marks `ƒ`
+ * (server-rendered on demand) writes no file into .next/server/app and so is not compared at all:
+ * /[locale]/muhurat/find, plus every account, admin and priest page. The counts below are honest
+ * about the 181 pages they cover and say nothing about the rest.
+ *
  * Exit code is always 0 — this is a report, not a gate. qa/checks.js is the gate.
  */
 

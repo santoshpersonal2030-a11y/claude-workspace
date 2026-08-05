@@ -108,6 +108,35 @@ const en: Dict = {
   "cart.stockOnlyLeft": "{name}: only {n} left",
   "cart.stockSoldOut": "{name} is sold out",
 
+  // Muhurat finder. NOTE: the Hindi and Telugu here were written by Claude, not a translator —
+  // see the appendix in NIGHT-SHIFT-LOG.md. The religious vocabulary (muhurat, nakshatra, tithi,
+  // Rahu Kalam) is deliberately left in its usual transliterated form in all three languages,
+  // because that is what people actually say and search for.
+  "mf.h1": "Find an auspicious date",
+  "mf.subtitle":
+    "Choose your ceremony and city, and we will work out the auspicious dates from the panchang — then book a verified Pandit for the one you pick.",
+  "mf.ceremony": "Ceremony",
+  "mf.city": "City",
+  "mf.lookAhead": "Look ahead",
+  "mf.monthsN": "{n} months",
+  "mf.submit": "Show dates",
+  "mf.found": "{n} auspicious dates for {ceremony} in {city}",
+  "mf.none": "No auspicious dates in this period",
+  "mf.noneHint":
+    "The strict rules for this ceremony rule out every date in the range you chose. Try looking further ahead, or ask us and a Pandit will advise.",
+  "mf.window": "Auspicious window",
+  "mf.avoid": "Avoid Rahu Kalam",
+  "mf.overlapNote":
+    "This window falls inside Rahu Kalam. Abhijit Muhurat is held to override it, but confirm with your Pandit.",
+  "mf.book": "Book {name}",
+  "mf.tierExcellent": "Excellent",
+  "mf.tierGood": "Good",
+  "mf.tierFair": "Fair",
+  "mf.score": "{n}/100",
+  "mf.disclaimer":
+    "These dates are calculated from the panchang for your city. They are a starting point, not a substitute for your family Pandit — always confirm before fixing a ceremony.",
+  "mf.seePublished": "See the muhurats our astrologer has published",
+
   // Homepage — trust stats
   "home.trust.pandits": "Verified Pandits",
   "home.trust.poojas": "Poojas Performed",
@@ -867,6 +896,31 @@ const hi: Dict = {
   "cart.stockOnlyLeft": "{name}: केवल {n} बचे",
   "cart.stockSoldOut": "{name} बिक चुका है",
 
+  "mf.h1": "शुभ तिथि खोजें",
+  "mf.subtitle":
+    "अपना संस्कार और शहर चुनें — हम पंचांग से शुभ तिथियाँ निकाल देंगे, और आप जो तिथि चुनें उसके लिए सत्यापित पंडित बुक कर सकते हैं।",
+  "mf.ceremony": "संस्कार",
+  "mf.city": "शहर",
+  "mf.lookAhead": "अवधि",
+  "mf.monthsN": "{n} महीने",
+  "mf.submit": "तिथियाँ दिखाएँ",
+  "mf.found": "{city} में {ceremony} के लिए {n} शुभ तिथियाँ",
+  "mf.none": "इस अवधि में कोई शुभ तिथि नहीं",
+  "mf.noneHint":
+    "इस संस्कार के कठोर नियमों के अनुसार आपकी चुनी हुई अवधि में कोई तिथि उपयुक्त नहीं है। कृपया आगे की अवधि देखें, या हमसे पूछें — पंडित जी सलाह देंगे।",
+  "mf.window": "शुभ समय",
+  "mf.avoid": "राहु काल से बचें",
+  "mf.overlapNote":
+    "यह समय राहु काल के भीतर आता है। अभिजित मुहूर्त इसे निष्प्रभावी करता है, फिर भी अपने पंडित जी से पुष्टि कर लें।",
+  "mf.book": "{name} बुक करें",
+  "mf.tierExcellent": "उत्तम",
+  "mf.tierGood": "शुभ",
+  "mf.tierFair": "सामान्य",
+  "mf.score": "{n}/100",
+  "mf.disclaimer":
+    "ये तिथियाँ आपके शहर के पंचांग से गणना की गई हैं। ये एक शुरुआत हैं, आपके कुल पुरोहित का विकल्प नहीं — संस्कार तय करने से पहले सदैव पुष्टि कर लें।",
+  "mf.seePublished": "हमारे ज्योतिषी द्वारा प्रकाशित मुहूर्त देखें",
+
   // Homepage — trust stats
   "home.trust.pandits": "सत्यापित पंडित",
   "home.trust.poojas": "पूजाएँ संपन्न",
@@ -1615,6 +1669,31 @@ const te: Dict = {
     "కొన్ని వస్తువులు మీరు ఎంచుకున్న పరిమాణంలో ఇక అందుబాటులో లేవు — {items}. దయచేసి మీ కార్ట్‌ను నవీకరించి మళ్లీ ప్రయత్నించండి.",
   "cart.stockOnlyLeft": "{name}: కేవలం {n} మిగిలాయి",
   "cart.stockSoldOut": "{name} అమ్ముడైపోయింది",
+
+  "mf.h1": "శుభ తేదీని కనుగొనండి",
+  "mf.subtitle":
+    "మీ సంస్కారాన్ని మరియు నగరాన్ని ఎంచుకోండి — మేము పంచాంగం నుండి శుభ తేదీలను లెక్కిస్తాము, ఆపై మీరు ఎంచుకున్న తేదీకి ధృవీకరించిన పండితుడిని బుక్ చేసుకోండి.",
+  "mf.ceremony": "సంస్కారం",
+  "mf.city": "నగరం",
+  "mf.lookAhead": "వ్యవధి",
+  "mf.monthsN": "{n} నెలలు",
+  "mf.submit": "తేదీలను చూపించు",
+  "mf.found": "{city}లో {ceremony} కోసం {n} శుభ తేదీలు",
+  "mf.none": "ఈ వ్యవధిలో శుభ తేదీలు లేవు",
+  "mf.noneHint":
+    "ఈ సంస్కారానికి ఉన్న కఠినమైన నియమాల ప్రకారం మీరు ఎంచుకున్న వ్యవధిలో ఏ తేదీ సరిపోవడం లేదు. దయచేసి ముందు వ్యవధిని చూడండి, లేదా మమ్మల్ని అడగండి — పండితులు సలహా ఇస్తారు.",
+  "mf.window": "శుభ సమయం",
+  "mf.avoid": "రాహు కాలాన్ని వదిలివేయండి",
+  "mf.overlapNote":
+    "ఈ సమయం రాహు కాలంలోకి వస్తుంది. అభిజిత్ ముహూర్తం దీనిని అధిగమిస్తుందని చెబుతారు, అయినా మీ పండితుడితో ధృవీకరించుకోండి.",
+  "mf.book": "{name} బుక్ చేయండి",
+  "mf.tierExcellent": "ఉత్తమం",
+  "mf.tierGood": "శుభం",
+  "mf.tierFair": "సాధారణం",
+  "mf.score": "{n}/100",
+  "mf.disclaimer":
+    "ఈ తేదీలు మీ నగరపు పంచాంగం నుండి లెక్కించబడ్డాయి. ఇవి ఒక ప్రారంభం మాత్రమే, మీ కుటుంబ పురోహితుడికి ప్రత్యామ్నాయం కాదు — సంస్కారాన్ని ఖరారు చేసే ముందు తప్పక ధృవీకరించుకోండి.",
+  "mf.seePublished": "మా జ్యోతిష్యుడు ప్రచురించిన ముహూర్తాలను చూడండి",
 
   "home.trust.pandits": "ధృవీకరించిన పండితులు",
   "home.trust.poojas": "నిర్వహించిన పూజలు",
