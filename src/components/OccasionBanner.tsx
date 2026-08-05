@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { localizeFestivalName } from "@/lib/festivals-i18n";
 import type { Occasion } from "@/lib/store-calendar";
+import { formatDate } from "@/lib/dates";
 import { getDictionary, type Locale } from "@/lib/i18n";
 
 /* "Diwali is in 12 days" — the one-line join between the store and the calendar.
@@ -33,10 +34,8 @@ export default function OccasionBanner({
         ? t("sc.countdownTomorrow", { name })
         : t("sc.countdown", { name, n: occasion.daysAway });
 
-  const dateFormat = new Intl.DateTimeFormat(
-    locale === "hi" ? "hi-IN" : locale === "te" ? "te-IN" : "en-IN",
-    { day: "numeric", month: "long", timeZone: "UTC" },
-  );
+  // Shared formatter — see src/lib/dates.ts for why invoices and receipts must NOT use it.
+  const fmt = (iso: string) => formatDate(`${iso}T00:00:00Z`, locale) ?? iso;
 
   return (
     <div className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-2xl border border-saffron-300 bg-saffron-50/70 px-4 py-3">
@@ -48,9 +47,7 @@ export default function OccasionBanner({
 
         {occasion.orderBy && !occasion.tooLateToOrder && (
           <p className="mt-0.5 text-sm text-foreground/70">
-            {t("sc.orderBy", {
-              date: dateFormat.format(new Date(`${occasion.orderBy}T00:00:00Z`)),
-            })}
+            {t("sc.orderBy", { date: fmt(occasion.orderBy) })}
           </p>
         )}
         {occasion.tooLateToOrder && (

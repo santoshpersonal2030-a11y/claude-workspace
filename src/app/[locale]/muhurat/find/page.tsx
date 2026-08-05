@@ -11,6 +11,7 @@ import {
   muhuratCities,
 } from "@/lib/muhurat-finder";
 import { getDictionary, isLocale, DEFAULT_LOCALE, type Translator } from "@/lib/i18n";
+import { formatDateLong } from "@/lib/dates";
 
 /* "Find an auspicious date" — the public face of the muhurat engine.
  *
@@ -73,10 +74,8 @@ export default async function MuhuratFinderPage({
   const today = new Date().toISOString().slice(0, 10);
   const dates = findAuspiciousDates({ ceremony, city, months, today, limit: 40 });
 
-  const dateFormat = new Intl.DateTimeFormat(
-    loc === "hi" ? "hi-IN" : loc === "te" ? "te-IN" : "en-IN",
-    { weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone: "UTC" },
-  );
+  // Shared formatter — see src/lib/dates.ts for why invoices and receipts must NOT use it.
+  const fmtLong = (iso: string) => formatDateLong(`${iso}T00:00:00Z`, loc) ?? iso;
 
   return (
     <>
@@ -208,7 +207,7 @@ export default async function MuhuratFinderPage({
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
                         <p className="font-heading text-lg text-maroon-800">
-                          {dateFormat.format(new Date(`${d.date}T00:00:00Z`))}
+                          {fmtLong(d.date)}
                         </p>
                         <p className="mt-0.5 text-xs text-foreground/65">
                           {d.nakshatra} · {d.tithi}

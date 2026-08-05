@@ -14,6 +14,7 @@ import {
 } from "@/lib/festival-pages";
 import { localizeFestivalName, localizeFestivalPush } from "@/lib/festivals-i18n";
 import { occasionFor, samagriLeadDays } from "@/lib/store-calendar";
+import { formatDate, formatDateLong } from "@/lib/dates";
 import { getPoojaBySlug } from "@/lib/poojas";
 import { getDictionary, isLocale, DEFAULT_LOCALE, LOCALES, type Locale } from "@/lib/i18n";
 import { localizePooja } from "@/lib/poojas-i18n";
@@ -103,14 +104,9 @@ export default async function FestivalPage({
 
   const occasion = occasionFor(festival, today, samagriLeadDays());
 
-  const dateFormat = new Intl.DateTimeFormat(
-    loc === "hi" ? "hi-IN" : loc === "te" ? "te-IN" : "en-IN",
-    { weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone: "UTC" },
-  );
-  const shortDate = new Intl.DateTimeFormat(
-    loc === "hi" ? "hi-IN" : loc === "te" ? "te-IN" : "en-IN",
-    { day: "numeric", month: "long", timeZone: "UTC" },
-  );
+  // Shared formatters — see src/lib/dates.ts for why invoices and receipts must NOT use them.
+  const fmtLong = (iso: string) => formatDateLong(`${iso}T00:00:00Z`, loc) ?? iso;
+  const fmtShort = (iso: string) => formatDate(`${iso}T00:00:00Z`, loc) ?? iso;
 
   const countdown = (() => {
     if (!next) return null;
@@ -172,7 +168,7 @@ export default async function FestivalPage({
                 {t("fp.nextDate", { name })}
               </p>
               <p className="mt-1 font-heading text-2xl text-maroon-800">
-                {dateFormat.format(new Date(`${next}T00:00:00Z`))}
+                {fmtLong(next)}
               </p>
               {countdown && <p className="mt-0.5 text-sm text-foreground/65">{countdown}</p>}
 
@@ -181,7 +177,7 @@ export default async function FestivalPage({
               {occasion?.orderBy && !occasion.tooLateToOrder && (
                 <p className="mt-2 text-sm font-medium text-saffron-800">
                   {t("sc.orderBy", {
-                    date: shortDate.format(new Date(`${occasion.orderBy}T00:00:00Z`)),
+                    date: fmtShort(occasion.orderBy),
                   })}
                 </p>
               )}
@@ -230,7 +226,7 @@ export default async function FestivalPage({
                   >
                     <span className="font-semibold text-maroon-700">{d.slice(0, 4)}</span>
                     <span className="ml-2 text-foreground/75">
-                      {dateFormat.format(new Date(`${d}T00:00:00Z`))}
+                      {fmtLong(d)}
                     </span>
                   </li>
                 ))}

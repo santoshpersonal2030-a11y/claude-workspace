@@ -1336,6 +1336,70 @@ function auditCoverageChecks() {
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
+function dateFormatChecks() {
+  head("16. DATES — localized for readers, FROZEN for documents");
+  /* 978 untranslated strings are dates, all from one cause: every call site hardcoded "en-IN".
+     src/lib/dates.ts fixes that for text a person READS.
+     It must never reach the documents. An invoice, credit note, payslip, booking receipt or GST
+     export is a RECORD: its date format is what a tax authority, an accountant and the customer's
+     own files get reconciled against, and it must be identical for everyone regardless of the
+     language they happen to browse in. Localizing it retrospectively would make previously-issued
+     documents disagree with new ones. */
+  const dates = strip(read(path.join(SRC, "lib", "dates.ts")));
+  line(dates.length > 500, "the shared date helper exists", `${dates.length} chars`);
+  line(
+    /hi:\s*"hi-IN"/.test(dates) && /te:\s*"te-IN"/.test(dates),
+    "it maps every locale to a real Intl locale",
+  );
+  line(
+    /INTL_LOCALE\[locale\] \?\? "en-IN"/.test(dates),
+    "an unknown locale falls back rather than throwing",
+  );
+
+  // The frozen surfaces, by path. Each must still hardcode en-IN and must not import the helper.
+  const FROZEN = [
+    ["lib", "invoice-pdf.ts"],
+    ["lib", "payslip-pdf.ts"],
+    ["lib", "exports.ts"],
+    ["components", "receipts", "BookingReceipt.tsx"],
+    ["components", "receipts", "CreditNote.tsx"],
+  ];
+  let checkedFrozen = 0;
+  for (const parts of FROZEN) {
+    const file = path.join(SRC, ...parts);
+    const text = read(file);
+    if (!text) continue;
+    checkedFrozen++;
+    line(
+      !/from "@\/lib\/dates"/.test(text) && !/require\(".*lib\/dates"\)/.test(text),
+      `${parts[parts.length - 1]} does NOT localize its dates`,
+    );
+  }
+  control(checkedFrozen >= 4, `${checkedFrozen} financial/legal files found and checked`);
+  control(
+    !/from "@\/lib\/dates"/.test('import { formatDate } from "@/lib/other";'),
+    "the frozen-import detector is not fooled by a different module",
+  );
+  control(
+    /from "@\/lib\/dates"/.test('import { formatDate } from "@/lib/dates";'),
+    "the frozen-import detector does catch a real import of the helper",
+  );
+
+  // And the reader-facing surfaces that HAVE been converted must actually use it.
+  for (const parts of [
+    ["app", "[locale]", "festivals", "[slug]", "page.tsx"],
+    ["app", "[locale]", "muhurat", "find", "page.tsx"],
+    ["components", "OccasionBanner.tsx"],
+  ]) {
+    const text = read(path.join(SRC, ...parts));
+    line(
+      /from "@\/lib\/dates"/.test(text),
+      `${parts[parts.length - 2]}/${parts[parts.length - 1]} uses the shared date helper`,
+    );
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
 function kycChecks() {
   head("7. KYC — the plaintext ID must not reach the database (regression lock only)");
   /* READ-ONLY. Hardening KYC is explicitly out of scope and needs a decision from Santosh.
@@ -1382,6 +1446,7 @@ function kycChecks() {
   muhuratFinderChecks();
   await festivalChecks();
   auditCoverageChecks();
+  dateFormatChecks();
   kycChecks();
 
   console.log("\n" + "=".repeat(70));
