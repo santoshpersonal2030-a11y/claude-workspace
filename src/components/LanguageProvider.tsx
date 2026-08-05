@@ -26,10 +26,23 @@ type Ctx = {
   t: (key: string, vars?: Record<string, string | number>) => string;
 };
 
+/* The default value, used only when a component calls useT() outside the provider.
+ *
+ * This used to be `t: (key) => translate(DEFAULT_LOCALE, key)` — it silently dropped the `vars`
+ * argument. A component in that position therefore rendered "Free delivery on orders over
+ * {amount}" with the placeholder still in it, on every page, and nothing failed: not the build,
+ * not the type checker, not the tests. A default that returns something plausible is
+ * indistinguishable from one that works, which is what makes it expensive.
+ *
+ * Forwarding `vars` does not make the fallback correct — a component outside the provider still
+ * answers in English whatever the URL says — but it stops the failure from being a raw
+ * placeholder on screen, and it makes the remaining bug a wrong LANGUAGE rather than visible
+ * template syntax.
+ */
 const LanguageContext = createContext<Ctx>({
   locale: DEFAULT_LOCALE,
   setLocale: () => {},
-  t: (key) => translate(DEFAULT_LOCALE, key),
+  t: (key, vars) => translate(DEFAULT_LOCALE, key, vars),
 });
 
 // Locale is now driven by the URL segment ([locale]) and threaded in from the

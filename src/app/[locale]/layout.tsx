@@ -121,10 +121,17 @@ export default async function RootLayout({
         <SkipLink />
         <Analytics />
         <LiveRegion />
-        <AnnouncementBar />
         <ReferralTracker />
         <ServiceWorkerRegister />
         <Providers locale={locale}>
+          {/* AnnouncementBar MUST be inside Providers. It calls useT(), and outside the provider
+              that hook returns the default context — which always answers in English and cannot
+              see the current locale. It sat out here for as long as its text was hardcoded
+              English, so nothing looked wrong. The moment the copy became translatable the bar
+              stayed stubbornly English on every Hindi and Telugu page.
+              Everything above this line either renders nothing or is visually hidden, so the bar
+              still appears at the very top of the page. SkipLink stays first for tab order. */}
+          <AnnouncementBar />
           {children}
           <InstallPrompt />
           <ConsentBanner />

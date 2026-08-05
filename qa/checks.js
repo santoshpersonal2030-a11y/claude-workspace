@@ -665,7 +665,62 @@ function sitemapChecks() {
     "the /hi detector is not fooled by an unrelated word starting with hi",
   );
 
-  head("9. CANONICAL URLs — no page may claim to be a different page");
+  head("9. PLACEHOLDERS — no {variable} may reach the screen");
+  /* Found by looking at the running site, not by any check that existed at the time. The
+     announcement bar rendered "Free delivery on orders over {amount}" on all 96 pages, in every
+     language, because it is mounted outside the language provider and the provider's default
+     translator quietly discarded the vars argument. Nothing failed: not the build, not the type
+     checker, not the tests, not the i18n audit — the string was equally wrong in all three
+     languages, so a same-in-both-languages test could never see it.
+     This reads the rendered pages and fails on any {word} left in visible text. */
+  const OUT_DIR = path.join(ROOT, ".next", "server", "app");
+  if (!fs.existsSync(OUT_DIR)) {
+    console.log("  skip  no build output — run `npm run build` first");
+  } else {
+    const visibleOf = (html) =>
+      html
+        .slice(html.indexOf("<body"))
+        .replace(/<script[\s\S]*?<\/script>/gi, " ")
+        .replace(/<style[\s\S]*?<\/style>/gi, " ")
+        .replace(/<[^>]+>/g, "\n");
+    // {word} in body text. JSON blobs live inside <script>, which is stripped above.
+    const placeholderRe = /\{[a-z][a-zA-Z0-9_]*\}/g;
+
+    const sampled = [];
+    const walkOut = (dir) => {
+      for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+        const p = path.join(dir, e.name);
+        if (e.isDirectory()) walkOut(p);
+        else if (e.name.endsWith(".html")) sampled.push(p);
+      }
+    };
+    walkOut(OUT_DIR);
+
+    const leaks = new Map(); // placeholder -> count of pages
+    for (const p of sampled) {
+      const found = new Set(visibleOf(read(p)).match(placeholderRe) || []);
+      for (const f of found) leaks.set(f, (leaks.get(f) || 0) + 1);
+    }
+    line(
+      leaks.size === 0,
+      "no untranslated {placeholder} appears in any rendered page",
+      leaks.size
+        ? [...leaks.entries()].map(([k, n]) => `${k} on ${n} pages`).join(", ")
+        : `${sampled.length} rendered pages scanned`,
+    );
+
+    control(
+      (("<body><p>over {amount} today</p>").match(placeholderRe) || []).length === 1,
+      "the placeholder detector catches a planted {amount}",
+    );
+    control(
+      (("<body><p>a css rule { color: red } here</p>").match(placeholderRe) || []).length === 0,
+      "the placeholder detector is not fooled by braces with spaces inside",
+    );
+    control(sampled.length > 300, `${sampled.length} rendered pages available to scan`);
+  }
+
+  head("10. CANONICAL URLs — no page may claim to be a different page");
   /* Read from the rendered HTML. Until 05-Aug-2026 the root layout set the canonical URL, and a
      layout cannot know which page is rendering — so every one of the 96 pages declared itself
      canonical to the site root. To a search engine that reads as "these are all the same page",
