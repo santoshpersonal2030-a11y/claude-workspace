@@ -176,9 +176,26 @@ Being clear about this is as useful as the list above.
 
 ---
 
-## One thing to weigh before any of it
+## Where this actually stands — updated 05-Aug-2026
 
-Per the 04-Aug decision this project waits for 2027, and IC-38 is 2026's only project. **Nothing
-in this document changes that**, and it is not meant to. It is written so the thinking exists when
-you come back to it — and so that the wedding-muhurat engine, which is genuinely valuable and
-genuinely finished, is not forgotten inside a file nobody opens.
+An earlier version of this section said the project waits for 2027. **That is no longer the
+position.** Santosh: *"i want to build it and keep it and if i get time and people i might launch
+it."*
+
+So this list is a live backlog, not a memento. But "build it and keep it launch-ready" changes the
+order of the five above rather than confirming it:
+
+**Build the things that stay valuable whether or not you launch.** The wedding-muhurat page,
+festival pages and the store-calendar join are all *code* — they keep their value sitting on a
+branch, and they get better the longer they exist.
+
+**Do not spend on the things that decay.** Product photography of stock you have not bought,
+courier contracts, a COD float — those are launch costs, and they go stale if the launch is a year
+out. They are also the things that need the people you do not yet have.
+
+**Two things do not wait, because they are about not losing what exists:**
+
+1. **The night-shift branch is on one laptop and nowhere else.** Fifteen commits, `origin/main`
+   untouched. Keeping the project means keeping the work, and right now one disk failure ends it.
+2. **The database is paused and has never had a real `pg_dump`** — only a JSON description of the
+   schema. The schema exists in exactly one place, and it is a place that is switched off.
