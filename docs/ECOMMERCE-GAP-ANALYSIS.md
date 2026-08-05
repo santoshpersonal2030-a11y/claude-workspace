@@ -48,7 +48,13 @@ made it worse than usual by requiring it *before* payment rather than after.
 *Small change:* let the order be placed against an email/phone, and offer account creation on the
 confirmation screen.
 
-### 3. 🔴 Stock is never checked at checkout — you can oversell
+### 3. ✅ Stock is never checked at checkout — you can oversell — **FIXED 05-Aug, commit `02f138f`**
+
+> The checkout now reads stock and refuses a cart it cannot fill, before any money moves. An
+> oversell that slips through the remaining race window is now reported instead of vanishing.
+> **The last piece — an atomic reserve so two simultaneous buyers cannot both take the last unit
+> — is written but NOT applied**, because it needs the paused database:
+> `supabase/migrations/20260805_stock_reservation.sql`. Original description follows.
 
 **This is a bug, not a missing feature.** The checkout reads each product's
 `id, slug, name, price, active, gst_rate, hsn_code` — **it does not read `stock`.** Stock is only
@@ -159,7 +165,8 @@ forget precisely because the code works fine without it.
 ## If I had to pick five, in order
 
 1. **Load product photographs.** Nothing else matters until this is done.
-2. **Fix the overselling bug.** It is small, and it is the only item here that is actually broken.
+2. ~~**Fix the overselling bug.**~~ ✅ Done, commit `02f138f` — except the atomic database half,
+   which is written and waiting for the project to be un-paused.
 3. **Fill in `company_settings`.** Ten minutes; legally required.
 4. **Add a delivery-date promise tied to the ceremony date.** The most valuable thing on this
    list that is specific to your business rather than generic.
