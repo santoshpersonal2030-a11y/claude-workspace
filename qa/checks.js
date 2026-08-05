@@ -1304,6 +1304,30 @@ function auditCoverageChecks() {
     "the prerendered audit points at the live one for the routes it cannot see",
   );
 
+  // The same sharing rule for the i18n side.
+  const i18nRules = read(path.join(ROOT, "qa", "i18n-rules.js"));
+  const i18nAudit = read(path.join(ROOT, "qa", "i18n-audit.js"));
+  line(i18nRules.length > 1000, "the i18n rules live in one shared file", `${i18nRules.length} chars`);
+  line(
+    i18nAudit.includes('require("./i18n-rules.js")') && live.includes('require("./i18n-rules.js")'),
+    "both audits share one definition of what counts as untranslated",
+  );
+  line(
+    !i18nAudit.includes("function visibleText") && !live.includes("function visibleText"),
+    "neither audit keeps its own copy of the text extractor",
+  );
+  /* The shape-based classifier must stay OFF where file attribution is available. Turning it on
+     for the prerendered audit moved 65 phrases between buckets and made a refactor look like a
+     change in the site. */
+  line(
+    /shapeFallback = false/.test(i18nRules),
+    "shape-based classification is off by default",
+  );
+  line(
+    /shapeFallback: true/.test(live) && !/shapeFallback: true/.test(i18nAudit),
+    "only the live audit, which has no file map, falls back to shape",
+  );
+
   control(rules.includes("auditHtml"), "the shared module exports the rule runner");
   control(
     !read(path.join(ROOT, "qa", "a11y-rules.js")).includes("readFileSync"),

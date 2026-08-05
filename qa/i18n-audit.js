@@ -50,72 +50,10 @@ if (!fs.existsSync(path.join(OUT, "hi"))) {
   process.exit(1);
 }
 
-// ── extract the visible text of a rendered page ──────────────────────────────
-const decode = (s) =>
-  s
-    .replace(/&#x27;/g, "'")
-    .replace(/&#39;/g, "'")
-    .replace(/&quot;/g, '"')
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&nbsp;/g, " ")
-    .replace(/&mdash;/g, "—")
-    .replace(/&#x2F;/g, "/");
-
-/* Inline tags must be transparent, not breaks. The first version of this turned EVERY tag into a
-   newline, so "Book a <strong>verified</strong> pandit" came out as three separate strings and
-   the fragment "a" was reported as untranslated copy. That produced 1,545 "phrases", most of them
-   rubbish. Splitting only on block-level tags keeps a sentence a sentence. */
-const INLINE =
-  "a|abbr|b|bdi|bdo|cite|code|data|dfn|em|i|kbd|mark|q|s|samp|small|span|strong|sub|sup|time|u|var|wbr";
-
-function visibleText(html) {
-  const body = html
-    .replace(/<script[\s\S]*?<\/script>/gi, " ")
-    .replace(/<style[\s\S]*?<\/style>/gi, " ")
-    .replace(/<template[\s\S]*?<\/template>/gi, " ")
-    .replace(/<!--[\s\S]*?-->/g, "")
-    // A closing inline tag followed by another tag is a boundary between two separate things
-    // (two links side by side); anywhere else an inline tag sits inside one sentence.
-    .replace(new RegExp(`</(?:${INLINE})>(?=\\s*<)`, "gi"), "\n")
-    .replace(new RegExp(`</?(?:${INLINE})(?:\\s[^>]*)?>`, "gi"), "")
-    .replace(/<[^>]+>/g, "\n");
-  return new Set(
-    body
-      .split("\n")
-      .map((s) => decode(s).replace(/\s+/g, " ").trim())
-      .filter(Boolean),
-  );
-}
-
-// Attributes a screen reader or a search engine reads. Untranslated ones are still leaks.
-function attrText(html) {
-  const out = new Set();
-  const re = /\b(aria-label|alt|title|placeholder)="([^"]{2,})"/g;
-  let m;
-  while ((m = re.exec(html))) out.add(decode(m[2]).replace(/\s+/g, " ").trim());
-  return out;
-}
-
-// ── what does not count ──────────────────────────────────────────────────────
-const ALLOW = new Set([
-  "BookMyPoojari", // the brand, identical in every language by design
-  "English", // the language switcher must name each language in that language
-  "हिन्दी",
-  "తెలుగు",
-  "Skip to content", // (a real leak, but see the note in the report — kept visible)
-]);
-const ALLOW_RE = [
-  /^[\s\d.,:%₹+\-/|()–—]+$/, // pure numbers, prices, punctuation
-  /^[^\p{L}]*$/u, // emoji and symbols only, no letters at all
-  /^https?:\/\//, // URLs
-  /^[a-z0-9-]+\.(png|jpg|jpeg|svg|webp|ico|xml|txt)$/i, // filenames
-];
-const isAllowed = (s) => ALLOW.has(s) || ALLOW_RE.some((re) => re.test(s));
-const hasLatinLetters = (s) => /[A-Za-z]/.test(s);
-// A string with Devanagari or Telugu characters has clearly been through translation.
-const hasIndicScript = (s) => /[ऀ-ॿఀ-౿]/.test(s);
+/* Text extraction, the allowlist and the classifier now live in qa/i18n-rules.js so that
+   qa/live-audit.js uses exactly the same ones. Two copies drift, and then the two reports
+   disagree about what counts as untranslated and nobody knows which to believe. */
+const { visibleText, attrText, isUntranslated, classify } = require("./i18n-rules.js");
 
 // ── walk the prerendered pages ───────────────────────────────────────────────
 function pagesFor(locale) {
@@ -149,10 +87,7 @@ for (const locale of LOCALES) {
     const enStrings = new Set([...visibleText(en), ...attrText(en)]);
     const locStrings = [...visibleText(loc), ...attrText(loc)];
 
-    const leaks = locStrings.filter(
-      (s) =>
-        enStrings.has(s) && hasLatinLetters(s) && !hasIndicScript(s) && !isAllowed(s),
-    );
+    const leaks = locStrings.filter((s) => isUntranslated(s, enStrings));
     if (leaks.length) {
       pagesDirty[locale]++;
       worstPages.push({ locale, route, count: leaks.length });
@@ -207,22 +142,6 @@ function writersOf(phrase) {
               appear in Devanagari on the Hindi site is a decision for Santosh, not a defect.
      FORMAT   clock times, weekday and month names, "AM"/"PM". Real, but it is a date-formatting
               job (one helper), not hundreds of separate translations. */
-const WEEKDAYS = /\b(Mon|Tues|Wednes|Thurs|Fri|Satur|Sun)day\b/;
-const MONTHS =
-  /\b(January|February|March|April|May|June|July|August|September|October|November|December)\b/;
-const CLOCK = /\d{1,2}:\d{2}\s*(AM|PM)/i;
-
-function classify(phrase, writers) {
-  if (CLOCK.test(phrase) || WEEKDAYS.test(phrase) || MONTHS.test(phrase)) return "FORMAT";
-  // Written as a literal in a component or page => a developer typed it into the interface.
-  const inUi = writers.some(
-    (w) => w.startsWith("src/components/") || w.startsWith("src/app/"),
-  );
-  if (inUi) return "CHROME";
-  // Written as a literal in a lib data file, or nowhere findable => catalog/seed content.
-  return "DATA";
-}
-
 // ── report ───────────────────────────────────────────────────────────────────
 const sorted = [...leaksByString.entries()].sort((a, b) => b[1].size - a[1].size);
 

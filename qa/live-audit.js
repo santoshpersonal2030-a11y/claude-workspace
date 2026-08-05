@@ -30,6 +30,7 @@
 "use strict";
 
 const { auditHtml, report, makeCollector } = require("./a11y-rules.js");
+const { visibleText, isUntranslated, classify } = require("./i18n-rules.js");
 
 const BASE = (process.argv[2] || "http://localhost:3000").replace(/\/$/, "");
 
@@ -71,43 +72,6 @@ const AUTH_GATED = [
 
 const LOCALES = ["", "/hi", "/te"];
 
-const decode = (s) =>
-  s
-    .replace(/&#x27;/g, "'")
-    .replace(/&quot;/g, '"')
-    .replace(/&amp;/g, "&")
-    .replace(/&nbsp;/g, " ");
-
-const INLINE =
-  "a|abbr|b|bdi|bdo|cite|code|data|dfn|em|i|kbd|mark|q|s|samp|small|span|strong|sub|sup|time|u|var|wbr";
-
-// Same extraction as qa/i18n-audit.js: inline tags transparent, block tags are breaks.
-function visibleText(html) {
-  return new Set(
-    html
-      .slice(html.indexOf("<body"))
-      .replace(/<script[\s\S]*?<\/script>/gi, " ")
-      .replace(/<style[\s\S]*?<\/style>/gi, " ")
-      .replace(/<!--[\s\S]*?-->/g, "")
-      .replace(new RegExp(`</(?:${INLINE})>(?=\\s*<)`, "gi"), "\n")
-      .replace(new RegExp(`</?(?:${INLINE})(?:\\s[^>]*)?>`, "gi"), "")
-      .replace(/<[^>]+>/g, "\n")
-      .split("\n")
-      .map((s) => decode(s).replace(/\s+/g, " ").trim())
-      .filter(Boolean),
-  );
-}
-
-const ALLOW = new Set(["BookMyPoojari", "English", "हिन्दी", "తెలుగు", "Skip to content"]);
-const ALLOW_RE = [/^[\s\d.,:%₹+\-/|()–—]+$/, /^[^\p{L}]*$/u, /^https?:\/\//];
-const isAllowed = (s) => ALLOW.has(s) || ALLOW_RE.some((re) => re.test(s));
-const hasLatin = (s) => /[A-Za-z]/.test(s);
-const hasIndic = (s) => /[ऀ-ॿఀ-౿]/.test(s);
-const CLOCK = /\d{1,2}:\d{2}\s*(AM|PM)/i;
-const WEEKDAYS = /\b(Mon|Tues|Wednes|Thurs|Fri|Satur|Sun)day\b/;
-const MONTHS =
-  /\b(January|February|March|April|May|June|July|August|September|October|November|December)\b/;
-
 async function fetchPage(url) {
   try {
     const res = await fetch(url, { redirect: "manual" });
@@ -133,7 +97,7 @@ async function fetchPage(url) {
   const { findings, add } = makeCollector();
   let scanned = 0;
   const placeholderLeaks = new Map();
-  const i18nLeaks = new Map();
+  const i18nLeaks = new Map(); // kind -> Map(phrase -> count)
   const englishByRoute = new Map();
   const unreachable = [];
   const gated = [];
@@ -167,10 +131,14 @@ async function fetchPage(url) {
     for (const loc of ["/hi", "/te"]) {
       if (!byLocale[loc]) continue;
       for (const s of visibleText(byLocale[loc])) {
-        if (!en.has(s) || !hasLatin(s) || hasIndic(s) || isAllowed(s)) continue;
-        if (CLOCK.test(s) || WEEKDAYS.test(s) || MONTHS.test(s)) continue; // the date-format job
-        i18nLeaks.set(s, (i18nLeaks.get(s) || 0) + 1);
-        englishByRoute.set(route, (englishByRoute.get(route) || 0) + 1);
+        if (!isUntranslated(s, en)) continue;
+        const kind = classify(s, [], { shapeFallback: true });
+        if (!i18nLeaks.has(kind)) i18nLeaks.set(kind, new Map());
+        const bucket = i18nLeaks.get(kind);
+        bucket.set(s, (bucket.get(s) || 0) + 1);
+        if (!englishByRoute.has(route)) englishByRoute.set(route, new Map());
+        const r = englishByRoute.get(route);
+        r.set(kind, (r.get(kind) || 0) + 1);
       }
     }
   }
@@ -203,23 +171,46 @@ async function fetchPage(url) {
   console.log("\n" + "=".repeat(78));
   console.log("PLACEHOLDERS AND UNTRANSLATED TEXT ON DYNAMIC PAGES");
   console.log("=".repeat(78));
+
   console.log(
     `\n  {placeholder} leaks : ${placeholderLeaks.size}` +
       (placeholderLeaks.size
         ? "  " + [...placeholderLeaks.entries()].map(([k, n]) => `${k}×${n}`).join(", ")
         : ""),
   );
-  console.log(`  English left in hi/te: ${i18nLeaks.size} distinct phrases`);
-  for (const [route, n] of [...englishByRoute.entries()].sort((a, b) => b[1] - a[1])) {
-    console.log(`      ${String(n).padStart(3)}  ${route}`);
+
+  /* Classified, not a flat list. A bare count of 187 is a number without an action attached;
+     the prerendered audit has sorted its findings into three buckets since it was written and
+     this one now uses the SAME classifier from qa/i18n-rules.js.
+     ⚠️ With one difference, stated because it matters: this tool reads a running server and
+     cannot know which source file wrote a phrase, so it classifies on shape alone. That is
+     coarser than the prerendered audit's file-based answer — treat DATA/CHROME here as a
+     strong hint, not a verdict. */
+  const kindTotal = (k) => (i18nLeaks.get(k) ? i18nLeaks.get(k).size : 0);
+  console.log(
+    `\n  ${kindTotal("CHROME")}  interface text   — a developer typed English into the UI` +
+      `\n  ${kindTotal("DATA")}  catalog content  — city, pandit and product names` +
+      `\n  ${kindTotal("FORMAT")}  times and dates  — the same date-formatting job` +
+      `\n       (classified by shape — this tool cannot see which file wrote a phrase)`,
+  );
+
+  console.log("\n  by route:");
+  const routeTotal = (m) => [...m.values()].reduce((a, b) => a + b, 0);
+  for (const [route, kinds] of [...englishByRoute.entries()].sort(
+    (a, b) => routeTotal(b[1]) - routeTotal(a[1]),
+  )) {
+    const parts = [...kinds.entries()].map(([k, n]) => `${k.toLowerCase()} ${n}`).join(", ");
+    console.log(`      ${String(routeTotal(kinds)).padStart(4)}  ${route}   (${parts})`);
   }
-  if (i18nLeaks.size) {
-    console.log("\n  most common:");
-    for (const [s, n] of [...i18nLeaks.entries()].sort((a, b) => b[1] - a[1]).slice(0, 15)) {
+
+  for (const kind of ["CHROME", "DATA", "FORMAT"]) {
+    const m = i18nLeaks.get(kind);
+    if (!m || !m.size) continue;
+    console.log(`\n  ${kind} — most common:`);
+    for (const [s, n] of [...m.entries()].sort((a, b) => b[1] - a[1]).slice(0, 10)) {
       console.log(`      • ${s.length > 64 ? s.slice(0, 64) + "…" : s}  (${n})`);
     }
   }
-
   console.log("\n" + "=".repeat(78));
   console.log("COVERAGE — what this run did and did NOT check");
   console.log("=".repeat(78));
