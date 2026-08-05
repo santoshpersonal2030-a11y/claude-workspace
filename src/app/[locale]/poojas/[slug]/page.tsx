@@ -18,6 +18,8 @@ import {
   getProducts,
 } from "@/lib/queries";
 import { panditTier } from "@/lib/pandit-tier";
+import OccasionBanner from "@/components/OccasionBanner";
+import { occasionsForPooja, todayIST } from "@/lib/store-calendar";
 import { poojaFaqs } from "@/lib/pooja-faq";
 
 const SITE_URL =
@@ -58,6 +60,9 @@ export default async function PoojaDetailPage({
   const raw = await getPoojaBySlug(slug);
   if (!raw) notFound();
   const pooja = localizePooja(raw, loc);
+
+  // The nearest festival this pooja is performed for, if any. Bundled data, no database.
+  const occasion = occasionsForPooja(pooja.slug, todayIST())[0];
 
   // Priests who specialise in this pooja's category or ritual type come first.
   const panditRoster = await getPanditsForPooja(pooja.category, pooja.ritualType);
@@ -185,6 +190,14 @@ export default async function PoojaDetailPage({
             </div>
           </div>
         </section>
+
+        {/* Which festival, if any, this pooja is performed for. lakshmi-puja serves three
+            (Diwali, Dhanteras, Akshaya Tritiya), so this shows the nearest one. */}
+        {occasion && (
+          <section className="mx-auto max-w-6xl px-4 pt-4 sm:px-6">
+            <OccasionBanner occasion={occasion} locale={loc} showShopLink />
+          </section>
+        )}
 
         {/* Body */}
         <section className="mx-auto max-w-6xl px-4 py-3 sm:px-6">

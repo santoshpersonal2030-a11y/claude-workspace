@@ -1207,6 +1207,49 @@ async function festivalChecks() {
     "the festival list shows translated names",
   );
 
+  // ── the store ↔ calendar join ──────────────────────────────────────────────
+  /* The store and the calendar did not know each other existed. The part that matters most here
+     is what the site does NOT say: with no dispatch lead time configured it must show a countdown
+     and promise no delivery date. Samagri arriving the day after the muhurat is worthless, and a
+     family told it will arrive in time will not buy elsewhere. Fail closed, like COD. */
+  const sc = strip(read(path.join(SRC, "lib", "store-calendar.ts")));
+  line(sc.length > 500, "the store-calendar library exists", `${sc.length} chars`);
+  line(
+    /process\.env\.SAMAGRI_LEAD_DAYS/.test(sc),
+    "the lead time comes from configuration, not from a hardcoded guess",
+  );
+  line(
+    /if \(!raw\) return null/.test(sc),
+    "an unset lead time yields NO delivery promise",
+  );
+  line(
+    !/const .*LEAD_DAYS = \d/.test(sc),
+    "no lead time is baked into the code as a default",
+  );
+  const envExampleText = read(path.join(ROOT, ".env.example"));
+  line(
+    envExampleText.includes("SAMAGRI_LEAD_DAYS="),
+    "the setting is documented in .env.example",
+  );
+  line(
+    /SAMAGRI_LEAD_DAYS=\s*(\r?\n|$)/.test(envExampleText),
+    "and ships BLANK, so the promise stays off until someone measures it",
+  );
+
+  const storePage = strip(read(path.join(APP, "[locale]", "store", "page.tsx")));
+  line(storePage.includes("nextOccasion"), "the store shows the next festival");
+  const poojaPage = strip(read(path.join(APP, "[locale]", "poojas", "[slug]", "page.tsx")));
+  line(poojaPage.includes("occasionsForPooja"), "a pooja page shows the festival it is for");
+
+  control(
+    /SAMAGRI_LEAD_DAYS=\s*(\r?\n|$)/.test("SAMAGRI_LEAD_DAYS=\n"),
+    "the blank-setting detector recognises an empty value",
+  );
+  control(
+    !/SAMAGRI_LEAD_DAYS=\s*(\r?\n|$)/.test("SAMAGRI_LEAD_DAYS=5\n"),
+    "the blank-setting detector rejects a value that has been filled in",
+  );
+
   control(pages.length > 0 && fest.FESTIVALS.length > pages.length, "the table really does repeat festivals across years");
   control(
     fi18n.localizeFestivalName("Diwali", "hi") !== "Diwali",

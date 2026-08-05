@@ -153,6 +153,16 @@ const en: Dict = {
   "fp.exhausted":
     "We have no further dates on record for this festival yet. Check the festival calendar, or ask us.",
 
+  // Store ↔ calendar banner.
+  "sc.countdown": "{name} is in {n} days",
+  "sc.countdownTomorrow": "{name} is tomorrow",
+  "sc.countdownToday": "{name} is today",
+  "sc.orderBy": "Order samagri by {date} to receive it in time",
+  "sc.tooLate": "It may be too late for delivery before {name} — a Pandit can still be booked",
+  "sc.shopFor": "Shop for {name}",
+  "sc.bookFor": "Book a Pandit",
+  "sc.forOccasion": "Booked for {name}, {date}",
+
   // Homepage — trust stats
   "home.trust.pandits": "Verified Pandits",
   "home.trust.poojas": "Poojas Performed",
@@ -952,6 +962,15 @@ const hi: Dict = {
   "fp.exhausted":
     "इस त्योहार की आगे की तिथियाँ अभी हमारे पास दर्ज नहीं हैं। त्योहार कैलेंडर देखें, या हमसे पूछें।",
 
+  "sc.countdown": "{name} में {n} दिन बाकी हैं",
+  "sc.countdownTomorrow": "{name} कल है",
+  "sc.countdownToday": "{name} आज है",
+  "sc.orderBy": "समय पर पाने के लिए {date} तक सामग्री मँगा लें",
+  "sc.tooLate": "{name} से पहले डिलीवरी शायद संभव न हो — पंडित जी अब भी बुक किए जा सकते हैं",
+  "sc.shopFor": "{name} के लिए खरीदें",
+  "sc.bookFor": "पंडित बुक करें",
+  "sc.forOccasion": "{name}, {date} के लिए",
+
   // Homepage — trust stats
   "home.trust.pandits": "सत्यापित पंडित",
   "home.trust.poojas": "पूजाएँ संपन्न",
@@ -1740,6 +1759,15 @@ const te: Dict = {
     "తేదీలు న్యూఢిల్లీ దృక్ పంచాంగం ప్రకారం ఉన్నాయి; ఇతర ప్రాంతాలు మరియు పంచాంగాలలో ఒక రోజు తేడా ఉండవచ్చు.",
   "fp.exhausted":
     "ఈ పండుగకు తదుపరి తేదీలు ఇంకా మా వద్ద నమోదు కాలేదు. పండుగ క్యాలెండర్‌ను చూడండి, లేదా మమ్మల్ని అడగండి.",
+
+  "sc.countdown": "{name}కు {n} రోజులు మిగిలాయి",
+  "sc.countdownTomorrow": "{name} రేపు",
+  "sc.countdownToday": "{name} ఈరోజు",
+  "sc.orderBy": "సకాలంలో అందుకోవడానికి {date} లోపు సామగ్రిని ఆర్డర్ చేయండి",
+  "sc.tooLate": "{name} కంటే ముందు డెలివరీ సాధ్యం కాకపోవచ్చు — పండితుడిని ఇప్పటికీ బుక్ చేయవచ్చు",
+  "sc.shopFor": "{name} కోసం కొనండి",
+  "sc.bookFor": "పండితుడిని బుక్ చేయండి",
+  "sc.forOccasion": "{name}, {date} కోసం",
 
   "home.trust.pandits": "ధృవీకరించిన పండితులు",
   "home.trust.poojas": "నిర్వహించిన పూజలు",

@@ -13,6 +13,7 @@ import {
   nextDate,
 } from "@/lib/festival-pages";
 import { localizeFestivalName, localizeFestivalPush } from "@/lib/festivals-i18n";
+import { occasionFor, samagriLeadDays } from "@/lib/store-calendar";
 import { getPoojaBySlug } from "@/lib/poojas";
 import { getDictionary, isLocale, DEFAULT_LOCALE, LOCALES, type Locale } from "@/lib/i18n";
 import { localizePooja } from "@/lib/poojas-i18n";
@@ -100,9 +101,15 @@ export default async function FestivalPage({
   const pooja = getPoojaBySlug(festival.poojaSlug);
   const localizedPooja = pooja ? localizePooja(pooja, loc) : undefined;
 
+  const occasion = occasionFor(festival, today, samagriLeadDays());
+
   const dateFormat = new Intl.DateTimeFormat(
     loc === "hi" ? "hi-IN" : loc === "te" ? "te-IN" : "en-IN",
     { weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone: "UTC" },
+  );
+  const shortDate = new Intl.DateTimeFormat(
+    loc === "hi" ? "hi-IN" : loc === "te" ? "te-IN" : "en-IN",
+    { day: "numeric", month: "long", timeZone: "UTC" },
   );
 
   const countdown = (() => {
@@ -168,6 +175,19 @@ export default async function FestivalPage({
                 {dateFormat.format(new Date(`${next}T00:00:00Z`))}
               </p>
               {countdown && <p className="mt-0.5 text-sm text-foreground/65">{countdown}</p>}
+
+              {/* The order-by line only appears once a real dispatch lead time is configured —
+                  see samagriLeadDays(). Until then this is a countdown and nothing more. */}
+              {occasion?.orderBy && !occasion.tooLateToOrder && (
+                <p className="mt-2 text-sm font-medium text-saffron-800">
+                  {t("sc.orderBy", {
+                    date: shortDate.format(new Date(`${occasion.orderBy}T00:00:00Z`)),
+                  })}
+                </p>
+              )}
+              {occasion?.tooLateToOrder && (
+                <p className="mt-2 text-sm text-foreground/70">{t("sc.tooLate", { name })}</p>
+              )}
 
               <div className="mt-4 flex flex-wrap gap-3">
                 <Link

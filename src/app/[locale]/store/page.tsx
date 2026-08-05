@@ -2,8 +2,10 @@ import type { Metadata } from "next";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import StoreBrowser from "@/components/StoreBrowser";
+import OccasionBanner from "@/components/OccasionBanner";
 import { getProducts } from "@/lib/queries";
 import { localizeProduct } from "@/lib/products-i18n";
+import { nextOccasion, todayIST } from "@/lib/store-calendar";
 import { getDictionary, isLocale, DEFAULT_LOCALE } from "@/lib/i18n";
 
 export async function generateMetadata({
@@ -32,6 +34,11 @@ export default async function StorePage({
   const { category, sort } = await searchParams;
   const products = (await getProducts()).map((p) => localizeProduct(p, loc));
 
+  /* The store had no idea the festival calendar existed. Two weeks before Ganesh Chaturthi it
+     looked exactly as it does in a quiet week. Computed from the bundled calendar, so it works
+     even with the database unreachable and no products loaded. */
+  const occasion = nextOccasion(todayIST());
+
   return (
     <>
       <Header />
@@ -51,6 +58,12 @@ export default async function StorePage({
             </p>
           </div>
         </section>
+
+        {occasion && (
+          <section className="mx-auto max-w-6xl px-4 pt-4 sm:px-6">
+            <OccasionBanner occasion={occasion} locale={loc} />
+          </section>
+        )}
 
         <section className="mx-auto max-w-6xl px-4 py-3 sm:px-6">
           {products.length === 0 ? (
