@@ -552,7 +552,24 @@ export async function updateOrderStatus(formData: FormData): Promise<void> {
   if (formData.has("carrier")) {
     update.carrier = str(formData.get("carrier")) || null;
   }
+
+  /* Cancelling a paid order used to lose its stock permanently: the units left inventory when the
+     order was paid and nothing ever put them back, so every cancellation quietly shrank the
+     catalog. Read the status BEFORE the update — afterwards there is no way to tell what the
+     order was, and therefore no way to know whether its stock was ever taken.
+
+     Deliberately NOT restocking a cancelled `shipped` or `delivered` order: those goods have
+     physically left. Getting them back is a return, and a return needs someone to open the box
+     before the units go back on sale. Restocking automatically there would invent inventory.
+
+     Cancelling an already-`cancelled` order is a no-op, so this cannot double-restock. */
+  const previous = await orderStatusOf(admin, id);
+  const restocking =
+    update.status === "cancelled" &&
+    (previous === "paid" || previous === "packed");
+
   await admin.from("orders").update(update).eq("id", id);
+  if (restocking) await restockOrder(admin, id);
 
   // Email the customer about the transition; delivery also invites a review.
   if (status === "delivered") {
@@ -570,6 +587,87 @@ export async function updateOrderStatus(formData: FormData): Promise<void> {
 }
 
 // ── Order items (admin order detail) ────────────────────────────────────────
+
+/* Stock bookkeeping for admin edits to an existing order.
+ *
+ * Until 05-Aug-2026 none of the admin order actions touched stock at all. An admin could halve a
+ * quantity, delete a line, or cancel a whole paid order, and inventory never moved — so the number
+ * in the products table drifted away from reality every time anyone corrected an order. That
+ * drift then feeds the storefront: "only 2 left" badges, the out-of-stock state, the reorder
+ * suggestions on the admin dashboard, and the back-in-stock emails all read the same wrong number.
+ *
+ * The rule is: only adjust stock for an order that has ALREADY taken stock out of inventory.
+ * That happens in finalizeOrderPaid(), i.e. the moment an order becomes `paid`. A `pending` order
+ * has not consumed anything yet, so editing it must NOT touch stock.
+ */
+const STOCK_CONSUMED_STATUSES: OrderStatus[] = [
+  "paid",
+  "packed",
+  "shipped",
+  "delivered",
+];
+
+async function orderStatusOf(
+  admin: ReturnType<typeof createAdminClient>,
+  orderId: string,
+): Promise<OrderStatus | null> {
+  const { data } = await admin
+    .from("orders")
+    .select("status")
+    .eq("id", orderId)
+    .maybeSingle();
+  return (data?.status as OrderStatus) ?? null;
+}
+
+/* Moves a product's stock by `delta` (positive returns stock, negative takes it).
+ *
+ * Refuses rather than going negative — throwing is this file's existing convention for a refused
+ * admin action (see assertAdmin/assertCapability), and it is the right answer here: silently
+ * clamping at zero is precisely the bug that let the storefront oversell without trace.
+ *
+ * Read-modify-write, so it is not atomic. That is acceptable for an admin screen used by one or
+ * two staff and is a very different risk from the public checkout; the atomic version is
+ * reserve_stock_for_order() in supabase/migrations/20260805_stock_reservation.sql, which is
+ * waiting on the database being un-paused.
+ */
+async function adjustStock(
+  admin: ReturnType<typeof createAdminClient>,
+  productId: string | null,
+  delta: number,
+): Promise<void> {
+  if (!productId || delta === 0) return;
+  const { data: product } = await admin
+    .from("products")
+    .select("stock, name")
+    .eq("id", productId)
+    .maybeSingle();
+  if (!product) return; // product deleted since the order — nothing to adjust
+
+  const next = product.stock + delta;
+  if (next < 0) {
+    throw new Error(
+      `Not enough stock: ${product.name} has ${product.stock}, this change needs ${-delta}.`,
+    );
+  }
+  await admin
+    .from("products")
+    .update({ stock: next, updated_at: new Date().toISOString() })
+    .eq("id", productId);
+}
+
+// Returns every line of an order to stock. Used when a paid order is cancelled.
+async function restockOrder(
+  admin: ReturnType<typeof createAdminClient>,
+  orderId: string,
+): Promise<void> {
+  const { data: lines } = await admin
+    .from("order_items")
+    .select("product_id, quantity")
+    .eq("order_id", orderId);
+  for (const line of lines ?? []) {
+    await adjustStock(admin, line.product_id, line.quantity);
+  }
+}
 
 async function recomputeOrderTotals(
   admin: ReturnType<typeof createAdminClient>,
@@ -600,10 +698,19 @@ export async function updateOrderItem(formData: FormData): Promise<void> {
 
   const { data: item } = await admin
     .from("order_items")
-    .select("order_id, unit_price")
+    .select("order_id, unit_price, quantity, product_id")
     .eq("id", itemId)
     .maybeSingle();
   if (!item) return;
+
+  /* Move stock BEFORE the line changes, so a change that cannot be stocked is refused without
+     having already rewritten the order. Raising a quantity takes more stock out; lowering it puts
+     stock back. Only for an order that has already consumed its stock — editing a `pending` order
+     must not move anything, because nothing was taken from inventory yet. */
+  const status = await orderStatusOf(admin, item.order_id);
+  if (status && STOCK_CONSUMED_STATUSES.includes(status)) {
+    await adjustStock(admin, item.product_id, item.quantity - quantity);
+  }
 
   await admin
     .from("order_items")
@@ -620,10 +727,16 @@ export async function removeOrderItem(formData: FormData): Promise<void> {
 
   const { data: item } = await admin
     .from("order_items")
-    .select("order_id")
+    .select("order_id, quantity, product_id")
     .eq("id", itemId)
     .maybeSingle();
   if (!item) return;
+
+  // Taking a line off an order that has already been paid puts those units back on the shelf.
+  const status = await orderStatusOf(admin, item.order_id);
+  if (status && STOCK_CONSUMED_STATUSES.includes(status)) {
+    await adjustStock(admin, item.product_id, item.quantity);
+  }
 
   await admin.from("order_items").delete().eq("id", itemId);
   await recomputeOrderTotals(admin, item.order_id);

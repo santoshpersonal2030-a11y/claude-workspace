@@ -863,6 +863,54 @@ function stockChecks() {
     /\bstock\b/.test('.select("id, slug, name, price, active, stock, gst_rate")'),
     "the stock-in-select detector finds stock when it is there",
   );
+  /* ── admin edits must keep stock honest ────────────────────────────────────
+     None of the admin order actions touched stock. Halve a quantity, delete a line, or cancel a
+     paid order and inventory never moved — so the products table drifted from reality on every
+     correction, and that same number feeds the "only 2 left" badge, the sold-out state, the
+     reorder suggestions and the back-in-stock emails. */
+  const adminActions = strip(read(path.join(APP, "[locale]", "admin", "actions.ts")));
+
+  line(
+    adminActions.includes("STOCK_CONSUMED_STATUSES"),
+    "admin edits know which orders have already taken stock out of inventory",
+  );
+  line(
+    /updateOrderItem[\s\S]{0,900}?adjustStock/.test(adminActions),
+    "changing a line's quantity adjusts stock",
+  );
+  line(
+    /removeOrderItem[\s\S]{0,900}?adjustStock/.test(adminActions),
+    "removing a line puts its units back",
+  );
+  line(
+    adminActions.includes("restockOrder") &&
+      /restocking[\s\S]{0,400}?restockOrder\(admin, id\)/.test(adminActions),
+    "cancelling a paid order puts its stock back",
+  );
+  line(
+    before(adminActions, "const previous = await orderStatusOf", 'from("orders").update(update)'),
+    "the previous status is read BEFORE the update (afterwards it is unknowable)",
+  );
+  line(
+    /previous === "paid" \|\| previous === "packed"/.test(adminActions),
+    "only pre-dispatch cancellations restock — shipped and delivered goods are a return, not stock",
+  );
+  line(
+    /if \(next < 0\)[\s\S]{0,200}?throw new Error/.test(adminActions),
+    "an admin change that would push stock below zero is refused, not clamped",
+  );
+
+  control(
+    adminActions.length > 5000,
+    `read the admin actions file (${adminActions.length} chars)`,
+  );
+  control(
+    !/updateOrderItem[\s\S]{0,900}?adjustStock/.test(
+      'export async function updateOrderItem(f){ const item = await get(); await update(item); }',
+    ),
+    "the quantity-adjust detector reports absence when the call is not there",
+  );
+
   control(before("abc", "b", "c"), "the ordering test is true for a genuinely ordered pair");
   control(!before("abc", "c", "b"), "the ordering test is false when the order is reversed");
   control(
