@@ -10,6 +10,7 @@ import { getPublishedPosts } from "@/lib/blog-db";
 import { consultations } from "@/lib/consultations";
 import { templePujas } from "@/lib/temple-pujas";
 import { SIGNS } from "@/lib/horoscope";
+import { festivalPages } from "@/lib/festival-pages";
 import { LOCALES, DEFAULT_LOCALE } from "@/lib/i18n";
 
 const siteUrl =
@@ -86,6 +87,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...SIGNS.map((s) => `/horoscope/${s.slug}`),
     ...citySlugs,
     ...posts.map((p) => `/blog/${p.slug}`),
+    // One page per festival. These are the highest-intent URLs on the site — people search
+    // "when is Diwali 2027" by name, every year — so they must not be left out of the sitemap
+    // the way the whole Hindi and Telugu site was until this morning.
+    ...festivalPages().map((f) => `/festivals/${f.slug}`),
   ].flatMap((path) =>
     LOCALES.map((locale) => ({
       url: localizedUrl(locale, path),

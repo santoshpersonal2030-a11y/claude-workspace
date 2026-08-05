@@ -5,8 +5,10 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { upcomingVrats } from "@/lib/muhurat-engine";
 import { upcomingFestivals, FESTIVAL_INFO } from "@/lib/festivals";
+import { festivalSlug } from "@/lib/festival-pages";
+import { localizeFestivalName, localizeFestivalPush } from "@/lib/festivals-i18n";
 import { poojas } from "@/lib/poojas";
-import { getDictionary, isLocale, DEFAULT_LOCALE } from "@/lib/i18n";
+import { getDictionary, isLocale, DEFAULT_LOCALE, type Locale } from "@/lib/i18n";
 
 export async function generateMetadata({
   params,
@@ -61,6 +63,8 @@ type Row = {
   slug?: string;
   cta?: string;
   festival?: boolean;
+  /** Link to the festival's own page. Only named festivals have one. */
+  href?: string;
 };
 
 export default async function FestivalsPage({
@@ -69,18 +73,22 @@ export default async function FestivalsPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const { t } = getDictionary(isLocale(locale) ? locale : DEFAULT_LOCALE);
+  const loc: Locale = isLocale(locale) ? locale : DEFAULT_LOCALE;
+  const { t } = getDictionary(loc);
   const from = todayIST();
   const WINDOW = 120;
 
   const festivals: Row[] = upcomingFestivals(from, WINDOW).map((f) => ({
     date: f.date,
-    name: f.name,
+    // Festival names and blurbs had no translation layer at all, so they rendered in English on
+    // the Hindi and Telugu calendar. src/lib/festivals-i18n.ts now supplies both.
+    name: localizeFestivalName(f.name, loc),
     emoji: FESTIVAL_INFO[f.name]?.emoji ?? "🎉",
-    blurb: FESTIVAL_INFO[f.name]?.push ?? "",
+    blurb: localizeFestivalPush(f.name, FESTIVAL_INFO[f.name]?.push ?? "", loc),
     slug: f.slug,
     cta: POOJA_NAME[f.slug],
     festival: true,
+    href: `/festivals/${festivalSlug(f.name)}`,
   }));
 
   // Named festivals take precedence over the generic monthly observance on the
@@ -138,9 +146,18 @@ export default async function FestivalsPage({
                 <span className="text-3xl">{r.emoji}</span>
                 <div className="min-w-48 flex-1">
                   <div className="flex items-center gap-2">
-                    <span className="font-heading text-lg text-maroon-700">
-                      {r.name}
-                    </span>
+                    {r.href ? (
+                      <Link
+                        href={r.href}
+                        className="font-heading text-lg text-maroon-700 hover:text-saffron-700 hover:underline"
+                      >
+                        {r.name}
+                      </Link>
+                    ) : (
+                      <span className="font-heading text-lg text-maroon-700">
+                        {r.name}
+                      </span>
+                    )}
                     {r.festival && (
                       <span className="rounded-full bg-saffron-100 px-2 py-0.5 text-[11px] font-semibold text-saffron-800">
                         {t("fes.badge")}

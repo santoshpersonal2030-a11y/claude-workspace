@@ -137,6 +137,22 @@ const en: Dict = {
     "These dates are calculated from the panchang for your city. They are a starting point, not a substitute for your family Pandit — always confirm before fixing a ceremony.",
   "mf.seePublished": "See the muhurats our astrologer has published",
 
+  // Per-festival pages.
+  "fp.nextDate": "Next {name}",
+  "fp.daysAway": "in {n} days",
+  "fp.today": "today",
+  "fp.tomorrow": "tomorrow",
+  "fp.whenIs": "When is {name}?",
+  "fp.upcomingDates": "Upcoming dates",
+  "fp.bookFor": "Book a Pandit for {name}",
+  "fp.samagri": "Order the samagri",
+  "fp.nearby": "Around the same time",
+  "fp.allFestivals": "See the full festival calendar",
+  "fp.datesNote":
+    "Observance dates follow the drik panchang for New Delhi and can differ by a day for other regions and panchangs.",
+  "fp.exhausted":
+    "We have no further dates on record for this festival yet. Check the festival calendar, or ask us.",
+
   // Homepage — trust stats
   "home.trust.pandits": "Verified Pandits",
   "home.trust.poojas": "Poojas Performed",
@@ -921,6 +937,21 @@ const hi: Dict = {
     "ये तिथियाँ आपके शहर के पंचांग से गणना की गई हैं। ये एक शुरुआत हैं, आपके कुल पुरोहित का विकल्प नहीं — संस्कार तय करने से पहले सदैव पुष्टि कर लें।",
   "mf.seePublished": "हमारे ज्योतिषी द्वारा प्रकाशित मुहूर्त देखें",
 
+  "fp.nextDate": "अगली {name}",
+  "fp.daysAway": "{n} दिन में",
+  "fp.today": "आज",
+  "fp.tomorrow": "कल",
+  "fp.whenIs": "{name} कब है?",
+  "fp.upcomingDates": "आगामी तिथियाँ",
+  "fp.bookFor": "{name} के लिए पंडित बुक करें",
+  "fp.samagri": "सामग्री मँगाएँ",
+  "fp.nearby": "इसी समय के आसपास",
+  "fp.allFestivals": "पूरा त्योहार कैलेंडर देखें",
+  "fp.datesNote":
+    "तिथियाँ नई दिल्ली के दृक पंचांग के अनुसार हैं और अन्य क्षेत्रों व पंचांगों में एक दिन आगे-पीछे हो सकती हैं।",
+  "fp.exhausted":
+    "इस त्योहार की आगे की तिथियाँ अभी हमारे पास दर्ज नहीं हैं। त्योहार कैलेंडर देखें, या हमसे पूछें।",
+
   // Homepage — trust stats
   "home.trust.pandits": "सत्यापित पंडित",
   "home.trust.poojas": "पूजाएँ संपन्न",
@@ -1694,6 +1725,21 @@ const te: Dict = {
   "mf.disclaimer":
     "ఈ తేదీలు మీ నగరపు పంచాంగం నుండి లెక్కించబడ్డాయి. ఇవి ఒక ప్రారంభం మాత్రమే, మీ కుటుంబ పురోహితుడికి ప్రత్యామ్నాయం కాదు — సంస్కారాన్ని ఖరారు చేసే ముందు తప్పక ధృవీకరించుకోండి.",
   "mf.seePublished": "మా జ్యోతిష్యుడు ప్రచురించిన ముహూర్తాలను చూడండి",
+
+  "fp.nextDate": "తదుపరి {name}",
+  "fp.daysAway": "{n} రోజుల్లో",
+  "fp.today": "ఈరోజు",
+  "fp.tomorrow": "రేపు",
+  "fp.whenIs": "{name} ఎప్పుడు?",
+  "fp.upcomingDates": "రాబోయే తేదీలు",
+  "fp.bookFor": "{name} కోసం పండితుడిని బుక్ చేయండి",
+  "fp.samagri": "సామగ్రిని ఆర్డర్ చేయండి",
+  "fp.nearby": "అదే సమయంలో",
+  "fp.allFestivals": "పూర్తి పండుగ క్యాలెండర్‌ను చూడండి",
+  "fp.datesNote":
+    "తేదీలు న్యూఢిల్లీ దృక్ పంచాంగం ప్రకారం ఉన్నాయి; ఇతర ప్రాంతాలు మరియు పంచాంగాలలో ఒక రోజు తేడా ఉండవచ్చు.",
+  "fp.exhausted":
+    "ఈ పండుగకు తదుపరి తేదీలు ఇంకా మా వద్ద నమోదు కాలేదు. పండుగ క్యాలెండర్‌ను చూడండి, లేదా మమ్మల్ని అడగండి.",
 
   "home.trust.pandits": "ధృవీకరించిన పండితులు",
   "home.trust.poojas": "నిర్వహించిన పూజలు",

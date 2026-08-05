@@ -117,12 +117,15 @@ head("1. ROUTE INVENTORY — nothing may silently disappear");
 /* A route vanishing is invisible: the build still goes green, there is just one fewer page.
    These are the counts as built and verified on 05-Aug-2026 against `npm run build`.
 
-   BASELINE CHANGED 05-Aug-2026: 96 → 97 pages, on purpose. `/[locale]/muhurat/find` was added.
-   This check caught the change and failed, which is the whole point of it — the number moves only
-   when someone writes a new number here and says why. A route disappearing produces exactly the
-   same failure, and that is the case this exists for. */
+   BASELINE CHANGED 05-Aug-2026, twice, both on purpose:
+     96 → 97  added /[locale]/muhurat/find
+     97 → 98  added /[locale]/festivals/[slug]  (one route, 17 festivals × 3 locales = 51 pages)
+   The check caught both and failed, which is the whole point of it — the number moves only when
+   someone writes a new one here and says why. A route disappearing produces exactly the same
+   failure, and that is the case this exists for. */
 const EXPECTED = {
-  pages: 97,
+  pages: 98,
+  festivals: 17,
   apiRoutes: 49,
   authRoutes: 2,
   layouts: 3,
@@ -141,7 +144,7 @@ const authRoutes = relFiles.filter(
 );
 const layouts = relFiles.filter((f) => /^src\/app\/.*layout\.tsx$/.test(f));
 
-line(pages.length === EXPECTED.pages, "97 page routes present", `found ${pages.length}`);
+line(pages.length === EXPECTED.pages, "98 page routes present", `found ${pages.length}`);
 line(
   apiRoutes.length === EXPECTED.apiRoutes,
   "49 API routes present",
@@ -606,6 +609,89 @@ async function i18nChecks() {
     "the drift detector would notice an English footer label against a Hindi catalog name",
   );
 
+  /* ── script purity ────────────────────────────────────────────────────────
+     A Hindi string containing a Telugu letter, or a Telugu string containing a Devanagari one,
+     renders as a visibly wrong glyph in the middle of a word — and passes every other check
+     here: the key exists, parity is intact, the build is green, the tests pass.
+
+     Found the hard way on 05-Aug-2026. Hand-writing the festival translations, I typed a Tamil
+     ம into "జన్మాష్టమి" and a Devanagari ठ into "ఛఠ్", twice. Reading it back did not catch it;
+     the two glyphs look near enough right at a glance. Scanning the codepoints did.
+
+     Every other translation file was clean, so this guards against future hand-editing rather
+     than papering over existing debt. */
+  const SCRIPT_RANGES = {
+    Devanagari: /[ऀ-ॿ]/,
+    Telugu: /[ఀ-౿]/,
+    Tamil: /[஀-௿]/,
+    Kannada: /[ಀ-೿]/,
+    Bengali: /[ঀ-৿]/,
+    Gujarati: /[઀-૿]/,
+    Gurmukhi: /[਀-੿]/,
+    Malayalam: /[ഀ-ൿ]/,
+    Odia: /[଀-୿]/,
+  };
+  const EXPECTED_SCRIPT = { hi: "Devanagari", te: "Telugu" };
+
+  const foreignScriptIn = (text, locale) => {
+    const out = [];
+    for (const [name, re] of Object.entries(SCRIPT_RANGES)) {
+      if (name === EXPECTED_SCRIPT[locale]) continue;
+      const hits = [...new Set([...text].filter((c) => re.test(c)))];
+      if (hits.length) out.push(`${name}: ${hits.join("")}`);
+    }
+    return out;
+  };
+
+  const i18nFiles = fs
+    .readdirSync(path.join(SRC, "lib"))
+    .filter((f) => /-i18n\.ts$|^i18n\.ts$/.test(f));
+
+  const mixups = [];
+  for (const f of i18nFiles) {
+    const text = read(path.join(SRC, "lib", f));
+    for (const locale of ["hi", "te"]) {
+      const m = new RegExp(
+        `(?:^|\\n)\\s*(?:"?${locale}"?:\\s*\\{|const ${locale}: Dict = \\{)`,
+      ).exec(text);
+      if (!m) continue;
+      /* The block ends at the NEXT locale key, whatever it is called. The first version of this
+         only recognised en/hi/te as boundaries — and calendar-i18n.ts legitimately carries seven
+         languages (en, hi, te, ta, kn, ml, mr), because the calendar page lets a visitor read it
+         in any script regardless of the site language. So the "te" block ran on through the
+         Tamil, Kannada and Malayalam ones and the check reported a pile of script mixups that
+         were simply other languages doing their job. Any two-letter key is a boundary now. */
+      const rest = text.slice(m.index + m[0].length);
+      const nextLoc = rest.search(/\n\s*(?:"?[a-z]{2}"?:\s*\{|const [a-z]{2}: Dict = \{)/);
+      const block = nextLoc > 0 ? rest.slice(0, nextLoc) : rest;
+      const foreign = foreignScriptIn(block, locale);
+      if (foreign.length) mixups.push(`${f}[${locale}] ${foreign.join(", ")}`);
+    }
+  }
+  line(
+    mixups.length === 0,
+    "no Hindi or Telugu block contains a letter from another Indic script",
+    mixups.length ? mixups.join(" | ") : `${i18nFiles.length} translation files scanned`,
+  );
+
+  control(i18nFiles.length >= 8, `found ${i18nFiles.length} translation files to scan`);
+  control(
+    foreignScriptIn("जन्माष्टमी", "hi").length === 0,
+    "the script check accepts pure Devanagari as Hindi",
+  );
+  control(
+    foreignScriptIn("జన్మాష్టమి", "te").length === 0,
+    "the script check accepts pure Telugu as Telugu",
+  );
+  control(
+    foreignScriptIn("జన్మాష్టமి", "te").length === 1,
+    "the script check catches the Tamil ம planted in a Telugu word",
+  );
+  control(
+    foreignScriptIn("ఛठ్", "te").length === 1,
+    "the script check catches the Devanagari ठ planted in a Telugu word",
+  );
+
   control(hiKeys.size > 100 && teKeys.size > 100, `hi=${hiKeys.size} te=${teKeys.size} keys parsed`);
   control(
     [...enKeys].filter((k) => !new Set([...enKeys].slice(1)).has(k)).length === 1,
@@ -1046,6 +1132,93 @@ function muhuratFinderChecks() {
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
+async function festivalChecks() {
+  head("14. FESTIVAL PAGES — one addressable page per festival");
+  /* The site had a single rolling 120-day list and nothing per festival, so "when is Diwali 2027"
+     — searched by name, every year, by a very large number of people — had nowhere to land.
+     Also: festival names had NO translation layer, so they rendered in English on the Hindi and
+     Telugu calendar. Both are locked in here. */
+  const fp = await import(
+    "file:///" + path.join(SRC, "lib", "festival-pages.ts").split(path.sep).join("/")
+  );
+  const fest = await import(
+    "file:///" + path.join(SRC, "lib", "festivals.ts").split(path.sep).join("/")
+  );
+  const fi18n = await import(
+    "file:///" + path.join(SRC, "lib", "festivals-i18n.ts").split(path.sep).join("/")
+  );
+
+  const pages = fp.festivalPages();
+  line(
+    pages.length === EXPECTED.festivals,
+    "17 distinct festivals get a page",
+    `found ${pages.length} from ${fest.FESTIVALS.length} rows`,
+  );
+
+  const slugs = pages.map((p) => p.slug);
+  line(new Set(slugs).size === slugs.length, "no two festivals share a URL");
+  line(
+    slugs.every((s) => /^[a-z0-9-]+$/.test(s)),
+    "every festival slug is URL-safe",
+  );
+
+  /* Several festivals share a pooja (Navratri + Dussehra → durga-puja; Diwali, Dhanteras and
+     Akshaya Tritiya → lakshmi-puja). Keying the page off the pooja would silently merge them. */
+  const sharedPooja = new Set(
+    pages.map((p) => p.poojaSlug).filter((s, i, a) => a.indexOf(s) !== i),
+  );
+  line(
+    sharedPooja.size > 0 && new Set(slugs).size === pages.length,
+    "festivals sharing one pooja still get separate pages",
+    `${sharedPooja.size} pooja(s) serve more than one festival`,
+  );
+
+  const totalDates = pages.reduce((n, p) => n + p.dates.length, 0);
+  line(
+    totalDates === fest.FESTIVALS.length,
+    "no festival date was lost while grouping",
+    `${totalDates} of ${fest.FESTIVALS.length}`,
+  );
+
+  for (const locale of ["hi", "te"]) {
+    const translated = new Set(fi18n.translatedFestivalNames(locale));
+    const missing = [...new Set(fest.FESTIVALS.map((f) => f.name))].filter(
+      (n) => !translated.has(n),
+    );
+    line(
+      missing.length === 0,
+      `every festival name is translated into ${locale}`,
+      missing.length ? missing.join(", ") : `${translated.size} names`,
+    );
+  }
+
+  const sitemap = strip(read(path.join(APP, "sitemap.ts")));
+  line(
+    sitemap.includes("festivalPages()"),
+    "the festival pages are in the sitemap",
+  );
+  const listPage = strip(read(path.join(APP, "[locale]", "festivals", "page.tsx")));
+  line(
+    listPage.includes("festivalSlug(") && listPage.includes("/festivals/"),
+    "the festival list links through to each festival's page",
+  );
+  line(
+    listPage.includes("localizeFestivalName"),
+    "the festival list shows translated names",
+  );
+
+  control(pages.length > 0 && fest.FESTIVALS.length > pages.length, "the table really does repeat festivals across years");
+  control(
+    fi18n.localizeFestivalName("Diwali", "hi") !== "Diwali",
+    "the name localizer returns something other than the English name",
+  );
+  control(
+    fi18n.localizeFestivalName("Not A Festival", "hi") === "Not A Festival",
+    "the name localizer falls back to English for an unknown festival",
+  );
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
 function kycChecks() {
   head("7. KYC — the plaintext ID must not reach the database (regression lock only)");
   /* READ-ONLY. Hardening KYC is explicitly out of scope and needs a decision from Santosh.
@@ -1090,6 +1263,7 @@ function kycChecks() {
   stockChecks();
   codGuestChecks();
   muhuratFinderChecks();
+  await festivalChecks();
   kycChecks();
 
   console.log("\n" + "=".repeat(70));
