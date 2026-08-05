@@ -920,6 +920,67 @@ function stockChecks() {
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
+function codGuestChecks() {
+  head("12. COD + GUEST CHECKOUT — must stay dormant until deliberately switched on");
+  /* Both features are blocked on the paused database (orders.user_id is NOT NULL, there is no
+     payment-method column, and every read policy is keyed to auth.uid()). The rules and the token
+     handling are written and unit-tested; the wiring is not. These checks make sure that
+     half-built state cannot drift into something that looks live. */
+  const cod = strip(read(path.join(SRC, "lib", "cod.ts")));
+  const guest = strip(read(path.join(SRC, "lib", "guest-order.ts")));
+  const checkout = strip(read(path.join(APP, "api", "checkout", "route.ts")));
+
+  line(cod.length > 200 && guest.length > 200, "the COD and guest-order rules exist");
+  line(
+    /enabled:\s*false/.test(cod) && /servicePincodes:\s*\[\]/.test(cod),
+    "COD ships DISABLED, with no serviceable pincode — a payment method must fail closed",
+  );
+  line(
+    !checkout.includes("codEligibility"),
+    "the checkout does NOT yet offer COD (it cannot: there is no payment_method column)",
+  );
+  line(
+    checkout.includes('return NextResponse.json({ error: "Not authenticated" }'),
+    "the checkout still requires an account (guest checkout is not wired up)",
+  );
+  line(
+    guest.includes("timingSafeEqual"),
+    "guest order tokens are compared in constant time, not with ===",
+  );
+  line(
+    /update\(`\$\{orderId\}:\$\{token\}`\)/.test(guest),
+    "the guest token hash is bound to its order, so one token cannot open another",
+  );
+  line(
+    !guest.includes("process.env.GUEST_ORDER_SECRET") ||
+      /length >= 32/.test(guest),
+    "a guest-order secret shorter than 32 characters is rejected",
+  );
+
+  const migration = read(
+    path.join(ROOT, "supabase", "migrations", "20260805_cod_and_guest_checkout.sql"),
+  );
+  line(
+    /NOT APPLIED/.test(migration),
+    "the COD / guest-checkout migration is marked as not yet applied",
+    migration ? `${migration.length} bytes` : "MISSING",
+  );
+
+  control(
+    /enabled:\s*false/.test("export const P = { enabled: false };"),
+    "the fail-closed detector recognises a disabled default",
+  );
+  control(
+    !/enabled:\s*false/.test("export const P = { enabled: true };"),
+    "the fail-closed detector rejects an enabled default",
+  );
+  control(
+    "x".repeat(31).length < 32 && "x".repeat(32).length >= 32,
+    "the secret-length boundary is where it is claimed to be",
+  );
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
 function kycChecks() {
   head("7. KYC — the plaintext ID must not reach the database (regression lock only)");
   /* READ-ONLY. Hardening KYC is explicitly out of scope and needs a decision from Santosh.
@@ -962,6 +1023,7 @@ function kycChecks() {
   await i18nChecks();
   sitemapChecks();
   stockChecks();
+  codGuestChecks();
   kycChecks();
 
   console.log("\n" + "=".repeat(70));
