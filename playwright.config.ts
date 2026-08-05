@@ -20,9 +20,16 @@ export default defineConfig({
     { name: "chromium", use: { ...devices["Desktop Chrome"] } },
   ],
   webServer: {
-    command: "npm run build && npm run start",
+    /* ⚠️ RUN `npm run build` FIRST. This only starts the server.
+       The original command was `npm run build && npm run start` inside a 180-second budget — and
+       a production build of this app takes several minutes, so the E2E suite timed out before a
+       single test ran and had presumably never completed on a developer machine. Building inside
+       the test runner's start-up window was the mistake; a build is a separate step, and CI
+       should run it as one. */
+    command: "npm run start",
     url: baseURL,
     reuseExistingServer: !process.env.CI,
-    timeout: 180_000,
+    // A cold build on a modest machine is minutes, not seconds. 180s guaranteed a timeout.
+    timeout: 900_000,
   },
 });
