@@ -125,8 +125,16 @@ comment on function public.decrement_stock_for_order(uuid) is
   'SUPERSEDED by reserve_stock_for_order. Clamps at zero, so it can oversell silently. Kept only until finalizeOrderPaid() stops calling it.';
 
 -- ───────────────────────────────────────────────────────────────────────────────────────────────
--- 5. Not fixed here, because it needs a business decision rather than a function:
---    the admin "edit order item" and "remove order item" actions in
---    src/app/[locale]/admin/actions.ts change quantities on a PAID order and never touch stock.
---    Removing a line from a paid order should probably restock it — but only if it has not
---    shipped, and that is Santosh's call, not something to encode silently.
+-- 5. The admin side was fixed in application code on 05-Aug-2026 (commit e175ccf) — this note is
+--    kept so the two halves stay connected.
+--
+--    updateOrderItem, removeOrderItem and updateOrderStatus in
+--    src/app/[locale]/admin/actions.ts now adjust stock, but only for orders that have already
+--    consumed it (paid / packed / shipped / delivered). A cancellation restocks from `paid` or
+--    `packed` only: shipped and delivered goods have physically left, and getting them back is a
+--    return that needs inspecting, not an automatic restock.
+--
+--    Those adjustments are read-modify-write and therefore not atomic. That is a reasonable
+--    trade for an admin screen with one or two operators, but when this migration is applied the
+--    admin helpers should move onto reserve_stock_for_order() / release_stock_for_order() too, so
+--    that every path that moves stock moves it the same way.
