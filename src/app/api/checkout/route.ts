@@ -43,11 +43,15 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Cart is empty" }, { status: 400 });
   }
 
-  // Trust the DB for prices. Fetch every product in the cart in one query.
+  // Trust the DB for prices AND for stock. `stock` was missing from this select until
+  // 05-Aug-2026, so nothing on the server ever checked whether the items being bought actually
+  // existed: the only stock check in the whole purchase path was in the browser, against a
+  // number baked into a page that is cached for five minutes. A cart left open for an hour, or
+  // a product that sold out after the page was rendered, sailed straight through to payment.
   const slugs = body.items.map((i) => i.slug);
   const { data: products, error: productsError } = await supabase
     .from("products")
-    .select("id, slug, name, price, active, gst_rate, hsn_code")
+    .select("id, slug, name, price, active, stock, gst_rate, hsn_code")
     .in("slug", slugs);
 
   if (productsError || !products) {
@@ -65,6 +69,45 @@ export async function POST(request: Request) {
     return NextResponse.json(
       { error: "One or more items are unavailable" },
       { status: 400 },
+    );
+  }
+
+  /* Stock check, before a single rupee is taken.
+   *
+   * This is deliberately checked here rather than only after payment. Stock was previously
+   * decremented in finalizeOrderPaid() — i.e. once the customer had already paid — by a database
+   * function whose `greatest(stock - qty, 0)` clamped the result at zero. So selling three of an
+   * item you had one of took all three payments, left the stock reading 0, and recorded nothing
+   * anywhere to say it had happened. The money was real; the shortfall was invisible.
+   *
+   * NOTE ON WHAT THIS DOES NOT FIX: two customers checking out within the same instant can both
+   * pass this check before either order is written. Closing that window needs an atomic reserve
+   * in the database — written up in supabase/migrations/20260805_stock_reservation.sql, NOT YET
+   * APPLIED because the Supabase project is paused. This check closes the common cases (stale
+   * cart, sold-out item, quantity above stock); it narrows the race, it does not remove it.
+   */
+  const short = body.items
+    .map((item) => {
+      const product = bySlug.get(item.slug)!;
+      const requested = Math.max(1, Math.floor(item.quantity));
+      return { name: product.name, requested, available: product.stock ?? 0 };
+    })
+    .filter((s) => s.available < s.requested);
+
+  if (short.length > 0) {
+    return NextResponse.json(
+      {
+        error: short
+          .map((s) =>
+            s.available > 0
+              ? `${s.name}: only ${s.available} left`
+              : `${s.name} is sold out`,
+          )
+          .join("; "),
+        code: "INSUFFICIENT_STOCK",
+        items: short,
+      },
+      { status: 409 },
     );
   }
 

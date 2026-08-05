@@ -785,6 +785,93 @@ function sitemapChecks() {
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
+function stockChecks() {
+  head("11. STOCK — the checkout must not sell what is not there");
+  /* Until 05-Aug-2026 the checkout route never read the `stock` column at all. The only stock
+     check in the entire purchase path lived in the browser, against a number baked into a page
+     cached for five minutes — so a stale cart or an item that sold out after render went straight
+     through to payment. Stock was then decremented AFTER the money was taken, by a function whose
+     `greatest(stock - qty, 0)` clamped at zero, leaving no trace that anything had been oversold.
+     These lock in that the server checks first and that an oversell cannot go unreported. */
+  const checkout = strip(read(path.join(APP, "api", "checkout", "route.ts")));
+
+  const selectLine = (checkout.match(/\.select\(\s*"([^"]*products?[^"]*)"\s*\)/) ||
+    checkout.match(/\.from\("products"\)[\s\S]{0,200}?\.select\(\s*"([^"]+)"/) || [])[1];
+  line(
+    /\bstock\b/.test(selectLine || ""),
+    "the checkout reads the stock column",
+    selectLine ? selectLine.slice(0, 70) : "(select not found)",
+  );
+  line(
+    checkout.includes("INSUFFICIENT_STOCK"),
+    "the checkout can refuse a cart it cannot fill",
+  );
+  // `[\w.]*` so the comparison can be written on properties (`s.available < s.requested`).
+  line(
+    /available\s*<\s*[\w.]*requested|requested\s*>\s*[\w.]*available/i.test(checkout),
+    "the refusal compares what was asked for against what is in stock",
+  );
+  /* `indexOf` returns -1 for something absent, and -1 is less than everything — so the naive
+     "A comes before B" test PASSES when A is missing entirely. Both ordering checks here did
+     exactly that against the pre-fix code, reporting the correct order for code that did not
+     exist. Presence has to be asserted before position. */
+  const before = (text, a, b) => {
+    const ia = text.indexOf(a);
+    const ib = text.indexOf(b);
+    return ia >= 0 && ib >= 0 && ia < ib;
+  };
+  /* Match the CALL, not the name. `createRazorpayOrder` also appears in the import at the top of
+     the file, so comparing against the first occurrence compared against the import line and
+     reported the check as happening too late. */
+  line(
+    before(checkout, "INSUFFICIENT_STOCK", "createRazorpayOrder({"),
+    "the stock check happens BEFORE the payment is created",
+  );
+
+  const payments = strip(read(path.join(SRC, "lib", "payments.ts")));
+  line(
+    payments.includes("reportOversell"),
+    "an oversell that slips through the race window is reported, not swallowed",
+  );
+  line(
+    before(payments, "reportOversell(admin, orderId)", "decrement_stock_for_order"),
+    "the oversell report runs BEFORE the decrement (which clamps at zero and erases the evidence)",
+  );
+
+  const migration = read(
+    path.join(ROOT, "supabase", "migrations", "20260805_stock_reservation.sql"),
+  );
+  line(
+    migration.includes("reserve_stock_for_order") && migration.includes("for update"),
+    "the atomic database fix is written down for when the project is un-paused",
+    migration ? `${migration.length} bytes` : "MISSING",
+  );
+  line(
+    /NOT APPLIED/.test(migration),
+    "that migration is clearly marked as not yet applied",
+  );
+
+  control(
+    checkout.length > 500,
+    `read the checkout route (${checkout.length} chars)`,
+  );
+  control(
+    !/\bstock\b/.test('.select("id, slug, name, price, active, gst_rate, hsn_code")'),
+    "the stock-in-select detector reports the pre-fix select line as missing stock",
+  );
+  control(
+    /\bstock\b/.test('.select("id, slug, name, price, active, stock, gst_rate")'),
+    "the stock-in-select detector finds stock when it is there",
+  );
+  control(before("abc", "b", "c"), "the ordering test is true for a genuinely ordered pair");
+  control(!before("abc", "c", "b"), "the ordering test is false when the order is reversed");
+  control(
+    !before("abc", "zzz", "c"),
+    "the ordering test is FALSE when the first marker is absent (the -1 trap)",
+  );
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
 function kycChecks() {
   head("7. KYC — the plaintext ID must not reach the database (regression lock only)");
   /* READ-ONLY. Hardening KYC is explicitly out of scope and needs a decision from Santosh.
@@ -826,6 +913,7 @@ function kycChecks() {
   envChecks();
   await i18nChecks();
   sitemapChecks();
+  stockChecks();
   kycChecks();
 
   console.log("\n" + "=".repeat(70));

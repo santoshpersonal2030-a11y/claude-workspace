@@ -101,6 +101,13 @@ const en: Dict = {
   "announce.shopDeals": "shop today's best deals",
   "announce.dismiss": "Dismiss announcement",
 
+  // Checkout refused because the cart asks for more than is in stock. {items} is a ready-made
+  // list built by the cart from the server's reply, e.g. "Brass Diya: only 2 left".
+  "cart.stockChanged":
+    "Some items are no longer available in the quantity you chose — {items}. Please update your cart and try again.",
+  "cart.stockOnlyLeft": "{name}: only {n} left",
+  "cart.stockSoldOut": "{name} is sold out",
+
   // Homepage — trust stats
   "home.trust.pandits": "Verified Pandits",
   "home.trust.poojas": "Poojas Performed",
@@ -855,6 +862,11 @@ const hi: Dict = {
   "announce.shopDeals": "आज के बेहतरीन ऑफ़र देखें",
   "announce.dismiss": "घोषणा बंद करें",
 
+  "cart.stockChanged":
+    "कुछ वस्तुएँ अब आपकी चुनी हुई मात्रा में उपलब्ध नहीं हैं — {items}। कृपया अपना कार्ट अपडेट करके फिर से प्रयास करें।",
+  "cart.stockOnlyLeft": "{name}: केवल {n} बचे",
+  "cart.stockSoldOut": "{name} बिक चुका है",
+
   // Homepage — trust stats
   "home.trust.pandits": "सत्यापित पंडित",
   "home.trust.poojas": "पूजाएँ संपन्न",
@@ -1598,6 +1610,11 @@ const te: Dict = {
   "announce.freeDelivery": "🎉 {amount} పైబడిన ఆర్డర్‌లపై ఉచిత డెలివరీ —",
   "announce.shopDeals": "నేటి ఉత్తమ ఆఫర్‌లను చూడండి",
   "announce.dismiss": "ప్రకటనను మూసివేయండి",
+
+  "cart.stockChanged":
+    "కొన్ని వస్తువులు మీరు ఎంచుకున్న పరిమాణంలో ఇక అందుబాటులో లేవు — {items}. దయచేసి మీ కార్ట్‌ను నవీకరించి మళ్లీ ప్రయత్నించండి.",
+  "cart.stockOnlyLeft": "{name}: కేవలం {n} మిగిలాయి",
+  "cart.stockSoldOut": "{name} అమ్ముడైపోయింది",
 
   "home.trust.pandits": "ధృవీకరించిన పండితులు",
   "home.trust.poojas": "నిర్వహించిన పూజలు",

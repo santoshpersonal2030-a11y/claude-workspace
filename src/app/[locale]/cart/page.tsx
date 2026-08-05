@@ -190,6 +190,18 @@ export default function CartPage() {
 
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
+        // The stock refusal is the one failure a customer can act on, so it is translated and
+        // names the items rather than showing the server's English summary.
+        if (data.code === "INSUFFICIENT_STOCK" && Array.isArray(data.items)) {
+          const list = (data.items as { name: string; available: number }[])
+            .map((s) =>
+              s.available > 0
+                ? t("cart.stockOnlyLeft", { name: s.name, n: s.available })
+                : t("cart.stockSoldOut", { name: s.name }),
+            )
+            .join(", ");
+          throw new Error(t("cart.stockChanged", { items: list }));
+        }
         throw new Error(data.error ?? t("cart.checkoutFail"));
       }
 

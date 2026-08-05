@@ -10,11 +10,58 @@ import {
   grantReferralReward,
   settleRedemption,
 } from "@/lib/wallet";
+import { captureException } from "@/lib/observability";
 
 type CaptureResult = {
   ok: boolean;
   status: "captured" | "already" | "not_found";
 };
+
+/* Reports an order that took more stock than existed.
+ *
+ * The checkout now refuses a cart it cannot fill, so reaching here means two buyers cleared that
+ * check within the same instant and both paid for the last unit. That is rare, but it is exactly
+ * the case that must never pass unnoticed: someone has been charged for something you cannot
+ * send, and the database function that applies the decrement clamps the result at zero, so the
+ * stock afterwards reads a perfectly innocent 0 with nothing to say two units are owed.
+ *
+ * Read BEFORE the decrement, because afterwards the evidence is gone.
+ */
+async function reportOversell(
+  admin: ReturnType<typeof createAdminClient>,
+  orderId: string,
+): Promise<void> {
+  const { data: lines } = await admin
+    .from("order_items")
+    .select("product_name, quantity, products(stock)")
+    .eq("order_id", orderId);
+
+  const short = (lines ?? [])
+    .map((l) => {
+      const stock =
+        (l.products as { stock: number } | { stock: number }[] | null) == null
+          ? 0
+          : Array.isArray(l.products)
+            ? (l.products[0]?.stock ?? 0)
+            : (l.products as { stock: number }).stock;
+      return { name: l.product_name, ordered: l.quantity, stock };
+    })
+    .filter((l) => l.stock < l.ordered);
+
+  if (short.length === 0) return;
+
+  await captureException(
+    new Error(
+      `OVERSOLD order ${orderId}: ` +
+        short.map((s) => `${s.name} ordered ${s.ordered}, stock ${s.stock}`).join("; "),
+    ),
+    {
+      level: "error",
+      tags: { kind: "oversell", order_id: orderId },
+      extra: { orderId, short },
+    },
+  );
+}
 
 // Side effects when an order becomes paid: stock, confirmation email, and
 // wallet rewards (settle any credit redeemed, earn loyalty, pay out referral).
@@ -31,6 +78,8 @@ export async function finalizeOrderPaid(orderId: string): Promise<void> {
     .maybeSingle();
   if (!order) return; // already finalised, or not found
 
+  // Must run before the decrement: the decrement clamps at zero and erases the evidence.
+  await reportOversell(admin, orderId);
   await admin.rpc("decrement_stock_for_order", { p_order_id: orderId });
   await sendOrderConfirmation(orderId);
 
