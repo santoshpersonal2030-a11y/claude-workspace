@@ -85,12 +85,29 @@ string, which is why the raw number looks terrifying. They all have the same sin
 nothing passes the current language to the date and time formatter. One helper function, applied
 in the handful of places that format a time, closes almost all of it.
 
-### The 353 needs an answer before anyone writes code
+### ⚠️ Correction — the 353 is NOT a pending decision
 
-Should "Griha Pravesh" appear as **गृह प्रवेश** on the Hindi site? Should the pandits' names be
-transliterated? Should product names? There is a good argument either way — Roman-script pooja
-names are widely used and instantly recognisable — and **guessing wrong here means rewriting the
-catalog twice.** This is flagged, not fixed.
+**This section originally said the catalog names needed a decision from Santosh before anyone
+wrote code. That was wrong, and it is corrected here rather than quietly edited away.**
+
+The decision was already made in June, and the work is already done:
+
+- `src/lib/poojas-i18n.ts` translates **all 48 poojas — 48/48 in Hindi and 48/48 in Telugu**,
+  names and descriptions.
+- Five more helpers exist and do the same job: `localizeProduct`, `localizePandit`,
+  `localizeTemplePuja`, `localizeConsultation`, `localizeLifeEvent`.
+
+So the answer to *"should Griha Pravesh appear as गृह प्रवेश"* is **yes, and it already does** —
+on every surface that calls `localizePooja()`.
+
+**The 353 is therefore not a content decision. It is the same defect as the interface text, in a
+different place: surfaces that render a catalog name without calling the localize helper.** The
+footer was one of them — it hardcoded "Satyanarayan Katha" while the catalog had सत्यनारायण कथा
+sitting right there.
+
+The lesson worth keeping: the audit classified by *where a string was written* rather than by
+*whether a translation existed for it*. That is a reasonable-sounding rule that produced a
+confident wrong answer, and it took opening `poojas-i18n.ts` to notice.
 
 ---
 
@@ -234,7 +251,7 @@ Three of the six slices below need **no new translated text at all**. They are p
 | **3** | `AnnouncementBar` + the last header strings | Tiny | 3 phrases × 2 | Low |
 | **4** | Date and time formatting | Medium | **None** | Medium |
 | **5** | The 13 public pages that translate nothing | Large | ~150 phrases × 2 | Medium |
-| **6** | Catalog content (pooja/pandit/product names) | Large | ~350 × 2 | **Blocked — needs a decision** |
+| **6** | Catalog content (pooja/pandit/product names) | Medium | **None — already translated** | Low |
 
 ### Slice 1 — sitemap, hreflang, og:locale *(do this first)*
 
@@ -298,14 +315,15 @@ Hindi contract. This is a blocker to be raised, not worked around.
 
 The other ten are ordinary interface copy and can proceed normally.
 
-### Slice 6 — catalog content *(blocked)*
+### Slice 6 — catalog content *(not blocked after all)*
 
-Should the Hindi site say **गृह प्रवेश** or "Griha Pravesh"? Should pandits' names be
-transliterated? Both answers are defensible. Roman-script pooja names are widely recognised and
-searched for in English even by Hindi speakers. Getting it wrong means redoing 350 entries
-twice, and it touches the seed catalog, the database, the sitemap and the search index.
+**Originally listed here as blocked pending a decision. It is not.** All 48 poojas are already
+translated into both languages, and there are five more `localize*` helpers for products,
+pandits, temple pujas, consultations and life events.
 
-**This needs Santosh's answer before a single line is written.**
+The work is to find every surface that renders a catalog name **without** calling its helper and
+route it through. Same shape as slice 2, which fixed exactly this in the footer. No new
+translations required, and no decision needed.
 
 ## What could break — the risk list
 
@@ -322,14 +340,15 @@ twice, and it touches the seed catalog, the database, the sitemap and the search
 
 ## What must be decided before the blocked slices can move
 
-1. **Catalog names** — transliterate pooja, pandit and product names, or keep them in Roman
-   script? (Blocks slice 6, ~350 phrases.)
-2. **Legal pages** — who signs off a Hindi and Telugu Terms, Privacy and Refund policy? Until
+*(Item 1 was "catalog names". It turned out to be already decided and already done — see the
+correction above. Three real decisions remain.)*
+
+1. **Legal pages** — who signs off a Hindi and Telugu Terms, Privacy and Refund policy? Until
    there is a name, they stay English. (Blocks 3 of the 13 pages in slice 5.)
-3. **Admin console** — translate it at all? 33 of the 66 untranslated pages are staff-only.
+2. **Admin console** — translate it at all? 33 of the 66 untranslated pages are staff-only.
    English admin screens are a normal and defensible choice, and skipping them removes half the
    remaining work.
-4. **Telugu font** — which typeface? Mukta has no Telugu family member, so this is a new font
+3. **Telugu font** — which typeface? Mukta has no Telugu family member, so this is a new font
    choice, not a configuration change.
 
 ## How progress will be measured

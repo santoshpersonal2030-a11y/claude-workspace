@@ -67,8 +67,15 @@ export default function ContactForm() {
       onSubmit={handleSubmit}
       className="space-y-3 rounded-2xl border border-saffron-100 bg-white p-6 shadow-sm"
     >
+      {/* Every field carries an aria-label. A placeholder is NOT a label: it is announced
+          inconsistently, and it disappears the moment the visitor starts typing — so anyone
+          using a screen reader, or anyone who looks away mid-form, is left with five identical
+          empty boxes. aria-label was chosen over a visible <label> because it fixes the defect
+          without altering the design, which is not mine to change. */}
       <div className="grid gap-3 sm:grid-cols-2">
         <input
+          aria-label="Your name (required)"
+          required
           placeholder="Your name *"
           value={form.name}
           onChange={update("name")}
@@ -76,6 +83,7 @@ export default function ContactForm() {
         />
         <input
           type="email"
+          aria-label="Email address"
           placeholder="Email"
           value={form.email}
           onChange={update("email")}
@@ -85,12 +93,14 @@ export default function ContactForm() {
       <div className="grid gap-3 sm:grid-cols-2">
         <input
           type="tel"
+          aria-label="Phone number"
           placeholder="Phone"
           value={form.phone}
           onChange={update("phone")}
           className={inputClass}
         />
         <input
+          aria-label="Subject"
           placeholder="Subject"
           value={form.subject}
           onChange={update("subject")}
@@ -98,6 +108,8 @@ export default function ContactForm() {
         />
       </div>
       <textarea
+        aria-label="How can we help? (required)"
+        required
         placeholder="How can we help? *"
         rows={5}
         value={form.message}
@@ -105,8 +117,13 @@ export default function ContactForm() {
         className={inputClass}
       />
 
+      {/* role="alert" so the failure is spoken when it appears. Without it the message is drawn
+          on screen and a screen-reader user is simply told nothing. */}
       {error && (
-        <p className="rounded-xl bg-maroon-50 px-3 py-2 text-sm text-maroon-700">
+        <p
+          role="alert"
+          className="rounded-xl bg-maroon-50 px-3 py-2 text-sm text-maroon-700"
+        >
           {error}
         </p>
       )}

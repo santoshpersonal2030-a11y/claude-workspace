@@ -131,8 +131,13 @@ export default function PackageBookingForm({
                 {formatINR(c.price)}
               </span>
             </div>
+            {/* The ceremony name sits in a sibling <div>, so it names these controls for a
+                sighted visitor and for nobody else: a screen reader met three unnamed date
+                fields and three unnamed dropdowns in a row, with no way to tell which wedding
+                ceremony each one belonged to. The name goes into the aria-label. */}
             <input
               type="date"
+              aria-label={`Date for ${c.name}`}
               required
               value={dates[c.slug] ?? ""}
               onChange={(e) =>
@@ -141,6 +146,7 @@ export default function PackageBookingForm({
               className={field}
             />
             <select
+              aria-label={`Time slot for ${c.name}`}
               value={slots[c.slug] ?? timeSlots[0]}
               onChange={(e) =>
                 setSlots((s) => ({ ...s, [c.slug]: e.target.value }))
@@ -158,8 +164,10 @@ export default function PackageBookingForm({
       </div>
 
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
+        {/* Placeholder-only fields: named for a screen reader without changing the design. */}
         <textarea
           required
+          aria-label="Venue address (required)"
           placeholder="Venue address"
           value={shared.address}
           onChange={(e) => setShared({ ...shared, address: e.target.value })}
@@ -168,18 +176,21 @@ export default function PackageBookingForm({
         />
         <input
           required
+          aria-label="City (required)"
           placeholder="City"
           value={shared.city}
           onChange={(e) => setShared({ ...shared, city: e.target.value })}
           className={field}
         />
         <input
+          aria-label="Pincode"
           placeholder="Pincode"
           value={shared.pincode}
           onChange={(e) => setShared({ ...shared, pincode: e.target.value })}
           className={field}
         />
         <select
+          aria-label="Preferred language"
           value={shared.language}
           onChange={(e) => setShared({ ...shared, language: e.target.value })}
           className={field}

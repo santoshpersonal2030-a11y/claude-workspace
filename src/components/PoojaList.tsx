@@ -33,22 +33,55 @@ export default function PoojaList({ poojas }: { poojas: Pooja[] }) {
   });
 
   return (
-    <div>
-      {/* Search */}
-      <div className="relative mb-4 max-w-md">
-        <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-foreground/65">
-          🔍
-        </span>
-        <input
-          type="search"
-          value={query}
-          aria-label={t("browse.searchPoojas")}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder={t("browse.searchPoojas")}
-          className="w-full rounded-full border border-saffron-200 bg-white py-2.5 pl-10 pr-4 text-sm outline-none focus:border-saffron-400 focus:ring-2 focus:ring-saffron-100"
-        />
-      </div>
+    <>
+      {/* The page heading and the search box now share one row.
+          This block used to live in poojas/page.tsx while the search sat below it, at the top of
+          this component. Santosh asked in June for the search to move up beside the "Book a
+          Pooja" heading, so the hero moved in here instead — the search owns the query state and
+          the two cannot be in different components and still sit on the same line.
+          The heading is still server-rendered: Next renders client components on the server too,
+          so the <h1> is in the HTML a crawler receives, exactly as before. */}
+      <section className="bg-temple-gradient">
+        <div className="mx-auto max-w-6xl px-4 py-3 sm:px-6">
+          <nav className="text-sm text-foreground/65">
+            <span>{t("common.home")}</span>
+            <span className="mx-2">/</span>
+            <span className="text-saffron-700">{t("nav.bookPooja")}</span>
+          </nav>
 
+          {/* Stacks on a phone, side by side from 640px up. Hindi and Telugu headings are longer
+              than the English one, which is why the search has a max width rather than a fixed
+              one and the row is allowed to wrap. */}
+          <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <h1 className="font-heading text-4xl text-maroon-800">
+              {t("nav.bookPooja")}
+            </h1>
+            <div className="relative w-full sm:w-auto sm:min-w-56 sm:max-w-sm sm:flex-1">
+              <span
+                aria-hidden="true"
+                className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-foreground/65"
+              >
+                🔍
+              </span>
+              <input
+                type="search"
+                value={query}
+                aria-label={t("browse.searchPoojas")}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder={t("browse.searchPoojas")}
+                className="w-full rounded-full border border-saffron-200 bg-white py-2.5 pl-10 pr-4 text-sm outline-none focus:border-saffron-400 focus:ring-2 focus:ring-saffron-100"
+              />
+            </div>
+          </div>
+
+          <p className="mt-3 max-w-2xl text-lg text-foreground/70">
+            {t("poojas.subtitle")}
+          </p>
+        </div>
+      </section>
+
+      <div className="mx-auto max-w-6xl px-4 py-3 sm:px-6">
+      <h2 className="sr-only">{t("dir.allPoojas")}</h2>
       {/* Category filter chips */}
       <div className="flex flex-wrap gap-2">
         {filters.map((cat) => {
@@ -100,8 +133,9 @@ export default function PoojaList({ poojas }: { poojas: Pooja[] }) {
             href={`/poojas/${pooja.slug}`}
             className="group flex flex-col rounded-2xl border border-saffron-100 bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:border-saffron-200 hover:shadow-md"
           >
-            <div className="flex items-start justify-between">
-              <div className="text-4xl">{pooja.emoji}</div>
+            {/* The icon used to sit on its own line above the name. It now sits beside it (see
+                the <h3> below), so this row carries only the category and ritual chips. */}
+            <div className="flex items-start justify-end">
               <div className="flex flex-col items-end gap-1">
                 <span className="rounded-full bg-saffron-50 px-3 py-1 text-xs font-medium text-saffron-700">
                   {t(`pcat.${pooja.category}`)}
@@ -111,8 +145,13 @@ export default function PoojaList({ poojas }: { poojas: Pooja[] }) {
                 </span>
               </div>
             </div>
-            <h3 className="mt-4 font-heading text-lg text-maroon-700">
-              {pooja.name}
+            {/* aria-hidden on the icon: it repeats what the name already says, and a screen
+                reader announcing "diya lamp, Satyanarayan Katha" is noise, not information. */}
+            <h3 className="mt-4 flex items-start gap-2.5 font-heading text-lg text-maroon-700">
+              <span aria-hidden="true" className="text-2xl leading-tight">
+                {pooja.emoji}
+              </span>
+              <span>{pooja.name}</span>
             </h3>
             {pooja.sanskritName && (
               <p className="text-sm text-saffron-700">{pooja.sanskritName}</p>
@@ -142,6 +181,7 @@ export default function PoojaList({ poojas }: { poojas: Pooja[] }) {
             : t("browse.noneInCategory")}
         </p>
       )}
-    </div>
+      </div>
+    </>
   );
 }

@@ -78,6 +78,9 @@ export default function CartDrawer() {
       {/* Panel */}
       <aside
         ref={panelRef}
+        // id is the target of aria-controls on CartButton, so the header button and this panel
+        // are programmatically connected rather than merely adjacent on screen.
+        id="cart-drawer"
         className={`absolute right-0 top-0 flex h-full w-full max-w-md flex-col bg-cream shadow-2xl transition-transform duration-300 ${
           open ? "translate-x-0" : "translate-x-full"
         }`}

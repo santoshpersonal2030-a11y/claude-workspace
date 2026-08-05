@@ -235,10 +235,17 @@ function LoginCard() {
 
       {method === "email" ? (
         <form onSubmit={submitEmail}>
-          <label className="mb-1 block text-sm font-medium text-foreground/80">
+          {/* These labels were already on screen but were not attached to anything: no htmlFor,
+              and not wrapping the input. Sighted visitors saw "Email"; a screen reader announced
+              an unnamed edit box. htmlFor/id fixes that, and also makes the label clickable. */}
+          <label
+            htmlFor="login-email"
+            className="mb-1 block text-sm font-medium text-foreground/80"
+          >
             Email
           </label>
           <input
+            id="login-email"
             type="email"
             autoComplete="email"
             required
@@ -247,10 +254,14 @@ function LoginCard() {
             placeholder="you@example.com"
             className="w-full rounded-xl border border-saffron-200 bg-cream px-3 py-2.5 text-sm outline-none focus:border-saffron-400 focus:ring-2 focus:ring-saffron-100"
           />
-          <label className="mb-1 mt-3 block text-sm font-medium text-foreground/80">
+          <label
+            htmlFor="login-password"
+            className="mb-1 mt-3 block text-sm font-medium text-foreground/80"
+          >
             Password
           </label>
           <input
+            id="login-password"
             type="password"
             autoComplete={emailMode === "signup" ? "new-password" : "current-password"}
             required
@@ -298,12 +309,16 @@ function LoginCard() {
         </form>
       ) : phase === "enter-phone" ? (
         <form onSubmit={sendOtp}>
-          <label className="mb-1 block text-sm font-medium text-foreground/80">
+          <label
+            htmlFor="login-phone"
+            className="mb-1 block text-sm font-medium text-foreground/80"
+          >
             Mobile number
           </label>
           <div className="flex items-center rounded-xl border border-saffron-200 bg-cream px-3 focus-within:border-saffron-400 focus-within:ring-2 focus-within:ring-saffron-100">
             <span className="text-sm text-foreground/65">+91</span>
             <input
+              id="login-phone"
               type="tel"
               inputMode="numeric"
               autoComplete="tel"
@@ -324,10 +339,14 @@ function LoginCard() {
         </form>
       ) : (
         <form onSubmit={verifyOtp}>
-          <label className="mb-1 block text-sm font-medium text-foreground/80">
+          <label
+            htmlFor="login-otp"
+            className="mb-1 block text-sm font-medium text-foreground/80"
+          >
             Enter the OTP sent to {phone}
           </label>
           <input
+            id="login-otp"
             type="text"
             inputMode="numeric"
             autoComplete="one-time-code"

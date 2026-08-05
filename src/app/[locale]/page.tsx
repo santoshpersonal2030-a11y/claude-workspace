@@ -185,9 +185,12 @@ export default async function Home({
                 href={`/poojas/${pooja.slug}`}
                 className="group flex flex-col rounded-2xl border border-saffron-100 bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:border-saffron-200 hover:shadow-md"
               >
-                <div className="text-4xl">{pooja.emoji}</div>
-                <h3 className="mt-4 font-heading text-lg text-maroon-700">
-                  {pooja.name}
+                {/* Icon inline beside the name rather than stacked above it. */}
+                <h3 className="flex items-start gap-2.5 font-heading text-lg text-maroon-700">
+                  <span aria-hidden="true" className="text-2xl leading-tight">
+                    {pooja.emoji}
+                  </span>
+                  <span>{pooja.name}</span>
                 </h3>
                 {pooja.sanskritName && (
                   <p className="text-sm text-saffron-700">

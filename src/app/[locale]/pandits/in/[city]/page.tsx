@@ -148,9 +148,12 @@ export default async function CityPanditPage({
                 href={`/poojas/${p.slug}`}
                 className="group flex flex-col rounded-2xl border border-saffron-100 bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md"
               >
-                <div className="text-4xl">{p.emoji}</div>
-                <h3 className="mt-3 font-heading text-lg text-maroon-700">
-                  {p.name}
+                {/* Icon inline beside the name rather than stacked above it. */}
+                <h3 className="flex items-start gap-2.5 font-heading text-lg text-maroon-700">
+                  <span aria-hidden="true" className="text-2xl leading-tight">
+                    {p.emoji}
+                  </span>
+                  <span>{p.name}</span>
                 </h3>
                 <p className="mt-1 flex-1 text-sm text-foreground/65">
                   {p.shortDescription}

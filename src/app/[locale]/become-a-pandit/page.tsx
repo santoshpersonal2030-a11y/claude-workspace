@@ -57,7 +57,12 @@ export default function BecomeAPanditPage() {
                 className="rounded-2xl border border-saffron-100 bg-white p-4 shadow-sm"
               >
                 <div className="text-2xl">{p.emoji}</div>
-                <h3 className="mt-2 font-medium text-maroon-700">{p.title}</h3>
+                {/* h2, not h3. These sit directly under the page's h1, so h3 skipped a level and
+                    then "Apply now" (an h2) came after them — a screen reader navigating by
+                    heading gets a structure that contradicts the page. Purely a tag change:
+                    globals.css styles h1-h4 identically and Tailwind's reset makes every heading
+                    inherit its size, so nothing moves on screen. */}
+                <h2 className="mt-2 font-medium text-maroon-700">{p.title}</h2>
                 <p className="mt-1 text-sm text-foreground/65">{p.body}</p>
               </div>
             ))}
