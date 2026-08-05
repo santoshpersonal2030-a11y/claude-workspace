@@ -14,6 +14,11 @@
  *   - Anything that only exists after a click: open drawers, dropdown menus, dialogs, toasts.
  *     Those are the highest-risk surfaces for keyboard traps and are NOT covered here.
  *   - Focus order and focus visibility, which need a real browser.
+ *   - LAYOUT REFLOW (WCAG 1.4.10). Added to this list on 05-Aug-2026 after a browser found that
+ *     every page on the site scrolls sideways at 360px wide — the header needs 436px and clips
+ *     the ☰ menu button off the right edge. That is a CSS problem that only exists once a page
+ *     is measured at a width; nothing in the HTML shows it. This file reported zero problems
+ *     while that was true on all 96 pages. Reflow needs a real browser at a real viewport.
  * A clean run here is not a clean bill of health. It is one layer.
  *
  * Exit code is always 0 — this is a report. qa/checks.js is the gate.
