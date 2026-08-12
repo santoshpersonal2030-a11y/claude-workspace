@@ -217,6 +217,12 @@ anything rather than reporting a pass.
 
 **BookMyPoojari bills as PROVIDENT GLOBAL SERVICES.** Confirmed, and configured.
 
+**The GSTIN in commit `43bd033` stays.** I used the real one as test data — my slip — and replaced
+it with a fictional one afterwards, but it remains in that commit's history on GitHub. Offered to
+rewrite the history and force-push; Santosh said leave it. **Settled — do not raise again.** It is
+public information (searchable on the GST portal, printed on every invoice), and his name and
+address are not in the repository.
+
 ---
 
 # WHAT I DID NOT DO — and why
