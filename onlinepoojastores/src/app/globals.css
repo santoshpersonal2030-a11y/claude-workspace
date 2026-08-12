@@ -1,0 +1,17 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-sans: 'Segoe UI', 'Helvetica Neue', system-ui, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #fffaf5;
+  color: #2b2b2b;
+  -webkit-font-smoothing: antialiased;
+}
