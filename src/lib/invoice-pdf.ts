@@ -1,5 +1,10 @@
 import { PdfDoc } from "@/lib/pdf";
-import { COMPANY, type Company } from "@/lib/company";
+import {
+  COMPANY,
+  canIssueTaxInvoice,
+  invoiceBlockers,
+  type Company,
+} from "@/lib/company";
 import { logoJpeg } from "@/lib/logo";
 
 type Logo = { data: Buffer; w: number; h: number };
@@ -38,9 +43,20 @@ export function buildOrderInvoicePdf(
     doc.text(L, yt(ay), line, { size: 8 });
     ay += 11;
   }
-  doc.text(L, yt(ay), `GSTIN: ${company.gstin}`, { size: 8 });
-  ay += 11;
-  doc.text(L, yt(ay), `State: ${company.state}`, { size: 8 });
+  /* An invoice with no real GSTIN is not a tax invoice, and must not look like one. */
+  if (canIssueTaxInvoice(company)) {
+    doc.text(L, yt(ay), `GSTIN: ${company.gstin}`, { size: 8 });
+    ay += 11;
+    doc.text(L, yt(ay), `State: ${company.state}`, { size: 8 });
+  } else {
+    doc.text(
+      L,
+      yt(ay),
+      `NOT A VALID TAX INVOICE - missing ${invoiceBlockers(company).join(", ")}`,
+      { size: 8 },
+    );
+    ay += 11;
+  }
 
   doc.text(
     R,

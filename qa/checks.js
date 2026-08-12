@@ -1735,6 +1735,96 @@ function chromeChecks() {
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
+function sellerIdentityChecks() {
+  head("21. THE SELLER'S OWN DETAILS — no invented GSTIN on a tax invoice");
+  /* src/lib/company.ts used to default the seller GSTIN to "29ABCDE1234F1Z5" and the state to
+     "Karnataka". Both were made up, and a made-up value here is far worse than a blank:
+
+       - That sample GSTIN PASSES this project's own GSTIN validator. It is structurally
+         perfect and entirely fictitious, so no check anywhere could have caught it.
+       - getCompany() silently falls back to these whenever the database is unreachable, which
+         it is right now — so a real invoice would have carried a fake tax number and looked
+         completely normal.
+       - The STATE is not cosmetic. isInterState(customerState, company.state) decides CGST+SGST
+         versus IGST, so a wrong seller state produces the wrong tax on every invoice issued.
+
+     Same rule as COD and SAMAGRI_LEAD_DAYS: when the real value is unknown, fail closed. */
+  const company = read(path.join(SRC, "lib", "company.ts"));
+  line(
+    !/gstin: process\.env\.NEXT_PUBLIC_COMPANY_GSTIN \?\? "[0-9]/.test(company),
+    "the GSTIN has no invented fallback",
+  );
+  line(
+    !/state: process\.env\.NEXT_PUBLIC_COMPANY_STATE \?\? "[A-Za-z]/.test(company),
+    "the seller state has no invented fallback",
+  );
+  line(
+    /KNOWN_SAMPLE_GSTINS/.test(company) && /29ABCDE1234F1Z5/.test(company),
+    "the sample GSTIN is named and rejected, since format alone cannot spot it",
+  );
+  line(
+    /export function canIssueTaxInvoice/.test(company),
+    "there is one place that answers 'can this business legally invoice yet'",
+  );
+
+  // Both invoice surfaces must ASK before printing a GSTIN.
+  for (const parts of [
+    ["lib", "invoice-pdf.ts"],
+    ["components", "receipts", "OrderInvoice.tsx"],
+  ]) {
+    const text = read(path.join(SRC, ...parts));
+    line(
+      /canIssueTaxInvoice\(company\)/.test(text),
+      `${parts[parts.length - 1]} refuses to look like a tax invoice without one`,
+    );
+    line(
+      /NOT A VALID TAX INVOICE/.test(text),
+      `…and says so in words rather than printing a blank label`,
+    );
+  }
+
+  /* The committed example file must not carry plausible fakes either — that is where they get
+     copied into a real .env.local from. */
+  const example = read(path.join(ROOT, ".env.example"));
+  line(
+    !/NEXT_PUBLIC_COMPANY_GSTIN=.+/.test(example) &&
+      !/NEXT_PUBLIC_COMPANY_STATE=.+/.test(example),
+    ".env.example ships these blank, not with a sample",
+  );
+
+  // The real values live only in .env.local, which must stay out of git.
+  const ignored = (() => {
+    try {
+      require("node:child_process").execSync("git check-ignore .env.local", {
+        cwd: ROOT,
+        stdio: "pipe",
+      });
+      return true;
+    } catch {
+      return false;
+    }
+  })();
+  line(ignored, ".env.local — where the REAL GSTIN lives — is gitignored");
+
+  control(
+    /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][1-9A-Z]Z[0-9A-Z]$/.test("29ABCDE1234F1Z5"),
+    "confirmed: the sample GSTIN really does pass a format check — this is why it is dangerous",
+  );
+  control(
+    !/gstin: process\.env\.NEXT_PUBLIC_COMPANY_GSTIN \?\? "[0-9]/.test(
+      'gstin: process.env.NEXT_PUBLIC_COMPANY_GSTIN ?? "",',
+    ),
+    "the invented-fallback detector accepts an empty default",
+  );
+  control(
+    /gstin: process\.env\.NEXT_PUBLIC_COMPANY_GSTIN \?\? "[0-9]/.test(
+      'gstin: process.env.NEXT_PUBLIC_COMPANY_GSTIN ?? "29ABCDE1234F1Z5",',
+    ),
+    "…and catches the exact line this project shipped with",
+  );
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
 function cityPoojaChecks() {
   head("20. CITY × POOJA PAGES — and the thin-page trap");
   const file = path.join(
@@ -2017,6 +2107,7 @@ function publicPageChecks() {
   chromeChecks();
   publicPageChecks();
   auditRootCoverageChecks();
+  sellerIdentityChecks();
   cityPoojaChecks();
   kycChecks();
 

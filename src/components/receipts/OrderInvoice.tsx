@@ -1,5 +1,10 @@
 import { formatINR } from "@/lib/poojas";
-import { COMPANY, type Company } from "@/lib/company";
+import {
+  COMPANY,
+  canIssueTaxInvoice,
+  invoiceBlockers,
+  type Company,
+} from "@/lib/company";
 import { invoiceNumber, isInterState } from "@/lib/invoice";
 import { placeOfSupply } from "@/lib/india";
 import { amountInWords } from "@/lib/amount-in-words";
@@ -97,7 +102,15 @@ export default function OrderInvoice({
               {l}
             </p>
           ))}
-          <p className="text-xs text-foreground/65">GSTIN: {company.gstin}</p>
+          {/* A blank GSTIN prints as an explicit warning, never as an empty label that
+              reads like a formatting slip. See canIssueTaxInvoice() in lib/company.ts. */}
+          {canIssueTaxInvoice(company) ? (
+            <p className="text-xs text-foreground/65">GSTIN: {company.gstin}</p>
+          ) : (
+            <p className="text-xs font-semibold text-red-700">
+              NOT A VALID TAX INVOICE — missing {invoiceBlockers(company).join(", ")}
+            </p>
+          )}
           <p className="text-xs text-foreground/65">
             {company.email} · {company.phone}
           </p>
