@@ -161,9 +161,15 @@ export default async function PoojaDetailPage({
               <span className="text-saffron-700">{pooja.name}</span>
             </nav>
 
+            {/* min-w-0 on the text block, shrink-0 on the icon.
+                A flex child will not shrink below its own min-content width unless it is told it
+                may — so the long Telugu pooja name pushed this row to 343px inside a 320px
+                viewport and the whole page scrolled sideways. Found by e2e/reflow.spec.ts, which
+                tests in Telugu precisely because it is the language that overflows first.
+                Same shape as the `minmax(0,1fr)` grid trap: the default floor is min-content. */}
             <div className="mt-4 flex items-start gap-4">
-              <div className="text-5xl">{pooja.emoji}</div>
-              <div>
+              <div className="shrink-0 text-5xl">{pooja.emoji}</div>
+              <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="rounded-full bg-saffron-50 px-3 py-1 text-xs font-medium text-saffron-700">
                     {t(`pcat.${pooja.category}`)}
@@ -178,11 +184,17 @@ export default async function PoojaDetailPage({
                     </span>
                   )}
                 </div>
-                <h1 className="mt-2 font-heading text-4xl text-maroon-800">
+                {/* break-words as well as min-w-0 on the parent. min-w-0 gives the box PERMISSION
+                    to shrink; it does not give the text anywhere to break. A long Telugu or Hindi
+                    pooja name has no space in it, so without this the word itself sets the
+                    minimum width and the row stays too wide however willing the box is. Both are
+                    needed — that is why the first attempt at this fix moved the reported culprit
+                    but left the page still scrolling 23px. */}
+                <h1 className="mt-2 break-words font-heading text-4xl text-maroon-800">
                   {pooja.name}
                 </h1>
                 {pooja.sanskritName && (
-                  <p className="mt-1 text-lg text-saffron-700">
+                  <p className="mt-1 break-words text-lg text-saffron-700">
                     {pooja.sanskritName}
                   </p>
                 )}
