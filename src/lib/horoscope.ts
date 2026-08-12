@@ -1,3 +1,6 @@
+import { formatDayMonth } from "./dates.ts";
+import type { Locale } from "./i18n.ts";
+
 // Daily horoscope — a free, SEO-friendly lead magnet. Predictions are generated
 // deterministically from the date + sign (stable for the whole day, identical
 // for every visitor, no external API), drawn from curated fragment pools.
@@ -6,25 +9,36 @@ export type Sign = {
   slug: string;
   name: string;
   symbol: string;
-  dates: string;
+  /* The date range as DATA — "MM-DD" — not as the English string "Apr 20 – May 20".
+     It was a hardcoded English phrase, which is why it was still English on the Hindi and
+     Telugu horoscope pages. The view formats it with formatDayMonth. */
+  from: string;
+  to: string;
   element: "Fire" | "Earth" | "Air" | "Water";
   ruler: string;
 };
 
 export const SIGNS: Sign[] = [
-  { slug: "aries", name: "Aries", symbol: "♈", dates: "Mar 21 – Apr 19", element: "Fire", ruler: "Mars" },
-  { slug: "taurus", name: "Taurus", symbol: "♉", dates: "Apr 20 – May 20", element: "Earth", ruler: "Venus" },
-  { slug: "gemini", name: "Gemini", symbol: "♊", dates: "May 21 – Jun 20", element: "Air", ruler: "Mercury" },
-  { slug: "cancer", name: "Cancer", symbol: "♋", dates: "Jun 21 – Jul 22", element: "Water", ruler: "Moon" },
-  { slug: "leo", name: "Leo", symbol: "♌", dates: "Jul 23 – Aug 22", element: "Fire", ruler: "Sun" },
-  { slug: "virgo", name: "Virgo", symbol: "♍", dates: "Aug 23 – Sep 22", element: "Earth", ruler: "Mercury" },
-  { slug: "libra", name: "Libra", symbol: "♎", dates: "Sep 23 – Oct 22", element: "Air", ruler: "Venus" },
-  { slug: "scorpio", name: "Scorpio", symbol: "♏", dates: "Oct 23 – Nov 21", element: "Water", ruler: "Mars/Pluto" },
-  { slug: "sagittarius", name: "Sagittarius", symbol: "♐", dates: "Nov 22 – Dec 21", element: "Fire", ruler: "Jupiter" },
-  { slug: "capricorn", name: "Capricorn", symbol: "♑", dates: "Dec 22 – Jan 19", element: "Earth", ruler: "Saturn" },
-  { slug: "aquarius", name: "Aquarius", symbol: "♒", dates: "Jan 20 – Feb 18", element: "Air", ruler: "Saturn" },
-  { slug: "pisces", name: "Pisces", symbol: "♓", dates: "Feb 19 – Mar 20", element: "Water", ruler: "Jupiter" },
+  { slug: "aries", name: "Aries", symbol: "♈", from: "03-21", to: "04-19", element: "Fire", ruler: "Mars" },
+  { slug: "taurus", name: "Taurus", symbol: "♉", from: "04-20", to: "05-20", element: "Earth", ruler: "Venus" },
+  { slug: "gemini", name: "Gemini", symbol: "♊", from: "05-21", to: "06-20", element: "Air", ruler: "Mercury" },
+  { slug: "cancer", name: "Cancer", symbol: "♋", from: "06-21", to: "07-22", element: "Water", ruler: "Moon" },
+  { slug: "leo", name: "Leo", symbol: "♌", from: "07-23", to: "08-22", element: "Fire", ruler: "Sun" },
+  { slug: "virgo", name: "Virgo", symbol: "♍", from: "08-23", to: "09-22", element: "Earth", ruler: "Mercury" },
+  { slug: "libra", name: "Libra", symbol: "♎", from: "09-23", to: "10-22", element: "Air", ruler: "Venus" },
+  { slug: "scorpio", name: "Scorpio", symbol: "♏", from: "10-23", to: "11-21", element: "Water", ruler: "Mars/Pluto" },
+  { slug: "sagittarius", name: "Sagittarius", symbol: "♐", from: "11-22", to: "12-21", element: "Fire", ruler: "Jupiter" },
+  { slug: "capricorn", name: "Capricorn", symbol: "♑", from: "12-22", to: "01-19", element: "Earth", ruler: "Saturn" },
+  { slug: "aquarius", name: "Aquarius", symbol: "♒", from: "01-20", to: "02-18", element: "Air", ruler: "Saturn" },
+  { slug: "pisces", name: "Pisces", symbol: "♓", from: "02-19", to: "03-20", element: "Water", ruler: "Jupiter" },
 ];
+
+/* The sign’s date range in the reader’s language. The year is arbitrary and never shown —
+   only the day and month are formatted — so 2026 is used purely to make a valid date. */
+export function signDateRange(sign: Sign, locale: Locale): string {
+  const fmt = (mmdd: string) => formatDayMonth(`2026-${mmdd}`, locale) ?? mmdd;
+  return `${fmt(sign.from)} – ${fmt(sign.to)}`;
+}
 
 export function getSign(slug: string): Sign | undefined {
   return SIGNS.find((s) => s.slug === slug);

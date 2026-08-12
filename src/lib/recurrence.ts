@@ -3,6 +3,13 @@
 
 export type Cadence = "weekly" | "monthly";
 
+/* ⚠️ ENGLISH ON PURPOSE, and the only English calendar left outside the allowlist that a
+   reader can reach. cadenceLabel returns a SENTENCE — "Every Monday", "Monthly on the 5th" —
+   not a date, and its ordinal rule (st/nd/rd/th) has no equivalent in Hindi or Telugu. Turning
+   it into a translated string needs its own dictionary keys with a {weekday} and a {day}
+   variable, on an account page that is wholly English anyway. That is a translation job, not a
+   date-formatting one, and doing half of it would read worse than not doing it.
+   The weekday PICKER that used to share this array now uses weekdayNames() and is translated. */
 const WEEKDAYS = [
   "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday",
 ];
@@ -50,4 +57,6 @@ export function cadenceLabel(cadence: Cadence, anchorDay: number): string {
   return `Monthly on the ${ordinal(anchorDay)}`;
 }
 
-export const WEEKDAY_NAMES = WEEKDAYS;
+// Kept for cadenceLabel only. No view imports it any more.
+const WEEKDAY_NAMES_UNUSED_BY_VIEWS = WEEKDAYS;
+void WEEKDAY_NAMES_UNUSED_BY_VIEWS;

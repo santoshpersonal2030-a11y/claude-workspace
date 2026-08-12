@@ -1468,6 +1468,78 @@ function dateFormatChecks() {
     "…and is not fooled by the helper",
   );
 
+  /* NO HARDCODED MONTH OR WEEKDAY ARRAY ANYWHERE. Six files carried one, and each was a private
+     English calendar that no dictionary could reach: blog, blog/[slug], panchang,
+     panchang/[date], TodayPanchang and — the last and largest — the festival list, whose single
+     `fmt` produced 39 of the 42 remaining translatable date strings on the entire site.
+     This is the shape, not the instances: a new one added later would be invisible again. */
+  const MONTH_ARRAY =
+    /\[\s*"(January|Jan)"\s*,|\[\s*"(Sunday|Sun)"\s*,\s*"(Monday|Mon)"/;
+
+  /* ⚠️ Three places SHOULD hold an English calendar, and the first version of this check
+     reported all of them as defects — ten files at once. A check that calls everything broken
+     is the first thing to suspect, so each exception is listed with its reason instead. Anything
+     not on this list either gets fixed or gets added here with a reason of its own. */
+  const CALENDAR_IS_CORRECT = {
+    "src/lib/calendar-i18n.ts":
+      "holds all SEVEN languages including English — it IS the translation table",
+    "src/lib/muhurat-engine.ts":
+      "WEEKDAY_NAMES is the engine's own data; the views translate it (see formatWeekday)",
+    "src/lib/payroll.ts":
+      "payslips are frozen documents — their month names must not move with the reader",
+    "src/app/[locale]/admin/payroll/page.tsx":
+      "same: it labels the payslip a payroll run produces",
+    "src/lib/recurrence.ts":
+      "cadenceLabel builds an English SENTENCE with an ordinal (\"Monthly on the 5th\"), " +
+      "which needs dictionary keys, not a date formatter. The weekday PICKER that used to " +
+      "share this array is translated.",
+  };
+  const calendars = TS_FILES.filter((f) => MONTH_ARRAY.test(read(f)))
+    .map(rel)
+    .filter((f) => !(f in CALENDAR_IS_CORRECT));
+  line(
+    calendars.length === 0,
+    "no reader-facing file builds its own English month or weekday array",
+    calendars.length
+      ? calendars.join(", ")
+      : `all gone; ${Object.keys(CALENDAR_IS_CORRECT).length} deliberate exceptions`,
+  );
+  // The exceptions must still EXIST and still hold their array — otherwise the allowlist is
+  // silently excusing files that no longer match, and the check has quietly narrowed itself.
+  const staleExceptions = Object.keys(CALENDAR_IS_CORRECT).filter(
+    (f) => !MONTH_ARRAY.test(read(path.join(ROOT, f))),
+  );
+  control(
+    staleExceptions.length === 0,
+    staleExceptions.length
+      ? `STALE allowlist entries: ${staleExceptions.join(", ")}`
+      : "every allowlisted file really does still hold an English calendar",
+  );
+  control(
+    MONTH_ARRAY.test('const MONTHS = [\n  "January", "February",\n];'),
+    "the calendar detector catches a planted month array",
+  );
+  control(
+    MONTH_ARRAY.test('const W = ["Sun", "Mon", "Tue"];'),
+    "…and a planted short-weekday array",
+  );
+  control(
+    !MONTH_ARRAY.test('const NAKSHATRAS = ["Ashwini", "Bharani"];'),
+    "…and is not fooled by an unrelated list of names",
+  );
+
+  /* The zodiac date ranges were a hardcoded English string on the Sign type — "Apr 20 – May 20".
+     They are two dates now, formatted by the view, because a range is data. */
+  const horoscope = read(path.join(SRC, "lib", "horoscope.ts"));
+  line(
+    /from: string;/.test(horoscope) && !/  dates: string;/.test(horoscope),
+    "the zodiac date range is stored as data, not as an English phrase",
+  );
+  line(
+    /export function signDateRange/.test(horoscope),
+    "…and formatted in the reader's language",
+  );
+
   /* THE FOUR COPIES. `to12h` was pasted verbatim into four files. Four copies of a formatter is
      how three of them stay in step and one drifts, and it is why the clock format is now in one
      place with a unit test comparing it to the old implementation for every minute of the day. */

@@ -16,18 +16,7 @@ import TodayPanchang from "@/components/TodayPanchang";
 import { getDictionary, isLocale, DEFAULT_LOCALE } from "@/lib/i18n";
 import { localizePooja } from "@/lib/poojas-i18n";
 import { localizeProduct } from "@/lib/products-i18n";
-
-const MUHURAT_WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-const MUHURAT_MONTHS = [
-  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
-];
-
-function muhuratDateLabel(date: string) {
-  const [, m, d] = date.split("-").map(Number);
-  const wd = new Date(`${date}T00:00:00Z`).getUTCDay();
-  return `${MUHURAT_WEEKDAYS[wd]}, ${d} ${MUHURAT_MONTHS[m - 1]}`;
-}
+import { formatDayMonthWeekday } from "@/lib/dates";
 
 // Re-fetch popular poojas from the database at most once every 5 minutes.
 export const revalidate = 300;
@@ -244,7 +233,7 @@ export default async function Home({
                     className="flex flex-col rounded-2xl border border-saffron-100 bg-white p-5 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md"
                   >
                     <div className="font-heading text-xl text-maroon-800">
-                      {muhuratDateLabel(w.date)}
+                      {formatDayMonthWeekday(w.date, loc)}
                     </div>
                     <div className="mt-1 text-sm font-medium text-saffron-700">
                       🕉️ {w.label ?? t("home.muhurat.auspicious")}

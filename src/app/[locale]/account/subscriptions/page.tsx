@@ -3,7 +3,9 @@ import { redirect } from "next/navigation";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { createClient } from "@/lib/supabase/server";
-import { cadenceLabel, WEEKDAY_NAMES, type Cadence } from "@/lib/recurrence";
+import { cadenceLabel, type Cadence } from "@/lib/recurrence";
+import { isLocale, DEFAULT_LOCALE } from "@/lib/i18n";
+import { weekdayNames } from "@/lib/dates";
 import { timeSlots, languages } from "@/lib/poojas";
 import {
   createSubscription,
@@ -16,7 +18,13 @@ export const metadata = { title: "Recurring Poojas" };
 const inputClass =
   "w-full rounded-lg border border-saffron-200 bg-cream px-3 py-2 text-sm outline-none focus:border-saffron-400";
 
-export default async function SubscriptionsPage() {
+export default async function SubscriptionsPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const loc = isLocale(locale) ? locale : DEFAULT_LOCALE;
   const supabase = await createClient();
   const {
     data: { user },
@@ -148,7 +156,9 @@ export default async function SubscriptionsPage() {
               <label className="text-xs text-foreground/65">
                 If weekly — weekday
                 <select name="weekday" defaultValue="1" className={`mt-1 ${inputClass}`}>
-                  {WEEKDAY_NAMES.map((w, i) => (
+                  {/* Was recurrence.ts’s English WEEKDAY_NAMES. The VALUE stays the index, so
+                      nothing about what is submitted changes. */}
+                  {weekdayNames(loc, "long").map((w, i) => (
                     <option key={w} value={i}>
                       {w}
                     </option>

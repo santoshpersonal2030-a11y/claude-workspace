@@ -7,6 +7,8 @@ import {
   FESTIVALS_THROUGH,
 } from "@/lib/festivals";
 import { broadcastPush } from "@/lib/push";
+import { DEFAULT_LOCALE } from "@/lib/i18n";
+import { formatDayMonthWeekday } from "@/lib/dates";
 
 // One-line suggestion + emoji per recurring monthly observance (tithi-based),
 // so the day-before push nudges toward the pooja we'd recommend booking.
@@ -21,21 +23,19 @@ const VRAT_PUSH: Record<string, { emoji: string; suggest: string }> = {
 
 const FESTIVAL_LEAD_DAYS = 3; // give time to book a pandit
 
-const WD = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-const MO = [
-  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
-];
-
 function istDateOffset(days: number): string {
   return new Date(Date.now() + 5.5 * 3600 * 1000 + days * 86_400_000)
     .toISOString()
     .slice(0, 10);
 }
 
+/* ⚠️ DEFAULT_LOCALE, and that is a KNOWN LIMIT, not an oversight. This is a cron job: there
+   is no request and therefore no language. Sending a Hindi user an English date here would
+   need a per-user language column that the push_subscriptions table does not have, and the
+   database is paused so it cannot be added or tested. Pinned explicitly so the next person
+   sees a decision rather than another hardcoded English array. */
 function labelOf(dateISO: string): string {
-  const dt = new Date(`${dateISO}T00:00:00Z`);
-  return `${WD[dt.getUTCDay()]}, ${dt.getUTCDate()} ${MO[dt.getUTCMonth()]}`;
+  return formatDayMonthWeekday(`${dateISO}T00:00:00Z`, DEFAULT_LOCALE) ?? dateISO;
 }
 
 // Two reminder streams to every push-subscribed user (best-effort, push-gated —

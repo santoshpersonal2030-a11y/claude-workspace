@@ -5,6 +5,11 @@ import {
   formatDate,
   formatDateLong,
   formatDateShort,
+  formatDateWithWeekday,
+  formatDayMonthWeekday,
+  formatMonthYear,
+  weekdayNames,
+  monthNames,
   formatDateTime,
   formatNumber,
   formatTime,
@@ -138,6 +143,14 @@ test("formatDayMonth drops the year and still translates the month", () => {
   assert.notEqual(hi, en);
 });
 
+test("formatDayMonth uses FULL month names, so a range does not mix forms", () => {
+  /* Hindi CLDR abbreviates some months and not others. With month:"short" the Gemini range
+     rendered "21 जून – 22 जुल॰" — a full name beside an abbreviation, which reads as a typo.
+     Only looking at the page shows that. */
+  assert.equal(formatDayMonth("2026-07-22", "hi"), "22 जुलाई");
+  assert.equal(formatDayMonth("2026-06-21", "hi"), "21 जून");
+});
+
 test("formatClockHHMM turns the engine's 24-hour string into the site's one clock format", () => {
   /* Reading a real page found the muhurat window rendering "12:07 – 12:54" directly above a
      panchang reading "5:58 AM". Both were right; together they read as a bug. */
@@ -150,4 +163,60 @@ test("formatClockHHMM turns the engine's 24-hour string into the site's one cloc
 test("formatClockHHMM returns junk unchanged rather than throwing inside a label", () => {
   assert.equal(formatClockHHMM("", "en"), "");
   assert.equal(formatClockHHMM("not a time", "en"), "not a time");
+});
+
+test("formatDateWithWeekday matches the festival calendar's old English output exactly", () => {
+  /* It replaced a hand-rolled "Wed, 12 August 2026" on the festival list — 39 of the 42
+     remaining translatable date strings on the whole site came from that one line. Byte-equal
+     for English, so nothing moves for the visitors who already had it right. */
+  assert.equal(formatDateWithWeekday("2026-08-12", "en"), "Wed, 12 August 2026");
+  assert.equal(formatDateWithWeekday("2026-01-01", "en"), "Thu, 1 January 2026");
+});
+
+test("…and it is NOT built by concatenating a weekday onto a date", () => {
+  /* The reason this goes through Intl. Telugu puts the weekday LAST:
+       en  Wed, 12 August 2026
+       te  12, ఆగస్టు 2026, బుధ
+     Building "{weekday}, {date}" by hand would have produced fluent-looking nonsense in one of
+     the three languages and nothing would have flagged it. */
+  const te = formatDateWithWeekday("2026-08-12", "te");
+  const hi = formatDateWithWeekday("2026-08-12", "hi");
+  assert.ok(te && hi);
+  assert.notEqual(te, formatDateWithWeekday("2026-08-12", "en"));
+  assert.match(te, /^\d/, `Telugu should start with the day, not the weekday: ${te}`);
+  assert.match(hi, /^[^\d]/, `Hindi should start with the weekday, not the day: ${hi}`);
+});
+
+test("weekdayNames starts at Sunday and really is translated", () => {
+  /* Sunday-first because every calendar grid in this app is built from getUTCDay(), which
+     returns 0 for Sunday. If the anchor date were wrong the whole grid would be off by a day —
+     silently, and on the priest's schedule. */
+  const en = weekdayNames("en");
+  assert.equal(en.length, 7);
+  assert.equal(en[0], "Sun");
+  assert.equal(en[6], "Sat");
+  assert.equal(weekdayNames("en", "long")[0], "Sunday");
+  const hi = weekdayNames("hi");
+  assert.notEqual(hi[0], en[0], "Hindi weekday names identical to English");
+  assert.equal(new Set(hi).size, 7, "Hindi weekday names are not all distinct");
+});
+
+test("monthNames starts at January and really is translated", () => {
+  const en = monthNames("en");
+  assert.equal(en.length, 12);
+  assert.equal(en[0], "January");
+  assert.equal(en[11], "December");
+  const te = monthNames("te");
+  assert.notEqual(te[0], en[0], "Telugu month names identical to English");
+  assert.equal(new Set(te).size, 12, "Telugu month names are not all distinct");
+});
+
+test("formatMonthYear translates the month", () => {
+  assert.equal(formatMonthYear("2026-08-12", "en"), "August 2026");
+  assert.notEqual(formatMonthYear("2026-08-12", "hi"), "August 2026");
+});
+
+test("formatDayMonthWeekday keeps the homepage teaser short and translated", () => {
+  assert.equal(formatDayMonthWeekday("2026-08-12", "en"), "Wed, 12 Aug");
+  assert.notEqual(formatDayMonthWeekday("2026-08-12", "hi"), "Wed, 12 Aug");
 });

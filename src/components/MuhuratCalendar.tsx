@@ -5,7 +5,8 @@ import Link from "next/link";
 
 import { tierFromScore } from "@/lib/muhurat-engine";
 import type { AuspiciousDate, WindowAvailability } from "@/lib/muhurat-data";
-import { useT } from "@/components/LanguageProvider";
+import { useLanguage, useT } from "@/components/LanguageProvider";
+import { formatDayMonthWeekday, formatMonthYear } from "@/lib/dates";
 
 const AVAIL_CLASS: Record<WindowAvailability["status"], string> = {
   available: "bg-emerald-100 text-emerald-800",
@@ -17,18 +18,6 @@ const AVAIL_LABEL_KEY: Record<WindowAvailability["status"], string> = {
   limited: "mc.limited",
   none: "mc.none",
 };
-
-const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-const MONTHS = [
-  "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December",
-];
-
-function parts(date: string) {
-  const [y, m, d] = date.split("-").map(Number);
-  const wd = new Date(`${date}T00:00:00Z`).getUTCDay();
-  return { y, m, d, weekday: WEEKDAYS[wd], monthName: MONTHS[m - 1] };
-}
 
 const TIER_LABEL_KEY: Record<string, string> = {
   Excellent: "mc.tierExcellent",
@@ -47,6 +36,7 @@ export default function MuhuratCalendar({
   windows: AuspiciousDate[];
 }) {
   const t = useT();
+  const { locale } = useLanguage();
   const ceremonies = useMemo(
     () => Array.from(new Set(windows.map((w) => w.ceremony))).sort(),
     [windows],
@@ -89,8 +79,9 @@ export default function MuhuratCalendar({
   // Group by "Month Year", preserving date order.
   const groups: { key: string; items: AuspiciousDate[] }[] = [];
   for (const w of visible) {
-    const { monthName, y } = parts(w.date);
-    const key = `${monthName} ${y}`;
+    // The group key must stay stable across a render, so it is derived from the date itself
+    // and the heading is formatted from the group’s first date.
+    const key = w.date.slice(0, 7);
     const last = groups[groups.length - 1];
     if (last && last.key === key) last.items.push(w);
     else groups.push({ key, items: [w] });
@@ -160,11 +151,11 @@ export default function MuhuratCalendar({
         {groups.map((group) => (
           <div key={group.key}>
             <h2 className="font-heading text-2xl text-maroon-800">
-              {group.key}
+              {formatMonthYear(group.items[0].date, locale)}
             </h2>
             <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {group.items.map((w) => {
-                const p = parts(w.date);
+                const p = { label: formatDayMonthWeekday(w.date, locale) };
                 const tier =
                   w.qualityScore != null ? tierFromScore(w.qualityScore) : null;
                 return (
@@ -175,10 +166,7 @@ export default function MuhuratCalendar({
                     <div className="flex items-start justify-between">
                       <div>
                         <div className="font-heading text-2xl text-maroon-800">
-                          {p.weekday}, {p.d}
-                        </div>
-                        <div className="text-xs text-foreground/65">
-                          {p.monthName} {p.y}
+                          {p.label}
                         </div>
                       </div>
                       {tier && (

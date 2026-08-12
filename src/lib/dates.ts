@@ -65,6 +65,86 @@ export function formatDateLong(value: DateInput, locale: Locale): string | null 
   }).format(d);
 }
 
+/** Short weekday plus the full date: "Wed, 12 August 2026".
+ *
+ * Byte-identical to the hand-rolled version it replaced on the festival calendar for English.
+ * The reason it must go through Intl rather than concatenating a translated weekday onto a
+ * translated date is Telugu: `12, ఆగస్టు 2026, బుధ` puts the weekday LAST. String-building
+ * "{weekday}, {date}" would have produced fluent-looking nonsense in one of the three
+ * languages, and nothing would have flagged it. */
+export function formatDateWithWeekday(
+  value: DateInput,
+  locale: Locale,
+): string | null {
+  const d = toDate(value);
+  if (!d) return null;
+  return new Intl.DateTimeFormat(intlLocale(locale), {
+    weekday: "short",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(d);
+}
+
+/** Short weekday, day and short month, no year: "Wed, 12 Aug" — for compact teasers. */
+export function formatDayMonthWeekday(
+  value: DateInput,
+  locale: Locale,
+): string | null {
+  const d = toDate(value);
+  if (!d) return null;
+  return new Intl.DateTimeFormat(intlLocale(locale), {
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+    timeZone: "UTC",
+  }).format(d);
+}
+
+/** The seven weekday names, Sunday first — for a calendar grid header.
+ *
+ * Sunday-first because that is what every calendar in this app already assumes (`getUTCDay()`
+ * returns 0 for Sunday and the grids are built from it). The dates below are an arbitrary real
+ * week chosen so 2026-08-02 is a Sunday; only the weekday is read from them. */
+export function weekdayNames(
+  locale: Locale,
+  style: "short" | "long" = "short",
+): string[] {
+  const fmt = new Intl.DateTimeFormat(intlLocale(locale), {
+    weekday: style,
+    timeZone: "UTC",
+  });
+  return Array.from({ length: 7 }, (_, i) =>
+    fmt.format(new Date(Date.UTC(2026, 7, 2 + i))),
+  );
+}
+
+/** The twelve month names, January first — for a month picker or a calendar header. */
+export function monthNames(
+  locale: Locale,
+  style: "long" | "short" = "long",
+): string[] {
+  const fmt = new Intl.DateTimeFormat(intlLocale(locale), {
+    month: style,
+    timeZone: "UTC",
+  });
+  return Array.from({ length: 12 }, (_, i) =>
+    fmt.format(new Date(Date.UTC(2026, i, 15))),
+  );
+}
+
+/** "August 2026" — a month-and-year heading for grouped lists. */
+export function formatMonthYear(value: DateInput, locale: Locale): string | null {
+  const d = toDate(value);
+  if (!d) return null;
+  return new Intl.DateTimeFormat(intlLocale(locale), {
+    month: "long",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(d);
+}
+
 /** Compact, for lists and tables: "5 Aug 2026". */
 export function formatDateShort(value: DateInput, locale: Locale): string | null {
   const d = toDate(value);
@@ -120,13 +200,18 @@ export function formatWeekday(value: DateInput, locale: Locale): string | null {
   return new Intl.DateTimeFormat(intlLocale(locale), { weekday: "long" }).format(d);
 }
 
-/** Day and month with no year — "20 April" — for things like a zodiac date range. */
+/** Day and month with no year — "20 April" — for things like a zodiac date range.
+ *
+ * `month: "long"`, not "short". Hindi CLDR abbreviates SOME months and not others, so a short
+ * range came out as "21 जून – 22 जुल॰" — one full name beside one abbreviation, which reads as
+ * a typo. Reading the rendered page is the only way that shows up. */
 export function formatDayMonth(value: DateInput, locale: Locale): string | null {
   const d = toDate(value);
   if (!d) return null;
   return new Intl.DateTimeFormat(intlLocale(locale), {
     day: "numeric",
-    month: "short",
+    month: "long",
+    timeZone: "UTC",
   }).format(d);
 }
 

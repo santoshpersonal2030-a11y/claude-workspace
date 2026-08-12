@@ -3,7 +3,7 @@ import Link from "next/link";
 
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { SIGNS, dailyHoroscope } from "@/lib/horoscope";
+import { SIGNS, dailyHoroscope, signDateRange } from "@/lib/horoscope";
 import { getDictionary, isLocale, DEFAULT_LOCALE } from "@/lib/i18n";
 
 // Refresh through the day; content is keyed by the IST date so it changes daily.
@@ -32,7 +32,8 @@ export default async function HoroscopePage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const { t } = getDictionary(isLocale(locale) ? locale : DEFAULT_LOCALE);
+  const loc = isLocale(locale) ? locale : DEFAULT_LOCALE;
+  const { t } = getDictionary(loc);
   const date = istDate();
 
   return (
@@ -71,7 +72,9 @@ export default async function HoroscopePage({
                       <h2 className="font-heading text-lg text-maroon-700 group-hover:text-saffron-700">
                         {sign.name}
                       </h2>
-                      <p className="text-xs text-foreground/55">{sign.dates}</p>
+                      <p className="text-xs text-foreground/55">
+                        {signDateRange(sign, loc)}
+                      </p>
                     </div>
                   </div>
                   <p className="mt-3 flex-1 text-sm text-foreground/70">

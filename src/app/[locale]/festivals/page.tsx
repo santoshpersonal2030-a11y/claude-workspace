@@ -9,6 +9,7 @@ import { festivalSlug } from "@/lib/festival-pages";
 import { localizeFestivalName, localizeFestivalPush } from "@/lib/festivals-i18n";
 import { poojas } from "@/lib/poojas";
 import { getDictionary, isLocale, DEFAULT_LOCALE, type Locale } from "@/lib/i18n";
+import { formatDateWithWeekday } from "@/lib/dates";
 
 export async function generateMetadata({
   params,
@@ -27,11 +28,6 @@ function todayIST(): string {
   return new Date(Date.now() + 5.5 * 3600 * 1000).toISOString().slice(0, 10);
 }
 
-const MONTHS = [
-  "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December",
-];
-
 // What to do on each monthly observance — the pooja we'd suggest booking. The
 // blurb is a dictionary key, translated at render time.
 const VRAT_POOJA: Record<string, { emoji: string; blurbKey: string; slug: string; cta: string }> = {
@@ -46,13 +42,6 @@ const VRAT_POOJA: Record<string, { emoji: string; blurbKey: string; slug: string
 const POOJA_NAME: Record<string, string> = Object.fromEntries(
   poojas.map((p) => [p.slug, p.name]),
 );
-
-function fmt(date: string): string {
-  const [y, m, d] = date.split("-").map(Number);
-  const wd = new Date(`${date}T00:00:00Z`).getUTCDay();
-  const W = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][wd];
-  return `${W}, ${d} ${MONTHS[m - 1]} ${y}`;
-}
 
 // A unified calendar row — either a named festival or a recurring monthly vrat.
 type Row = {
@@ -164,7 +153,11 @@ export default async function FestivalsPage({
                       </span>
                     )}
                   </div>
-                  <div className="text-sm text-foreground/65">{fmt(r.date)}</div>
+                  <div className="text-sm text-foreground/65">
+                    {/* Was a hardcoded English weekday + month array — 39 of the 42 remaining
+                        translatable date strings on the whole site came from this one line. */}
+                    {formatDateWithWeekday(r.date, loc)}
+                  </div>
                   {r.blurb && (
                     <p className="mt-1 text-sm text-foreground/65">{r.blurb}</p>
                   )}

@@ -9,7 +9,7 @@ import {
   type Choghadiya,
 } from "@/lib/muhurat-engine";
 import { getDictionary, isLocale, DEFAULT_LOCALE } from "@/lib/i18n";
-import { formatClock } from "@/lib/dates";
+import { formatClock, formatDate } from "@/lib/dates";
 
 export async function generateMetadata({
   params,
@@ -21,10 +21,6 @@ export async function generateMetadata({
   return { title: t("meta.choghadiya.title"), description: t("meta.choghadiya.desc") };
 }
 
-const MONTHS = [
-  "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December",
-];
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
 function todayIST(): string {
@@ -61,8 +57,7 @@ export default async function ChoghadiyaPage({
   const coords = CITY_COORDS[city];
 
   const ch = computeChoghadiya(date, coords.lat, coords.lng);
-  const [y, m, d] = date.split("-").map(Number);
-  const prettyDate = `${d} ${MONTHS[m - 1]} ${y}`;
+  const prettyDate = formatDate(date, loc) ?? date;
 
   // Highlight the running slot only when viewing today.
   const isToday = date === todayIST();

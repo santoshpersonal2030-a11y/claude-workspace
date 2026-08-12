@@ -10,7 +10,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { timeSlots } from "@/lib/poojas";
 import { PRIEST_EVENT_LABEL, type PriestEventAction } from "@/lib/booking-events";
 import { isLocale, DEFAULT_LOCALE } from "@/lib/i18n";
-import { formatDateTime } from "@/lib/dates";
+import { formatDateTime, monthNames, weekdayNames } from "@/lib/dates";
 
 const EVENT_DOT: Record<PriestEventAction, string> = {
   assigned: "bg-amber-400",
@@ -19,11 +19,6 @@ const EVENT_DOT: Record<PriestEventAction, string> = {
   proposed: "bg-sky-400",
 };
 
-const MONTH_NAMES = [
-  "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December",
-];
-const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 const MONTH_RE = /^\d{4}-\d{2}$/;
 
@@ -263,22 +258,22 @@ export default async function PriestCalendarPage({
           href={`/priest/calendar?m=${ym(year, month - 1)}`}
           className="rounded-full border border-saffron-200 px-3 py-1.5 text-sm text-foreground/70 hover:bg-saffron-50"
         >
-          ← {MONTH_NAMES[(month + 10) % 12]}
+          ← {monthNames(loc)[(month + 10) % 12]}
         </Link>
         <h2 className="font-heading text-xl text-maroon-800">
-          {MONTH_NAMES[month - 1]} {year}
+          {monthNames(loc)[month - 1]} {year}
         </h2>
         <Link
           href={`/priest/calendar?m=${ym(year, month + 1)}`}
           className="rounded-full border border-saffron-200 px-3 py-1.5 text-sm text-foreground/70 hover:bg-saffron-50"
         >
-          {MONTH_NAMES[month % 12]} →
+          {monthNames(loc)[month % 12]} →
         </Link>
       </div>
 
       {/* Month grid */}
       <div className="mt-4 grid grid-cols-7 gap-px overflow-hidden rounded-2xl border border-saffron-100 bg-saffron-100 text-sm">
-        {WEEKDAYS.map((w) => (
+        {weekdayNames(loc).map((w) => (
           <div
             key={w}
             className="bg-white px-2 py-2 text-center text-[11px] font-semibold text-foreground/65"

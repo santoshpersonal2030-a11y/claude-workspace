@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { SIGNS, getSign, dailyHoroscope } from "@/lib/horoscope";
+import { SIGNS, getSign, dailyHoroscope, signDateRange } from "@/lib/horoscope";
 import { getDictionary, isLocale, DEFAULT_LOCALE } from "@/lib/i18n";
 
 export const revalidate = 3600;
@@ -37,7 +37,8 @@ export default async function SignHoroscopePage({
   params: Promise<{ locale: string; sign: string }>;
 }) {
   const { locale, sign: slug } = await params;
-  const { t } = getDictionary(isLocale(locale) ? locale : DEFAULT_LOCALE);
+  const loc = isLocale(locale) ? locale : DEFAULT_LOCALE;
+  const { t } = getDictionary(loc);
   const sign = getSign(slug);
   if (!sign) notFound();
 
@@ -71,7 +72,7 @@ export default async function SignHoroscopePage({
                   {sign.name}
                 </h1>
                 <p className="text-sm text-foreground/65">
-                  {sign.dates} ·{" "}
+                  {signDateRange(sign, loc)} ·{" "}
                   {t("horoscope.signMeta", {
                     element: sign.element,
                     ruler: sign.ruler,
