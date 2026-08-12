@@ -2,7 +2,7 @@
 
 import { usePathname } from "next/navigation";
 
-import { useLanguage } from "@/components/LanguageProvider";
+import { useLanguage, useT } from "@/components/LanguageProvider";
 import {
   LOCALES,
   LOCALE_LABEL,
@@ -31,6 +31,7 @@ export default function LanguageSwitcher({
   className?: string;
 }) {
   const { locale, setLocale } = useLanguage();
+  const t = useT();
   const pathname = usePathname();
 
   function choose(l: Locale) {
@@ -43,7 +44,7 @@ export default function LanguageSwitcher({
     <div
       className={`flex items-center rounded-full border border-saffron-200 bg-white p-0.5 text-xs ${className}`}
       role="group"
-      aria-label="Language"
+      aria-label={t("common.language")}
     >
       {LOCALES.map((l) => (
         <button

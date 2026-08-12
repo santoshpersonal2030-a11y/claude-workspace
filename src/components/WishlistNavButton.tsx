@@ -3,16 +3,20 @@
 import Link from "next/link";
 
 import { useWishlist } from "@/lib/wishlist";
+import { useT } from "@/components/LanguageProvider";
 
 // Header wishlist link with a saved-count badge.
 export default function WishlistNavButton() {
   const { count } = useWishlist();
+  const t = useT();
 
   return (
     <Link
       href="/account/wishlist"
       className="relative flex h-9 w-9 items-center justify-center rounded-full text-foreground/80 transition-colors hover:bg-saffron-50 hover:text-maroon-600"
-      aria-label={`Saved items${count ? ` (${count})` : ""}`}
+      aria-label={
+        count ? t("common.savedItemsCount", { n: count }) : t("common.savedItems")
+      }
     >
       <span className="text-lg" aria-hidden="true">
         ♥

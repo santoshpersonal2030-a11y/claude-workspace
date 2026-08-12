@@ -11,7 +11,13 @@ import LiveRegion from "@/components/LiveRegion";
 import InstallPrompt from "@/components/InstallPrompt";
 import Analytics from "@/components/Analytics";
 import ConsentBanner from "@/components/ConsentBanner";
-import { LOCALES, DEFAULT_LOCALE, isLocale, type Locale } from "@/lib/i18n";
+import {
+  LOCALES,
+  DEFAULT_LOCALE,
+  isLocale,
+  getDictionary,
+  type Locale,
+} from "@/lib/i18n";
 
 const heading = Marcellus({
   weight: "400",
@@ -40,15 +46,15 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const loc: Locale = isLocale(locale) ? locale : DEFAULT_LOCALE;
+  const { t } = getDictionary(loc);
 
   return {
     metadataBase: new URL(siteUrl),
     title: {
-      default: "BookMyPoojari — Book Verified Pandits & Pooja Samagri Online",
+      default: t("meta.site.title"),
       template: "%s | BookMyPoojari",
     },
-    description:
-      "Book experienced, verified Pandits for any pooja or ceremony at home, and order authentic pooja samagri kits — delivered to your door. Trusted, transparent, on time.",
+    description: t("meta.site.desc"),
     keywords: [
       "book pandit online",
       "poojari booking",
@@ -66,9 +72,8 @@ export async function generateMetadata({
        listed with its hreflang alternates in the sitemap. A missing canonical is harmless — a
        wrong one is not. */
     openGraph: {
-      title: "BookMyPoojari — Book Verified Pandits & Pooja Samagri Online",
-      description:
-        "Book verified Pandits for any ceremony and order authentic pooja samagri, delivered to your door.",
+      title: t("meta.site.title"),
+      description: t("meta.site.shortDesc"),
       type: "website",
       siteName: "BookMyPoojari",
       // Was `loc === "hi" ? "hi_IN" : "en_IN"`, which told Facebook and WhatsApp that every
@@ -79,9 +84,8 @@ export async function generateMetadata({
     },
     twitter: {
       card: "summary_large_image",
-      title: "BookMyPoojari — Book Verified Pandits & Pooja Samagri Online",
-      description:
-        "Book verified Pandits for any ceremony and order authentic pooja samagri, delivered to your door.",
+      title: t("meta.site.title"),
+      description: t("meta.site.shortDesc"),
     },
     appleWebApp: {
       capable: true,

@@ -9,10 +9,25 @@ import WishlistButton from "@/components/WishlistButton";
 import { formatINR } from "@/lib/poojas";
 import type { StoreProduct } from "@/lib/queries";
 import { createClient } from "@/lib/supabase/server";
+import { getDictionary, isLocale, DEFAULT_LOCALE } from "@/lib/i18n";
 
-export const metadata = { title: "Saved Items" };
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const { t } = getDictionary(isLocale(locale) ? locale : DEFAULT_LOCALE);
+  return { title: t("common.savedItems") };
+}
 
-export default async function WishlistPage() {
+export default async function WishlistPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const { t } = getDictionary(isLocale(locale) ? locale : DEFAULT_LOCALE);
   const supabase = await createClient();
   const {
     data: { user },
@@ -52,19 +67,21 @@ export default async function WishlistPage() {
       <Header />
       <main className="flex-1">
         <section className="mx-auto max-w-6xl px-4 py-3 sm:px-6">
-          <h1 className="font-heading text-3xl text-maroon-800">Saved items</h1>
+          <h1 className="font-heading text-3xl text-maroon-800">
+            {t("common.savedItems")}
+          </h1>
 
           {products.length === 0 ? (
             <div className="mt-4 rounded-2xl border border-saffron-100 bg-white p-10 text-center shadow-sm">
               <div className="text-4xl">♡</div>
               <p className="mt-3 text-foreground/65">
-                You haven&apos;t saved any items yet.
+                {t("wishlist.empty")}
               </p>
               <Link
                 href="/store"
                 className="mt-5 inline-block rounded-full bg-saffron-700 px-6 py-2.5 text-sm font-semibold text-white hover:bg-saffron-800"
               >
-                Browse the store
+                {t("wishlist.browseStore")}
               </Link>
             </div>
           ) : (

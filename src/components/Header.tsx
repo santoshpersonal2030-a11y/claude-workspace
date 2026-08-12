@@ -88,7 +88,7 @@ export default function Header() {
             <button
               type="button"
               onClick={() => setMenuOpen((open) => !open)}
-              aria-label={menuOpen ? "Close menu" : "Open menu"}
+              aria-label={t(menuOpen ? "a11y.closeMenu" : "a11y.openMenu")}
               aria-expanded={menuOpen}
               aria-controls="mobile-nav"
               className="flex h-9 w-9 items-center justify-center rounded-full text-lg text-foreground/70 transition-colors hover:bg-saffron-50 hover:text-saffron-700 md:hidden"
@@ -100,7 +100,7 @@ export default function Header() {
 
         <nav
           className="hidden flex-wrap items-center justify-start gap-x-3 gap-y-2 pb-3 md:flex"
-          aria-label="Primary"
+          aria-label={t("a11y.primaryNav")}
         >
           {navLinks.map((link) => (
             <Link
@@ -117,7 +117,7 @@ export default function Header() {
       {menuOpen && (
         <nav
           id="mobile-nav"
-          aria-label="Primary mobile"
+          aria-label={t("a11y.primaryNavMobile")}
           className="border-t border-saffron-100 bg-cream/95 px-4 py-2 sm:px-6 md:hidden"
         >
           <ul className="flex flex-col">

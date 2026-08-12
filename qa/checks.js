@@ -1435,6 +1435,148 @@ function kycChecks() {
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
+function chromeChecks() {
+  head("17. SITE CHROME — the header is on all 96 pages, in all three languages");
+  /* Accessible names — aria-label — are text a screen reader speaks and nobody sees. That is
+     exactly why the header's were still English long after the visible header was translated:
+     nothing on screen looks wrong. A Hindi visitor using a screen reader heard "Open menu",
+     "Primary", "Language" and "Saved items" on every page of the site.
+
+     The rule is stronger than "translate these four strings": in these files an aria-label may
+     not be a bare string literal at all, so a new control added later cannot reintroduce the
+     problem. Emoji-only and empty labels are not names, and `aria-label={...}` expressions are
+     the correct form. */
+  const CHROME = [
+    ["components", "Header.tsx"],
+    ["components", "HeaderAuth.tsx"],
+    ["components", "LanguageSwitcher.tsx"],
+    ["components", "WishlistNavButton.tsx"],
+  ];
+  /* ⚠️ THIS IS THE CHEAP CHECK, AND IT IS NOT THE GROUND TRUTH. Read the note below it.
+     It catches the common form — aria-label="Open menu" — and nothing more. Two earlier
+     versions of it claimed more than that and were wrong both times: the first only matched
+     aria-label="…" and passed WishlistNavButton, whose label was a template literal; the second
+     added templates and STILL passed it, because that template contained a nested backtick
+     (`Saved items${count ? ` (${count})` : ""}`) and the pattern gave up at the inner one.
+     Source parsing kept agreeing with the exact file that shipped English to every Hindi page.
+     So this stays deliberately modest, and the rendered-output check below is what actually
+     holds the line. */
+  const literalAriaLabel = (text) => {
+    const out = [];
+    for (const m of text.matchAll(/aria-label=(?:"([^"]*)"|'([^']*)'|\{`([^`]*)`\})/g)) {
+      const [whole, dq, sq, tpl] = m;
+      const name = tpl !== undefined ? tpl.replace(/\$\{[^}]*\}/g, "") : (dq ?? sq);
+      if (/[A-Za-z]/.test(name)) out.push(whole.trim());
+    }
+    return out;
+  };
+
+  let scanned = 0;
+  for (const parts of CHROME) {
+    const file = path.join(SRC, ...parts);
+    const text = read(file);
+    if (!text) continue;
+    scanned++;
+    const hits = literalAriaLabel(text);
+    line(
+      hits.length === 0,
+      `${parts[parts.length - 1]} has no quoted-literal aria-label`,
+      hits.length ? hits.join(" | ") : "no aria-label=\"…\" in this file",
+    );
+  }
+  control(scanned === CHROME.length, `${scanned} chrome files found and scanned`);
+  control(
+    literalAriaLabel('aria-label="Open menu"').length === 1,
+    "the detector catches a planted hardcoded aria-label",
+  );
+  control(
+    literalAriaLabel('aria-label={t("a11y.openMenu")}').length === 0,
+    "the detector is not fooled by a dictionary-backed aria-label",
+  );
+  control(
+    literalAriaLabel("aria-label={`Saved items${count}`}").length === 1,
+    "the detector catches English hidden in a TEMPLATE literal — the case it first missed",
+  );
+  control(
+    literalAriaLabel("aria-label={`${t('common.savedItemsCount')} (${n})`}").length === 0,
+    "the detector is not fooled by a template whose text is all ${…} holes",
+  );
+
+  /* The site-wide fallback <title> and og:description. Hardcoded English here meant a Hindi
+     page shared on WhatsApp previewed in English, however well the page itself translated. */
+  const layout = read(path.join(APP, "[locale]", "layout.tsx"));
+  line(
+    /getDictionary\(loc\)/.test(layout),
+    "the root layout builds its metadata from the dictionary",
+  );
+  line(
+    !/BookMyPoojari — Book Verified Pandits/.test(layout),
+    "the English site title is no longer hardcoded in the layout",
+  );
+  line(
+    (layout.match(/t\("meta\.site\.(title|desc|shortDesc)"\)/g) || []).length >= 5,
+    "title, description and both social previews all translate",
+    `${(layout.match(/t\("meta\.site\./g) || []).length} uses`,
+  );
+  control(
+    /BookMyPoojari — Book Verified Pandits/.test(
+      'default: "BookMyPoojari — Book Verified Pandits & Pooja Samagri Online",',
+    ),
+    "the hardcoded-title detector catches the string it is looking for",
+  );
+
+  /* ── THE GROUND TRUTH ──────────────────────────────────────────────────────
+     The page a Hindi visitor is actually served. No source pattern can be clever enough to be
+     fooled here, because there is no source left — only the HTML the build produced. Every
+     phrase below leaked from the shared header onto ALL 96 pages in both languages, and three
+     of the four were invisible on screen (they are accessible names). Skipped, not failed,
+     without a build, so the suite still runs on a fresh clone. */
+  /* Only these four. The header's other English — "Close menu", "Primary mobile", "Account menu",
+     "Sign in" — appears only after a click or after the session loads, so it is not in any
+     prerendered page and CANNOT be checked here. Listing it would make this check look twice as
+     broad as it is. It is translated, and covered by the source check above and by nothing else;
+     qa/live-audit.js's stated blind spot (text behind an interaction) still applies. */
+  const CHROME_ENGLISH = [
+    'aria-label="Open menu"',
+    'aria-label="Primary"',
+    'aria-label="Language"',
+    'aria-label="Saved items"',
+  ];
+  const rendered = [];
+  for (const loc of ["hi", "te"]) {
+    const f = path.join(ROOT, ".next", "server", "app", `${loc}.html`);
+    if (fs.existsSync(f)) rendered.push([loc, read(f)]);
+  }
+  if (rendered.length < 2) {
+    console.log("  skip  no build output — run `npm run build` first");
+  } else {
+    for (const [loc, html] of rendered) {
+      const found = CHROME_ENGLISH.filter((s) => html.includes(s));
+      line(
+        found.length === 0,
+        `the rendered ${loc} homepage speaks no English chrome`,
+        found.length ? found.join(" | ") : `${CHROME_ENGLISH.length} phrases checked, none present`,
+      );
+    }
+    // Controls: the English page MUST contain them, or this is looking in the wrong place.
+    const enHtml = read(path.join(ROOT, ".next", "server", "app", "en.html"));
+    control(
+      enHtml.length > 1000,
+      `found the rendered English homepage to compare against (${enHtml.length} chars)`,
+    );
+    /* The control that matters. If the English page does not contain all four, then finding
+       none of them in Hindi proves nothing at all — the phrases moved, or this is reading the
+       wrong file. That exact mistake ("the English pooja pages were never built") cost an hour
+       on 05-Aug: the probe was looking in the wrong folder and the alarm was its own. */
+    const inEnglish = CHROME_ENGLISH.filter((s) => enHtml.includes(s));
+    control(
+      inEnglish.length === CHROME_ENGLISH.length,
+      `the English homepage contains all ${CHROME_ENGLISH.length} — so their absence in hi/te means something (${inEnglish.length} found)`,
+    );
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
 (async () => {
   await poojaChecks();
   bucketChecks();
@@ -1447,6 +1589,7 @@ function kycChecks() {
   await festivalChecks();
   auditCoverageChecks();
   dateFormatChecks();
+  chromeChecks();
   kycChecks();
 
   console.log("\n" + "=".repeat(70));

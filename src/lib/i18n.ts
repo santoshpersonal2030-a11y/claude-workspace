@@ -47,6 +47,27 @@ const en: Dict = {
   "common.menu": "Menu",
   "common.language": "Language",
   "common.shopSamagri": "Shop Samagri",
+
+  // Header chrome and the account menu. Everything here is on all 96 pages. The four a11y.*
+  // keys are accessible names — text a screen reader speaks but nobody sees — which is exactly
+  // why they were still English: they are invisible to anyone reading the page. The nav labels
+  // keep their original English wording ("Primary") because the landmark role already supplies
+  // the word "navigation"; only the language changes, not the semantics.
+  "a11y.openMenu": "Open menu",
+  "a11y.closeMenu": "Close menu",
+  "a11y.primaryNav": "Primary",
+  "a11y.primaryNavMobile": "Primary mobile",
+  "a11y.accountMenu": "Account menu",
+  "common.savedItems": "Saved items",
+  "common.savedItemsCount": "Saved items ({n})",
+  "common.myBookings": "My bookings",
+  "common.myOrders": "My orders",
+  "common.adminConsole": "Admin console",
+  "common.signOut": "Sign out",
+  "common.accountFallback": "Account",
+  "wishlist.empty": "You haven’t saved any items yet.",
+  "wishlist.browseStore": "Browse the store",
+
   "home.heroBadge": "🪔 Verified Pandits • Authentic Samagri",
   "home.heroTitle": "Book a trusted Pandit for every sacred occasion",
   "home.heroSubtitle":
@@ -821,6 +842,15 @@ const en: Dict = {
   "cart.viewCheckout": "View cart & checkout",
 
   // SEO metadata (per-page title + description)
+  // The site-wide fallback title and description, used by any page that does not set its own
+  // and by every social-media preview. It was hardcoded English in [locale]/layout.tsx, so a
+  // Hindi page shared on WhatsApp previewed in English however well the page itself translated.
+  "meta.site.title": "BookMyPoojari — Book Verified Pandits & Pooja Samagri Online",
+  "meta.site.desc":
+    "Book experienced, verified Pandits for any pooja or ceremony at home, and order authentic pooja samagri kits — delivered to your door. Trusted, transparent, on time.",
+  "meta.site.shortDesc":
+    "Book verified Pandits for any ceremony and order authentic pooja samagri, delivered to your door.",
+
   "meta.poojas.title": "Book a Pooja — All Ceremonies",
   "meta.poojas.desc": "Browse and book verified Pandits for Satyanarayan Katha, Griha Pravesh, Lakshmi Puja, Navagraha Shanti and more. Transparent pricing, your language, on time.",
   "meta.pandits.title": "Our Pandits — Verified Hindu Priests",
@@ -864,6 +894,22 @@ const hi: Dict = {
   "common.menu": "मेन्यू",
   "common.language": "भाषा",
   "common.shopSamagri": "सामग्री खरीदें",
+
+  "a11y.openMenu": "मेन्यू खोलें",
+  "a11y.closeMenu": "मेन्यू बंद करें",
+  "a11y.primaryNav": "मुख्य",
+  "a11y.primaryNavMobile": "मुख्य मोबाइल",
+  "a11y.accountMenu": "खाता मेन्यू",
+  "common.savedItems": "सहेजे गए आइटम",
+  "common.savedItemsCount": "सहेजे गए आइटम ({n})",
+  "common.myBookings": "मेरी बुकिंग",
+  "common.myOrders": "मेरे ऑर्डर",
+  "common.adminConsole": "एडमिन कंसोल",
+  "common.signOut": "साइन आउट",
+  "common.accountFallback": "खाता",
+  "wishlist.empty": "आपने अभी तक कोई आइटम सहेजा नहीं है।",
+  "wishlist.browseStore": "स्टोर देखें",
+
   "home.heroBadge": "🪔 सत्यापित पंडित • प्रामाणिक सामग्री",
   "home.heroTitle": "हर शुभ अवसर के लिए एक विश्वसनीय पंडित बुक करें",
   "home.heroSubtitle":
@@ -1626,6 +1672,12 @@ const hi: Dict = {
   "cart.viewCheckout": "कार्ट देखें और चेकआउट करें",
 
   // SEO metadata (per-page title + description)
+  "meta.site.title": "BookMyPoojari — सत्यापित पंडित व पूजा सामग्री ऑनलाइन बुक करें",
+  "meta.site.desc":
+    "घर पर किसी भी पूजा या समारोह के लिए अनुभवी, सत्यापित पंडित बुक करें और प्रामाणिक पूजा सामग्री किट मंगवाएँ — सीधे आपके द्वार पर। भरोसेमंद, पारदर्शी, समय पर।",
+  "meta.site.shortDesc":
+    "किसी भी समारोह के लिए सत्यापित पंडित बुक करें और प्रामाणिक पूजा सामग्री मंगवाएँ, आपके द्वार पर।",
+
   "meta.poojas.title": "पूजा बुक करें — सभी समारोह",
   "meta.poojas.desc": "सत्यनारायण कथा, गृह प्रवेश, लक्ष्मी पूजा, नवग्रह शांति और अधिक के लिए सत्यापित पंडित खोजें और बुक करें। पारदर्शी मूल्य, आपकी भाषा, समय पर।",
   "meta.pandits.title": "हमारे पंडित — सत्यापित हिंदू पुजारी",
@@ -1669,6 +1721,22 @@ const te: Dict = {
   "common.menu": "మెను",
   "common.language": "భాష",
   "common.shopSamagri": "సామగ్రి షాపింగ్",
+
+  "a11y.openMenu": "మెనూ తెరవండి",
+  "a11y.closeMenu": "మెనూ మూసివేయండి",
+  "a11y.primaryNav": "ప్రధాన",
+  "a11y.primaryNavMobile": "ప్రధాన మొబైల్",
+  "a11y.accountMenu": "ఖాతా మెనూ",
+  "common.savedItems": "సేవ్ చేసిన అంశాలు",
+  "common.savedItemsCount": "సేవ్ చేసిన అంశాలు ({n})",
+  "common.myBookings": "నా బుకింగ్‌లు",
+  "common.myOrders": "నా ఆర్డర్‌లు",
+  "common.adminConsole": "అడ్మిన్ కన్సోల్",
+  "common.signOut": "సైన్ అవుట్",
+  "common.accountFallback": "ఖాతా",
+  "wishlist.empty": "మీరు ఇంకా ఏ అంశాన్నీ సేవ్ చేయలేదు.",
+  "wishlist.browseStore": "స్టోర్ చూడండి",
+
   "home.heroBadge": "🪔 ధృవీకరించిన పండితులు • అసలైన సామగ్రి",
   "home.heroTitle": "ప్రతి పవిత్ర సందర్భానికి నమ్మకమైన పండితుడిని బుక్ చేయండి",
   "home.heroSubtitle": "గృహ ప్రవేశం నుండి సత్యనారాయణ వ్రతం వరకు — అనుభవజ్ఞులైన, ధృవీకరించిన పూజారులు మీ ఇంటికే, అసలైన సామగ్రి కిట్‌లు మీ ద్వారం వద్దకే.",
@@ -2369,6 +2437,12 @@ const te: Dict = {
   "horoscope.ctaButton": "వ్యక్తిగత విశ్లేషణను పొందండి",
   "cart.shippingNote": "షిప్పింగ్ చెక్‌అవుట్ వద్ద లెక్కించబడుతుంది. ₹999 పైబడి ఉచితం.",
   "cart.viewCheckout": "కార్ట్ చూడండి & చెక్‌అవుట్",
+
+  "meta.site.title": "BookMyPoojari — ధృవీకరించిన పండితులు & పూజ సామగ్రి ఆన్‌లైన్‌లో బుక్ చేయండి",
+  "meta.site.desc":
+    "ఇంట్లో ఏ పూజ లేదా సంస్కారానికైనా అనుభవజ్ఞులైన, ధృవీకరించిన పండితులను బుక్ చేయండి మరియు అసలైన పూజ సామగ్రి కిట్‌లను ఆర్డర్ చేయండి — మీ ఇంటి ద్వారం వద్దకే. నమ్మకమైనది, పారదర్శకమైనది, సమయానికి.",
+  "meta.site.shortDesc":
+    "ఏ సంస్కారానికైనా ధృవీకరించిన పండితులను బుక్ చేయండి మరియు అసలైన పూజ సామగ్రిని ఆర్డర్ చేయండి, మీ ఇంటికే.",
 
   "meta.poojas.title": "పూజ బుక్ చేయండి — అన్ని సంస్కారాలు",
   "meta.poojas.desc": "సత్యనారాయణ వ్రతం, గృహ ప్రవేశం, లక్ష్మి పూజ, నవగ్రహ శాంతి మరియు మరిన్నింటి కోసం ధృవీకరించిన పండితులను బ్రౌజ్ చేసి బుక్ చేయండి. పారదర్శక ధరలు, మీ భాష, సమయానికి.",

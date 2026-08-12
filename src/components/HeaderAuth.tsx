@@ -6,12 +6,14 @@ import { useRouter } from "next/navigation";
 import type { User } from "@supabase/supabase-js";
 
 import { createClient } from "@/lib/supabase/client";
+import { useT } from "@/components/LanguageProvider";
 
 // Client-side auth control for the header. Reading the session on the client
 // keeps the surrounding pages (catalog, home) statically cacheable instead of
 // forcing per-request rendering.
 export default function HeaderAuth() {
   const supabase = useMemo(() => createClient(), []);
+  const t = useT();
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -79,14 +81,14 @@ export default function HeaderAuth() {
         href="/login"
         className="text-sm font-medium text-foreground/80 transition-colors hover:text-saffron-700"
       >
-        Sign in
+        {t("common.signIn")}
       </Link>
     );
   }
 
   const label = user.phone
     ? `+${user.phone}`
-    : (user.email ?? "Account");
+    : (user.email ?? t("common.accountFallback"));
 
   return (
     <div className="relative" ref={menuRef}>
@@ -94,7 +96,7 @@ export default function HeaderAuth() {
         type="button"
         onClick={() => setOpen((v) => !v)}
         className="flex h-9 w-9 items-center justify-center rounded-full bg-saffron-100 text-sm font-semibold text-saffron-700 transition-colors hover:bg-saffron-200"
-        aria-label="Account menu"
+        aria-label={t("a11y.accountMenu")}
         aria-haspopup="menu"
         aria-expanded={open}
         aria-controls="account-menu"
@@ -117,7 +119,7 @@ export default function HeaderAuth() {
             className="block px-4 py-2 text-sm text-foreground/80 hover:bg-saffron-50"
             role="menuitem"
           >
-            My account
+            {t("common.account")}
           </Link>
           <Link
             href="/account/bookings"
@@ -125,7 +127,7 @@ export default function HeaderAuth() {
             className="block px-4 py-2 text-sm text-foreground/80 hover:bg-saffron-50"
             role="menuitem"
           >
-            My bookings
+            {t("common.myBookings")}
           </Link>
           <Link
             href="/account/orders"
@@ -133,7 +135,7 @@ export default function HeaderAuth() {
             className="block px-4 py-2 text-sm text-foreground/80 hover:bg-saffron-50"
             role="menuitem"
           >
-            My orders
+            {t("common.myOrders")}
           </Link>
           <Link
             href="/account/wishlist"
@@ -141,7 +143,7 @@ export default function HeaderAuth() {
             className="block px-4 py-2 text-sm text-foreground/80 hover:bg-saffron-50"
             role="menuitem"
           >
-            Saved items
+            {t("common.savedItems")}
           </Link>
           {isAdmin && (
             <Link
@@ -150,7 +152,7 @@ export default function HeaderAuth() {
               className="block border-t border-saffron-50 px-4 py-2 text-sm font-medium text-saffron-700 hover:bg-saffron-50"
               role="menuitem"
             >
-              Admin console
+              {t("common.adminConsole")}
             </Link>
           )}
           <button
@@ -159,7 +161,7 @@ export default function HeaderAuth() {
             className="block w-full px-4 py-2 text-left text-sm text-maroon-700 hover:bg-saffron-50"
             role="menuitem"
           >
-            Sign out
+            {t("common.signOut")}
           </button>
         </div>
       )}
