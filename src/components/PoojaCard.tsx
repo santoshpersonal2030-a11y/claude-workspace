@@ -25,7 +25,10 @@ export default function PoojaCard({
       {/* Icon inline beside the name rather than stacked above it — matches PoojaList. */}
       <div className="flex items-start justify-end">
         <span className="rounded-full bg-saffron-50 px-3 py-1 text-xs font-medium text-saffron-700">
-          {pooja.category}
+          {/* PoojaList renders the very same badge as t(`pcat.${category}`). This one
+              printed the raw English value, so the two cards disagreed on the same page —
+              the third time these two have drifted (see "Starts at" and "Book →"). */}
+          {t(`pcat.${pooja.category}`)}
         </span>
       </div>
       <h3 className="mt-4 flex items-start gap-2.5 font-heading text-lg text-maroon-700">

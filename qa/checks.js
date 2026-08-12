@@ -1889,6 +1889,26 @@ function cityPoojaChecks() {
      June as Kundli.moonTrait — and rendered in English on the Hindi and Telugu kundli page.
      Twelve sentences that no audit flagged, because the kundli result only appears after the
      visitor submits a form and is therefore in no prerendered page. */
+  /* The pooja-category badge, in all THREE places it is drawn. PoojaList translated it via
+     pcat.*; PoojaCard printed the raw English value and PanditDirectory's filter did too. That
+     is the third time these components have drifted on the same page (see "Starts at" and
+     "Book →"), which is why this checks all of them rather than the one that was broken. */
+  for (const parts of [
+    ["components", "PoojaList.tsx"],
+    ["components", "PoojaCard.tsx"],
+    ["components", "PanditDirectory.tsx"],
+  ]) {
+    const text = read(path.join(SRC, ...parts));
+    line(
+      /pcat\.\$\{/.test(text),
+      `${parts[parts.length - 1]} translates the pooja-category label`,
+    );
+  }
+  control(
+    !/pcat\.\$\{/.test("<span>{pooja.category}</span>"),
+    "the category detector does not pass a raw category",
+  );
+
   const kundli = read(path.join(SRC, "components", "KundliForm.tsx"));
   line(
     /kundli\.trait\.\$\{result\.moonRashiIndex\}/.test(kundli),

@@ -106,9 +106,12 @@ export default function PanditDirectory({ pandits }: { pandits: Pandit[] }) {
             className={`ml-2 ${selectClass}`}
           >
             <option value="All">{t("dir.allPoojas")}</option>
+            {/* value stays the English category — it is what the filter matches on and
+                what the pooja data holds. Only the visible label is translated, via the same
+                pcat.* keys PoojaList and PoojaCard use. */}
             {poojaCategories.map((c) => (
               <option key={c} value={c}>
-                {c}
+                {t(`pcat.${c}`)}
               </option>
             ))}
           </select>
@@ -187,7 +190,11 @@ export default function PanditDirectory({ pandits }: { pandits: Pandit[] }) {
                       key={s}
                       className="rounded-full bg-cream-100 px-2.5 py-0.5 text-[11px] font-medium text-maroon-600"
                     >
-                      {s}
+                      {/* Each specialisation IS a pooja category, so it gets the same pcat.*
+                          label as the filter above it. Without this the filter said
+                          “Life Event” in Hindi while the badge beside it said “Life Event” in
+                          English, on the same card. */}
+                      {t(`pcat.${s}`)}
                     </span>
                   ))}
                 </div>

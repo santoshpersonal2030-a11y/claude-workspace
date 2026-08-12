@@ -66,13 +66,73 @@ const ALLOW = new Set([
   "हिन्दी",
   "తెలుగు",
   "Skip to content",
+
+  /* ── PROPER NOUNS THAT STAY IN ENGLISH — Santosh's decision, 12-Aug-2026 ──────────────────
+     Asked directly whether city and rashi names should read हैदराबाद and सिंह on the Hindi and
+     Telugu pages, or stay in the Roman alphabet. Answer: English.
+
+     This is the one call in the whole i18n job that is about his own customers rather than
+     about code, so it is recorded here rather than left as 15 phrases that look like unfinished
+     work forever. They were never defects; the audit simply could not tell a proper noun from a
+     forgotten button.
+
+     ⚠️ Everything below is a NAME. Nothing here is a label. "Life Event" and "Home" looked like
+     they belonged in this list and did NOT — they are pooja-category badges, and the fix was
+     that PoojaCard printed the raw value while PoojaList already translated it. Adding a label
+     here would hide a real bug behind a real decision, which is the way an allowlist goes bad. */
+
+  // Cities. Also the sunrise reference on every panchang page, hence the reach.
+  "New Delhi",
+
+  // Languages a pandit performs in. Shown as-is on 98 pages.
+  "Hindi",
+  "Sanskrit",
+  "Marathi",
+  "Hindi, Sanskrit, Marathi",
+
+  // Rashi (moon-sign) names from the muhurat engine.
+  "Simha",
+  "Kanya",
+  "Karka",
+
+  // Vrat and festival names the engine computes.
+  "Vinayaka Chaturthi",
+  "Pradosh Vrat",
+  "Sankashti Chaturthi",
+
+  // People's names in the testimonials.
+  "Priya & Aniket",
+  "Ramesh Gupta",
+  "Lakshmi Iyer",
+
+  /* Religious vocabulary deliberately kept transliterated in ALL THREE languages — an older
+     decision, already written down in src/lib/i18n.ts: "muhurat, nakshatra, tithi, Rahu Kalam
+     … because that is what people actually say and search for." */
+  "Muhurat",
 ]);
 const ALLOW_RE = [
   /^[\s\d.,:%₹+\-/|()–—]+$/, // pure numbers, prices, punctuation
   /^[^\p{L}]*$/u, // emoji and symbols only
   /^https?:\/\//,
   /^[a-z0-9-]+\.(png|jpg|jpeg|svg|webp|ico|xml|txt)$/i,
+  /^[^\s@]+@[^\s@]+\.[^\s@]+$/, // an email address is not translatable in any language
 ];
+
+/* A guard on the allowlist itself. These are LABELS, not names — a developer typed them into
+   the interface — and each one looked exactly like the proper nouns above. "Life Event" and
+   "Home" are pooja-category badges: PoojaCard was printing the raw English value while
+   PoojaList already translated it via pcat.*, so they showed up in the audit looking like
+   another name to wave through. Waving them through would have hidden a real bug behind a real
+   decision, which is how an allowlist quietly stops being worth anything. */
+const MUST_NOT_BE_ALLOWED = ["Life Event", "Home", "Festival", "Remedial", "Ancestral"];
+for (const label of MUST_NOT_BE_ALLOWED) {
+  if (ALLOW.has(label)) {
+    throw new Error(
+      `qa/i18n-rules.js: "${label}" is a UI label, not a proper noun, and must not be ` +
+        `allowlisted. If it is showing up untranslated, translate it — do not excuse it.`,
+    );
+  }
+}
 const isAllowed = (s) => ALLOW.has(s) || ALLOW_RE.some((re) => re.test(s));
 const hasLatinLetters = (s) => /[A-Za-z]/.test(s);
 // Devanagari or Telugu characters mean the string has clearly been through translation.
