@@ -9,6 +9,7 @@ import {
   formatNumber,
   formatTime,
   formatClock,
+  formatClockHHMM,
   formatWeekday,
   formatDayMonth,
   intlLocale,
@@ -135,4 +136,18 @@ test("formatDayMonth drops the year and still translates the month", () => {
   const hi = formatDayMonth("2026-04-20", "hi");
   assert.ok(en && !en.includes("2026"));
   assert.notEqual(hi, en);
+});
+
+test("formatClockHHMM turns the engine's 24-hour string into the site's one clock format", () => {
+  /* Reading a real page found the muhurat window rendering "12:07 – 12:54" directly above a
+     panchang reading "5:58 AM". Both were right; together they read as a bug. */
+  assert.equal(formatClockHHMM("12:07", "en"), "12:07 PM");
+  assert.equal(formatClockHHMM("05:58", "en"), "5:58 AM");
+  assert.equal(formatClockHHMM("00:30", "en"), "12:30 AM");
+  assert.equal(formatClockHHMM("23:59", "en"), "11:59 PM");
+});
+
+test("formatClockHHMM returns junk unchanged rather than throwing inside a label", () => {
+  assert.equal(formatClockHHMM("", "en"), "");
+  assert.equal(formatClockHHMM("not a time", "en"), "not a time");
 });

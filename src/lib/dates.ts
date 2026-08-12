@@ -165,6 +165,19 @@ export function formatClock(
   return `${h}:${String(m).padStart(2, "0")} ${ap}`;
 }
 
+/** The same clock, from a "HH:MM" 24-hour string — which is what the muhurat engine returns.
+ *
+ * Added 12-Aug-2026 because reading a real city × pooja page showed the muhurat window as
+ * "12:07 – 12:54" directly above a panchang reading "5:58 AM". Two clock formats on one page
+ * reads as a bug even though both were correct. Every visible clock on the site now goes
+ * through formatClock. Returns the input unchanged if it is not HH:MM, rather than throwing in
+ * the middle of a date label. */
+export function formatClockHHMM(hhmm: string, locale: Locale): string {
+  const m = /^(\d{1,2}):(\d{2})$/.exec(hhmm.trim());
+  if (!m) return hhmm;
+  return formatClock(Number(m[1]) * 60 + Number(m[2]), locale);
+}
+
 /** Numbers with Indian grouping — "1,20,000" — in the reader's numerals. */
 export function formatNumber(value: number | null | undefined, locale: Locale): string | null {
   if (value === null || value === undefined || Number.isNaN(value)) return null;

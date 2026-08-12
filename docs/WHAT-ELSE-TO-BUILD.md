@@ -74,22 +74,30 @@ already built rather than building a third.
 
 ---
 
-## Already built, just not surfaced — the cheap list
+## ⚠️ CORRECTED 12-Aug-2026 — four of these five were already built
 
-Ordered by effort. These are near-free because the logic exists.
+**The table below was written on 05-Aug and was wrong about most of it.** I checked each function
+against the codebase rather than trusting the list, and only one of the five is genuinely
+missing. Recorded here rather than quietly edited away, because the list was used to decide what
+to work on.
 
-| # | Idea | What already exists |
-|---|---|---|
-| 1 | **Which pandits serve my pincode?** | `travel.ts` has `servesPincode`, `nearbyProximity`, `servesNearby` — **all unused** |
-| 2 | **Priest day-planner / route view** | `scheduling.ts` has `fitsSchedule`, `jobsCompatible`, `travelMinutes`, `isBlackedOut` — **all unused** |
-| 3 | **"Your rashi" personality content** | `kundli.ts` has `RASHI_TRAITS` — **unused** |
-| 4 | **Retrograde warnings on date pickers** | `retrogradePlanets` — **unused** |
-| 5 | **Per-ceremony date guidance** | `CEREMONY_RULES` covers 14 ceremonies — **unused** |
+| # | Idea | 05-Aug claim | What is actually true |
+|---|---|---|---|
+| 1 | Which pandits serve my pincode? | "all unused" | ✅ **Already shipped.** `PanditDirectory.tsx` has a working pincode filter using `resolveTravelBand`, `servesNearby` and `nearbyProximity`, with exact-match priests sorted first and a "may also serve your area" expansion. Only the thin wrapper `servesPincode` is uncalled — a naming artefact, not a missing feature |
+| 2 | Priest day-planner / route view | "all unused" | ❌ **Correct — genuinely not built.** `fitsSchedule`, `jobsCompatible`, `travelMinutes` and `isBlackedOut` have no caller anywhere |
+| 3 | "Your rashi" personality content | "`RASHI_TRAITS` unused" | ✅ **Already shipped**, as `Kundli.moonTrait`, rendered by `KundliForm`. ⚠️ But the twelve traits are **English only** — a real gap, and a different one |
+| 4 | Retrograde warnings | "`retrogradePlanets` unused" | ✅ **Already shipped** on the panchang page — `FullPanchanga.retrogrades`, rendered by `PanchangView` via the `pv.retro` key. Not on the *booking* date picker, which is the remaining gap |
+| 5 | Per-ceremony date guidance | "`CEREMONY_RULES` unused" | ✅ **Built on 05-Aug**, hours after this table was written — `muhurat-finder.ts` uses `CEREMONY_RULES` and `muhuratQuality` for all 14 ceremonies |
 
-Number 1 deserves a note: I said in the e-commerce analysis that there is no pincode
-serviceability check. That is true for **shipping samagri**, and I was right about that — but it
-is *not* true for **pandits**, where the travel-band logic exists and simply is not shown to
-customers. Worth correcting.
+**The lesson is the one this project keeps relearning: a list of what is missing goes stale faster
+than the code does, and this one went stale the same night it was written.** Trust the code.
+
+Still genuinely uncalled from the muhurat engine: `generateVivahCandidates`, `vivahQuality`,
+`ceremonyExclusionReason` and `karanaAt`. The finder built its own path through
+`generateCeremonyCandidates` instead.
+
+Number 1 also deserves its original note: the e-commerce analysis said there is no pincode
+serviceability check. That is true for **shipping samagri** — but not for **pandits**.
 
 ---
 
@@ -101,9 +109,14 @@ content asset producing very few pages.
 - **A page per festival.** 85 pages of "when is X, what pooja, what samagri, book a pandit" —
   each one searched for every year, by name, by millions of people. You currently have a single
   festivals list page.
-- **City × pooja pages.** `pandits/in/[city]` exists. `poojas/[slug]` exists. The crossing —
-  *"Griha Pravesh pandit in Hyderabad"* — is how people actually search, and it does not exist.
-  14 cities × 48 poojas is a very large number of genuinely-distinct, genuinely-useful pages.
+- ~~**City × pooja pages.**~~ ✅ **BUILT 12-Aug-2026** — `/poojas/[slug]/in/[city]`, 700 routes
+  (14 cities × 50 poojas). Each page carries three things that genuinely differ by city and are
+  *computed*, not templated: the auspicious dates for that ceremony at that city's sunrise, that
+  city's panchang today, and the priests serving it. **Only 14 of the 50 poojas have muhurat
+  rules; the other 36 say the timing is flexible rather than showing an invented date.**
+  Build cost is bounded: the 4 popular poojas × 14 cities are prerendered (168 pages), the other
+  646 routes render on demand and cache for a day. Prerendering all 700 would have added 2,100
+  pages to a build that already takes over ten minutes on this laptop.
 - **A yearly panchang / festival calendar** people bookmark and return to.
 
 ⚠️ **The honest caveat:** thin auto-generated pages are worth nothing and can hurt. These are only

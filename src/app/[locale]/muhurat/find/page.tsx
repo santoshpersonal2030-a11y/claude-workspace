@@ -11,7 +11,7 @@ import {
   muhuratCities,
 } from "@/lib/muhurat-finder";
 import { getDictionary, isLocale, DEFAULT_LOCALE, type Translator } from "@/lib/i18n";
-import { formatDateLong } from "@/lib/dates";
+import { formatDateLong, formatClockHHMM } from "@/lib/dates";
 
 /* "Find an auspicious date" — the public face of the muhurat engine.
  *
@@ -226,7 +226,8 @@ export default async function MuhuratFinderPage({
                       <div className="flex gap-2">
                         <dt className="shrink-0 text-foreground/60">{t("mf.window")}:</dt>
                         <dd className="font-medium text-foreground/85">
-                          {d.startTime} – {d.endTime}
+                          {formatClockHHMM(d.startTime, loc)} –{" "}
+                          {formatClockHHMM(d.endTime, loc)}
                         </dd>
                       </div>
                       <div className="flex gap-2">

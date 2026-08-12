@@ -6,6 +6,7 @@ import {
   getPanditSlugs,
 } from "@/lib/queries";
 import { CITY_COORDS } from "@/lib/muhurat-engine";
+import { popularPoojas } from "@/lib/poojas";
 import { getPublishedPosts } from "@/lib/blog-db";
 import { consultations } from "@/lib/consultations";
 import { templePujas } from "@/lib/temple-pujas";
@@ -91,6 +92,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // "when is Diwali 2027" by name, every year — so they must not be left out of the sitemap
     // the way the whole Hindi and Telugu site was until this morning.
     ...festivalPages().map((f) => `/festivals/${f.slug}`),
+    /* City × pooja — "Griha Pravesh pandit in Hyderabad", which is how people actually search.
+       Only the POPULAR poojas are listed, not all 700 combinations. Every one of the 700 works
+       and is reachable, but a sitemap is a recommendation, not an index: filling it with 2,100
+       URLs of which most have never been visited buries the pages that matter. */
+    ...popularPoojas.flatMap((p) =>
+      Object.keys(CITY_COORDS).map(
+        (c) => `/poojas/${p.slug}/in/${c.toLowerCase().replace(/s+/g, "-")}`,
+      ),
+    ),
   ].flatMap((path) =>
     LOCALES.map((locale) => ({
       url: localizedUrl(locale, path),

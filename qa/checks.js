@@ -123,8 +123,13 @@ head("1. ROUTE INVENTORY — nothing may silently disappear");
    The check caught both and failed, which is the whole point of it — the number moves only when
    someone writes a new one here and says why. A route disappearing produces exactly the same
    failure, and that is the case this exists for. */
+/* The page count moves ONLY when someone writes the new number down here and says why.
+   A route DISAPPEARING looks identical to one being added, which is the case this number
+   exists to catch.
+     12-Aug-2026: 98 -> 99, adding src/app/[locale]/poojas/[slug]/in/[city]/page.tsx — the
+     city × pooja page ("Griha Pravesh pandit in Hyderabad"). */
 const EXPECTED = {
-  pages: 98,
+  pages: 99,
   festivals: 17,
   apiRoutes: 49,
   authRoutes: 2,
@@ -144,7 +149,11 @@ const authRoutes = relFiles.filter(
 );
 const layouts = relFiles.filter((f) => /^src\/app\/.*layout\.tsx$/.test(f));
 
-line(pages.length === EXPECTED.pages, "98 page routes present", `found ${pages.length}`);
+line(
+  pages.length === EXPECTED.pages,
+  `${EXPECTED.pages} page routes present`,
+  `found ${pages.length}`,
+);
 line(
   apiRoutes.length === EXPECTED.apiRoutes,
   "49 API routes present",
@@ -163,7 +172,7 @@ const outsideLocale = pages.filter((p) => !p.startsWith("src/app/[locale]/"));
 line(
   outsideLocale.length === 0,
   "every page lives under src/app/[locale]/",
-  outsideLocale.length ? outsideLocale.join(", ") : "all 96",
+  outsideLocale.length ? outsideLocale.join(", ") : `all ${pages.length}`,
 );
 
 control(
@@ -1654,6 +1663,79 @@ function chromeChecks() {
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
+function cityPoojaChecks() {
+  head("20. CITY × POOJA PAGES — and the thin-page trap");
+  const file = path.join(
+    APP,
+    "[locale]",
+    "poojas",
+    "[slug]",
+    "in",
+    "[city]",
+    "page.tsx",
+  );
+  const src = read(file);
+  line(src.length > 1000, "the city × pooja page exists", `${src.length} chars`);
+
+  /* THE WHOLE RISK OF THIS PAGE TYPE IS THAT IT IS THIN. 700 pages differing only in a swapped
+     city name are worth nothing and can hurt. So the three things that genuinely differ by city
+     are asserted to be present — if a later edit strips them out, this page becomes exactly the
+     spam the plan document warned against and the gate should say so. */
+  line(/findAuspiciousDates\(/.test(src), "it computes auspicious dates for THIS city");
+  line(/fullPanchanga\(/.test(src), "it computes the panchang for THIS city");
+  line(/\/pandits\/in\/\$\{city\}/.test(src), "it links to the priests serving THIS city");
+
+  /* AND IT MUST NOT INVENT A MUHURAT. Only 14 of the 50 poojas have rules in CEREMONY_RULES.
+     For the other 36 the page has to say the timing is flexible, not quietly show nothing or —
+     far worse — show dates computed with default rules. A wrong auspicious date is a ruined
+     ceremony, not a bad search result. */
+  line(
+    /isKnownCeremony\(slug\)/.test(src),
+    "it asks whether this ceremony HAS muhurat rules before showing any date",
+  );
+  line(
+    /hasRules\s*\?\s*findAuspiciousDates/.test(src),
+    "…and only computes dates when it does",
+  );
+  line(
+    /cp\.flexibleTiming/.test(src) && /cp\.noneInWindow/.test(src),
+    "…and says which of the two empty cases it is, rather than showing a blank",
+  );
+  line(
+    /t\("mf\.disclaimer"\)/.test(src),
+    "the honesty note appears wherever computed dates do",
+  );
+
+  // Build cost. Prerendering all 700 × 3 would add 2,100 pages to a build already over ten
+  // minutes on this laptop, to bake pages nobody has asked for.
+  line(
+    /popularPoojas\.flatMap/.test(src),
+    "only the popular poojas are prerendered; the rest render on demand",
+  );
+  line(
+    /export const revalidate = 86400/.test(src),
+    "…and cache for a day once they do",
+  );
+
+  const sitemap = read(path.join(APP, "sitemap.ts"));
+  line(
+    /popularPoojas\.flatMap/.test(sitemap),
+    "the sitemap lists the popular city × pooja pages",
+  );
+
+  control(
+    /isKnownCeremony\(slug\)/.test("const hasRules = isKnownCeremony(slug);"),
+    "the muhurat-guard detector catches the call it is looking for",
+  );
+  control(
+    !/hasRules\s*\?\s*findAuspiciousDates/.test(
+      "const dates = findAuspiciousDates({ ceremony: slug });",
+    ),
+    "…and would NOT pass an unguarded call",
+  );
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
 function auditRootCoverageChecks() {
   head("19. THE AUDITS MUST LOOK AT THE HOMEPAGE");
   /* Both prerender audits walked .next/server/app/<locale>/ — and Next writes the locale ROOT
@@ -1819,6 +1901,7 @@ function publicPageChecks() {
   chromeChecks();
   publicPageChecks();
   auditRootCoverageChecks();
+  cityPoojaChecks();
   kycChecks();
 
   console.log("\n" + "=".repeat(70));

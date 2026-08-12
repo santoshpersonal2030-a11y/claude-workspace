@@ -36,6 +36,13 @@ const PAGES = [
   { name: "store", path: "/te/store" },
   { name: "panchang", path: "/te/panchang" },
   { name: "login", path: "/te/login" },
+  // Added 12-Aug-2026 with the page itself. Its h1 concatenates a Telugu pooja name and a city
+  // — the longest single line on the site — and a Telugu pooja name has no space in it, so the
+  // word alone can set the minimum width. That is exactly the shape of the 23px overflow found
+  // on the pooja detail page, which needed BOTH min-w-0 and break-words to fix.
+  { name: "city x pooja", path: "/te/poojas/satyanarayan-katha/in/varanasi" },
+  { name: "contact", path: "/te/contact" },
+  { name: "become a pandit", path: "/te/become-a-pandit" },
 ];
 
 for (const { name: pageName, path } of PAGES) {
