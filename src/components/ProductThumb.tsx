@@ -57,9 +57,21 @@ export default function ProductThumb({
           />
         )
       ) : (
-        <span className={emojiSize} aria-hidden="true">
-          🪔
-        </span>
+        /* NO PHOTOGRAPH. Every storage bucket on this project is empty, so this is what every
+           product actually renders today — and the emoji is aria-hidden, which left the whole
+           thumbnail with nothing to announce. Four different pages wrap this in a bare
+           <Link href="/store/…">, so each of those became a link a screen reader could only
+           read out as its URL: 216 of them across 58 pages, found the moment the database was
+           connected and the store pages existed to be audited at all.
+           The name goes back in, visually hidden. The moment real photos are uploaded the <img
+           alt> above carries it instead and this branch stops rendering — but the fix must not
+           depend on that ever happening. */
+        <>
+          <span className={emojiSize} aria-hidden="true">
+            🪔
+          </span>
+          <span className="sr-only">{name}</span>
+        </>
       )}
     </div>
   );

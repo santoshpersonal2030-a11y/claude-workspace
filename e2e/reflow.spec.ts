@@ -101,9 +101,17 @@ test("the menu button is fully reachable at 320px", async ({ page }) => {
     `the menu button ends at ${Math.round(box!.x + box!.width)}px in a ${viewport}px viewport`,
   ).toBeLessThanOrEqual(viewport);
 
-  // And it must actually open, not merely be present.
-  await burger.click();
-  await expect(page.locator("#mobile-nav")).toBeVisible();
+  /* And it must actually open, not merely be present.
+     The click is RETRIED rather than fired once. `domcontentloaded` means the markup has
+     arrived, not that React has hydrated and attached the onClick — so on a loaded machine the
+     first click can land on a button that is not listening yet and simply do nothing. That made
+     this test fail in a full 46-test run on 12-Aug-2026 and pass every time in isolation, which
+     is the signature of a flake, not of a broken page. Raising the timeout would have hidden it;
+     retrying the click is what actually models "a person taps until the menu opens". */
+  await expect(async () => {
+    await burger.click();
+    await expect(page.locator("#mobile-nav")).toBeVisible({ timeout: 1000 });
+  }).toPass({ timeout: 15_000 });
   await expect(burger).toHaveAttribute("aria-expanded", "true");
 });
 
