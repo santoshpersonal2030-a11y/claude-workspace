@@ -51,7 +51,9 @@ export default function KundliForm() {
         </dl>
         <p className="mt-4 rounded-xl bg-saffron-50 px-3 py-2 text-sm text-maroon-800">
           <span className="font-medium">{t("kundli.moonNote")}: </span>
-          {result.moonTrait}
+          {/* The engine returns the English trait AND the index. The index is the data;
+              the words are a view concern, so they come from the dictionary. */}
+          {t(`kundli.trait.${result.moonRashiIndex}`)}
         </p>
         <p className="mt-3 text-xs text-foreground/65">{t("kundli.disclaimer")}</p>
         <div className="mt-4 flex flex-wrap gap-3">

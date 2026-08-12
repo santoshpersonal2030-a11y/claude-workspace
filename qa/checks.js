@@ -1723,6 +1723,50 @@ function cityPoojaChecks() {
     "the sitemap lists the popular city × pooja pages",
   );
 
+  /* RASHI_TRAITS. WHAT-ELSE-TO-BUILD.md listed these as an unused idea. They were shipped in
+     June as Kundli.moonTrait — and rendered in English on the Hindi and Telugu kundli page.
+     Twelve sentences that no audit flagged, because the kundli result only appears after the
+     visitor submits a form and is therefore in no prerendered page. */
+  const kundli = read(path.join(SRC, "components", "KundliForm.tsx"));
+  line(
+    /kundli\.trait\.\$\{result\.moonRashiIndex\}/.test(kundli),
+    "the kundli page reads the moon-sign trait from the dictionary, by index",
+  );
+  line(
+    !/\{result\.moonTrait\}/.test(kundli),
+    "…and no longer prints the engine's English string",
+  );
+  {
+    // Same dictionary parse as section 6, kept local rather than exported — two copies of a
+    // parser is a smaller hazard here than one shared mutable one.
+    const dict = read(path.join(SRC, "lib", "i18n.ts"));
+    const keysOf = (name) => {
+      const start = dict.indexOf(`const ${name}: Dict = {`);
+      if (start < 0) return new Set();
+      const end = dict.indexOf("\n};", start);
+      return new Set(
+        [...dict.slice(start, end).matchAll(/^\s{2}"([^"]+)":/gm)].map((m) => m[1]),
+      );
+    };
+    const missing = [];
+    for (const loc of ["en", "hi", "te"]) {
+      const keys = keysOf(loc);
+      for (let i = 0; i < 12; i++) {
+        if (!keys.has(`kundli.trait.${i}`)) missing.push(`${loc}:${i}`);
+      }
+    }
+    line(
+      missing.length === 0,
+      "all twelve moon-sign traits exist in all three languages",
+      missing.length ? missing.join(" ") : "36 of 36",
+    );
+    control(
+      !keysOf("hi").has("kundli.trait.99"),
+      "the trait-key detector reports a key that really is absent",
+    );
+    control(keysOf("hi").size > 100, `the Hindi dictionary parsed (${keysOf("hi").size} keys)`);
+  }
+
   control(
     /isKnownCeremony\(slug\)/.test("const hasRules = isKnownCeremony(slug);"),
     "the muhurat-guard detector catches the call it is looking for",
