@@ -52,6 +52,19 @@ const pages = [];
   }
 })(OUT);
 
+/* ⚠️ THE HOMEPAGE IS NOT IN app/en/. Next writes the locale root to .next/server/app/en.html,
+   a sibling of that directory. This audit walked app/en/ from the day it was written and so
+   never checked the most-visited page on the site, while reporting "198 pages scanned". */
+const rootPage = path.join(ROOT, ".next", "server", "app", "en.html");
+if (!fs.existsSync(rootPage)) {
+  console.error(
+    "The English homepage (.next/server/app/en.html) is missing. Refusing to report a clean\n" +
+      "run over a partial site — that is exactly how it went unchecked for a week.",
+  );
+  process.exit(1);
+}
+pages.push(["index.html", rootPage]);
+
 const { findings, add } = makeCollector();
 for (const [route, file] of pages) {
   auditHtml(fs.readFileSync(file, "utf8"), route, add);

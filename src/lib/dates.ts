@@ -99,6 +99,62 @@ export function formatTime(value: DateInput, locale: Locale): string | null {
   }).format(d);
 }
 
+/** Just the weekday: "Wednesday" / "बुधवार" / "బుధవారం".
+ *
+ * The muhurat engine returns `weekday` as an English STRING because it is a computation, not a
+ * view — and the admin console and the GST exports read the same value. So the engine keeps
+ * speaking English and the display sites call this instead. */
+export function formatWeekday(value: DateInput, locale: Locale): string | null {
+  const d = toDate(value);
+  if (!d) return null;
+  return new Intl.DateTimeFormat(intlLocale(locale), { weekday: "long" }).format(d);
+}
+
+/** Day and month with no year — "20 April" — for things like a zodiac date range. */
+export function formatDayMonth(value: DateInput, locale: Locale): string | null {
+  const d = toDate(value);
+  if (!d) return null;
+  return new Intl.DateTimeFormat(intlLocale(locale), {
+    day: "numeric",
+    month: "short",
+  }).format(d);
+}
+
+/* ── Clock times ────────────────────────────────────────────────────────────────
+   Minutes-since-midnight → "1:47 PM". This is the panchang's format: sunrise, sunset, Rahu
+   Kalam, Abhijit and all sixteen choghadiya slots.
+
+   ⚠️ IT DELIBERATELY DOES NOT USE Intl, AND THE OUTPUT IS THE SAME IN ALL THREE LANGUAGES.
+   I checked before changing it rather than assuming. Intl.DateTimeFormat gives:
+
+       en-IN  "1:47 pm"      hi-IN  "1:47 pm"      te-IN  "1:47 PM"
+
+   So Intl would lower-case the marker on the English site — a visible change for every visitor
+   — and would still not translate anything for a Hindi reader, because Hindi CLDR uses "am/pm"
+   too. A clock time reads the same in all three languages. The only thing Intl could change is
+   the DIGITS (१:४७ via -u-nu-deva), and Devanagari numerals are not what Indian panchang sites
+   use and are not mine to choose.
+
+   This exists because the identical function was COPIED INTO FOUR FILES — PanchangView,
+   TodayPanchang, choghadiya/page and pandits/in/[city]/page. Four copies of a formatter is how
+   three of them end up agreeing and one drifts. `locale` is taken and ignored on purpose, so
+   every call site already passes it if this ever does become locale-dependent. */
+export function formatClock(
+  minutesFromMidnight: number,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _locale: Locale,
+): string {
+  /* Both wrapped, not just the minutes. My first attempt guarded the minute and left the hour,
+     so a negative input gave "-1:59 AM" — half a fix, which the test caught. Identical to the
+     old copies for every value in 0…1440, which is the only range that ever occurs. */
+  const t = Math.round(minutesFromMidnight);
+  let h = ((Math.floor(t / 60) % 24) + 24) % 24;
+  const m = ((t % 60) + 60) % 60;
+  const ap = h < 12 ? "AM" : "PM";
+  h = h % 12 || 12;
+  return `${h}:${String(m).padStart(2, "0")} ${ap}`;
+}
+
 /** Numbers with Indian grouping — "1,20,000" — in the reader's numerals. */
 export function formatNumber(value: number | null | undefined, locale: Locale): string | null {
   if (value === null || value === undefined || Number.isNaN(value)) return null;

@@ -8,6 +8,9 @@ import {
   formatDateTime,
   formatNumber,
   formatTime,
+  formatClock,
+  formatWeekday,
+  formatDayMonth,
   intlLocale,
 } from "../src/lib/dates.ts";
 
@@ -78,4 +81,58 @@ test("an unknown locale falls back to en-IN rather than throwing", () => {
   // Guards the case where a fourth language is added to LOCALES but not to this map.
   assert.equal(intlLocale("xx" as never), "en-IN");
   assert.ok(formatDate(DAY, "xx" as never));
+});
+
+/* ── formatClock — the four copies that became one ────────────────────────────
+   PanchangView, TodayPanchang, choghadiya/page and pandits/in/[city]/page each carried a
+   byte-identical `to12h`. Consolidating them is only safe if the output is unchanged, so this
+   asserts it against a verbatim copy of the old implementation for every minute of the day
+   rather than spot-checking three values. */
+function oldTo12h(mins: number): string {
+  const t = Math.round(mins);
+  let h = Math.floor(t / 60) % 24;
+  const m = t % 60;
+  const ap = h < 12 ? "AM" : "PM";
+  h = h % 12 || 12;
+  return `${h}:${String(m).padStart(2, "0")} ${ap}`;
+}
+
+test("formatClock is byte-identical to the four copies it replaced, all day", () => {
+  for (let m = 0; m <= 1440; m++) {
+    assert.equal(formatClock(m, "en"), oldTo12h(m), `minute ${m}`);
+  }
+});
+
+test("formatClock reads the same in all three languages — and that is correct", () => {
+  /* Not an oversight. Intl gives "1:47 pm" for BOTH en-IN and hi-IN, so using it would
+     lower-case the marker for every English visitor and translate nothing for a Hindi one.
+     A clock time is the same in all three languages. This test exists so that anyone who
+     "fixes" it later has to read the reason first. */
+  assert.equal(formatClock(825, "en"), "1:45 PM");
+  assert.equal(formatClock(825, "hi"), "1:45 PM");
+  assert.equal(formatClock(825, "te"), "1:45 PM");
+});
+
+test("formatClock no longer prints a negative minute", () => {
+  // The old copies took `t % 60` with no guard. I asserted this produced "11:-1 PM"; the test
+  // corrected me — it produces "-1:-1 AM", because the hour goes negative as well.
+  assert.equal(oldTo12h(-1), "-1:-1 AM");
+  assert.equal(formatClock(-1, "en"), "11:59 PM");
+});
+
+test("the weekday really is translated", () => {
+  const en = formatWeekday(DAY, "en");
+  const hi = formatWeekday(DAY, "hi");
+  const te = formatWeekday(DAY, "te");
+  assert.equal(en, "Wednesday");
+  assert.notEqual(hi, en, "Hindi weekday identical to English — no hi-IN data");
+  assert.notEqual(te, en, "Telugu weekday identical to English — no te-IN data");
+  assert.notEqual(hi, te);
+});
+
+test("formatDayMonth drops the year and still translates the month", () => {
+  const en = formatDayMonth("2026-04-20", "en");
+  const hi = formatDayMonth("2026-04-20", "hi");
+  assert.ok(en && !en.includes("2026"));
+  assert.notEqual(hi, en);
 });

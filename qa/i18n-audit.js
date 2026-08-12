@@ -68,10 +68,36 @@ function pagesFor(locale) {
     }
   };
   walk(base);
+
+  /* ⚠️ THE HOMEPAGE IS NOT IN THAT FOLDER. Next writes the locale ROOT to
+     .next/server/app/hi.html, a sibling of the app/hi/ directory rather than a file inside it.
+     So from the day this audit was written until 12-Aug-2026 it walked app/hi/ and never once
+     looked at the most-visited page on the site — in any language — while reporting a confident
+     "198 pages compared".
+     It was missing five leaks on the homepage strip alone (Tithi, Nakshatra, Rahu Kalam,
+     "Today's Panchang · New Delhi", "Full panchang →"). Exactly the shape the a11y audit's own
+     header warns about: silent about something while sounding definitive. */
+  const root = path.join(OUT, `${locale}.html`);
+  if (fs.existsSync(root)) out.set("index.html", root);
   return out;
 }
 
 const enPages = pagesFor("en");
+
+/* A control, not a nicety. The homepage went unaudited for a week precisely because nothing
+   asserted it was in the list — the count went up by one and nobody was counting. Refuse to run
+   rather than quietly report on 198 pages again. */
+for (const loc of ["en", ...LOCALES]) {
+  if (!pagesFor(loc).has("index.html")) {
+    console.error(
+      `The ${loc} homepage is not in the page list. It lives at .next/server/app/${loc}.html,\n` +
+        `a SIBLING of app/${loc}/ rather than a file inside it. Refusing to report on a\n` +
+        `partial site — that is how it went unchecked in the first place.`,
+    );
+    process.exit(1);
+  }
+}
+
 const leaksByString = new Map(); // string -> Set of "locale:page"
 const pagesClean = { hi: 0, te: 0 };
 const pagesDirty = { hi: 0, te: 0 };

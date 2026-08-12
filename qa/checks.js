@@ -1577,6 +1577,55 @@ function chromeChecks() {
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
+function auditRootCoverageChecks() {
+  head("19. THE AUDITS MUST LOOK AT THE HOMEPAGE");
+  /* Both prerender audits walked .next/server/app/<locale>/ — and Next writes the locale ROOT
+     page to .next/server/app/<locale>.html, a SIBLING of that directory. So from the day they
+     were written until 12-Aug-2026 neither audit ever looked at the most-visited page on the
+     site, in any language, while printing "198 pages". It was hiding seven interface leaks.
+
+     This is the second blind spot of exactly this shape in these tools (the first was the 65
+     dynamic routes, closed by qa/live-audit.js). Both were silent about part of the site while
+     sounding definitive, which is the failure mode worth a permanent check. */
+  const i18n = read(path.join(ROOT, "qa", "i18n-audit.js"));
+  const a11y = read(path.join(ROOT, "qa", "a11y-audit.js"));
+  line(
+    /\$\{locale\}\.html/.test(i18n),
+    "the i18n audit adds the locale root page to its walk",
+  );
+  line(
+    /out\.set\("index\.html", root\)/.test(i18n),
+    "…under a route key that lines up across the three languages",
+  );
+  line(
+    /Refusing to report on a\\n/.test(i18n) || /Refusing to report/.test(i18n),
+    "…and REFUSES to run if it is missing, rather than reporting a smaller number",
+  );
+  line(/"en\.html"/.test(a11y), "the a11y audit adds the English root page to its walk");
+  line(
+    /Refusing to report/.test(a11y),
+    "…and refuses to run without it",
+  );
+
+  // The build artifact itself, so this cannot pass on a stale assumption about Next's layout.
+  const appOut = path.join(ROOT, ".next", "server", "app");
+  if (!fs.existsSync(path.join(appOut, "en.html"))) {
+    console.log("  skip  no build output — run `npm run build` first");
+    return;
+  }
+  for (const loc of ["en", "hi", "te"]) {
+    line(
+      fs.existsSync(path.join(appOut, `${loc}.html`)),
+      `${loc}.html really is where Next puts the ${loc} homepage`,
+    );
+  }
+  control(
+    !fs.existsSync(path.join(appOut, "en", "index.html")),
+    "…and it is NOT inside app/en/, which is why the walk missed it",
+  );
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
 function publicPageChecks() {
   head("18. THE PUBLIC PAGES THAT TRANSLATED NOTHING");
   /* Thirteen public pages reached the dictionary for not one single word. Ten are ordinary
@@ -1692,6 +1741,7 @@ function publicPageChecks() {
   dateFormatChecks();
   chromeChecks();
   publicPageChecks();
+  auditRootCoverageChecks();
   kycChecks();
 
   console.log("\n" + "=".repeat(70));
