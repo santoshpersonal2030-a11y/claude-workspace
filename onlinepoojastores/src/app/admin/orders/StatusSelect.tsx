@@ -25,6 +25,11 @@ const LABEL: Record<OrderStatus, string> = {
   returned: 'Returned',
 };
 
+/* Which states a cancellation returns stock from. MUST match the restock trigger in
+   supabase/migrations/0007_restock_on_cancel.sql — if the two ever disagree, this warns about
+   the wrong thing, which is worse than not warning at all. qa/checks.js pins both. */
+const RESTOCKS_FROM: OrderStatus[] = ['pending', 'confirmed', 'processing'];
+
 export default function StatusSelect({
   orderId,
   current,
@@ -44,6 +49,25 @@ export default function StatusSelect({
         disabled={pending}
         onChange={(e) => {
           const next = e.target.value as OrderStatus;
+
+          /* Cancelling a SHIPPED or DELIVERED order deliberately does NOT put the stock back —
+             those goods have physically left. That is correct, and completely invisible: the
+             admin clicks Cancelled and reasonably assumes the items returned to the shelf.
+             Say so before it happens, while it can still be reconsidered. */
+          if (next === 'cancelled' && !RESTOCKS_FROM.includes(current)) {
+            const ok = window.confirm(
+              `This order is already '${LABEL[current]}', so cancelling it will NOT put the stock ` +
+                `back — those goods have left. If they come back, raise the stock by hand once ` +
+                `you have checked them.
+
+Cancel anyway?`,
+            );
+            if (!ok) {
+              e.target.value = current;
+              return;
+            }
+          }
+
           setValue(next);
           setError(null);
           startTransition(async () => {

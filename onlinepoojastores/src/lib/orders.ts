@@ -41,6 +41,9 @@ type ProductRow = {
   name: string;
   price: number;
   is_active: boolean;
+  /* Added 12-Aug-2026. Its absence here was half the overselling bug: the pricing query
+     never asked for stock, so no order was ever refused before the money moved. */
+  stock: number;
 };
 
 // Re-read product prices from the database (never trust the browser) and
@@ -54,7 +57,7 @@ export async function validateAndPrice(
   const slugs = input.items.map((i) => i.slug);
   const { data: products, error } = await supabase
     .from('products')
-    .select('id, slug, name, price, is_active')
+    .select('id, slug, name, price, is_active, stock')
     .in('slug', slugs);
   if (error) return { ok: false, error: error.message };
 
@@ -63,6 +66,7 @@ export async function validateAndPrice(
   );
 
   const orderItems: OrderLine[] = [];
+  const short: string[] = [];
   let subtotal = 0;
   for (const it of input.items) {
     const p = bySlug.get(it.slug);
@@ -73,6 +77,23 @@ export async function validateAndPrice(
       };
     }
     const qty = Math.max(1, Math.floor(it.quantity));
+
+    /* STOCK, CHECKED BEFORE ANY MONEY MOVES.
+       The database trigger will refuse an oversell outright, but that happens at the very end —
+       after the customer has filled in the whole form and, for an online payment, after Razorpay
+       has been opened. This is the polite half: it names what is short and how many are left,
+       while they can still change it. Collected across every line rather than returning on the
+       first, so a cart with two problems does not need two round trips to discover them. */
+    const inStock = Number(p.stock ?? 0);
+    if (inStock < qty) {
+      short.push(
+        inStock <= 0
+          ? `${p.name} is sold out`
+          : `${p.name}: only ${inStock} left`,
+      );
+      continue;
+    }
+
     const line = Number(p.price) * qty;
     subtotal += line;
     orderItems.push({
@@ -82,6 +103,17 @@ export async function validateAndPrice(
       quantity: qty,
       line_total: line,
     });
+  }
+
+  /* Refuse the whole cart if anything is short. Deliberately BEFORE shipping is computed and
+     before an order row exists — nothing is created, so there is nothing to clean up. */
+  if (short.length) {
+    return {
+      ok: false,
+      error: `Some items are no longer available in the quantity you chose — ${short.join(
+        ', ',
+      )}. Please update your cart and try again.`,
+    };
   }
 
   const zones = await getShippingZones();
@@ -145,7 +177,22 @@ export async function insertOrder(
   const { error: iErr } = await supabase
     .from('order_items')
     .insert(priced.orderItems.map((oi) => ({ ...oi, order_id: order.id })));
-  if (iErr) return { ok: false, error: iErr.message };
+  if (iErr) {
+    /* THE ORDER ROW IS ALREADY IN THE DATABASE AT THIS POINT.
+       The order and its items are two separate statements, not one transaction, so a failure
+       here leaves an order with no lines and no payment — which then shows up in the customer's
+       history and on the admin screen as a real order that can never be fulfilled.
+       That path went from theoretical to likely the moment the stock trigger started REFUSING
+       an oversell instead of absorbing it (migration 0006): two people buying the last item in
+       the same instant is exactly when this now fires. So the half-made order is removed before
+       the error is returned.
+       Best-effort: if the delete itself fails there is nothing further to do, and the original
+       error is the one worth telling the customer about — not a cleanup failure they cannot act
+       on. Stock is untouched either way, because the trigger only fires on a line that inserted
+       successfully. */
+    await supabase.from('orders').delete().eq('id', order.id);
+    return { ok: false, error: iErr.message };
+  }
 
   // Only attach provider_* columns when they exist (online payments). This
   // keeps Cash-on-Delivery working even before migration 0003 is applied.

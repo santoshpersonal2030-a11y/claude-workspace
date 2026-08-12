@@ -23,7 +23,7 @@ export default async function AdminOrderDetail({
   const { data } = await supabase
     .from('orders')
     .select(
-      'id, order_number, status, subtotal, shipping_fee, total, ship_full_name, ship_phone, ship_line1, ship_line2, ship_city, ship_state, ship_pincode, created_at, profiles(email), order_items(id, product_name, unit_price, quantity, line_total)',
+      'id, order_number, status, stock_restored_at, subtotal, shipping_fee, total, ship_full_name, ship_phone, ship_line1, ship_line2, ship_city, ship_state, ship_pincode, created_at, profiles(email), order_items(id, product_name, unit_price, quantity, line_total)',
     )
     .eq('order_number', orderNumber)
     .maybeSingle();
@@ -43,6 +43,23 @@ export default async function AdminOrderDetail({
         </h1>
         <StatusSelect orderId={order.id} current={order.status as OrderStatus} />
       </div>
+      {/* WHAT ACTUALLY HAPPENED TO THE STOCK. A cancellation restocks only from a
+          pre-dispatch state (see 0007_restock_on_cancel.sql). Both outcomes are correct and
+          both are otherwise invisible — so the order says which one it was, rather than
+          leaving someone to assume. */}
+      {order.status === 'cancelled' && (
+        <p
+          className={`mt-2 rounded-lg px-3 py-2 text-sm ${
+            order.stock_restored_at
+              ? 'bg-green-50 text-green-800'
+              : 'bg-amber-50 text-amber-900'
+          }`}
+        >
+          {order.stock_restored_at
+            ? 'Stock was returned to inventory when this order was cancelled.'
+            : 'Stock was NOT returned — this order had already left. If the goods come back, raise the stock by hand once you have checked them.'}
+        </p>
+      )}
       <p className="mt-1 text-sm text-burgundy-dark/60">
         Placed{' '}
         {new Date(order.created_at).toLocaleString('en-IN', {
