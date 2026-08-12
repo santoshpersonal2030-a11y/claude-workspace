@@ -15,14 +15,19 @@ import {
    database is unreachable — which it is, because the project is paused. So a real GST invoice
    would have printed a fictitious tax number, and nothing would have complained. */
 
+/* A FICTIONAL but format-valid GSTIN. The first version of this test used Santosh’s real
+   one, which is public information but still his, and this repository is public — a test
+   does not need a live business identifier to prove a regex works. */
+const FICTIONAL_GSTIN = "07ZZZZZ0000Z1Z9";
+
 const READY: Company = {
-  name: "PROVIDENT GLOBAL SERVICES",
-  gstin: "36EBQPS5960G1ZX",
+  name: "EXAMPLE TRADERS",
+  gstin: FICTIONAL_GSTIN,
   state: "Telangana",
   upi: "",
   email: "",
   phone: "",
-  addressLines: ["Emerald Heights", "Ranga Reddy, Telangana 500088"],
+  addressLines: ["1 Example Road", "Hyderabad, Telangana 500001"],
 };
 
 test("the old built-in placeholder GSTIN passes a FORMAT check — which is why format is not enough", () => {
@@ -37,12 +42,16 @@ test("the old built-in placeholder GSTIN passes a FORMAT check — which is why 
 });
 
 test("a genuine GSTIN is accepted", () => {
-  assert.equal(isRealGstin("36EBQPS5960G1ZX"), true);
-  assert.equal(isRealGstin(" 36ebqps5960g1zx "), true, "trims and upper-cases");
+  assert.equal(isRealGstin(FICTIONAL_GSTIN), true);
+  assert.equal(
+    isRealGstin(` ${FICTIONAL_GSTIN.toLowerCase()} `),
+    true,
+    "trims and upper-cases",
+  );
 });
 
 test("malformed GSTINs are rejected", () => {
-  for (const bad of ["", "36EBQPS5960G1Z", "GSTIN", "3600000000000000", "36EBQPS5960G1ZX9"]) {
+  for (const bad of ["", "07ZZZZZ0000Z1Z", "GSTIN", "0700000000000000", "07ZZZZZ0000Z1Z99"]) {
     assert.equal(isRealGstin(bad), false, `accepted ${JSON.stringify(bad)}`);
   }
 });
