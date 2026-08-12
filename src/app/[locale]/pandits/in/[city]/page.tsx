@@ -10,6 +10,7 @@ import { getPopularPoojas } from "@/lib/queries";
 import { localizePooja } from "@/lib/poojas-i18n";
 import { formatINR } from "@/lib/poojas";
 import { getDictionary, isLocale, DEFAULT_LOCALE } from "@/lib/i18n";
+import { formatClock, formatWeekday } from "@/lib/dates";
 
 const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL ?? "https://bookmypoojari.com";
@@ -23,14 +24,6 @@ const CITY_BY_SLUG = new Map(
 
 function todayIST(): string {
   return new Date(Date.now() + 5.5 * 3600 * 1000).toISOString().slice(0, 10);
-}
-function to12h(mins: number): string {
-  const t = Math.round(mins);
-  let h = Math.floor(t / 60) % 24;
-  const m = t % 60;
-  const ap = h < 12 ? "AM" : "PM";
-  h = h % 12 || 12;
-  return `${h}:${String(m).padStart(2, "0")} ${ap}`;
 }
 
 export function generateStaticParams() {
@@ -63,7 +56,8 @@ export default async function CityPanditPage({
   if (!name) notFound();
 
   const coords = CITY_COORDS[name];
-  const pan = fullPanchanga(todayIST(), coords.lat, coords.lng);
+  const today = todayIST();
+  const pan = fullPanchanga(today, coords.lat, coords.lng);
   const poojas = (await getPopularPoojas()).map((p) => localizePooja(p, loc));
 
   const jsonLd = {
@@ -124,10 +118,10 @@ export default async function CityPanditPage({
                 {t("cty.today", { city: name })}
               </h2>
               <p className="mt-1 text-sm text-foreground/65">
-                {pan.weekday} · {pan.tithi.name} · {pan.nakshatra.name} ·{" "}
-                {t("pv.sunrise")} {to12h(pan.sunrise)} · {t("pv.sunset")}{" "}
-                {to12h(pan.sunset)} · {t("pv.abhijit")}{" "}
-                {to12h(pan.abhijit.start)}–{to12h(pan.abhijit.end)}.{" "}
+                {formatWeekday(today, loc) ?? pan.weekday} · {pan.tithi.name} · {pan.nakshatra.name} ·{" "}
+                {t("pv.sunrise")} {formatClock(pan.sunrise, loc)} · {t("pv.sunset")}{" "}
+                {formatClock(pan.sunset, loc)} · {t("pv.abhijit")}{" "}
+                {formatClock(pan.abhijit.start, loc)}–{formatClock(pan.abhijit.end, loc)}.{" "}
                 <Link
                   href={`/panchang?city=${encodeURIComponent(name)}`}
                   className="font-semibold text-saffron-700 hover:underline"

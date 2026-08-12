@@ -7,6 +7,8 @@ import TrackingLink from "@/components/TrackingLink";
 import ReorderButton from "@/components/ReorderButton";
 import { formatINR } from "@/lib/poojas";
 import { createClient } from "@/lib/supabase/server";
+import { isLocale, DEFAULT_LOCALE } from "@/lib/i18n";
+import { formatDateShort } from "@/lib/dates";
 
 export const metadata = { title: "My Orders" };
 
@@ -19,7 +21,13 @@ const STATUS_LABEL: Record<string, string> = {
   cancelled: "Cancelled",
 };
 
-export default async function OrdersPage() {
+export default async function OrdersPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const loc = isLocale(locale) ? locale : DEFAULT_LOCALE;
   const supabase = await createClient();
   const {
     data: { user },
@@ -54,11 +62,7 @@ export default async function OrdersPage() {
                 >
                   <div className="flex items-center justify-between">
                     <span className="text-xs text-foreground/65">
-                      {new Date(order.created_at).toLocaleDateString("en-IN", {
-                        day: "numeric",
-                        month: "short",
-                        year: "numeric",
-                      })}
+                      {formatDateShort(order.created_at, loc)}
                     </span>
                     <span className="rounded-full bg-saffron-50 px-3 py-1 text-xs font-medium text-saffron-700">
                       {STATUS_LABEL[order.status] ?? order.status}

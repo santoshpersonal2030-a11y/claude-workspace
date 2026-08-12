@@ -9,16 +9,8 @@ import {
 import { createAdminClient } from "@/lib/supabase/admin";
 import { timeSlots } from "@/lib/poojas";
 import { PRIEST_EVENT_LABEL, type PriestEventAction } from "@/lib/booking-events";
-
-function formatStamp(value: string): string {
-  return new Date(value).toLocaleString("en-IN", {
-    timeZone: "Asia/Kolkata",
-    day: "numeric",
-    month: "short",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
+import { isLocale, DEFAULT_LOCALE } from "@/lib/i18n";
+import { formatDateTime } from "@/lib/dates";
 
 const EVENT_DOT: Record<PriestEventAction, string> = {
   assigned: "bg-amber-400",
@@ -69,10 +61,18 @@ const RESPONSE_BADGE: Record<string, string> = {
 };
 
 export default async function PriestCalendarPage({
+  params,
   searchParams,
 }: {
+  params: Promise<{ locale: string }>;
   searchParams: Promise<{ m?: string; clash?: string; needreason?: string }>;
 }) {
+  const { locale } = await params;
+  const loc = isLocale(locale) ? locale : DEFAULT_LOCALE;
+  /* Asia/Kolkata is kept. A priest’s schedule is in IST whatever language they read it in, and
+     a booking shown an hour out is a missed ceremony. Only the LANGUAGE changes here. */
+  const formatStamp = (value: string) =>
+    formatDateTime(value, loc, "Asia/Kolkata") ?? value;
   const pandit = (await getPriestPandit())!;
   const admin = createAdminClient();
   const today = todayIST();

@@ -4,6 +4,8 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { formatINR } from "@/lib/poojas";
 import { createClient } from "@/lib/supabase/server";
+import { isLocale, DEFAULT_LOCALE } from "@/lib/i18n";
+import { formatDateShort } from "@/lib/dates";
 import { nextStepNote } from "@/lib/booking-status";
 
 export const metadata = { title: "My Bookings" };
@@ -16,7 +18,13 @@ const STATUS_LABEL: Record<string, string> = {
   cancelled: "Cancelled",
 };
 
-export default async function BookingsPage() {
+export default async function BookingsPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const loc = isLocale(locale) ? locale : DEFAULT_LOCALE;
   const supabase = await createClient();
   const {
     data: { user },
@@ -68,10 +76,7 @@ export default async function BookingsPage() {
                       </span>
                     </div>
                     <p className="mt-1 text-sm text-foreground/65">
-                      {new Date(booking.booking_date).toLocaleDateString(
-                        "en-IN",
-                        { day: "numeric", month: "short", year: "numeric" },
-                      )}{" "}
+                      {formatDateShort(booking.booking_date, loc)}{" "}
                       · {booking.time_slot}
                       {booking.city ? ` · ${booking.city}` : ""}
                     </p>

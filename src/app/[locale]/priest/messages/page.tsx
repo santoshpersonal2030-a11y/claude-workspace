@@ -4,14 +4,20 @@ import { redirect } from "next/navigation";
 import { getPriestPandit } from "@/lib/priest";
 import { createAdminClient } from "@/lib/supabase/admin";
 import BookingChat from "@/components/BookingChat";
+import { isLocale, DEFAULT_LOCALE } from "@/lib/i18n";
+import { formatDateShort } from "@/lib/dates";
 
 export const metadata = { title: "Messages — Priest Portal" };
 
 export default async function PriestMessagesPage({
+  params,
   searchParams,
 }: {
+  params: Promise<{ locale: string }>;
   searchParams: Promise<{ b?: string }>;
 }) {
+  const { locale } = await params;
+  const loc = isLocale(locale) ? locale : DEFAULT_LOCALE;
   const pandit = await getPriestPandit();
   if (!pandit) redirect("/login?next=/priest/messages");
   const { b } = await searchParams;
@@ -57,7 +63,7 @@ export default async function PriestMessagesPage({
                     {bk.poojas?.name ?? "Booking"}
                   </span>
                   <span className="text-[10px] text-foreground/65">
-                    {new Date(bk.booking_date).toLocaleDateString("en-IN")}
+                    {formatDateShort(bk.booking_date, loc)}
                   </span>
                 </div>
                 <p className="text-xs text-foreground/65">

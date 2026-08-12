@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { createClient } from "@/lib/supabase/client";
+import { useLanguage } from "@/components/LanguageProvider";
+import { formatDateTime } from "@/lib/dates";
 
 type Message = {
   id: string;
@@ -20,6 +22,7 @@ const ROLE_LABEL: Record<string, string> = {
 // Per-booking chat thread shared by the customer, pandit and admin views.
 // Polls for new messages while mounted.
 export default function BookingChat({ bookingId }: { bookingId: string }) {
+  const { locale } = useLanguage();
   const supabase = useMemo(() => createClient(), []);
   const [messages, setMessages] = useState<Message[]>([]);
   const [me, setMe] = useState<string>("");
@@ -122,12 +125,7 @@ export default function BookingChat({ bookingId }: { bookingId: string }) {
               </div>
               <span className="mt-0.5 text-[10px] text-foreground/65">
                 {ROLE_LABEL[m.sender_role] ?? m.sender_role} ·{" "}
-                {new Date(m.created_at).toLocaleString("en-IN", {
-                  day: "numeric",
-                  month: "short",
-                  hour: "numeric",
-                  minute: "2-digit",
-                })}
+                {formatDateTime(m.created_at, locale)}
               </span>
             </div>
           );

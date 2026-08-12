@@ -10,24 +10,20 @@ import ReorderButton from "@/components/ReorderButton";
 import { invoiceNumber } from "@/lib/invoice";
 import { formatINR } from "@/lib/poojas";
 import { createClient } from "@/lib/supabase/server";
+import { isLocale, DEFAULT_LOCALE } from "@/lib/i18n";
+import { formatDateShort } from "@/lib/dates";
 
 export const metadata = { title: "Order details" };
-
-function formatDate(value: string | null) {
-  if (!value) return null;
-  return new Date(value).toLocaleDateString("en-IN", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
-}
 
 export default async function OrderDetailPage({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: Promise<{ locale: string; id: string }>;
 }) {
-  const { id } = await params;
+  const { locale, id } = await params;
+  const loc = isLocale(locale) ? locale : DEFAULT_LOCALE;
+  const formatDate = (value: string | null) =>
+    value ? formatDateShort(value, loc) : null;
   const supabase = await createClient();
   const {
     data: { user },

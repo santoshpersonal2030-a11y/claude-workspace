@@ -3,6 +3,9 @@
 // Presentational: the page builds the items from the booking + its
 // booking_priest_events.
 
+import { DEFAULT_LOCALE, type Locale } from "@/lib/i18n";
+import { formatDateTime } from "@/lib/dates";
+
 export type TimelineTone = "done" | "active" | "muted" | "alert";
 
 export type TimelineItem = {
@@ -21,16 +24,14 @@ const DOT: Record<TimelineTone, string> = {
   alert: "bg-red-100 text-red-700",
 };
 
-function formatStamp(at: string): string {
-  return new Date(at).toLocaleString("en-IN", {
-    day: "numeric",
-    month: "short",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
-
-export default function BookingTimeline({ items }: { items: TimelineItem[] }) {
+export default function BookingTimeline({
+  items,
+  locale = DEFAULT_LOCALE,
+}: {
+  items: TimelineItem[];
+  locale?: Locale;
+}) {
+  const formatStamp = (at: string) => formatDateTime(at, locale) ?? at;
   if (items.length === 0) return null;
   return (
     <ol className="relative ml-3 space-y-5 border-l border-saffron-100 pl-6">

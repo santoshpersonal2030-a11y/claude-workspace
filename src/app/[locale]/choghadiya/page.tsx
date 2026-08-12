@@ -9,6 +9,7 @@ import {
   type Choghadiya,
 } from "@/lib/muhurat-engine";
 import { getDictionary, isLocale, DEFAULT_LOCALE } from "@/lib/i18n";
+import { formatClock } from "@/lib/dates";
 
 export async function generateMetadata({
   params,
@@ -36,14 +37,6 @@ function istNowMinutes(): number {
   return d.getUTCHours() * 60 + d.getUTCMinutes();
 }
 
-function to12h(mins: number): string {
-  const t = Math.round(mins);
-  let h = Math.floor(t / 60) % 24;
-  const m = t % 60;
-  const ap = h < 12 ? "AM" : "PM";
-  h = h % 12 || 12;
-  return `${h}:${String(m).padStart(2, "0")} ${ap}`;
-}
 
 const STYLE: Record<string, string> = {
   good: "border-emerald-200 bg-emerald-50/60 text-emerald-900",
@@ -59,7 +52,8 @@ export default async function ChoghadiyaPage({
   searchParams: Promise<{ date?: string; city?: string }>;
 }) {
   const { locale } = await params;
-  const { t } = getDictionary(isLocale(locale) ? locale : DEFAULT_LOCALE);
+  const loc = isLocale(locale) ? locale : DEFAULT_LOCALE;
+  const { t } = getDictionary(loc);
   const sp = await searchParams;
   const date = sp.date && DATE_RE.test(sp.date) ? sp.date : todayIST();
   const cities = Object.keys(CITY_COORDS);
@@ -101,7 +95,7 @@ export default async function ChoghadiyaPage({
               )}
             </div>
             <div className="text-xs opacity-80">
-              {to12h(c.start)} – {to12h(c.end)}
+              {formatClock(c.start, loc)} – {formatClock(c.end, loc)}
             </div>
           </div>
         ))}

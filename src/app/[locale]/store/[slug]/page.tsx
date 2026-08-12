@@ -211,6 +211,7 @@ export default async function ProductDetailPage({
               reviews={reviews}
               rating={product.rating}
               reviewCount={product.reviewCount}
+              locale={loc}
             />
             <div className="lg:sticky lg:top-24 lg:self-start">
               <ReviewForm productSlug={product.slug} />

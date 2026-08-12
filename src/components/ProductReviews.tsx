@@ -1,4 +1,6 @@
 import type { ProductReview } from "@/lib/queries";
+import { DEFAULT_LOCALE, type Locale } from "@/lib/i18n";
+import { formatDateShort } from "@/lib/dates";
 
 function Stars({ value }: { value: number }) {
   return (
@@ -13,10 +15,12 @@ export default function ProductReviews({
   reviews,
   rating,
   reviewCount,
+  locale = DEFAULT_LOCALE,
 }: {
   reviews: ProductReview[];
   rating: number;
   reviewCount: number;
+  locale?: Locale;
 }) {
   return (
     <div>
@@ -86,11 +90,7 @@ export default function ProductReviews({
                   </span>
                 </span>
                 <span className="text-xs text-foreground/65">
-                  {new Date(r.createdAt).toLocaleDateString("en-IN", {
-                    day: "numeric",
-                    month: "short",
-                    year: "numeric",
-                  })}
+                  {formatDateShort(r.createdAt, locale)}
                 </span>
               </div>
               <div className="mt-1">

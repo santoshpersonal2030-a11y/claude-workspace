@@ -76,8 +76,17 @@ export function formatDateShort(value: DateInput, locale: Locale): string | null
   }).format(d);
 }
 
-/** Date and time together, for messages and activity feeds. */
-export function formatDateTime(value: DateInput, locale: Locale): string | null {
+/** Date and time together, for messages and activity feeds.
+ *
+ * `timeZone` is separate from `locale` on purpose. The priest calendar pins its timestamps to
+ * Asia/Kolkata because a priest's schedule is in IST whatever language they read it in — and a
+ * booking shown an hour out is a missed ceremony. Language and timezone are independent choices
+ * and collapsing them would have quietly dropped that pin. */
+export function formatDateTime(
+  value: DateInput,
+  locale: Locale,
+  timeZone?: string,
+): string | null {
   const d = toDate(value);
   if (!d) return null;
   return new Intl.DateTimeFormat(intlLocale(locale), {
@@ -86,6 +95,7 @@ export function formatDateTime(value: DateInput, locale: Locale): string | null 
     year: "numeric",
     hour: "numeric",
     minute: "2-digit",
+    ...(timeZone ? { timeZone } : {}),
   }).format(d);
 }
 

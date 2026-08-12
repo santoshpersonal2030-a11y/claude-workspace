@@ -1357,12 +1357,20 @@ function dateFormatChecks() {
   );
 
   // The frozen surfaces, by path. Each must still hardcode en-IN and must not import the helper.
+  /* ⚠️ THREE OF THESE WERE MISSING UNTIL 12-Aug-2026 — OrderInvoice.tsx, ewaybill.ts and
+     einvoice.ts. They are the GST tax invoice, the e-way bill and the e-invoice: the three
+     documents where a changed date format is a filing problem rather than a cosmetic one, and
+     precisely the ones the list forgot. Nothing would have gone red if someone had localised
+     an e-invoice date. A frozen list that omits the most frozen files is worse than none. */
   const FROZEN = [
     ["lib", "invoice-pdf.ts"],
     ["lib", "payslip-pdf.ts"],
     ["lib", "exports.ts"],
+    ["lib", "ewaybill.ts"],
+    ["lib", "einvoice.ts"],
     ["components", "receipts", "BookingReceipt.tsx"],
     ["components", "receipts", "CreditNote.tsx"],
+    ["components", "receipts", "OrderInvoice.tsx"],
   ];
   let checkedFrozen = 0;
   for (const parts of FROZEN) {
@@ -1375,7 +1383,22 @@ function dateFormatChecks() {
       `${parts[parts.length - 1]} does NOT localize its dates`,
     );
   }
-  control(checkedFrozen >= 4, `${checkedFrozen} financial/legal files found and checked`);
+  control(
+    checkedFrozen === FROZEN.length,
+    `${checkedFrozen} of ${FROZEN.length} financial/legal files found and checked`,
+  );
+  // Every frozen file must still hardcode a locale — if one stopped formatting dates entirely
+  // the "does not import the helper" check above would pass while proving nothing.
+  for (const parts of FROZEN) {
+    const text = read(path.join(SRC, ...parts));
+    if (!text) continue;
+    line(
+      /toLocaleDateString\("en-[A-Z]{2}"|Intl\.(DateTimeFormat|NumberFormat)\("en-[A-Z]{2}"/.test(
+        text,
+      ),
+      `${parts[parts.length - 1]} still pins its own en-** format`,
+    );
+  }
   control(
     !/from "@\/lib\/dates"/.test('import { formatDate } from "@/lib/other";'),
     "the frozen-import detector is not fooled by a different module",
@@ -1386,17 +1409,71 @@ function dateFormatChecks() {
   );
 
   // And the reader-facing surfaces that HAVE been converted must actually use it.
-  for (const parts of [
+  const READER = [
     ["app", "[locale]", "festivals", "[slug]", "page.tsx"],
     ["app", "[locale]", "muhurat", "find", "page.tsx"],
     ["components", "OccasionBanner.tsx"],
-  ]) {
+    // 12-Aug-2026 — the sixteen that were "blocked behind locale plumbing".
+    ["app", "[locale]", "blog", "page.tsx"],
+    ["app", "[locale]", "blog", "[slug]", "page.tsx"],
+    ["app", "[locale]", "panchang", "page.tsx"],
+    ["app", "[locale]", "panchang", "[date]", "page.tsx"],
+    ["app", "[locale]", "choghadiya", "page.tsx"],
+    ["app", "[locale]", "pandits", "[slug]", "page.tsx"],
+    ["app", "[locale]", "pandits", "in", "[city]", "page.tsx"],
+    ["app", "[locale]", "account", "orders", "page.tsx"],
+    ["app", "[locale]", "account", "orders", "[id]", "page.tsx"],
+    ["app", "[locale]", "account", "bookings", "page.tsx"],
+    ["app", "[locale]", "account", "bookings", "[id]", "page.tsx"],
+    ["app", "[locale]", "account", "wallet", "page.tsx"],
+    ["app", "[locale]", "priest", "messages", "page.tsx"],
+    ["app", "[locale]", "priest", "calendar", "page.tsx"],
+    ["components", "PanchangView.tsx"],
+    ["components", "TodayPanchang.tsx"],
+    ["components", "BookingTimeline.tsx"],
+    ["components", "BookingChat.tsx"],
+    ["components", "NotificationBell.tsx"],
+    ["components", "ProductReviews.tsx"],
+  ];
+  let readerFound = 0;
+  for (const parts of READER) {
     const text = read(path.join(SRC, ...parts));
+    if (!text) continue;
+    readerFound++;
+    const name = `${parts[parts.length - 2]}/${parts[parts.length - 1]}`;
+    line(/from "@\/lib\/dates"/.test(text), `${name} uses the shared date helper`);
+    /* …and no longer hardcodes one. Importing the helper while leaving the old call in place is
+       the failure this pair exists to catch — it looks converted in a diff and is not. */
     line(
-      /from "@\/lib\/dates"/.test(text),
-      `${parts[parts.length - 2]}/${parts[parts.length - 1]} uses the shared date helper`,
+      !/toLocale(Date|Time)?String\("en-/.test(text),
+      `${name} no longer hardcodes en-IN`,
     );
   }
+  control(readerFound === READER.length, `${readerFound} of ${READER.length} reader files found`);
+  control(
+    /toLocale(Date|Time)?String\("en-/.test('x.toLocaleDateString("en-IN", {})'),
+    "the hardcoded-locale detector catches a real call",
+  );
+  control(
+    !/toLocale(Date|Time)?String\("en-/.test("formatDateShort(x, loc)"),
+    "…and is not fooled by the helper",
+  );
+
+  /* THE FOUR COPIES. `to12h` was pasted verbatim into four files. Four copies of a formatter is
+     how three of them stay in step and one drifts, and it is why the clock format is now in one
+     place with a unit test comparing it to the old implementation for every minute of the day. */
+  const clockCopies = TS_FILES.filter((f) =>
+    /function to12h\(mins: number\)/.test(read(f)),
+  ).map(rel);
+  line(
+    clockCopies.length === 0,
+    "no file carries its own copy of the 12-hour clock formatter",
+    clockCopies.length ? clockCopies.join(", ") : "all four now call formatClock()",
+  );
+  control(
+    /function to12h\(mins: number\)/.test("function to12h(mins: number): string {"),
+    "the copy detector catches the function it is looking for",
+  );
 }
 
 // ══════════════════════════════════════════════════════════════════════════════

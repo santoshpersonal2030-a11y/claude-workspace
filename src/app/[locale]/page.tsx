@@ -157,7 +157,7 @@ export default async function Home({
         </section>
 
         {/* Today's panchang */}
-        <TodayPanchang />
+        <TodayPanchang locale={loc} />
 
         {/* Popular poojas */}
         <section className="mx-auto max-w-6xl px-4 py-6 sm:px-6">

@@ -14,14 +14,7 @@ import JsonLd from "@/components/JsonLd";
 import { SITE_URL, breadcrumbLd } from "@/lib/seo";
 import { getDictionary, isLocale, DEFAULT_LOCALE } from "@/lib/i18n";
 import { localizePandit } from "@/lib/pandits-i18n";
-
-function reviewDate(value: string): string {
-  return new Date(value).toLocaleDateString("en-IN", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
-}
+import { formatDateShort } from "@/lib/dates";
 
 export const revalidate = 300;
 
@@ -257,7 +250,7 @@ export default async function PanditDetailPage({
                         </span>
                       </span>
                       <span className="text-xs text-foreground/65">
-                        {reviewDate(r.createdAt)}
+                        {formatDateShort(r.createdAt, loc)}
                       </span>
                     </div>
                     {r.title && (

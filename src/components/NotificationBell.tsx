@@ -4,6 +4,8 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 
 import { createClient } from "@/lib/supabase/client";
+import { useLanguage } from "@/components/LanguageProvider";
+import { formatDateTime } from "@/lib/dates";
 
 type Note = {
   id: string;
@@ -17,6 +19,7 @@ type Note = {
 // Header notification bell. Reads the signed-in user's own notifications
 // (RLS-scoped), polls periodically, and marks them read on open.
 export default function NotificationBell() {
+  const { locale } = useLanguage();
   const supabase = useMemo(() => createClient(), []);
   const [signedIn, setSignedIn] = useState(false);
   const [notes, setNotes] = useState<Note[]>([]);
@@ -158,12 +161,7 @@ export default function NotificationBell() {
                         </p>
                       )}
                       <p className="mt-0.5 text-[10px] text-foreground/65">
-                        {new Date(n.created_at).toLocaleString("en-IN", {
-                          day: "numeric",
-                          month: "short",
-                          hour: "numeric",
-                          minute: "2-digit",
-                        })}
+                        {formatDateTime(n.created_at, locale)}
                       </p>
                     </>
                   );

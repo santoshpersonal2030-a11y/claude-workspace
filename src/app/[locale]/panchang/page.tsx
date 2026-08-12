@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import PanchangView from "@/components/PanchangView";
 import { CITY_COORDS, fullPanchanga } from "@/lib/muhurat-engine";
 import { getDictionary, isLocale, DEFAULT_LOCALE } from "@/lib/i18n";
+import { formatDate, formatWeekday } from "@/lib/dates";
 
 export async function generateMetadata({
   params,
@@ -17,10 +18,6 @@ export async function generateMetadata({
   return { title: t("meta.panchang.title"), description: t("meta.panchang.desc") };
 }
 
-const MONTHS = [
-  "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December",
-];
 
 function todayIST(): string {
   return new Date(Date.now() + 5.5 * 3600 * 1000).toISOString().slice(0, 10);
@@ -44,8 +41,9 @@ export default async function PanchangPage({
   const coords = CITY_COORDS[city];
 
   const pan = fullPanchanga(date, coords.lat, coords.lng);
-  const [y, m, d] = date.split("-").map(Number);
-  const prettyDate = `${d} ${MONTHS[m - 1]} ${y}`;
+  // Was a hardcoded English MONTHS array; the weekday came from the engine, also English.
+  const loc = isLocale(locale) ? locale : DEFAULT_LOCALE;
+  const prettyDate = formatDate(date, loc) ?? date;
 
   const inputClass =
     "rounded-lg border border-saffron-200 bg-white px-3 py-2 text-sm outline-none focus:border-saffron-400";
@@ -67,7 +65,9 @@ export default async function PanchangPage({
               {t("nav.panchang")}
             </h1>
             <p className="mt-2 text-lg text-foreground/70">
-              {pan ? `${pan.weekday}, ${prettyDate} · ${city}` : prettyDate}
+              {pan
+                ? `${formatWeekday(date, loc) ?? pan.weekday}, ${prettyDate} · ${city}`
+                : prettyDate}
             </p>
 
             {/* Date + city picker (no JS needed) */}
@@ -105,7 +105,12 @@ export default async function PanchangPage({
           {!pan ? (
             <p className="text-foreground/65">{t("pan.fail")}</p>
           ) : (
-            <PanchangView pan={pan} city={city} t={t} />
+            <PanchangView
+              pan={pan}
+              city={city}
+              t={t}
+              locale={isLocale(locale) ? locale : DEFAULT_LOCALE}
+            />
           )}
         </section>
       </main>

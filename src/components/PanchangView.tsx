@@ -1,10 +1,19 @@
 import Link from "next/link";
 
 import type { Choghadiya, FullPanchanga } from "@/lib/muhurat-engine";
-import type { Translator } from "@/lib/i18n";
+import type { Translator, Locale } from "@/lib/i18n";
+import { formatClock, formatWeekday } from "@/lib/dates";
 
 // A titled 8-slot choghadiya grid (day or night).
-function ChoghGrid({ title, slots }: { title: string; slots: Choghadiya[] }) {
+function ChoghGrid({
+  title,
+  slots,
+  locale,
+}: {
+  title: string;
+  slots: Choghadiya[];
+  locale: Locale;
+}) {
   return (
     <div className="mt-4">
       <h3 className="text-sm font-semibold text-foreground/65">{title}</h3>
@@ -16,7 +25,7 @@ function ChoghGrid({ title, slots }: { title: string; slots: Choghadiya[] }) {
           >
             <div className="font-heading text-base">{c.name}</div>
             <div className="text-xs opacity-80">
-              {to12h(c.start)} – {to12h(c.end)}
+              {formatClock(c.start, locale)} – {formatClock(c.end, locale)}
             </div>
           </div>
         ))}
@@ -33,14 +42,6 @@ const CHOGH_STYLE: Record<string, string> = {
 };
 
 // 12-hour time from minutes-since-midnight (IST).
-function to12h(mins: number): string {
-  const t = Math.round(mins);
-  let h = Math.floor(t / 60) % 24;
-  const m = t % 60;
-  const ap = h < 12 ? "AM" : "PM";
-  h = h % 12 || 12;
-  return `${h}:${String(m).padStart(2, "0")} ${ap}`;
-}
 
 // Renders the panchang body (five limbs + sun + auspicious/inauspicious + CTAs)
 // for an already-computed FullPanchanga. Shared by /panchang and /panchang/[date].
@@ -48,17 +49,21 @@ export default function PanchangView({
   pan,
   city,
   t,
+  locale,
 }: {
   pan: FullPanchanga;
   city: string;
   t: Translator;
+  locale: Locale;
 }) {
   const limbs = [
     { label: t("pv.limbTithi"), value: pan.tithi.name },
     { label: t("pv.limbNakshatra"), value: pan.nakshatra.name },
     { label: t("pv.limbYoga"), value: pan.yoga.name },
     { label: t("pv.limbKarana"), value: pan.karana.name },
-    { label: t("pv.limbVaara"), value: pan.weekday },
+    // pan.weekday is the ENGLISH name the engine computed — it is data, and the admin console
+    // and GST exports read the same field. The reader gets it translated from the date instead.
+    { label: t("pv.limbVaara"), value: formatWeekday(pan.date, locale) ?? pan.weekday },
     { label: t("pv.limbSunSign"), value: pan.sunRashi },
   ];
   const avoid = [
@@ -94,11 +99,11 @@ export default function PanchangView({
           <dl className="mt-3 space-y-2 text-sm">
             <div className="flex justify-between">
               <dt className="text-foreground/65">{t("pv.sunrise")}</dt>
-              <dd className="font-medium">{to12h(pan.sunrise)}</dd>
+              <dd className="font-medium">{formatClock(pan.sunrise, locale)}</dd>
             </div>
             <div className="flex justify-between">
               <dt className="text-foreground/65">{t("pv.sunset")}</dt>
-              <dd className="font-medium">{to12h(pan.sunset)}</dd>
+              <dd className="font-medium">{formatClock(pan.sunset, locale)}</dd>
             </div>
           </dl>
         </div>
@@ -111,7 +116,8 @@ export default function PanchangView({
             <div className="flex justify-between">
               <dt className="text-foreground/65">{t("pv.abhijit")}</dt>
               <dd className="font-medium text-emerald-800">
-                {to12h(pan.abhijit.start)} – {to12h(pan.abhijit.end)}
+                {formatClock(pan.abhijit.start, locale)} –{" "}
+                {formatClock(pan.abhijit.end, locale)}
               </dd>
             </div>
           </dl>
@@ -126,7 +132,7 @@ export default function PanchangView({
               <div key={a.label} className="flex justify-between">
                 <dt className="text-foreground/65">{a.label}</dt>
                 <dd className="font-medium text-red-800">
-                  {to12h(a.p.start)} – {to12h(a.p.end)}
+                  {formatClock(a.p.start, locale)} – {formatClock(a.p.end, locale)}
                 </dd>
               </div>
             ))}
@@ -148,9 +154,13 @@ export default function PanchangView({
             {t("pv.chogh")}
           </h2>
           <p className="mt-1 text-sm text-foreground/65">{t("pv.choghNote")}</p>
-          <ChoghGrid title={t("pv.day")} slots={pan.choghadiya.day} />
+          <ChoghGrid title={t("pv.day")} slots={pan.choghadiya.day} locale={locale} />
           {pan.choghadiya.night.length > 0 && (
-            <ChoghGrid title={t("pv.night")} slots={pan.choghadiya.night} />
+            <ChoghGrid
+              title={t("pv.night")}
+              slots={pan.choghadiya.night}
+              locale={locale}
+            />
           )}
           <p className="mt-3 text-xs text-foreground/65">
             <Link href="/choghadiya" className="text-saffron-700 hover:underline">

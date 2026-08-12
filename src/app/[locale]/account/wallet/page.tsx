@@ -6,6 +6,8 @@ import Footer from "@/components/Footer";
 import ReferralShare from "@/components/ReferralShare";
 import WalletTopUp from "@/components/WalletTopUp";
 import { createClient } from "@/lib/supabase/server";
+import { isLocale, DEFAULT_LOCALE } from "@/lib/i18n";
+import { formatDateShort } from "@/lib/dates";
 import {
   getWalletBalance,
   getAvailableBalance,
@@ -33,7 +35,13 @@ const REASON_LABEL: Record<WalletReason, string> = {
 const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL ?? "https://bookmypoojari.com";
 
-export default async function WalletPage() {
+export default async function WalletPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const loc = isLocale(locale) ? locale : DEFAULT_LOCALE;
   const supabase = await createClient();
   const {
     data: { user },
@@ -133,11 +141,7 @@ export default async function WalletPage() {
                     </p>
                     <p className="text-xs text-foreground/65">
                       {t.note ??
-                        new Date(t.created_at).toLocaleDateString("en-IN", {
-                          day: "numeric",
-                          month: "short",
-                          year: "numeric",
-                        })}
+                        formatDateShort(t.created_at, loc)}
                     </p>
                   </div>
                   <span

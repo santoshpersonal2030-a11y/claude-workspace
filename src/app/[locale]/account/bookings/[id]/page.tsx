@@ -20,27 +20,23 @@ import {
 } from "@/app/[locale]/account/bookings/actions";
 import { SELF_SERVE_HOURS } from "@/lib/booking-policy";
 import { nextStepNote } from "@/lib/booking-status";
+import { isLocale, DEFAULT_LOCALE } from "@/lib/i18n";
+import { formatDateShort } from "@/lib/dates";
 
 const CANCELLABLE = ["pending", "confirmed", "assigned"];
 
 export const metadata = { title: "Booking details" };
 
-function formatDate(value: string) {
-  return new Date(value).toLocaleDateString("en-IN", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
-}
-
 export default async function BookingDetailPage({
   params,
   searchParams,
 }: {
-  params: Promise<{ id: string }>;
+  params: Promise<{ locale: string; id: string }>;
   searchParams: Promise<{ late?: string }>;
 }) {
-  const { id } = await params;
+  const { locale, id } = await params;
+  const loc = isLocale(locale) ? locale : DEFAULT_LOCALE;
+  const formatDate = (value: string) => formatDateShort(value, loc) ?? value;
   const { late } = await searchParams;
   const supabase = await createClient();
   const {
@@ -148,7 +144,7 @@ export default async function BookingDetailPage({
                 <h2 className="mb-4 font-heading text-sm text-maroon-700">
                   Activity
                 </h2>
-                <BookingTimeline items={timeline} />
+                <BookingTimeline items={timeline} locale={loc} />
               </div>
             )}
           </div>
