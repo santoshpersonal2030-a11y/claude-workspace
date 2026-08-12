@@ -77,7 +77,7 @@ export default function PanditDirectory({ pandits }: { pandits: Pandit[] }) {
               setPincode(e.target.value.replace(/\D/g, "").slice(0, 6))
             }
             inputMode="numeric"
-            placeholder="e.g. 411004"
+            placeholder={t("common.pincodeExample")}
             className="ml-2 w-32 rounded-full border border-saffron-200 bg-white px-4 py-2 text-sm text-foreground/80 outline-none focus:border-saffron-400"
           />
         </label>

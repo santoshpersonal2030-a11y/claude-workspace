@@ -585,7 +585,7 @@ export default function BookingForm({
               onChange={(e) =>
                 setPincode(e.target.value.replace(/\D/g, "").slice(0, 6))
               }
-              placeholder="e.g. 411004"
+              placeholder={t("common.pincodeExample")}
               className="w-full rounded-xl border border-saffron-200 bg-cream px-3 py-2.5 text-sm outline-none focus:border-saffron-400 focus:ring-2 focus:ring-saffron-100"
             />
             {selectedPandit && pinValid && !travelBand && (

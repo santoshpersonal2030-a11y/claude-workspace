@@ -6,28 +6,50 @@ import Footer from "@/components/Footer";
 import { astrologers } from "@/lib/astrologers";
 import { getPresenceMap, type PresenceStatus } from "@/lib/live-status";
 import { formatINR } from "@/lib/poojas";
+import { getDictionary, isLocale, DEFAULT_LOCALE } from "@/lib/i18n";
+import { formatNumber } from "@/lib/dates";
 
 // Presence is live, so refresh the page often rather than caching it forever.
 export const revalidate = 30;
 
-export const metadata: Metadata = {
-  title: "Talk to an Astrologer — Live Chat & Call",
-  description:
-    "Chat or call a verified astrologer right now and pay per minute from your wallet. Vedic, KP, tarot, numerology and Vastu experts online.",
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const { t } = getDictionary(isLocale(locale) ? locale : DEFAULT_LOCALE);
+  return {
+    title: t("meta.liveAstrology.title"),
+    description: t("meta.liveAstrology.desc"),
+  };
+}
+
+/* Colours only. The LABELS used to live here too, as a module-level constant — evaluated once
+   on first load, so it would have frozen in whichever language rendered first. They are read
+   from the dictionary inside the component instead. */
+const STATUS_STYLE: Record<PresenceStatus, { dot: string; text: string }> = {
+  online: { dot: "bg-emerald-500", text: "text-emerald-700" },
+  busy: { dot: "bg-amber-500", text: "text-amber-700" },
+  offline: { dot: "bg-gray-400", text: "text-foreground/45" },
 };
 
-const STATUS: Record<
-  PresenceStatus,
-  { label: string; dot: string; text: string }
-> = {
-  online: { label: "Online", dot: "bg-emerald-500", text: "text-emerald-700" },
-  busy: { label: "Busy", dot: "bg-amber-500", text: "text-amber-700" },
-  offline: { label: "Offline", dot: "bg-gray-400", text: "text-foreground/45" },
+const STATUS_KEY: Record<PresenceStatus, string> = {
+  online: "la.statusOnline",
+  busy: "la.statusBusy",
+  offline: "la.statusOffline",
 };
 
 const SORT: Record<PresenceStatus, number> = { online: 0, busy: 1, offline: 2 };
 
-export default async function LiveAstrologyPage() {
+export default async function LiveAstrologyPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const loc = isLocale(locale) ? locale : DEFAULT_LOCALE;
+  const { t } = getDictionary(loc);
   const presence = await getPresenceMap();
   const statusOf = (slug: string): PresenceStatus =>
     presence[slug]?.status ?? "offline";
@@ -47,29 +69,28 @@ export default async function LiveAstrologyPage() {
           <div className="mx-auto max-w-6xl px-4 py-3 sm:px-6">
             <nav className="text-sm text-foreground/65">
               <Link href="/" className="hover:text-saffron-700">
-                Home
+                {t("common.home")}
               </Link>
               <span className="mx-2">/</span>
-              <span className="text-saffron-700">Talk to Astrologer</span>
+              <span className="text-saffron-700">{t("nav.liveAstrology")}</span>
             </nav>
             <h1 className="mt-3 font-heading text-4xl text-maroon-800">
-              Talk to an astrologer now
+              {t("la.h1")}
             </h1>
             <p className="mt-3 max-w-2xl text-lg text-foreground/70">
-              Chat or call a verified jyotishi instantly and pay per minute from
-              your wallet — no appointment needed.{" "}
+              {t("la.intro")}{" "}
               <span className="font-semibold text-emerald-700">
-                {onlineCount} online
+                {t("la.onlineNow", { n: onlineCount })}
               </span>{" "}
-              right now.
+              {t("la.rightNow")}
             </p>
             <p className="mt-2 text-sm text-foreground/60">
-              Prefer a scheduled, fixed-price session?{" "}
+              {t("la.preferScheduled")}{" "}
               <Link
                 href="/consultations"
                 className="font-medium text-saffron-700 hover:underline"
               >
-                Book a consultation →
+                {t("la.bookConsultation")}
               </Link>
             </p>
           </div>
@@ -78,7 +99,8 @@ export default async function LiveAstrologyPage() {
         <section className="mx-auto max-w-6xl px-4 py-3 sm:px-6">
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {list.map((a) => {
-              const s = STATUS[statusOf(a.slug)];
+              const status = statusOf(a.slug);
+              const s = STATUS_STYLE[status];
               return (
                 <Link
                   key={a.slug}
@@ -96,15 +118,15 @@ export default async function LiveAstrologyPage() {
                       className={`inline-flex items-center gap-1.5 text-xs font-semibold ${s.text}`}
                     >
                       <span className={`h-2 w-2 rounded-full ${s.dot}`} />
-                      {s.label}
+                      {t(STATUS_KEY[status])}
                     </span>
                   </div>
                   <h2 className="mt-3 font-heading text-lg text-maroon-700 group-hover:text-saffron-700">
                     {a.name}
                   </h2>
                   <p className="text-xs text-foreground/55">
-                    ⭐ {a.rating.toFixed(1)} ({a.reviews.toLocaleString("en-IN")})
-                    · {a.experienceYears} yrs
+                    ⭐ {a.rating.toFixed(1)} ({formatNumber(a.reviews, loc)}) ·{" "}
+                    {t("la.yrs", { n: a.experienceYears })}
                   </p>
                   <div className="mt-3 flex flex-wrap gap-1.5">
                     {a.specialities.map((sp) => (

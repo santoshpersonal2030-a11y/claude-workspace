@@ -112,13 +112,13 @@ export default async function LifeEventPage({
                 </div>
                 <div className="rounded-2xl bg-maroon-700 px-6 py-5 text-center text-white">
                   <div className="text-xs uppercase tracking-wide text-cream-100/80">
-                    Full package from
+                    {t("ce.fullPackageFrom")}
                   </div>
                   <div className="mt-1 font-heading text-3xl">
                     {formatINR(packageTotal)}
                   </div>
                   <div className="mt-1 text-xs text-cream-100/70">
-                    {ceremonies.length} ceremonies · book below
+                    {t("cer.bookBelow", { n: ceremonies.length })}
                   </div>
                 </div>
               </div>
@@ -140,32 +140,32 @@ export default async function LifeEventPage({
           </h2>
           {ceremonies.length === 0 ? (
             <p className="mt-4 text-foreground/65">
-              These ceremonies are being added — please check back soon.
+              {t("cer.beingAdded")}
             </p>
           ) : (
             <div className="mt-4 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {ceremonies.map((pooja) => (
-                <PoojaCard key={pooja.slug} pooja={pooja} />
+                <PoojaCard key={pooja.slug} pooja={pooja} locale={loc} />
               ))}
             </div>
           )}
 
           <div className="mt-5 rounded-2xl border border-saffron-100 bg-white p-6 text-center shadow-sm">
             <p className="text-sm text-foreground/70">
-              Not sure which ceremony you need, or planning something special?
+              {t("ce.notSure")}
             </p>
             <div className="mt-4 flex flex-wrap justify-center gap-3">
               <Link
                 href="/muhurat"
                 className="inline-block rounded-full bg-saffron-700 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-saffron-800"
               >
-                See auspicious dates
+                {t("ce.seeDates")}
               </Link>
               <Link
                 href="/contact"
                 className="inline-block rounded-full border border-saffron-300 px-6 py-2.5 text-sm font-semibold text-saffron-700 transition-colors hover:bg-saffron-50"
               >
-                Talk to us
+                {t("ce.talkToUs")}
               </Link>
             </div>
           </div>

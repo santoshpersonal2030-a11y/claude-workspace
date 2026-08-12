@@ -2,30 +2,47 @@ import type { Metadata } from "next";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ContactForm from "@/components/ContactForm";
+import { getDictionary, isLocale, DEFAULT_LOCALE } from "@/lib/i18n";
 
-export const metadata: Metadata = {
-  title: "Contact Us",
-  description:
-    "Get in touch with the BookMyPoojari team for help with bookings, samagri orders, or to become a verified Pandit.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const { t } = getDictionary(isLocale(locale) ? locale : DEFAULT_LOCALE);
+  return { title: t("meta.contact.title"), description: t("meta.contact.desc") };
+}
 
-const channels = [
-  { label: "Email", value: "support@bookmypoojari.com", icon: "✉️" },
-  { label: "Phone / WhatsApp", value: "+91 90000 00000", icon: "📞" },
-  { label: "Hours", value: "Mon–Sun, 8 AM – 9 PM IST", icon: "🕉️" },
-];
+export default async function ContactPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const { t } = getDictionary(isLocale(locale) ? locale : DEFAULT_LOCALE);
 
-export default function ContactPage() {
+  /* Built inside the component, not at module level. A module-level constant is evaluated once
+     when the file first loads, so it would freeze in whichever language rendered first and then
+     serve that to everyone — the exact trap Footer.tsx had. The VALUES are data (they are the
+     same in every language and come from the company record), so only the labels translate. */
+  const channels = [
+    { label: t("contact.email"), value: "support@bookmypoojari.com", icon: "✉️" },
+    { label: t("contact.phoneWhatsapp"), value: "+91 90000 00000", icon: "📞" },
+    { label: t("contact.hours"), value: t("contact.hoursValue"), icon: "🕉️" },
+  ];
+
   return (
     <>
       <Header />
       <main className="flex-1">
         <section className="bg-temple-gradient">
           <div className="mx-auto max-w-5xl px-4 py-3 sm:px-6">
-            <h1 className="font-heading text-4xl text-maroon-800">Contact Us</h1>
+            <h1 className="font-heading text-4xl text-maroon-800">
+              {t("contact.h1")}
+            </h1>
             <p className="mt-3 max-w-2xl text-lg text-foreground/70">
-              Questions about a booking or order, or want to join as a Pandit?
-              We&apos;d love to hear from you.
+              {t("contact.intro")}
             </p>
           </div>
         </section>
@@ -48,9 +65,7 @@ export default function ContactPage() {
                 </div>
               ))}
               <p className="px-1 text-sm text-foreground/65">
-                Are you a Pandit interested in joining our verified network? Send
-                us a message with your experience and city — we&apos;ll be in
-                touch.
+                {t("contact.panditNote")}
               </p>
             </div>
 

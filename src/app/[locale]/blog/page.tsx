@@ -4,25 +4,29 @@ import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { getPublishedPosts } from "@/lib/blog-db";
+import { getDictionary, isLocale, DEFAULT_LOCALE } from "@/lib/i18n";
+import { formatDateShort } from "@/lib/dates";
 
 export const revalidate = 300;
 
-export const metadata: Metadata = {
-  title: "Blog — Poojas, Muhurat & Hindu Traditions",
-  description:
-    "Guides to Hindu ceremonies, poojas, the samskaras and choosing an auspicious muhurat — from the team at BookMyPoojari.",
-};
-
-const MONTHS = [
-  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
-];
-function fmt(date: string): string {
-  const [y, m, d] = date.split("-").map(Number);
-  return `${d} ${MONTHS[m - 1]} ${y}`;
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const { t } = getDictionary(isLocale(locale) ? locale : DEFAULT_LOCALE);
+  return { title: t("meta.blog.title"), description: t("meta.blog.desc") };
 }
 
-export default async function BlogPage() {
+export default async function BlogPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const loc = isLocale(locale) ? locale : DEFAULT_LOCALE;
+  const { t } = getDictionary(loc);
   const posts = await getPublishedPosts();
 
   return (
@@ -33,15 +37,16 @@ export default async function BlogPage() {
           <div className="mx-auto max-w-5xl px-4 py-3 sm:px-6">
             <nav className="text-sm text-foreground/65">
               <Link href="/" className="hover:text-saffron-700">
-                Home
+                {t("common.home")}
               </Link>
               <span className="mx-2">/</span>
-              <span className="text-saffron-700">Blog</span>
+              <span className="text-saffron-700">{t("blog.h1")}</span>
             </nav>
-            <h1 className="mt-3 font-heading text-4xl text-maroon-800">Blog</h1>
+            <h1 className="mt-3 font-heading text-4xl text-maroon-800">
+              {t("blog.h1")}
+            </h1>
             <p className="mt-2 max-w-2xl text-lg text-foreground/70">
-              Guides to ceremonies, poojas and the panchang — to help your family
-              perform every ritual with confidence.
+              {t("blog.intro")}
             </p>
           </div>
         </section>
@@ -54,8 +59,10 @@ export default async function BlogPage() {
                 href={`/blog/${p.slug}`}
                 className="group flex flex-col rounded-2xl border border-saffron-100 bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md"
               >
+                {/* The category comes from the database and is English there; only the
+                    "N min read" part can be translated from here. */}
                 <span className="text-xs font-medium text-saffron-700">
-                  {p.category} · {p.readingMinutes} min read
+                  {p.category} · {t("blog.readMinutes", { n: p.readingMinutes })}
                 </span>
                 <h2 className="mt-2 font-heading text-xl text-maroon-700 group-hover:text-saffron-700">
                   {p.title}
@@ -63,8 +70,9 @@ export default async function BlogPage() {
                 <p className="mt-2 flex-1 text-sm text-foreground/65">
                   {p.excerpt}
                 </p>
+                {/* Was a hand-rolled formatter with a hardcoded English month array. */}
                 <span className="mt-3 text-xs text-foreground/65">
-                  {fmt(p.date)}
+                  {formatDateShort(p.date, loc)}
                 </span>
               </Link>
             ))}

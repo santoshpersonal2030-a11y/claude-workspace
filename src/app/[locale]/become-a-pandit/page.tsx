@@ -4,7 +4,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import PanditApplicationForm from "@/components/PanditApplicationForm";
 import { localeAlternates } from "@/lib/seo";
-import { isLocale, DEFAULT_LOCALE } from "@/lib/i18n";
+import { getDictionary, isLocale, DEFAULT_LOCALE } from "@/lib/i18n";
 
 // Was a static `metadata` with `canonical: "/become-a-pandit"` — the same URL in all three
 // languages, which told search engines the Hindi and Telugu versions were duplicates of the
@@ -15,40 +15,43 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
+  const loc = isLocale(locale) ? locale : DEFAULT_LOCALE;
+  const { t } = getDictionary(loc);
   return {
-    title: "Become a Pandit — Join BookMyPoojari",
-    description:
-      "Are you a qualified Pandit or Poojari? Join BookMyPoojari to receive verified ceremony bookings, grow your practice and get paid on time.",
-    alternates: localeAlternates(
-      isLocale(locale) ? locale : DEFAULT_LOCALE,
-      "/become-a-pandit",
-    ),
+    title: t("meta.becomeAPandit.title"),
+    description: t("meta.becomeAPandit.desc"),
+    alternates: localeAlternates(loc, "/become-a-pandit"),
   };
 }
 
-const PERKS = [
-  { emoji: "📅", title: "Steady bookings", body: "Receive ceremony requests that match your skills and area." },
-  { emoji: "✅", title: "Verified profile", body: "A trusted, verified listing that devotees can find and book." },
-  { emoji: "💸", title: "On-time payouts", body: "Transparent dakshina and timely settlement after every ceremony." },
-];
+export default async function BecomeAPanditPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const { t } = getDictionary(isLocale(locale) ? locale : DEFAULT_LOCALE);
 
-export default function BecomeAPanditPage() {
+  /* Inside the component, not at module level: a module-level array is evaluated once on first
+     load and would then serve that first language to everyone. */
+  const PERKS = [
+    { emoji: "📅", title: t("bap.perk1.title"), body: t("bap.perk1.body") },
+    { emoji: "✅", title: t("bap.perk2.title"), body: t("bap.perk2.body") },
+    { emoji: "💸", title: t("bap.perk3.title"), body: t("bap.perk3.body") },
+  ];
+
   return (
     <>
       <Header />
       <main className="flex-1">
         <section className="mx-auto max-w-3xl px-4 py-3 sm:px-6">
           <p className="text-sm font-semibold uppercase tracking-wide text-saffron-700">
-            For priests
+            {t("bap.eyebrow")}
           </p>
           <h1 className="mt-1 font-heading text-3xl text-maroon-800 sm:text-4xl">
-            Join BookMyPoojari as a verified Pandit
+            {t("bap.h1")}
           </h1>
-          <p className="mt-3 text-foreground/70">
-            Share your details and qualifications below. After a quick
-            verification, your profile goes live and you start receiving
-            ceremony bookings near you.
-          </p>
+          <p className="mt-3 text-foreground/70">{t("bap.intro")}</p>
 
           <div className="mt-4 grid gap-4 sm:grid-cols-3">
             {PERKS.map((p) => (
@@ -69,7 +72,7 @@ export default function BecomeAPanditPage() {
           </div>
 
           <h2 className="mt-5 font-heading text-2xl text-maroon-800">
-            Apply now
+            {t("bap.applyNow")}
           </h2>
           <div className="mt-4">
             <PanditApplicationForm />

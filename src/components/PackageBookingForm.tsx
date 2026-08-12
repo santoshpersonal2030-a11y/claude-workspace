@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { payWithRazorpay } from "@/lib/razorpay-client";
 import { timeSlots, languages, formatINR } from "@/lib/poojas";
 import { redeemableAmount } from "@/lib/rewards";
+import { useT } from "@/components/LanguageProvider";
 
 type Ceremony = { slug: string; name: string; emoji: string; price: number };
 
@@ -16,6 +17,7 @@ export default function PackageBookingForm({
   ceremonies: Ceremony[];
   total: number;
 }) {
+  const t = useT();
   const router = useRouter();
   const [dates, setDates] = useState<Record<string, string>>({});
   const [slots, setSlots] = useState<Record<string, string>>(
@@ -69,7 +71,7 @@ export default function PackageBookingForm({
         timeSlot: slots[c.slug] ?? timeSlots[0],
       }));
       if (items.some((i) => !i.bookingDate)) {
-        setError("Please pick a date for each ceremony.");
+        setError(t("pk.errPickDates"));
         return;
       }
       const res = await fetch("/api/bookings/package", {
@@ -85,7 +87,7 @@ export default function PackageBookingForm({
       }
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error ?? "Could not create the package.");
+        setError(data.error ?? t("pk.errCreate"));
         return;
       }
       if (!data.razorpay) {
@@ -95,9 +97,9 @@ export default function PackageBookingForm({
       }
       const result = await payWithRazorpay(data.razorpay, undefined, "Wedding package");
       if (result.ok) router.push("/account/bookings");
-      else setError(result.error ?? "Payment was cancelled.");
+      else setError(result.error ?? t("pk.errCancelled"));
     } catch {
-      setError("Something went wrong. Please try again.");
+      setError(t("pk.errGeneric"));
     } finally {
       setBusy(false);
     }
@@ -112,12 +114,9 @@ export default function PackageBookingForm({
       className="mt-4 rounded-3xl border border-gold-200 bg-white p-6 shadow-sm"
     >
       <h3 className="font-heading text-xl text-maroon-800">
-        Book the whole package
+        {t("pk.h1")}
       </h3>
-      <p className="mt-1 text-sm text-foreground/65">
-        Pick a date and time for each ceremony and pay once — the same trusted
-        Pandit team guides your celebration.
-      </p>
+      <p className="mt-1 text-sm text-foreground/65">{t("pk.intro")}</p>
 
       <div className="mt-4 space-y-3">
         {ceremonies.map((c) => (
@@ -137,7 +136,7 @@ export default function PackageBookingForm({
                 ceremony each one belonged to. The name goes into the aria-label. */}
             <input
               type="date"
-              aria-label={`Date for ${c.name}`}
+              aria-label={t("pk.dateFor", { name: c.name })}
               required
               value={dates[c.slug] ?? ""}
               onChange={(e) =>
@@ -146,7 +145,7 @@ export default function PackageBookingForm({
               className={field}
             />
             <select
-              aria-label={`Time slot for ${c.name}`}
+              aria-label={t("pk.timeSlotFor", { name: c.name })}
               value={slots[c.slug] ?? timeSlots[0]}
               onChange={(e) =>
                 setSlots((s) => ({ ...s, [c.slug]: e.target.value }))
@@ -167,8 +166,8 @@ export default function PackageBookingForm({
         {/* Placeholder-only fields: named for a screen reader without changing the design. */}
         <textarea
           required
-          aria-label="Venue address (required)"
-          placeholder="Venue address"
+          aria-label={t("pk.venueRequired")}
+          placeholder={t("pk.venue")}
           value={shared.address}
           onChange={(e) => setShared({ ...shared, address: e.target.value })}
           className={`${field} sm:col-span-2`}
@@ -176,26 +175,26 @@ export default function PackageBookingForm({
         />
         <input
           required
-          aria-label="City (required)"
-          placeholder="City"
+          aria-label={t("pk.cityRequired")}
+          placeholder={t("pk.city")}
           value={shared.city}
           onChange={(e) => setShared({ ...shared, city: e.target.value })}
           className={field}
         />
         <input
-          aria-label="Pincode"
-          placeholder="Pincode"
+          aria-label={t("pk.pincode")}
+          placeholder={t("pk.pincode")}
           value={shared.pincode}
           onChange={(e) => setShared({ ...shared, pincode: e.target.value })}
           className={field}
         />
         <select
-          aria-label="Preferred language"
+          aria-label={t("pk.preferredLanguage")}
           value={shared.language}
           onChange={(e) => setShared({ ...shared, language: e.target.value })}
           className={field}
         >
-          <option value="">Preferred language</option>
+          <option value="">{t("pk.preferredLanguage")}</option>
           {languages.map((l) => (
             <option key={l} value={l}>
               {l}
@@ -210,7 +209,7 @@ export default function PackageBookingForm({
               setShared({ ...shared, samagriKit: e.target.checked })
             }
           />
-          Add a samagri kit to each ceremony
+          {t("pk.addKit")}
         </label>
       </div>
 
@@ -222,22 +221,22 @@ export default function PackageBookingForm({
             onChange={(e) => setUseCredit(e.target.checked)}
             className="h-4 w-4 accent-saffron-600"
           />
-          Use store credit —{" "}
+          {t("pk.useCredit")}{" "}
           <span className="font-medium text-emerald-700">
-            {formatINR(wallet.available)} available
+            {t("pk.available", { amount: formatINR(wallet.available) })}
           </span>
         </label>
       )}
 
       <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-saffron-50 pt-4">
         <span className="text-sm text-foreground/65">
-          {creditApplied > 0 ? "To pay " : "Package total "}
+          {t(creditApplied > 0 ? "pk.toPay" : "pk.packageTotal")}{" "}
           <span className="font-heading text-xl text-maroon-700">
             {formatINR(payable)}
           </span>
           {creditApplied > 0 && (
             <span className="ml-2 text-xs text-emerald-700">
-              (−{formatINR(creditApplied)} credit)
+              {t("pk.creditApplied", { amount: formatINR(creditApplied) })}
             </span>
           )}
         </span>
@@ -246,13 +245,12 @@ export default function PackageBookingForm({
           disabled={busy}
           className="rounded-full bg-saffron-700 px-6 py-2.5 text-sm font-semibold text-white hover:bg-saffron-800 disabled:opacity-60"
         >
-          {busy ? "Processing…" : "Book the package"}
+          {busy ? t("pk.processing") : t("pk.submit")}
         </button>
       </div>
       {error && <p className="mt-2 text-xs text-red-600">{error}</p>}
       <p className="mt-2 text-xs text-foreground/65">
-        You&apos;ll sign in if needed. Secure payment via Razorpay; the Pandit
-        confirms the muhurat for the engagement and wedding.
+        {t("pk.footnote")}
       </p>
     </form>
   );

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { createClient } from "@/lib/supabase/client";
+import { useT } from "@/components/LanguageProvider";
 
 // Reads ?next= at submit time without needing a Suspense boundary for
 // useSearchParams. Falls back to the homepage.
@@ -24,6 +25,7 @@ function toE164(raw: string): string | null {
 
 function LoginCard() {
   const supabase = useMemo(() => createClient(), []);
+  const t = useT();
   const router = useRouter();
 
   const [method, setMethod] = useState<"phone" | "email">("phone");
@@ -74,7 +76,7 @@ function LoginCard() {
       if (error) return setError(error.message);
       // If confirmation is required there's no session yet.
       if (!data.session) {
-        setInfo("Check your email to confirm your account, then sign in.");
+        setInfo(t("login.confirmEmail"));
         setEmailMode("signin");
         return;
       }
@@ -94,7 +96,7 @@ function LoginCard() {
     setError(null);
     setInfo(null);
     if (!email.trim()) {
-      setError("Enter your email first, then tap “Forgot password”.");
+      setError(t("login.enterEmailFirst"));
       return;
     }
     setBusy(true);
@@ -103,7 +105,7 @@ function LoginCard() {
     });
     setBusy(false);
     if (error) return setError(error.message);
-    setInfo("Password reset link sent — check your email.");
+    setInfo(t("login.resetSent"));
   }
 
   async function sendOtp(e: React.FormEvent) {
@@ -111,7 +113,7 @@ function LoginCard() {
     setError(null);
     const e164 = toE164(phone);
     if (!e164) {
-      setError("Please enter a valid 10-digit mobile number.");
+      setError(t("login.badMobile"));
       return;
     }
     setBusy(true);
@@ -148,10 +150,10 @@ function LoginCard() {
       <div className="text-center">
         <div className="text-4xl">🪔</div>
         <h1 className="mt-3 font-heading text-2xl text-maroon-800">
-          Sign in to BookMyPoojari
+          {t("login.h1")}
         </h1>
         <p className="mt-2 text-sm text-foreground/65">
-          Sign in to book a Pandit and order samagri.
+          {t("login.subtitle")}
         </p>
       </div>
 
@@ -190,7 +192,7 @@ function LoginCard() {
             d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1A11 11 0 0 0 2.18 7.06l3.66 2.84C6.71 7.3 9.14 5.38 12 5.38Z"
           />
         </svg>
-        Continue with Google
+        {t("login.google")}
       </button>
 
       <button
@@ -202,12 +204,12 @@ function LoginCard() {
         <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor" aria-hidden="true">
           <path d="M16.37 1.43c.08 1-.32 1.97-.93 2.67-.66.74-1.74 1.32-2.79 1.24-.1-.97.36-1.98.95-2.62.66-.72 1.82-1.27 2.77-1.29ZM19.6 17.2c-.53 1.23-.79 1.78-1.47 2.87-.96 1.52-2.31 3.41-3.99 3.42-1.49.02-1.88-.97-3.9-.96-2.02.01-2.44.98-3.94.95-1.68-.03-2.96-1.73-3.92-3.25C-.31 16.4-.6 11.46 1.13 8.86c1.16-1.76 2.99-2.79 4.71-2.79 1.75 0 2.85 1 4.3 1 1.4 0 2.26-1 4.29-1 1.53 0 3.16.84 4.32 2.28-3.79 2.08-3.17 7.49.85 8.85Z" />
         </svg>
-        Continue with Apple
+        {t("login.apple")}
       </button>
 
       <div className="my-6 flex items-center gap-3 text-xs text-foreground/65">
         <span className="h-px flex-1 bg-saffron-100" />
-        OR
+        {t("login.or")}
         <span className="h-px flex-1 bg-saffron-100" />
       </div>
 
@@ -222,13 +224,18 @@ function LoginCard() {
               setError(null);
               setInfo(null);
             }}
-            className={`rounded-full py-1.5 font-semibold capitalize transition-colors ${
+            className={`rounded-full py-1.5 font-semibold transition-colors ${
               method === m
                 ? "bg-white text-saffron-700 shadow-sm"
                 : "text-foreground/65 hover:text-saffron-700"
             }`}
           >
-            {m}
+            {/* `m` is the internal state value ("phone"/"email"), which used to be printed
+                straight to screen with a CSS capitalize — so this toggle read "Phone | Email"
+                on every Hindi and Telugu page. The state keeps its English values; only the
+                label is translated, and `capitalize` is dropped because it is meaningless for
+                Devanagari and Telugu. */}
+            {t(m === "phone" ? "login.methodPhone" : "login.methodEmail")}
           </button>
         ))}
       </div>
@@ -242,7 +249,7 @@ function LoginCard() {
             htmlFor="login-email"
             className="mb-1 block text-sm font-medium text-foreground/80"
           >
-            Email
+            {t("login.email")}
           </label>
           <input
             id="login-email"
@@ -251,14 +258,14 @@ function LoginCard() {
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="you@example.com"
+            placeholder={t("login.emailPlaceholder")}
             className="w-full rounded-xl border border-saffron-200 bg-cream px-3 py-2.5 text-sm outline-none focus:border-saffron-400 focus:ring-2 focus:ring-saffron-100"
           />
           <label
             htmlFor="login-password"
             className="mb-1 mt-3 block text-sm font-medium text-foreground/80"
           >
-            Password
+            {t("login.password")}
           </label>
           <input
             id="login-password"
@@ -268,7 +275,9 @@ function LoginCard() {
             minLength={8}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder={emailMode === "signup" ? "Create a password (min 8)" : "Your password"}
+            placeholder={t(
+              emailMode === "signup" ? "login.passwordCreate" : "login.passwordYours",
+            )}
             className="w-full rounded-xl border border-saffron-200 bg-cream px-3 py-2.5 text-sm outline-none focus:border-saffron-400 focus:ring-2 focus:ring-saffron-100"
           />
           <button
@@ -277,10 +286,8 @@ function LoginCard() {
             className="mt-4 w-full rounded-full bg-saffron-700 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-saffron-800 disabled:opacity-60"
           >
             {busy
-              ? "Please wait…"
-              : emailMode === "signup"
-                ? "Create account"
-                : "Sign in"}
+              ? t("login.pleaseWait")
+              : t(emailMode === "signup" ? "login.createAccount" : "login.signIn")}
           </button>
           <div className="mt-3 flex items-center justify-between text-sm">
             <button
@@ -292,9 +299,7 @@ function LoginCard() {
               }}
               className="text-saffron-700 hover:text-saffron-800"
             >
-              {emailMode === "signin"
-                ? "New here? Create account"
-                : "Have an account? Sign in"}
+              {t(emailMode === "signin" ? "login.toSignUp" : "login.toSignIn")}
             </button>
             {emailMode === "signin" && (
               <button
@@ -302,7 +307,7 @@ function LoginCard() {
                 onClick={forgotPassword}
                 className="text-foreground/65 hover:text-saffron-700"
               >
-                Forgot password?
+                {t("login.forgot")}
               </button>
             )}
           </div>
@@ -313,7 +318,7 @@ function LoginCard() {
             htmlFor="login-phone"
             className="mb-1 block text-sm font-medium text-foreground/80"
           >
-            Mobile number
+            {t("login.mobile")}
           </label>
           <div className="flex items-center rounded-xl border border-saffron-200 bg-cream px-3 focus-within:border-saffron-400 focus-within:ring-2 focus-within:ring-saffron-100">
             <span className="text-sm text-foreground/65">+91</span>
@@ -325,7 +330,7 @@ function LoginCard() {
               required
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              placeholder="98765 43210"
+              placeholder={t("login.mobilePlaceholder")}
               className="w-full bg-transparent px-2 py-2.5 text-sm outline-none"
             />
           </div>
@@ -334,7 +339,7 @@ function LoginCard() {
             disabled={busy}
             className="mt-4 w-full rounded-full bg-saffron-700 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-saffron-800 disabled:opacity-60"
           >
-            {busy ? "Sending OTP…" : "Send OTP"}
+            {busy ? t("login.sendingOtp") : t("login.sendOtp")}
           </button>
         </form>
       ) : (
@@ -343,7 +348,7 @@ function LoginCard() {
             htmlFor="login-otp"
             className="mb-1 block text-sm font-medium text-foreground/80"
           >
-            Enter the OTP sent to {phone}
+            {t("login.otpLabel", { phone })}
           </label>
           <input
             id="login-otp"
@@ -353,7 +358,7 @@ function LoginCard() {
             required
             value={otp}
             onChange={(e) => setOtp(e.target.value)}
-            placeholder="6-digit code"
+            placeholder={t("login.otpPlaceholder")}
             className="w-full rounded-xl border border-saffron-200 bg-cream px-3 py-2.5 text-center text-lg tracking-[0.3em] outline-none focus:border-saffron-400 focus:ring-2 focus:ring-saffron-100"
           />
           <button
@@ -361,7 +366,7 @@ function LoginCard() {
             disabled={busy}
             className="mt-4 w-full rounded-full bg-saffron-700 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-saffron-800 disabled:opacity-60"
           >
-            {busy ? "Verifying…" : "Verify & sign in"}
+            {busy ? t("login.verifying") : t("login.verify")}
           </button>
           <button
             type="button"
@@ -372,19 +377,19 @@ function LoginCard() {
             }}
             className="mt-3 w-full text-center text-sm text-saffron-700 hover:text-saffron-800"
           >
-            ← Change number
+            {t("login.changeNumber")}
           </button>
         </form>
       )}
 
       <p className="mt-4 text-center text-xs text-foreground/65">
-        By continuing you agree to our{" "}
+        {t("login.termsPrefix")}{" "}
         <Link href="/terms" className="text-saffron-700 hover:underline">
-          Terms
+          {t("login.termsWord")}
         </Link>{" "}
-        and{" "}
+        {t("login.and")}{" "}
         <Link href="/privacy" className="text-saffron-700 hover:underline">
-          Privacy Policy
+          {t("login.privacyWord")}
         </Link>
         .
       </p>

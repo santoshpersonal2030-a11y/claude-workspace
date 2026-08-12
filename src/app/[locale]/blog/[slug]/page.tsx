@@ -6,38 +6,34 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import JsonLd from "@/components/JsonLd";
 import { getPublishedPost } from "@/lib/blog-db";
+import { getDictionary, isLocale, DEFAULT_LOCALE } from "@/lib/i18n";
+import { formatDate } from "@/lib/dates";
 
 export const revalidate = 300;
 
 const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL ?? "https://bookmypoojari.com";
 
-const MONTHS = [
-  "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December",
-];
-function fmt(date: string): string {
-  const [y, m, d] = date.split("-").map(Number);
-  return `${d} ${MONTHS[m - 1]} ${y}`;
-}
-
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ locale: string; slug: string }>;
 }): Promise<Metadata> {
-  const { slug } = await params;
+  const { locale, slug } = await params;
+  const { t } = getDictionary(isLocale(locale) ? locale : DEFAULT_LOCALE);
   const post = await getPublishedPost(slug);
-  if (!post) return { title: "Post not found" };
+  if (!post) return { title: t("blog.notFound") };
   return { title: `${post.title} — BookMyPoojari`, description: post.excerpt };
 }
 
 export default async function BlogPostPage({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ locale: string; slug: string }>;
 }) {
-  const { slug } = await params;
+  const { locale, slug } = await params;
+  const loc = isLocale(locale) ? locale : DEFAULT_LOCALE;
+  const { t } = getDictionary(loc);
   const post = await getPublishedPost(slug);
   if (!post) notFound();
 
@@ -61,11 +57,12 @@ export default async function BlogPostPage({
         <article className="mx-auto max-w-3xl px-4 py-3 sm:px-6">
           <nav className="text-sm text-foreground/65">
             <Link href="/blog" className="hover:text-saffron-700">
-              ← Blog
+              {t("blog.back")}
             </Link>
           </nav>
           <p className="mt-4 text-xs font-medium text-saffron-700">
-            {post.category} · {post.readingMinutes} min read · {fmt(post.date)}
+            {post.category} · {t("blog.readMinutes", { n: post.readingMinutes })}{" "}
+            · {formatDate(post.date, loc)}
           </p>
           <h1 className="mt-2 font-heading text-4xl text-maroon-800">
             {post.title}
@@ -97,13 +94,13 @@ export default async function BlogPostPage({
               href="/poojas"
               className="rounded-full bg-saffron-700 px-6 py-2.5 text-sm font-semibold text-white hover:bg-saffron-800"
             >
-              Book a pooja
+              {t("blog.bookPooja")}
             </Link>
             <Link
               href="/muhurat"
               className="rounded-full border border-saffron-300 px-6 py-2.5 text-sm font-semibold text-saffron-700 hover:bg-saffron-50"
             >
-              Find a muhurat
+              {t("blog.findMuhurat")}
             </Link>
           </div>
         </article>

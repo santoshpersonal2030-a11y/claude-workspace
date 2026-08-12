@@ -11,6 +11,8 @@ import { voiceConfigured } from "@/lib/voice";
 import { createClient } from "@/lib/supabase/server";
 import { getAvailableBalance } from "@/lib/wallet";
 import { formatINR } from "@/lib/poojas";
+import { getDictionary, isLocale, DEFAULT_LOCALE } from "@/lib/i18n";
+import { formatNumber } from "@/lib/dates";
 
 export const revalidate = 30;
 
@@ -28,18 +30,20 @@ export async function generateMetadata({
   };
 }
 
-const STATUS_LABEL = {
-  online: "Online now",
-  busy: "Busy — try again shortly",
-  offline: "Offline",
+const STATUS_KEY = {
+  online: "la.statusOnlineLong",
+  busy: "la.statusBusyLong",
+  offline: "la.statusOffline",
 } as const;
 
 export default async function AstrologerProfile({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ locale: string; slug: string }>;
 }) {
-  const { slug } = await params;
+  const { locale, slug } = await params;
+  const loc = isLocale(locale) ? locale : DEFAULT_LOCALE;
+  const { t } = getDictionary(loc);
   const a = getAstrologer(slug);
   if (!a) notFound();
 
@@ -62,7 +66,7 @@ export default async function AstrologerProfile({
             href="/live-astrology"
             className="text-sm text-foreground/65 hover:text-saffron-700"
           >
-            ← All astrologers
+            {t("la.allAstrologers")}
           </Link>
 
           <div className="mt-4 rounded-2xl border border-saffron-100 bg-white p-6 shadow-sm sm:p-8">
@@ -78,9 +82,11 @@ export default async function AstrologerProfile({
                   {a.name}
                 </h1>
                 <p className="text-sm text-foreground/60">
-                  ⭐ {a.rating.toFixed(1)} (
-                  {a.reviews.toLocaleString("en-IN")} reviews) ·{" "}
-                  {a.experienceYears} years
+                  ⭐ {a.rating.toFixed(1)}{" "}
+                  {t("la.reviewsYears", {
+                    reviews: formatNumber(a.reviews, loc) ?? a.reviews,
+                    years: a.experienceYears,
+                  })}
                 </p>
                 <p
                   className={`mt-1 text-sm font-semibold ${
@@ -91,7 +97,7 @@ export default async function AstrologerProfile({
                         : "text-foreground/45"
                   }`}
                 >
-                  {STATUS_LABEL[presence]}
+                  {t(STATUS_KEY[presence])}
                 </p>
               </div>
             </div>
@@ -109,7 +115,7 @@ export default async function AstrologerProfile({
               ))}
             </div>
             <p className="mt-3 text-sm text-foreground/60">
-              Speaks {a.languages.join(", ")}
+              {t("la.speaks", { languages: a.languages.join(", ") })}
             </p>
 
             <div className="mt-4 border-t border-saffron-50 pt-6">
@@ -121,15 +127,15 @@ export default async function AstrologerProfile({
                 callAvailable={callAvailable}
               />
               <p className="mt-4 text-xs text-foreground/55">
-                Billed per started minute from your wallet.{" "}
+                {t("la.billing")}{" "}
                 {balance !== null ? (
                   <>
-                    Wallet balance: <strong>{formatINR(balance)}</strong> ·{" "}
+                    {t("la.walletBalance")} <strong>{formatINR(balance)}</strong> ·{" "}
                     <Link
                       href="/account/wallet"
                       className="text-saffron-700 hover:underline"
                     >
-                      Add money
+                      {t("la.addMoney")}
                     </Link>
                   </>
                 ) : (
@@ -137,7 +143,7 @@ export default async function AstrologerProfile({
                     href={`/login?next=/live-astrology/${a.slug}`}
                     className="text-saffron-700 hover:underline"
                   >
-                    Sign in to start
+                    {t("la.signInToStart")}
                   </Link>
                 )}
               </p>

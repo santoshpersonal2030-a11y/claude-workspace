@@ -1,10 +1,22 @@
 import Link from "next/link";
 
 import { type Pooja, formatINR } from "@/lib/poojas";
+import { getDictionary, DEFAULT_LOCALE, type Locale } from "@/lib/i18n";
 
 // A single pooja card linking to its booking page. Server component, reused by
 // the ceremony sections (the catalog grid has its own client-filtered copy).
-export default function PoojaCard({ pooja }: { pooja: Pooja }) {
+// The locale has to be passed in: a server component has no context to read it from, which is
+// why "Starts at" and "Book →" were English here while the client-filtered copy of this same
+// card translated both correctly. The keys are browse.* — the ones that copy already uses —
+// rather than new ones, so the two cards cannot drift apart.
+export default function PoojaCard({
+  pooja,
+  locale = DEFAULT_LOCALE,
+}: {
+  pooja: Pooja;
+  locale?: Locale;
+}) {
+  const { t } = getDictionary(locale);
   return (
     <Link
       href={`/poojas/${pooja.slug}`}
@@ -30,12 +42,14 @@ export default function PoojaCard({ pooja }: { pooja: Pooja }) {
       </p>
       <div className="mt-4 flex items-center justify-between border-t border-saffron-50 pt-4">
         <span className="text-sm text-foreground/65">
-          Starts at{" "}
+          {t("browse.startsAt")}{" "}
           <span className="font-semibold text-foreground">
             {formatINR(pooja.startingPrice)}
           </span>
         </span>
-        <span className="text-sm font-semibold text-saffron-700">Book →</span>
+        <span className="text-sm font-semibold text-saffron-700">
+          {t("browse.book")}
+        </span>
       </div>
     </Link>
   );

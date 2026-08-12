@@ -1577,6 +1577,107 @@ function chromeChecks() {
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
+function publicPageChecks() {
+  head("18. THE PUBLIC PAGES THAT TRANSLATED NOTHING");
+  /* Thirteen public pages reached the dictionary for not one single word. Ten are ordinary
+     interface copy and are now done. THREE ARE DELIBERATELY STILL ENGLISH — Terms, Privacy and
+     Refund are the contract with the customer and need a person who will take responsibility for
+     the wording. That is a decision, not an oversight, so it is asserted here rather than left
+     to be mistaken for unfinished work later: if one of them starts translating, this goes red
+     and someone has to say who signed it off. */
+  const PUBLIC = [
+    ["app", "[locale]", "contact", "page.tsx"],
+    ["app", "[locale]", "become-a-pandit", "page.tsx"],
+    ["app", "[locale]", "login", "page.tsx"],
+    ["app", "[locale]", "auth", "reset", "page.tsx"],
+    ["app", "[locale]", "blog", "page.tsx"],
+    ["app", "[locale]", "blog", "[slug]", "page.tsx"],
+    ["app", "[locale]", "live-astrology", "page.tsx"],
+    ["app", "[locale]", "live-astrology", "[slug]", "page.tsx"],
+    ["app", "[locale]", "offline", "page.tsx"],
+    ["components", "ContactForm.tsx"],
+    ["components", "PanditApplicationForm.tsx"],
+    ["components", "PackageBookingForm.tsx"],
+  ];
+  // A file "translates" if it reaches the dictionary at all — getDictionary for a server
+  // component, useT for a client one.
+  const translates = (text) =>
+    /getDictionary\(/.test(text) || /\buseT\(\)/.test(text);
+
+  let found = 0;
+  for (const parts of PUBLIC) {
+    const text = read(path.join(SRC, ...parts));
+    if (!text) continue;
+    found++;
+    line(
+      translates(text),
+      `${parts[parts.length - 2]}/${parts[parts.length - 1]} reaches the dictionary`,
+    );
+  }
+  control(found === PUBLIC.length, `${found} of ${PUBLIC.length} public files found`);
+  control(
+    !translates('export default function P() { return <h1>Contact Us</h1>; }'),
+    "the detector does NOT call a hardcoded page translated",
+  );
+  control(
+    translates('const { t } = getDictionary(loc);'),
+    "the detector recognises the server-component route",
+  );
+  control(translates("const t = useT();"), "the detector recognises the client route");
+
+  const LEGAL = [
+    ["app", "[locale]", "terms", "page.tsx"],
+    ["app", "[locale]", "privacy", "page.tsx"],
+    ["app", "[locale]", "refund-policy", "page.tsx"],
+  ];
+  for (const parts of LEGAL) {
+    const text = read(path.join(SRC, ...parts));
+    line(
+      !translates(text),
+      `${parts[parts.length - 2]} is STILL English on purpose — needs a human to sign off the wording`,
+    );
+  }
+
+  /* Two traps this slice had to avoid, both asserted rather than trusted to a comment.
+     1. A module-level array is evaluated once on first load, so a translated one freezes in
+        whichever language rendered first and serves that to everybody. Footer.tsx had exactly
+        this bug. contact/, become-a-pandit/ and live-astrology/ all had such an array.
+     2. The priest form's five ID types are WRITTEN TO THE DATABASE by /api/pandit-application.
+        Translating the option value would put Hindi into a column the admin console reads as
+        English, and nothing would notice until a real priest applied. */
+  for (const [parts, name] of [
+    [["app", "[locale]", "contact", "page.tsx"], "contact"],
+    [["app", "[locale]", "become-a-pandit", "page.tsx"], "become-a-pandit"],
+  ]) {
+    const text = read(path.join(SRC, ...parts));
+    line(
+      !/^const (channels|PERKS) = \[/m.test(text),
+      `${name} builds its translated list INSIDE the component, not at module scope`,
+    );
+  }
+  control(
+    /^const PERKS = \[/m.test("const PERKS = [\n  { title: 'x' },\n];"),
+    "the module-scope detector catches a top-level array",
+  );
+  control(
+    !/^const (channels|PERKS) = \[/m.test("  const channels = [\n    { label: t('x') },\n  ];"),
+    "the module-scope detector is not fooled by an indented one inside a component",
+  );
+
+  const paf = read(path.join(SRC, "components", "PanditApplicationForm.tsx"));
+  for (const v of ["Aadhaar", "PAN", "Voter ID", "Driving Licence", "Passport"]) {
+    line(
+      paf.includes(`value: "${v}"`),
+      `the priest form still submits "${v}" to the database in English`,
+    );
+  }
+  line(
+    /\{t\(it\.key\)\}/.test(paf),
+    "…while showing the visitor the translated label",
+  );
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
 (async () => {
   await poojaChecks();
   bucketChecks();
@@ -1590,6 +1691,7 @@ function chromeChecks() {
   auditCoverageChecks();
   dateFormatChecks();
   chromeChecks();
+  publicPageChecks();
   kycChecks();
 
   console.log("\n" + "=".repeat(70));

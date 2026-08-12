@@ -1,10 +1,26 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { getDictionary, isLocale, DEFAULT_LOCALE } from "@/lib/i18n";
 
-export const metadata = { title: "Offline — BookMyPoojari" };
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const { t } = getDictionary(isLocale(locale) ? locale : DEFAULT_LOCALE);
+  return { title: t("meta.offline.title") };
+}
 
 // Shown by the service worker when a navigation fails with no network.
-export default function OfflinePage() {
+export default async function OfflinePage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const { t } = getDictionary(isLocale(locale) ? locale : DEFAULT_LOCALE);
+
   return (
     <>
       <Header />
@@ -12,12 +28,9 @@ export default function OfflinePage() {
         <div className="max-w-md text-center">
           <div className="text-5xl">🪔</div>
           <h1 className="mt-4 font-heading text-2xl text-maroon-800">
-            You&apos;re offline
+            {t("offline.h1")}
           </h1>
-          <p className="mt-2 text-foreground/65">
-            We couldn&apos;t reach BookMyPoojari. Check your connection and try
-            again — your cart and saved details are safe.
-          </p>
+          <p className="mt-2 text-foreground/65">{t("offline.body")}</p>
         </div>
       </main>
       <Footer />
