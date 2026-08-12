@@ -48,15 +48,18 @@ export default function AnnouncementBar() {
       aria-label={t("announce.label")}
       className="relative bg-maroon-700 text-cream-100"
     >
-      <div className="mx-auto flex max-w-6xl items-center justify-center gap-2 px-10 py-2 text-center text-xs sm:text-sm">
-        <span>{t("announce.freeDelivery", { amount: FREE_DELIVERY_OVER })}</span>
-        <Link
-          href="/store?sort=discount"
-          className="font-semibold text-gold-400 underline-offset-2 hover:underline"
-        >
-          {t("announce.shopDeals")}
-        </Link>
-      </div>
+      {/* One sentence, and it is the whole bar. It used to read "Free delivery on orders over
+          ₹999 — shop today's best deals", which promised free delivery on ANYTHING. It is a
+          samagri-store offer: the ₹49 shipping fee only exists on product orders, and a pooja
+          booking has no delivery at all. Santosh reworded it on 12-Aug-2026 to say so.
+          The bar is still a link to the store, so nothing is lost by dropping the separate
+          call-to-action. */}
+      <Link
+        href="/store?sort=discount"
+        className="mx-auto flex max-w-6xl items-center justify-center gap-2 px-10 py-2 text-center text-xs underline-offset-2 hover:underline sm:text-sm"
+      >
+        {t("announce.freeDelivery", { amount: FREE_DELIVERY_OVER })}
+      </Link>
       <button
         type="button"
         onClick={dismiss}

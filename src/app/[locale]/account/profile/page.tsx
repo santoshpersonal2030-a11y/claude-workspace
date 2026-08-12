@@ -18,7 +18,11 @@ const ACCOUNT_LINKS = [
   { href: "/account/consultations", label: "My consultations", emoji: "🔮" },
   { href: "/account/orders", label: "My orders", emoji: "📦" },
   { href: "/account/subscriptions", label: "Recurring poojas", emoji: "🔁" },
-  { href: "/account/wallet", label: "Store credit", emoji: "💰" },
+  /* "Wallet", not "Store credit". It is ONE page that was called three different things: this
+     chip said "Store credit", the page's own heading said "Store credit & referrals", and both
+     the section inside it and the live-astrology page said "wallet". Santosh went looking for a
+     wallet on 12-Aug-2026 and reported there wasn't one. There was — under a third name. */
+  { href: "/account/wallet", label: "Wallet", emoji: "💰" },
   { href: "/account/addresses", label: "Saved addresses", emoji: "📍" },
   { href: "/account/wishlist", label: "Wishlist", emoji: "♡" },
 ];

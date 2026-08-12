@@ -70,7 +70,7 @@ export default async function WalletPage({
             ← My account
           </Link>
           <h1 className="mt-2 font-heading text-3xl text-maroon-800">
-            Store credit & referrals
+            Wallet & referrals
           </h1>
 
           {/* Balance */}

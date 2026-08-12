@@ -65,6 +65,8 @@ const en: Dict = {
   "common.adminConsole": "Admin console",
   "common.signOut": "Sign out",
   "common.accountFallback": "Account",
+  "wa.label": "Chat with us on WhatsApp",
+  "wa.prefill": "Hello, I have a question about booking a pooja.",
   "wishlist.empty": "You haven’t saved any items yet.",
   "wishlist.browseStore": "Browse the store",
 
@@ -338,8 +340,8 @@ const en: Dict = {
   // Announcement bar. The free-delivery threshold is a {amount} variable, not three hardcoded
   // sentences, so changing the offer is one edit rather than three that can drift apart.
   "announce.label": "Announcement",
-  "announce.freeDelivery": "🎉 Free delivery on orders over {amount} —",
-  "announce.shopDeals": "shop today's best deals",
+  "announce.freeDelivery":
+    "🎉 Free delivery on orders over {amount} on pooja samagri purchases",
   "announce.dismiss": "Dismiss announcement",
 
   // Checkout refused because the cart asks for more than is in stock. {items} is a ready-made
@@ -1162,6 +1164,8 @@ const hi: Dict = {
   "common.adminConsole": "एडमिन कंसोल",
   "common.signOut": "साइन आउट",
   "common.accountFallback": "खाता",
+  "wa.label": "व्हाट्सएप पर हमसे बात करें",
+  "wa.prefill": "नमस्ते, मुझे पूजा बुक करने के बारे में जानकारी चाहिए।",
   "wishlist.empty": "आपने अभी तक कोई आइटम सहेजा नहीं है।",
   "wishlist.browseStore": "स्टोर देखें",
 
@@ -1409,8 +1413,8 @@ const hi: Dict = {
   "footer.madeWithDevotion": "भारत में भक्ति के साथ बनाया गया 🇮🇳",
 
   "announce.label": "घोषणा",
-  "announce.freeDelivery": "🎉 {amount} से अधिक के ऑर्डर पर मुफ़्त डिलीवरी —",
-  "announce.shopDeals": "आज के बेहतरीन ऑफ़र देखें",
+  "announce.freeDelivery":
+    "🎉 पूजा सामग्री की {amount} से अधिक की खरीद पर मुफ़्त डिलीवरी",
   "announce.dismiss": "घोषणा बंद करें",
 
   "cart.stockChanged":
@@ -2213,6 +2217,8 @@ const te: Dict = {
   "common.adminConsole": "అడ్మిన్ కన్సోల్",
   "common.signOut": "సైన్ అవుట్",
   "common.accountFallback": "ఖాతా",
+  "wa.label": "వాట్సాప్‌లో మాతో మాట్లాడండి",
+  "wa.prefill": "నమస్తే, పూజ బుక్ చేయడం గురించి నాకు సమాచారం కావాలి.",
   "wishlist.empty": "మీరు ఇంకా ఏ అంశాన్నీ సేవ్ చేయలేదు.",
   "wishlist.browseStore": "స్టోర్ చూడండి",
 
@@ -2453,8 +2459,8 @@ const te: Dict = {
   "footer.madeWithDevotion": "భారతదేశంలో భక్తితో రూపొందించబడింది 🇮🇳",
 
   "announce.label": "ప్రకటన",
-  "announce.freeDelivery": "🎉 {amount} పైబడిన ఆర్డర్‌లపై ఉచిత డెలివరీ —",
-  "announce.shopDeals": "నేటి ఉత్తమ ఆఫర్‌లను చూడండి",
+  "announce.freeDelivery":
+    "🎉 పూజ సామగ్రి {amount} పైబడిన కొనుగోళ్లపై ఉచిత డెలివరీ",
   "announce.dismiss": "ప్రకటనను మూసివేయండి",
 
   "cart.stockChanged":

@@ -9,6 +9,7 @@ import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
 import SkipLink from "@/components/SkipLink";
 import LiveRegion from "@/components/LiveRegion";
 import InstallPrompt from "@/components/InstallPrompt";
+import WhatsAppButton from "@/components/WhatsAppButton";
 import Analytics from "@/components/Analytics";
 import ConsentBanner from "@/components/ConsentBanner";
 import {
@@ -137,6 +138,8 @@ export default async function RootLayout({
               still appears at the very top of the page. SkipLink stays first for tab order. */}
           <AnnouncementBar />
           {children}
+          {/* Renders nothing until a real WhatsApp number is configured — see the component. */}
+          <WhatsAppButton locale={locale} />
           <InstallPrompt />
           <ConsentBanner />
         </Providers>

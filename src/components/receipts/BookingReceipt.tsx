@@ -2,6 +2,7 @@ import { formatINR } from "@/lib/poojas";
 import { invoiceNumber } from "@/lib/invoice";
 import { amountInWords } from "@/lib/amount-in-words";
 import { COMPANY, type Company } from "@/lib/company";
+import { bookingTax } from "@/lib/booking-gst";
 import SignatureBlock from "@/components/receipts/SignatureBlock";
 import BrandMark from "@/components/receipts/BrandMark";
 
@@ -41,6 +42,7 @@ export default function BookingReceipt({
   qrDataUrl?: string | null;
   company?: Company;
 }) {
+  const tax = bookingTax(booking.samagri_kit ? booking.samagri_price : 0);
   return (
     <div className="rounded-2xl border border-saffron-100 p-8">
       <div className="flex items-start justify-between">
@@ -95,10 +97,21 @@ export default function BookingReceipt({
           <span>{formatINR(booking.service_price)}</span>
         </div>
         {booking.samagri_kit && (
-          <div className="flex justify-between">
-            <span className="text-foreground/65">Samagri kit</span>
-            <span>{formatINR(booking.samagri_price)}</span>
-          </div>
+          <>
+            <div className="flex justify-between">
+              <span className="text-foreground/65">Samagri kit</span>
+              <span>{formatINR(booking.samagri_price)}</span>
+            </div>
+            {/* The kit is GOODS, so the religious-ceremony exemption does not reach it. The
+                price is GST-INCLUSIVE, so this only DISCLOSES the tax already inside it — the
+                total below does not move by a rupee. See src/lib/booking-gst.ts. */}
+            {tax.samagri && (
+              <div className="flex justify-between text-xs text-foreground/55">
+                <span>incl. GST @ {tax.samagri.rate}%</span>
+                <span>{formatINR(tax.samagri.tax)}</span>
+              </div>
+            )}
+          </>
         )}
         <div className="flex justify-between border-t border-saffron-100 pt-1 text-base font-semibold">
           <span>Total</span>
@@ -116,8 +129,13 @@ export default function BookingReceipt({
       <SignatureBlock qrDataUrl={qrDataUrl} company={company} />
 
       <p className="mt-4 text-center text-xs text-foreground/65">
-        Religious services are GST-exempt · Status: {booking.status} · Thank you
-        for booking with BookMyPoojari
+        {/* Was a blanket "Religious services are GST-exempt", printed on a receipt that also
+            sells goods — which read as though the exemption covered the kit. It does not. */}
+        The dakshina is exempt from GST (conduct of a religious ceremony).
+        {booking.samagri_kit && !tax.samagri
+          ? " The samagri kit is goods and is taxable; its rate is not yet configured, so no tax is shown against it."
+          : ""}{" "}
+        · Status: {booking.status} · Thank you for booking with BookMyPoojari
       </p>
     </div>
   );
