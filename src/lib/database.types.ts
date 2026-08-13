@@ -1802,6 +1802,12 @@ export type Database = {
           description: string | null
           gst_rate: number
 
+          fulfilment: string
+
+          supplier_name: string | null
+
+          lead_time_days: number | null
+
           gst_rate_derived: boolean
 
           gst_rate_note: string | null
@@ -1833,6 +1839,12 @@ export type Database = {
           description?: string | null
           gst_rate?: number
 
+          fulfilment?: string
+
+          supplier_name?: string | null
+
+          lead_time_days?: number | null
+
           gst_rate_derived?: boolean
 
           gst_rate_note?: string | null
@@ -1863,6 +1875,12 @@ export type Database = {
           created_at?: string
           description?: string | null
           gst_rate?: number
+
+          fulfilment?: string
+
+          supplier_name?: string | null
+
+          lead_time_days?: number | null
 
           gst_rate_derived?: boolean
 

@@ -51,7 +51,7 @@ export async function POST(request: Request) {
   const slugs = body.items.map((i) => i.slug);
   const { data: products, error: productsError } = await supabase
     .from("products")
-    .select("id, slug, name, price, active, stock, gst_rate, hsn_code")
+    .select("id, slug, name, price, active, stock, gst_rate, hsn_code, fulfilment")
     .in("slug", slugs);
 
   if (productsError || !products) {
@@ -86,12 +86,26 @@ export async function POST(request: Request) {
    * APPLIED because the Supabase project is paused. This check closes the common cases (stale
    * cart, sold-out item, quantity above stock); it narrows the race, it does not remove it.
    */
+  /* FULFILMENT: the stock guard only means something for things off Santosh's own shelf.
+     He wants supplier-ships-direct as an option too (13-Aug-2026), and for a dropship product
+     `stock` describes a shelf he does not own — it sits at 0 forever, so this guard would refuse
+     an order he could fulfil perfectly well. A product declares how it is fulfilled (0010), and
+     anything not stock-managed is exempt from the count but from nothing else.
+     The DEFAULT is 'stock', so an unset value keeps the guard ON. A missing setting must never
+     silently become an unlimited shelf. */
   const short = body.items
     .map((item) => {
       const product = bySlug.get(item.slug)!;
       const requested = Math.max(1, Math.floor(item.quantity));
+      /* Exempt modes are NAMED, never inferred by exclusion. Written as "anything that is not
+         stock is exempt", a typo, a null, or a future enum value would each silently switch the
+         guard off for that product. A missing or unknown setting must fall through to the count. */
+      const NO_SHELF = ["dropship", "made_to_order"];
+      const mode = (product as { fulfilment?: string }).fulfilment ?? "stock";
+      if (NO_SHELF.includes(mode)) return null; // no shelf of his to run out of
       return { name: product.name, requested, available: product.stock ?? 0 };
     })
+    .filter((s): s is { name: string; requested: number; available: number } => s !== null)
     .filter((s) => s.available < s.requested);
 
   if (short.length > 0) {
