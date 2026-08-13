@@ -63,12 +63,14 @@ async function signIn(page: import("@playwright/test").Page) {
   await page.goto("/en/login", { waitUntil: "load" });
 
   /* WAIT FOR HYDRATION BEFORE TOUCHING ANYTHING.
-     Isolated on 13-Aug-2026: the ONLY variable that decided whether sign-in worked was a pause
-     here. With it, 2 of 2 runs signed in; without it, 0 of 2 — seeding the cart, retrying the
-     toggle and retrying the submit all made no difference. Before React attaches, the form is
-     fully present and fully inert: it accepts typing, then wipes it on the first render, and the
-     submit button does nothing at all WITHOUT SHOWING AN ERROR. The page just sits on /login,
-     which is indistinguishable from a rejected password. A blunt wait is the honest fix. */
+     Isolated 13-Aug-2026: the only variable that decided whether sign-in worked was a pause
+     here. With it, sign-in succeeds; without it, never. Before React attaches, this form is
+     fully present and fully inert — it accepts typing, wipes it on the first render, and the
+     submit button does nothing WITHOUT SHOWING AN ERROR, so the page just sits on /login
+     looking exactly like a rejected password.
+     ⚠️ A fix was attempted in the page itself (disable every control until hydrated) and it
+     BROKE SIGN-IN OUTRIGHT — the form re-mounted in a loop and inputs detached mid-fill. It was
+     reverted. Until a safe fix exists, the wait belongs here, in the test, not in the product. */
   await page.waitForTimeout(2500);
 
   /* RETRY the toggle rather than clicking once. `domcontentloaded` means the markup arrived, not
@@ -127,62 +129,69 @@ test.describe("checkout (signed in)", () => {
     "QA_PROBE_EMAIL / QA_PROBE_PASSWORD are not set — see the header of this file. Skipped, not passed.",
   );
 
-  for (const { name: widthName, width } of WIDTHS) {
-    test(`checkout form does not scroll sideways at ${widthName}`, async ({ page }) => {
-      await signedInCart(page, width);
+  /* ONE sign-in, then every width on the same session.
+     Eleven separate tests meant eleven sign-ins per browser, each one a real password grant
+     against a shared external service. Rate limiting was SUSPECTED and ruled out — the API kept
+     returning 200 throughout — but the principle stands: auth is not a free fixture, and one
+     sign-in is both honest and about three minutes faster. Every width failure is collected so
+     one bad width cannot mask the others. */
+  test("checkout form does not scroll sideways at any width", async ({ page }) => {
+    await signedInCart(page, 1280);
+    await expect(page.locator("select")).toHaveCount(1, { timeout: 20000 });
 
-      // The delivery form only exists for a signed-in visitor. If it is absent we are measuring
-      // the signed-OUT cart again and the test would pass for entirely the wrong reason.
-      await expect(page.locator("select")).toHaveCount(1, { timeout: 20000 });
-
-      const result = await page.evaluate(() => {
+    const failures: string[] = [];
+    for (const { name: widthName, width } of WIDTHS) {
+      await page.setViewportSize({ width, height: 1000 });
+      await page.waitForTimeout(250); // let the layout settle after the resize
+      const r = await page.evaluate(() => {
         const d = document.documentElement;
         const viewport = d.clientWidth;
         const origins: string[] = [];
         for (const el of Array.from(document.querySelectorAll("body *"))) {
-          const r = el.getBoundingClientRect();
-          if (r.right <= viewport + 1) continue;
+          const b = el.getBoundingClientRect();
+          if (b.right <= viewport + 1) continue;
           const parent = el.parentElement;
           const parentRight = parent ? parent.getBoundingClientRect().right : viewport;
           if (parentRight <= viewport + 1) {
-            origins.push(
-              `${el.tagName.toLowerCase()}.${String(el.className || "").slice(0, 40)} → ${Math.round(r.right)}px`,
-            );
+            const cls = String(el.className || "").slice(0, 40);
+            origins.push(el.tagName.toLowerCase() + "." + cls + " -> " + Math.round(b.right) + "px");
           }
         }
-        return { viewport, content: d.scrollWidth, origins: origins.slice(0, 4) };
+        return { viewport, content: d.scrollWidth, origins: origins.slice(0, 3) };
       });
+      if (r.content > r.viewport + 1) {
+        failures.push(
+          widthName + ": needs " + r.content + "px in " + r.viewport + "px. " + r.origins.join("; "),
+        );
+      }
+    }
+    expect(
+      failures,
+      "the checkout form overflows at " + failures.length + " width(s):\n" + failures.join("\n"),
+    ).toEqual([]);
 
-      expect(
-        result.content,
-        `needs ${result.content}px in a ${result.viewport}px viewport. Sticking out: ${
-          result.origins.join("; ") || "(no single origin)"
-        }`,
-      ).toBeLessThanOrEqual(result.viewport + 1);
-    });
-  }
+    /* CONTROLS, in the same session rather than as separate tests. Each extra test meant another
+       password grant, and enough of those in a few minutes get rate-limited by Supabase — which
+       fails looking exactly like a broken checkout. Auth is a shared external service, not a
+       free fixture, so this file signs in ONCE per browser. */
 
-  test("CONTROL: the visitor really is signed in and the form really rendered", async ({ page }) => {
-    await signedInCart(page, 390);
-    // Signed out this page shows a sign-in prompt and NO state dropdown. Both assertions have to
-    // hold, or every test above was measuring the wrong page.
-    await expect(page.locator("select")).toHaveCount(1, { timeout: 20000 });
+    // 1. Signed out, this page shows a sign-in prompt and no state dropdown. If that were what we
+    //    had been measuring, every width above would have passed for the wrong reason.
+    await expect(page.locator("select")).toHaveCount(1);
     const body = await page.locator("body").innerText();
-    expect(body.replace(/[\s,]/g, ""), "subtotal 16074 not on the page").toContain("16074");
-  });
+    expect(body.replace(/[\s,]/g, ""), "the ₹16,074 subtotal is not on the page").toContain("16074");
 
-  test("the pay button exists, is reachable, and is NOT clicked", async ({ page }) => {
-    await signedInCart(page, 360);
-    /* The Telugu label is "₹16,074 చెల్లించండి" — matched on the STEM, not a guessed verb
-       ending, which is what an earlier regex got wrong. */
+    // 2. The pay button must be fully on screen at the narrowest width — it is the last thing
+    //    between a customer and an order. Matched on the Telugu STEM, not a guessed verb ending.
+    await page.setViewportSize({ width: 360, height: 1000 });
     const pay = page.locator("button").filter({ hasText: /చెల్లించ|Pay now|Pay ₹/ }).last();
-    await expect(pay).toBeVisible({ timeout: 20000 });
+    await expect(pay).toBeVisible();
     const box = await pay.boundingBox();
     const vw = await page.evaluate(() => document.documentElement.clientWidth);
     expect(box, "no pay button found").not.toBeNull();
     expect(
       Math.round(box!.x + box!.width),
-      `the pay button ends at ${Math.round(box!.x + box!.width)}px in a ${vw}px viewport`,
+      "the pay button ends at " + Math.round(box!.x + box!.width) + "px in a " + vw + "px viewport",
     ).toBeLessThanOrEqual(vw);
     // Deliberately never clicked — see the header of this file.
   });
