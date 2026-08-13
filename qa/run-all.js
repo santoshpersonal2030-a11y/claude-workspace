@@ -18,6 +18,7 @@
 "use strict";
 
 const { spawnSync } = require("node:child_process");
+const { crashed } = require("./crashed.js");
 const fs = require("node:fs");
 const path = require("node:path");
 const net = require("node:net");
@@ -64,10 +65,23 @@ function run(name, cmd, args, { grep } = {}) {
   const secs = ((Date.now() - started) / 1000).toFixed(0);
   const out = `${r.stdout || ""}${r.stderr || ""}`;
   const ok = r.status === 0;
+
+  /* A STEP THAT COULD NOT RUN IS NOT A STEP THAT FAILED.
+     13-Aug-2026: tsc and eslint both died with "FATAL ERROR: ... out of memory" while another
+     build was running on the same machine, and this runner printed FAIL for both — identical to
+     a genuine type error. Both were clean when re-run alone minutes later.
+     That is the same family as a silent skip: a result that looks like an answer and is not one.
+     A crash now reports ERROR, and ERROR keeps the run out of GREEN without ever claiming the
+     code is broken. */
+  const didCrash = crashed(out, r.status, r.error ?? null, r.signal ?? null);
+
+  const state = ok ? "pass" : didCrash ? "error" : "fail";
   const detail = grep ? (out.match(grep) || [])[0] : undefined;
-  results.push({ name, state: ok ? "pass" : "fail", detail, out });
+  results.push({ name, state, detail, out });
+  const label = ok ? C.g("pass") : didCrash ? C.y("ERROR") : C.r("FAIL");
+  const why = didCrash ? C.y(" could not run — see below") : "";
   console.log(
-    `${ok ? C.g("pass") : C.r("FAIL")} ${C.d(`${secs}s`)}${detail ? ` ${C.d(detail.trim())}` : ""}`,
+    `${label} ${C.d(`${secs}s`)}${detail ? ` ${C.d(detail.trim())}` : ""}${why}`,
   );
   return ok;
 }
@@ -124,6 +138,7 @@ function skip(name, why) {
 
   // ── The verdict ───────────────────────────────────────────────────────────
   const failed = results.filter((r) => r.state === "fail");
+  const errored = results.filter((r) => r.state === "error");
   const skipped = results.filter((r) => r.state === "skip");
   const passed = results.filter((r) => r.state === "pass");
 
@@ -131,7 +146,9 @@ function skip(name, why) {
   console.log(
     `  ${C.g(`${passed.length} passed`)} · ${
       failed.length ? C.r(`${failed.length} FAILED`) : "0 failed"
-    } · ${skipped.length ? C.y(`${skipped.length} SKIPPED`) : "0 skipped"}`,
+    } · ${errored.length ? C.y(`${errored.length} ERRORED`) : "0 errored"} · ${
+      skipped.length ? C.y(`${skipped.length} SKIPPED`) : "0 skipped"
+    }`,
   );
 
   for (const f of failed) {
@@ -144,6 +161,19 @@ function skip(name, why) {
         .map((l) => `    ${l.trim()}`)
         .join("\n") || "    (see the command's own output above)",
     );
+  }
+
+  for (const e of errored) {
+    console.log(`\n${C.y("ERRORED")} ${C.b(e.name)} ${C.d("— crashed; this is NOT a code failure")}`);
+    console.log(
+      e.out
+        .split("\n")
+        .filter((l) => /FATAL|out of memory|Zone Allocation|ENOMEM|Error:/i.test(l))
+        .slice(0, 4)
+        .map((l) => `    ${l.trim()}`)
+        .join("\n") || "    (see the command's own output above)",
+    );
+    console.log(C.d("    Re-run this step on its own before believing anything about the code."));
   }
 
   if (skipped.length) {
@@ -159,6 +189,11 @@ function skip(name, why) {
   console.log("═".repeat(70));
   if (failed.length) {
     console.log(C.r("  RED — something is broken. Fix it before committing."));
+  } else if (errored.length) {
+    console.log(
+      C.y("  AMBER — nothing FAILED, but a step crashed and never produced an answer."),
+    );
+    console.log(C.d("  A crash is not a pass. Re-run the errored step alone before committing."));
   } else if (skipped.length) {
     console.log(
       C.y("  AMBER — everything that RAN passed, but not everything ran. Not a green gate."),
@@ -169,5 +204,7 @@ function skip(name, why) {
   }
   console.log(`${"═".repeat(70)}\n`);
 
-  process.exit(failed.length ? 1 : 0);
+  /* An ERROR exits non-zero too: it means "no answer was produced", and a gate that returns
+     success without an answer is the failure mode this whole file exists to prevent. */
+  process.exit(failed.length || errored.length ? 1 : 0);
 })();

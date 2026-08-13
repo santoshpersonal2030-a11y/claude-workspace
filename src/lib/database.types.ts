@@ -1746,6 +1746,54 @@ export type Database = {
           },
         ]
       }
+      kit_items: {
+        Row: {
+          component_id: string
+          created_at: string
+          kit_id: string
+          quantity: number
+        }
+        Insert: {
+          component_id: string
+          created_at?: string
+          kit_id: string
+          quantity?: number
+        }
+        Update: {
+          component_id?: string
+          created_at?: string
+          kit_id?: string
+          quantity?: number
+        }
+        Relationships: []
+      }
+      rate_imports: {
+        Row: {
+          changes: Json
+          filename: string | null
+          id: string
+          summary: string | null
+          uploaded_at: string
+          uploaded_by: string | null
+        }
+        Insert: {
+          changes?: Json
+          filename?: string | null
+          id?: string
+          summary?: string | null
+          uploaded_at?: string
+          uploaded_by?: string | null
+        }
+        Update: {
+          changes?: Json
+          filename?: string | null
+          id?: string
+          summary?: string | null
+          uploaded_at?: string
+          uploaded_by?: string | null
+        }
+        Relationships: []
+      }
       products: {
         Row: {
           active: boolean
@@ -1753,7 +1801,19 @@ export type Database = {
           created_at: string
           description: string | null
           gst_rate: number
+
+          gst_rate_derived: boolean
+
+          gst_rate_note: string | null
+
+          gst_rate_set_at: string | null
+
+          gst_rate_set_by: string | null
+
+          gst_rate_source: string | null
           hsn_code: string | null
+
+          is_kit: boolean
           id: string
           image_url: string | null
           images: string[]
@@ -1772,7 +1832,19 @@ export type Database = {
           created_at?: string
           description?: string | null
           gst_rate?: number
+
+          gst_rate_derived?: boolean
+
+          gst_rate_note?: string | null
+
+          gst_rate_set_at?: string | null
+
+          gst_rate_set_by?: string | null
+
+          gst_rate_source?: string | null
           hsn_code?: string | null
+
+          is_kit?: boolean
           id?: string
           image_url?: string | null
           images?: string[]
@@ -1791,7 +1863,19 @@ export type Database = {
           created_at?: string
           description?: string | null
           gst_rate?: number
+
+          gst_rate_derived?: boolean
+
+          gst_rate_note?: string | null
+
+          gst_rate_set_at?: string | null
+
+          gst_rate_set_by?: string | null
+
+          gst_rate_source?: string | null
           hsn_code?: string | null
+
+          is_kit?: boolean
           id?: string
           image_url?: string | null
           images?: string[]

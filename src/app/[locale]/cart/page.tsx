@@ -269,25 +269,41 @@ export default function CartPage() {
               {/* Items */}
               <div className="space-y-4">
                 {items.map((item) => (
+                  /* flex-wrap + min-w-0, found 13-Aug-2026 by measuring a cart that had things
+                     in it — the empty cart had always passed. On one line this row needs about
+                     352px of fixed furniture (56 thumb + ~104 stepper + 80 total + ✕ + padding
+                     and gaps) BEFORE the product name gets a pixel, and a flex child cannot
+                     shrink below its longest word, so a 360px phone scrolled sideways on the
+                     one page standing between a customer and their money.
+                     Below `sm` the controls now drop to a second line; from `sm` up it is the
+                     single row it always was. */
                   <div
                     key={item.slug}
-                    className="flex items-center gap-4 rounded-2xl border border-saffron-100 bg-white p-4 shadow-sm"
+                    className="flex flex-wrap items-center gap-3 rounded-2xl border border-saffron-100 bg-white p-4 shadow-sm sm:flex-nowrap sm:gap-4"
                   >
                     <ProductThumb
                       imageUrl={item.imageUrl}
                       name={item.name}
-                      className="h-14 w-14 rounded-xl"
+                      className="h-14 w-14 shrink-0 rounded-xl"
                       emojiSize="text-2xl"
                     />
-                    <div className="flex-1">
-                      <h3 className="font-medium text-foreground">
+                    {/* min-w-0 so the name can shrink below its longest word — without it the
+                        name sets the row's minimum width and nothing else can give.
+                        basis-40 is what stops the cure being worse than the disease: with
+                        flex-wrap and no basis, the name collapsed to EIGHTEEN PIXELS and wrapped
+                        one letter per line, turning one cart row into 354px of scrolling. A
+                        10rem floor keeps the name on line one beside the thumbnail and pushes
+                        the whole control cluster to line two. From `sm` up, the original single
+                        row is restored. */}
+                    <div className="min-w-0 flex-1 basis-40 sm:basis-auto">
+                      <h3 className="break-words font-medium text-foreground">
                         {item.name}
                       </h3>
                       <p className="text-sm text-foreground/65">
                         {formatINR(item.price)}
                       </p>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex shrink-0 items-center gap-2">
                       <button
                         type="button"
                         onClick={() =>
@@ -312,7 +328,7 @@ export default function CartPage() {
                         +
                       </button>
                     </div>
-                    <div className="w-20 text-right font-medium">
+                    <div className="w-20 shrink-0 text-right font-medium">
                       {formatINR(item.price * item.quantity)}
                     </div>
                     <button

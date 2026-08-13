@@ -7,6 +7,27 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useT } from "@/components/LanguageProvider";
 
+/* SIGN IN WITH APPLE — built, but dormant until Supabase can actually serve it.
+ *
+ * Verified 13-Aug-2026 by calling the auth endpoint directly:
+ *   /auth/v1/authorize?provider=google → 302 to Google        (enabled)
+ *   /auth/v1/authorize?provider=apple  → 400 "provider is not enabled"
+ *
+ * So the button rendered fine and every click ended in an error page. A control that looks
+ * functional and is not is the same failure as COD offering itself in a pincode nobody delivers
+ * to — so this fails closed, exactly like DEFAULT_COD_POLICY.enabled.
+ *
+ * ⚠️ THIS MUST BE TURNED ON BEFORE ANY iOS SUBMISSION. App Store guideline 4.8 requires Sign in
+ * with Apple wherever another social login is offered, and Google sign-in is live. With this
+ * off, the App Store review will be rejected; with it on but Supabase unconfigured, users get an
+ * error. Both have to be true at once:
+ *   1. Apple Developer Program → Service ID, Key ID, Team ID, private key
+ *   2. Supabase → Authentication → Providers → Apple → paste those, add the callback URL
+ *   3. Set NEXT_PUBLIC_APPLE_SIGNIN=true
+ * Re-run the curl above and expect a 302 before flipping the flag.
+ */
+const APPLE_SIGNIN_ENABLED = process.env.NEXT_PUBLIC_APPLE_SIGNIN === "true";
+
 // Reads ?next= at submit time without needing a Suspense boundary for
 // useSearchParams. Falls back to the homepage.
 function nextTarget(): string {
@@ -195,17 +216,19 @@ function LoginCard() {
         {t("login.google")}
       </button>
 
-      <button
-        type="button"
-        onClick={() => signInWithOAuth("apple")}
-        disabled={busy}
-        className="mt-3 flex w-full items-center justify-center gap-3 rounded-full bg-black py-3 text-sm font-semibold text-white shadow-sm transition-opacity hover:opacity-90 disabled:opacity-60"
-      >
-        <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor" aria-hidden="true">
-          <path d="M16.37 1.43c.08 1-.32 1.97-.93 2.67-.66.74-1.74 1.32-2.79 1.24-.1-.97.36-1.98.95-2.62.66-.72 1.82-1.27 2.77-1.29ZM19.6 17.2c-.53 1.23-.79 1.78-1.47 2.87-.96 1.52-2.31 3.41-3.99 3.42-1.49.02-1.88-.97-3.9-.96-2.02.01-2.44.98-3.94.95-1.68-.03-2.96-1.73-3.92-3.25C-.31 16.4-.6 11.46 1.13 8.86c1.16-1.76 2.99-2.79 4.71-2.79 1.75 0 2.85 1 4.3 1 1.4 0 2.26-1 4.29-1 1.53 0 3.16.84 4.32 2.28-3.79 2.08-3.17 7.49.85 8.85Z" />
-        </svg>
-        {t("login.apple")}
-      </button>
+      {APPLE_SIGNIN_ENABLED && (
+        <button
+          type="button"
+          onClick={() => signInWithOAuth("apple")}
+          disabled={busy}
+          className="mt-3 flex w-full items-center justify-center gap-3 rounded-full bg-black py-3 text-sm font-semibold text-white shadow-sm transition-opacity hover:opacity-90 disabled:opacity-60"
+        >
+          <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor" aria-hidden="true">
+            <path d="M16.37 1.43c.08 1-.32 1.97-.93 2.67-.66.74-1.74 1.32-2.79 1.24-.1-.97.36-1.98.95-2.62.66-.72 1.82-1.27 2.77-1.29ZM19.6 17.2c-.53 1.23-.79 1.78-1.47 2.87-.96 1.52-2.31 3.41-3.99 3.42-1.49.02-1.88-.97-3.9-.96-2.02.01-2.44.98-3.94.95-1.68-.03-2.96-1.73-3.92-3.25C-.31 16.4-.6 11.46 1.13 8.86c1.16-1.76 2.99-2.79 4.71-2.79 1.75 0 2.85 1 4.3 1 1.4 0 2.26-1 4.29-1 1.53 0 3.16.84 4.32 2.28-3.79 2.08-3.17 7.49.85 8.85Z" />
+          </svg>
+          {t("login.apple")}
+        </button>
+      )}
 
       <div className="my-6 flex items-center gap-3 text-xs text-foreground/65">
         <span className="h-px flex-1 bg-saffron-100" />

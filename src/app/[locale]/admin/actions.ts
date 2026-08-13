@@ -14,6 +14,13 @@ import { buildRunItems } from "@/lib/payroll-data";
 import { runPayout } from "@/lib/payouts";
 import { adjustWallet } from "@/lib/wallet";
 import {
+  parseRateSheet,
+  buildRatePlan,
+  summarisePlan,
+  type RatePlan,
+  type ProductRow as ImportProductRow,
+} from "@/lib/rate-import";
+import {
   generateAbhijitCandidates,
   generateCeremonyCandidates,
   generateChoghadiyaCandidates,
@@ -1691,4 +1698,97 @@ export async function updateTemplePuja(formData: FormData): Promise<void> {
     .eq("id", id);
 
   revalidatePath("/admin/temple-pujas");
+}
+
+/* ------------------------------------------------------------------ GST rate import
+ *
+ * Bulk rate changes by CSV upload. Santosh, 13-Aug-2026: "we can change with one single excel
+ * upload, so make the system such a way its easy in the future."
+ *
+ * Two actions, and the split is the point: the admin sees exactly what WOULD happen before
+ * anything happens. The plan is recomputed server-side at apply time rather than trusted from
+ * the browser — otherwise a preview left open while a rate changed elsewhere would apply a stale
+ * diff, and a preview that does not match what lands is worse than no preview at all.
+ */
+
+async function loadRateProducts() {
+  const admin = createAdminClient();
+  const { data } = await admin
+    .from("products")
+    .select("id, slug, name, gst_rate, hsn_code, gst_rate_derived")
+    .order("name");
+  return (data ?? []) as unknown as ImportProductRow[];
+}
+
+export async function previewRateImport(
+  csv: string,
+): Promise<{ ok: true; plan: RatePlan } | { ok: false; errors: string[] }> {
+  await assertCapability("products");
+  const parsed = parseRateSheet(csv);
+  if (!parsed.ok) return { ok: false, errors: parsed.errors };
+  return { ok: true, plan: buildRatePlan(parsed.rows, await loadRateProducts()) };
+}
+
+export async function applyRateImport(
+  csv: string,
+  filename: string,
+): Promise<{ ok: true; applied: number; summary: string } | { ok: false; errors: string[] }> {
+  const ctx = await getAdminContext();
+  await assertCapability("products");
+
+  // Re-parse and re-plan against the CURRENT catalogue, never against whatever the browser held.
+  const parsed = parseRateSheet(csv);
+  if (!parsed.ok) return { ok: false, errors: parsed.errors };
+  const plan = buildRatePlan(parsed.rows, await loadRateProducts());
+  if (!plan.changes.length) {
+    return { ok: false, errors: ["Nothing to apply — no row in the file differs from the catalogue."] };
+  }
+
+  const admin = createAdminClient();
+  const who = ctx?.user.email ?? "admin";
+  const now = new Date().toISOString();
+  const applied: typeof plan.changes = [];
+
+  for (const c of plan.changes) {
+    const { error } = await admin
+      .from("products")
+      .update({
+        gst_rate: c.toRate,
+        hsn_code: c.toHsn,
+        gst_rate_source: c.source ?? `import: ${filename}`,
+        gst_rate_note: c.note,
+        gst_rate_set_at: now,
+        gst_rate_set_by: `rate-import (${who})`,
+      } as never)
+      .eq("id", c.id);
+    // A failure here stops the run rather than pressing on: a partly-applied price list is the
+    // one outcome nobody can reason about afterwards. What did land is still recorded below.
+    if (error) {
+      await admin.from("rate_imports").insert({
+        filename,
+        uploaded_by: who,
+        summary: `FAILED after ${applied.length} of ${plan.changes.length}: ${error.message}`,
+        changes: applied,
+      } as never);
+      return {
+        ok: false,
+        errors: [
+          `Stopped after ${applied.length} of ${plan.changes.length} changes — "${c.name}" failed: ${error.message}. The ones already applied are recorded.`,
+        ],
+      };
+    }
+    applied.push(c);
+  }
+
+  const summary = summarisePlan(plan);
+  await admin.from("rate_imports").insert({
+    filename,
+    uploaded_by: who,
+    summary,
+    changes: applied,
+  } as never);
+
+  revalidatePath("/admin/gst-rates");
+  revalidatePath("/admin/products");
+  return { ok: true, applied: applied.length, summary };
 }

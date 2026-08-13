@@ -127,9 +127,11 @@ head("1. ROUTE INVENTORY — nothing may silently disappear");
    A route DISAPPEARING looks identical to one being added, which is the case this number
    exists to catch.
      12-Aug-2026: 98 -> 99, adding src/app/[locale]/poojas/[slug]/in/[city]/page.tsx — the
-     city × pooja page ("Griha Pravesh pandit in Hyderabad"). */
+     city × pooja page ("Griha Pravesh pandit in Hyderabad").
+     13-Aug-2026: 99 -> 100, adding src/app/[locale]/admin/gst-rates/page.tsx — bulk GST-rate
+     import by CSV, plus the rate-health view. Admin-only, behind the "products" capability. */
 const EXPECTED = {
-  pages: 99,
+  pages: 100,
   festivals: 17,
   apiRoutes: 49,
   authRoutes: 2,
@@ -2111,7 +2113,119 @@ function publicPageChecks() {
   );
 }
 
+/* ---------------------------------------------------------------------------
+   22. TAX PLUMBING — the machinery added 13-Aug-2026.
+   Invoice numbering, rate provenance, kit calculation and the bulk importer.
+   Each line below locks in a decision that was expensive to reach.
+   --------------------------------------------------------------------------- */
+function taxPlumbingChecks() {
+  head("22. TAX PLUMBING — invoice series, rate provenance, kits, bulk import");
+
+  /* INVOICE SERIES. One GSTIN covers bookmypoojari AND onlinepoojastores, so a document number
+     must be unique ACROSS the two sites — both previously emitted "INV-2026/0001". Rule 46(b)
+     CGST also caps a serial number at SIXTEEN characters (GSTR-1's `inum` enforces the same),
+     and "BMPBKG-2026/0001" is exactly 16, so there is no headroom left to spend. */
+  const inv = read(path.join(SRC, "lib", "invoice.ts"));
+  line(/NEXT_PUBLIC_INVOICE_PREFIX/.test(inv), "the invoice series comes from a per-site env var");
+  line(!/prefix = "INV"/.test(inv), "the old shared INV- default is gone");
+  line(/MAX_INVOICE_NO_LEN/.test(inv), "the 16-character legal cap is named in code");
+  {
+    const over = [];
+    for (const site of ["BMP", "OPS"]) {
+      for (const doc of ["", "BKG", "CN"]) {
+        const s = `${site}${doc}-2026/9999`;
+        if (s.length > 16) over.push(`${s} (${s.length})`);
+      }
+    }
+    line(over.length === 0, "every site x document-type number fits in 16 characters", over.join(", "));
+    control("BMPVERYLONG-2026/9999".length > 16, "the 16-character rule is capable of failing");
+  }
+
+  /* RATE PROVENANCE. Santosh has no CA. A rate with no recorded source is UNVERIFIED even when
+     the number happens to be right — without it, checking one rate costs the same as checking
+     all of them, so in practice none get checked. */
+  const migDir = path.join(ROOT, "supabase", "migrations");
+  const mig = fs.existsSync(migDir) ? fs.readdirSync(migDir).join(" ") : "";
+  line(/0009_rate_provenance\.sql/.test(mig), "the rate-provenance migration exists");
+  const prov = read(path.join(migDir, "0009_rate_provenance.sql"));
+  for (const col of ["gst_rate_source", "gst_rate_note", "gst_rate_set_at", "gst_rate_set_by"]) {
+    line(prov.includes(col), `provenance column ${col}`);
+  }
+  line(/rate_imports/.test(prov), "every bulk upload leaves a stored receipt");
+  line(/enable row level security/.test(prov), "…and that receipt is not world-readable");
+
+  /* KIT RATES ARE CALCULATED, NEVER TYPED. A mixed supply takes the HIGHEST component rate.
+     Comments are stripped first: the migration quotes the words it is replacing, and a detector
+     that reads code and prose as one lump fails its own fix. */
+  line(/0008_kit_gst_auto\.sql/.test(mig), "the kit auto-calculation migration exists");
+  const kit = read(path.join(migDir, "0008_kit_gst_auto.sql"));
+  const kitCode = kit.replace(/--.*/g, "");
+  line(/max\(p\.gst_rate\)/.test(kitCode), "a kit takes the HIGHEST component rate (mixed supply)");
+  line(/after update of gst_rate on public\.products/.test(kitCode), "a component's rate change cascades to its kits");
+  line(/n = 0 or top_rate is null/.test(kitCode), "an EMPTY kit is not forced to 0%");
+  line(/kit_item_not_self/.test(kitCode), "a kit cannot contain itself");
+  control(/max\(p\.gst_rate\)/.test("min(p.gst_rate)") === false, "the highest-rate detector can say no");
+
+  /* THE BULK IMPORTER. Every rule here was paid for once already. */
+  const imp = read(path.join(SRC, "lib", "rate-import.ts"));
+  line(/gstRate: number \| null/.test(imp), "a blank rate is null, never 0%");
+  line(/errors: string\[\]/.test(imp), "a malformed file is rejected whole, never partly applied");
+  line(/unmatched/.test(imp), "rows matching no product are listed, not silently skipped");
+  line(/gst_rate_derived/.test(imp), "a calculated kit rate cannot be overwritten by a spreadsheet");
+  line(
+    /bySlug/.test(imp) && !/byName/.test(imp),
+    "rows match on slug — there is no name fallback (\"Honey\" is 0% and 5%)",
+  );
+
+  const acts = read(path.join(SRC, "app", "[locale]", "admin", "actions.ts"));
+  line(/previewRateImport/.test(acts) && /applyRateImport/.test(acts), "preview and apply are separate actions");
+  {
+    const applyBody = acts.slice(acts.indexOf("export async function applyRateImport"));
+    line(
+      /parseRateSheet\(csv\)/.test(applyBody) && /buildRatePlan\(/.test(applyBody),
+      "apply RE-PLANS server-side rather than trusting the browser's preview",
+    );
+    line(/assertCapability\("products"\)/.test(applyBody), "the importer sits behind an admin capability");
+  }
+
+  /* No spreadsheet parser. Both maintained ones carried 5 high-severity advisories on
+     13-Aug-2026, which is not a trade worth making inside a payment-handling app. */
+  const pkg = read(path.join(ROOT, "package.json"));
+  line(!/"(xlsx|exceljs)"/.test(pkg), "no vulnerable spreadsheet parser was added as a dependency");
+  control(/"(xlsx|exceljs)"/.test('{"dependencies":{"xlsx":"1"}}'), "the parser detector can fire");
+
+  /* SIGN IN WITH APPLE — App Store guideline 4.8 makes it mandatory wherever another social
+     login is offered, and Google sign-in is live. But on 13-Aug-2026 the button rendered while
+     Supabase answered "provider is not enabled" for apple — so every click was an error page.
+     It is now gated and OFF by default. Both halves have to be true before an iOS submission:
+     the provider configured in Supabase AND the flag on. Neither alone is any use. */
+  const login = read(path.join(SRC, "app", "[locale]", "login", "page.tsx"));
+  line(/APPLE_SIGNIN_ENABLED/.test(login), "the Apple button is behind a switch, not always shown");
+  line(
+    /const APPLE_SIGNIN_ENABLED = process\.env\.NEXT_PUBLIC_APPLE_SIGNIN === "true"/.test(login),
+    "…and that switch is OFF unless explicitly set to true (fails closed)",
+  );
+  line(
+    /guideline 4\.8/i.test(login),
+    "…with the App Store rule that makes it mandatory written next to it",
+  );
+  line(
+    /signInWithOAuth\("apple"\)/.test(login) && /login\.apple/.test(login),
+    "the Apple sign-in itself is built, only dormant — not missing",
+  );
+  {
+    const i18n = read(path.join(SRC, "lib", "i18n.ts"));
+    const n = (i18n.match(/"login\.apple":/g) || []).length;
+    line(n === 3, "the Apple button is labelled in all three languages", `${n} of 3`);
+    control(
+      (i18n.match(/"login\.thisKeyDoesNotExist":/g) || []).length === 0,
+      "the label counter returns zero for a key that is not there",
+    );
+  }
+}
+
 // ══════════════════════════════════════════════════════════════════════════════
+
 (async () => {
   await poojaChecks();
   bucketChecks();
@@ -2130,6 +2244,7 @@ function publicPageChecks() {
   sellerIdentityChecks();
   cityPoojaChecks();
   kycChecks();
+  taxPlumbingChecks();
 
   console.log("\n" + "=".repeat(70));
   console.log(`  ${passes} passed, ${fails} failed, ${controlsBroken} controls broken`);

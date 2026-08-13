@@ -18,6 +18,13 @@ export default defineConfig({
   },
   projects: [
     { name: "chromium", use: { ...devices["Desktop Chrome"] } },
+    /* WebKit added 13-Aug-2026. Chromium alone was covering Android and desktop Chrome and
+       nothing else — and EVERY browser on an iPhone or iPad is WebKit, including "Chrome for
+       iOS", because Apple requires it. So iOS was entirely untested while the suite read green.
+       WebKit is also the engine that differs most on layout: flexbox gaps, `min-height` in
+       nested flex, sticky positioning and form-control intrinsic sizing have all shipped bugs
+       here that Chromium does not reproduce. */
+    { name: "webkit", use: { ...devices["Desktop Safari"] } },
   ],
   webServer: {
     /* ⚠️ RUN `npm run build` FIRST. This only starts the server.

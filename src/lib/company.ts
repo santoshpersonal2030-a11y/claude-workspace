@@ -37,6 +37,19 @@ export function splitAddress(raw: string): string[] {
  * the real value is not known, fail closed rather than guess.
  *
  * The real values belong in .env.local (gitignored) or the company_settings table, never here.
+ *
+ * ─────────────────────────────────────────────────────────────────────────────────────────────
+ * ⛔ DECIDED 13-Aug-2026 — DO NOT RE-OPEN. `name` IS THE TRADE NAME, AND THAT IS DELIBERATE.
+ *
+ * The GST certificate (Form GST REG-06) carries TWO names: a legal name (the proprietor) and a
+ * trade name. Invoices here print the TRADE NAME ONLY — "PROVIDENT GLOBAL SERVICES" — which is
+ * Santosh's explicit decision, taken after being shown that the legal name appears nowhere.
+ *
+ * So there is deliberately NO `legalName` field on Company, and none should be added "for
+ * completeness": a legal-name field that exists but is blank would show up in invoiceBlockers()
+ * and stop a valid invoice being issued. If the decision is ever reversed, the field and the
+ * blocker must land together.
+ * ─────────────────────────────────────────────────────────────────────────────────────────────
  */
 export const COMPANY: Company = {
   name: process.env.NEXT_PUBLIC_COMPANY_NAME ?? "",

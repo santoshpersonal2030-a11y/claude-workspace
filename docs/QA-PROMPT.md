@@ -44,7 +44,7 @@ when a step was skipped, because on this project a silent skip has hidden real b
 
 ---
 
-## 2. THE SEVEN METHODS, AND WHAT EACH ONE IS BLIND TO
+## 2. THE TEN METHODS, AND WHAT EACH ONE IS BLIND TO
 
 No single method here has ever been sufficient. Each row's **blind spot** column is a bug that
 actually shipped.
@@ -58,13 +58,35 @@ actually shipped.
 | 5 | **Rendered-page audits** | `qa/i18n-audit.js`, `qa/a11y-audit.js` | Dynamic routes; anything behind a login; anything behind a click; **layout** |
 | 6 | **Live audit** | `qa/live-audit.js` | Still not logged in. Still not measured at a width |
 | 7 | **Real browser** | `npx playwright test e2e/reflow.spec.ts` | Only the pages and widths someone listed |
+| 8 | **Live database read** | service-role `SELECT` over the real rows | What the code *would* do — only what the data *is* |
+| 9 | **Behavioural probe** | create a scratch row, act, assert, delete | Anything the probe forgot to assert; leaves debris if it throws |
+| 10 | **In-page control** | `javascript_tool`: measure, undo the fix, measure again | Only the one page and viewport you are standing on |
 
 **And one that is not automatable: opening the site and using it.** Every single time that has
-been done here it found something all seven had passed.
+been done here it found something every automated method had passed.
+
+### On methods 8–10, added 13-Aug-2026
+
+**8 — read the data, not just the code.** Every product's `gst_rate` read 18% and every
+`hsn_code` was empty. No amount of source-reading would have said so: the code was correct and
+the *data* was a default nobody revisited. Ask what the rows actually say before believing a
+feature works.
+
+**9 — prove a trigger fires by making it fire.** The kit rate calculation was verified by
+creating a scratch kit, adding a 5% component (rate followed), adding an 18% one (rate rose),
+removing it (rate fell), then changing a component's own rate (the kit followed), and finally
+deleting every scratch row and re-counting the catalogue. A migration that runs without error is
+not a migration that does the right thing.
+
+**10 — undo the fix in the live page and re-measure.** The only way to know a fix *did* anything.
+On 13-Aug-2026 a `min-w-0` was added to stop a `<select>` overflowing at 320px; restoring
+`min-width:auto` in the running page changed the scroll width by nothing at all, in English *and*
+Telugu. **The fix was reverted.** The reflow "failure" that prompted it had been measured against
+a stale server, not the code.
 
 ---
 
-## 3. THE TEN RULES, EACH PAID FOR
+## 3. THE TWELVE RULES, EACH PAID FOR
 
 ### 1. Every check needs a control that must come out the opposite way
 A check that cannot fail is decoration. `qa/checks.js` prints `ctrl` lines for exactly this.
@@ -110,6 +132,25 @@ a wrong promise built on a guessed number is a ruined ceremony.
 for weeks while printing "0 issues across 198 pages"; and both reported a clean store while the
 database was empty and **216 accessibility failures** had no pages to appear on.
 ⇒ **Whenever data changes, re-run everything.** Connecting the database changed three numbers.
+
+### 11. A step that CRASHED is not a step that FAILED
+*Paid for 13-Aug-2026:* `tsc` and `eslint` both died with `FATAL ERROR: ... out of memory` while
+another build ran on the same machine, and `qa/run-all.js` printed **FAIL** for both — identical
+on screen to a genuine type error. Both were clean when re-run alone a minute later. Nearly an
+hour went into "fixing" code that was never broken.
+⇒ A crash now reports **ERRORED**, never FAILED, and keeps the verdict out of green without ever
+claiming the code is wrong. `qa/crashed.js`, with controls in `test/qa-crashed.test.ts` proving a
+real type error, lint error and failing test all stay **FAIL** — softening a genuine failure to
+"inconclusive" would be the worse bug by far.
+
+### 12. Know WHICH server you just measured
+*Paid for the same day:* `npm start` failed with `EADDRINUSE` because another session held :3000.
+Playwright's `reuseExistingServer` then silently latched onto **that** server, and 46 reflow tests
+passed against a stale build of unknown vintage. The two "failures" that started the whole detour
+were from that same stale server — one of them on a page nobody had touched in a day.
+⇒ **Check the server is yours before believing a browser result.** Read the start-up log for
+`EADDRINUSE`, or run on a port you chose: `PORT=3100 npx playwright test …`. A result from the
+wrong server is not a weak result, it is *no* result.
 
 ---
 
