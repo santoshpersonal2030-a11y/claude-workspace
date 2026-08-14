@@ -4,12 +4,22 @@ name: CI
 # Supabase env so the build never needs real secrets — DB-backed pages fall
 # back to their bundled seed data when the placeholder host is unreachable
 # (the same behaviour as a local build without .env.local).
+#
+# WHY THIS GREW, 13-Aug-2026
+# This workflow ran typecheck, lint, unit tests and build — and every one of
+# them passed all day while the cart was unusable on every phone, the Apple
+# sign-in button led to an error page, and eleven products carried the wrong
+# tax rate. None of those are type errors. They were caught by qa/checks.js and
+# by a real browser, neither of which ran here.
+#
+# A gate that only runs when someone remembers to run it is not a gate.
 on:
   push:
     branches: ["**"]
   pull_request:
 
 jobs:
+  # ── The fast gate: no browser, no server. Fails in ~2 minutes. ────────────
   verify:
     runs-on: ubuntu-latest
     env:
@@ -24,11 +34,116 @@ jobs:
           node-version: "22"
           cache: npm
       - run: npm ci
+
       - name: Typecheck
         run: npx tsc --noEmit
+
+      # `npm run lint` covers qa/ and e2e/ too. `npx eslint src` did not, so the
+      # QA harness itself — the code that decides whether everything else is
+      # correct — was the one part nobody linted.
       - name: Lint
-        run: npx eslint src
+        run: npm run lint
+
       - name: Unit tests
         run: npm test
+
+      # 283 assertions about things types cannot see: that the invoice series
+      # fits Rule 46(b)'s 16 characters, that no secret is NEXT_PUBLIC_, that a
+      # kit takes the highest component rate, that no page vanished. Each one
+      # carries a control that must come out the opposite way, and the run fails
+      # if a control breaks — a check that cannot fail proves nothing.
+      - name: Static checks
+        run: node qa/checks.js
+
       - name: Build
         run: npm run build
+
+      # These read the RENDERED pages, so they only mean anything after a build.
+      # They are what caught pages that shipped 100% untranslated.
+      #
+      # ⚠️ BOTH SCRIPTS EXIT 0 WHATEVER THEY FIND — they are reports, not gates.
+      # Run as-is in CI they would pass forever and prove nothing, which is the
+      # decoration problem this project keeps paying for. So each is held to a
+      # number below, and the number is the gate.
+      - name: Accessibility audit (rendered pages)
+        run: |
+          node qa/a11y-audit.js | tee a11y.txt
+          # Currently ZERO violations across 267 prerendered pages. Zero is the
+          # right bar because it is already met — anything above it is a
+          # regression somebody introduced today, not old debt.
+          if ! grep -qE "^\s+0 instances across 0 rules" a11y.txt; then
+            echo "::error::New accessibility violations. This was at ZERO on 13-Aug-2026."
+            exit 1
+          fi
+
+      - name: i18n audit (rendered pages)
+        run: |
+          node qa/i18n-audit.js | tee i18n.txt
+          # A RATCHET, not a target. 1187 on 13-Aug-2026, most of them formatted
+          # times and dates rather than real copy. Fixing them is a separate job;
+          # the gate here only stops the number climbing, because a page that
+          # ships 100% English has done exactly that before and nobody noticed.
+          BASELINE=1187
+          COUNT=$(grep -oE "^\s+[0-9]+ untranslated phrases total" i18n.txt | grep -oE "[0-9]+" | head -1)
+          echo "untranslated: $COUNT (baseline $BASELINE)"
+          if [ -z "$COUNT" ]; then
+            echo "::error::Could not read the untranslated count — the audit's output format changed."
+            exit 1
+          fi
+          if [ "$COUNT" -gt "$BASELINE" ]; then
+            echo "::error::Untranslated phrases rose from $BASELINE to $COUNT."
+            exit 1
+          fi
+          if [ "$COUNT" -lt "$BASELINE" ]; then
+            echo "::notice::Down to $COUNT. Lower BASELINE in .github/workflows/ci.yml to lock the gain in."
+          fi
+
+      - name: Known-vulnerability check
+        # Advisory only: a new CVE in a transitive dependency should not block a
+        # hotfix at 2am, but it must be visible rather than discovered months on.
+        run: npm audit --omit=dev || true
+
+  # ── The real browser. Slower, so it runs in parallel with nothing else. ──
+  browser:
+    runs-on: ubuntu-latest
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder-anon-key
+      SUPABASE_SERVICE_ROLE_KEY: placeholder-service-role-key
+      NEXT_PUBLIC_SITE_URL: http://localhost:3000
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+
+      # Chromium AND WebKit. Chromium alone covers Android and desktop Chrome
+      # and nothing else — every browser on an iPhone or iPad is WebKit, because
+      # Apple requires it, so iOS was entirely untested while this read green.
+      - name: Install browsers
+        run: npx playwright install --with-deps chromium webkit
+
+      - name: Build
+        run: npm run build
+
+      # 13 pages x 9 widths x 2 engines, in Telugu — the longest of the three
+      # languages, so the one that overflows first. Testing English would pass
+      # while Telugu visitors scrolled sideways.
+      #
+      # The signed-in checkout tests SKIP here and say so: they need a probe
+      # account, and QA_PROBE_EMAIL / QA_PROBE_PASSWORD are not set in CI. A
+      # skip is not a pass, and the runner prints which is which.
+      - name: Reflow and checkout (real browsers)
+        run: npm run test:e2e
+
+      - name: Keep the failure evidence
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7

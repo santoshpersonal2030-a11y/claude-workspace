@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useMemo, useState } from "react";
+import { Suspense, useMemo, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -44,6 +44,13 @@ function toE164(raw: string): string | null {
   return null;
 }
 
+/* Has React attached yet? useSyncExternalStore gives the SERVER snapshot (false) on the first
+   render and the client snapshot (true) after hydration — no effect and no setState, so it does
+   not trip the cascading-render lint rule. Module-level refs stay stable across renders. */
+const subscribeNever = () => () => {};
+const onClient = () => true;
+const onServer = () => false;
+
 function LoginCard() {
   const supabase = useMemo(() => createClient(), []);
   const t = useT();
@@ -59,6 +66,27 @@ function LoginCard() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
+
+  /* ONLY the submit buttons wait for hydration — deliberately narrow, and a PARTIAL fix.
+   *
+   * Server-rendered, this is a real <form> with a real submit button and no handler attached
+   * yet, so an early tap fires the browser's NATIVE submission: the page reloads, whatever was
+   * typed is gone, and you land back on /login with NO error of any kind — indistinguishable
+   * from a wrong password. This makes that specific failure impossible.
+   *
+   * WHAT IT DOES NOT FIX, stated plainly: text typed BEFORE hydration is still wiped when React
+   * first renders the controlled inputs. The fields go blank and have to be retyped. That is
+   * visible and recoverable, where the old behaviour was silent, so this is an improvement and
+   * not a cure.
+   *
+   * ⚠️ The obvious wider fix — gate the inputs and the phone/email toggle as well — was tried on
+   * 13-Aug-2026 and BROKE SIGN-IN OUTRIGHT: fields detached mid-typing and the form re-mounted in
+   * a loop. Proven by reverting that one file and rebuilding: with it, sign-in never completed;
+   * without it, every time. A real cure means progressive enhancement (a form that posts without
+   * JavaScript), not more disabling. Until someone does that, keep this to the submit buttons.
+   */
+  const hydrated = useSyncExternalStore(subscribeNever, onClient, onServer);
+  const cannotSubmitYet = busy || !hydrated;
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
 
@@ -305,7 +333,7 @@ function LoginCard() {
           />
           <button
             type="submit"
-            disabled={busy}
+            disabled={cannotSubmitYet}
             className="mt-4 w-full rounded-full bg-saffron-700 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-saffron-800 disabled:opacity-60"
           >
             {busy
@@ -359,7 +387,7 @@ function LoginCard() {
           </div>
           <button
             type="submit"
-            disabled={busy}
+            disabled={cannotSubmitYet}
             className="mt-4 w-full rounded-full bg-saffron-700 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-saffron-800 disabled:opacity-60"
           >
             {busy ? t("login.sendingOtp") : t("login.sendOtp")}
@@ -386,7 +414,7 @@ function LoginCard() {
           />
           <button
             type="submit"
-            disabled={busy}
+            disabled={cannotSubmitYet}
             className="mt-4 w-full rounded-full bg-saffron-700 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-saffron-800 disabled:opacity-60"
           >
             {busy ? t("login.verifying") : t("login.verify")}
