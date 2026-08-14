@@ -68,10 +68,25 @@ jobs:
       - name: Accessibility audit (rendered pages)
         run: |
           node qa/a11y-audit.js | tee a11y.txt
-          # Currently ZERO violations across 267 prerendered pages. Zero is the
-          # right bar because it is already met — anything above it is a
-          # regression somebody introduced today, not old debt.
-          if ! grep -qE "^\s+0 instances across 0 rules" a11y.txt; then
+
+          # HOW MANY PAGES DID IT ACTUALLY LOOK AT?
+          # Checked FIRST, because "0 instances across 0 rules" is exactly what
+          # this prints when it scanned NOTHING — so a gate that only reads the
+          # violation count passes loudest when the audit is blind. That is the
+          # failure this project has paid for three times (an audit reporting
+          # "0 issues across 198 pages" for weeks while skipping the homepage).
+          # 200 is a floor, not a target: 267 today, and a real drop means the
+          # build output moved and the audit is looking at an empty directory.
+          PAGES=$(grep -oE "[0-9]+ pages scanned" a11y.txt | grep -oE "^[0-9]+")
+          echo "pages scanned: ${PAGES:-none}"
+          if [ -z "$PAGES" ] || [ "$PAGES" -lt 200 ]; then
+            echo "::error::The accessibility audit scanned ${PAGES:-0} pages (267 expected). It is blind, not clean."
+            exit 1
+          fi
+
+          # Only now is the violation count meaningful. ZERO is the right bar
+          # because it is already met: anything above it was introduced today.
+          if ! grep -qE "^\s+0 instances across [0-9]+ rules" a11y.txt; then
             echo "::error::New accessibility violations. This was at ZERO on 13-Aug-2026."
             exit 1
           fi
@@ -84,6 +99,14 @@ jobs:
           # the gate here only stops the number climbing, because a page that
           # ships 100% English has done exactly that before and nobody noticed.
           BASELINE=1187
+          # Same trap as the accessibility gate: an audit that rendered nothing
+          # reports a beautifully low number. Prove it looked at the site first.
+          PAGES=$(grep -oE "of [0-9]+ rendered pages" i18n.txt | grep -oE "[0-9]+")
+          echo "rendered pages seen: ${PAGES:-none}"
+          if [ -z "$PAGES" ] || [ "$PAGES" -lt 400 ]; then
+            echo "::error::The i18n audit saw ${PAGES:-0} rendered pages (534 expected). It is blind, not clean."
+            exit 1
+          fi
           COUNT=$(grep -oE "^\s+[0-9]+ untranslated phrases total" i18n.txt | grep -oE "[0-9]+" | head -1)
           echo "untranslated: $COUNT (baseline $BASELINE)"
           if [ -z "$COUNT" ]; then
