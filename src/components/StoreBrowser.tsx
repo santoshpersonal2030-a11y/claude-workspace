@@ -199,14 +199,22 @@ export default function StoreBrowser({
                     className="absolute left-2 top-2"
                   />
                 </div>
-                <h3 className="mt-4 font-heading text-lg text-maroon-700">
+                {/* h2, not h3. The page heading is the store's <h1> and there is nothing between
+                    them, so an <h3> skipped a level — found 14-Aug-2026 by qa/live-audit.js on
+                    /store in all three languages. Someone navigating by headings in a screen
+                    reader hits a missing rung and cannot tell whether they have lost a section.
+                    ⭐ These pages are server-rendered, so they leave no file in .next/server/app —
+                    the two prerender audits had never looked at them ONCE while reporting "0
+                    instances" with total confidence. The visual size is set by the class, not the
+                    tag, so nothing moves on screen. */}
+                <h2 className="mt-4 font-heading text-lg text-maroon-700">
                   <Link
                     href={`/store/${product.slug}`}
                     className="hover:text-saffron-700"
                   >
                     {product.name}
                   </Link>
-                </h3>
+                </h2>
                 <div className="mt-1">
                   <RatingStars
                     rating={product.rating}
